@@ -8,7 +8,7 @@ and open the template in the editor.
 -->
 <html>
     <head>
-        <title>TODO supply a title</title>
+        <title>Login page</title>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
     </head>
@@ -35,6 +35,9 @@ and open the template in the editor.
             String aUser = "admin";
             String aPass = "password1";
             
+            String uUser = "user";
+            String uPass = "password2";
+            
             
             
             String userName = request.getParameter("userName");
@@ -44,8 +47,13 @@ and open the template in the editor.
                 if(userName.equals(aUser) && password.equals(aPass)){
                     response.sendRedirect("adminPage.jsp");
                 }
-                out.print("your username: " + userName);
-                out.print("<br>your password: " + password);
+                if(userName.equals(uUser) && password.equals(uPass)){
+                    response.sendRedirect("userPage.jsp");
+                }else{
+                    out.print("<br>User not recognized");
+                    out.print("<br>your username: " + userName);
+                    out.print("<br>your password: " + password);
+                }
             }
             
             
