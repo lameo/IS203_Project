@@ -61,6 +61,14 @@ and open the template in the editor.
             //password = validate(password);
             
             // username and password checking, change to database when implemented
+            //debugging purpose
+            out.print("<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>#Debug inputted value:<br>username: " + userName + "<br>password: " + password+"<br>");
+            Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/mysql?zeroDateTimeBehavior=convertToNull","root", "");
+            out.print(connection);
+            out.print("<br><br><h3>Test accounts:</h4><h5>Admin:<br>username: admin<br>password: password1</h5>");
+            out.print("<h5>User:<br>username: testUser<br>password: password2</h5>");
+            
+            
             if(userName!=null){
                 User user = new User(userName, password);
                 String userType = user.validate1(userName,password);
@@ -70,13 +78,6 @@ and open the template in the editor.
                 if(userType.equals("user")){
                     request.getRequestDispatcher("userPage.jsp").forward(request, response);
                 }
-                
-                //debugging purpose
-                out.print("<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>#Debug inputted value:<br>username: " + userName + "<br>password: " + password+"<br>");
-                Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/mysql?zeroDateTimeBehavior=convertToNull","root", "");
-                out.print(connection);
-                out.print("<br><br><h3>Test accounts:</h4><h5>Admin:<br>username: admin<br>password: password1</h5>");
-                out.print("<h5>User:<br>username: testUser<br>password: password2</h5>");
             }
         %>
     </body>
