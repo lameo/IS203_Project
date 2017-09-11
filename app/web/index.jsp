@@ -44,12 +44,7 @@ and open the template in the editor.
             
         </form>
         <%
-            //Login details, change to database asap
-            String aUser = "admin";
-            String aPass = "password1";
-            String uUser = "testUser";
-            String uPass = "password2";
-            
+            //Login details
             Connection connection = null;
             PreparedStatement preparedStatement = null;
             ResultSet resultSet = null;
@@ -75,21 +70,19 @@ and open the template in the editor.
                 resultSet = preparedStatement.executeQuery();
                 
                 while(resultSet.next()){
-                    request.getRequestDispatcher("userPage.jsp").forward(request, response);                    
+                    request.getRequestDispatcher("userPage.jsp").forward(request, response);  
+                    return;
                 }
-               
-                /*if(userName!=null){
+                
+                if(userName!=null){
                     User user = new User(userName, password);
                     String userType = user.validate1(userName,password);
                     if(userType.equals("admin")){
                         request.getRequestDispatcher("adminPage.jsp").forward(request, response);
                     }
-                    if(userType.equals("user")){
-                        request.getRequestDispatcher("userPage.jsp").forward(request, response);
-                    }
-                }*/      
+                }      
             } catch (SQLException e){
-                e.printStackTrace();
+                out.println("Server Down. Please Try Again Later. Thank You");
             }
             //debugging purpose
             out.print("<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>#Debug inputted value:<br>username: " + userName + "<br>password: " + password+"<br>");            
