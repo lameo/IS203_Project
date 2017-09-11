@@ -1,9 +1,3 @@
-<%-- 
-    Document   : userPage
-    Created on : 8 Sep, 2017, 8:48:12 PM
-    Author     : Yang
---%>
-
 <%@page import="java.sql.Timestamp"%>
 <%@page import="java.time.Instant"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>

@@ -1,11 +1,3 @@
-<%-- 
-    Document   : functions
-    Created on : 9 Sep, 2017, 4:28:36 AM
-    Author     : Yang
-
-
-    Let this page just be a repo of all the functions that you want want to reuse for other page next time
---%>
 <%@page import="org.eclipse.jdt.internal.compiler.batch.Main"%>
 <%@page import="java.sql.DriverManager"%>
 <%@page import="java.sql.Statement"%>

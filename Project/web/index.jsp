@@ -4,11 +4,8 @@
 <%@page import="java.sql.Timestamp"%>
 <%@page import="java.time.Instant"%>
 <%@page import="java.awt.SystemColor.*"%>
-<%@page import="user.user.*"%>
 <%@ include file="functions.jsp"%>
 
-
-<!-- %@page import="src.user.java"%> #wtf xy 
 <!DOCTYPE html>
 <!--
 To change this license header, choose License Headers in Project Properties.
@@ -17,7 +14,7 @@ and open the template in the editor.
 -->
 <html>
     <head>
-        <title>SLOCA login page</title>
+        <title>SLOCA Login Page</title>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
     </head>
@@ -35,13 +32,13 @@ and open the template in the editor.
                     %>
                 </tr><tr>
                     <td>Username:</td>
-                    <td><input type="text" name="userName" size="20" /></td>                        <!-- username textbox -->
+                    <td><input type="text" name="userName" size="20" /></td>                        <%-- username textbox --%>
                 </tr><tr>
                     <td>Password</td>
-                    <td><input type="password" name="password" size="20" /></td>                    <!-- password textbox -->
+                    <td><input type="password" name="password" size="20" /></td>                    <%-- password textbox --%>
                 </tr><tr>
                     <td></td>
-                    <td><div align="right"><input type="submit" value ="Login"/></div></td>         <!-- submit button -->
+                    <td><div align="right"><input type="submit" value ="Login"/></div></td>         <%-- submit button --%>
                 </tr>
             </table>
         </center>
@@ -60,12 +57,12 @@ and open the template in the editor.
             //userName = validate(userName);
             //password = validate(password);
             
-            // username and password checking, change to database when implemented
+            //username and password checking, change to database when implemented
             //debugging purpose
             out.print("<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>#Debug inputted value:<br>username: " + userName + "<br>password: " + password+"<br>");
             Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/mysql?zeroDateTimeBehavior=convertToNull","root", "");
             out.print(connection);
-            out.print("<br><br><h3>Test accounts:</h4><h5>Admin:<br>username: admin<br>password: password1</h5>");
+            out.print("<br><br><h4>Test accounts:</h4><h5>Admin:<br>username: admin<br>password: password1</h5>");
             out.print("<h5>User:<br>username: testUser<br>password: password2</h5>");
             
             
