@@ -1,7 +1,5 @@
+<%@page import="java.sql.*"%>
 <%@page import="user.User"%>
-<%@page import="java.sql.SQLException"%>
-<%@page import="java.sql.Connection"%>
-<%@page import="java.sql.Timestamp"%>
 <%@page import="java.time.Instant"%>
 <%@page import="java.awt.SystemColor.*"%>
 <%@ include file="functions.jsp"%>
@@ -25,10 +23,10 @@ and open the template in the editor.
                 <tr>
                     <img src="resource/image/logo.png" width="260" height="100" />
                     <%  
-                        String userName = request.getParameter("userName");                         //login failed message
-                        if(userName!=null){
-                        out.print("<h1>Login failed</h1>");
-                        }
+                        /*String userName = request.getParameter("userName");                         //login failed message
+                        if(userName==null){
+                            out.print("<h1>Login Failed</h1>");
+                        }*/
                     %>
                 </tr><tr>
                     <td>Username:</td>
@@ -52,30 +50,52 @@ and open the template in the editor.
             String uUser = "testUser";
             String uPass = "password2";
             
-            userName = request.getParameter("userName");
+            Connection connection = null;
+            PreparedStatement preparedStatement = null;
+            ResultSet resultSet = null;
+            
+            String userName = request.getParameter("userName");
             String password = request.getParameter("password");
             //userName = validate(userName);
             //password = validate(password);
             
             //username and password checking, change to database when implemented
-            //debugging purpose
-            out.print("<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>#Debug inputted value:<br>username: " + userName + "<br>password: " + password+"<br>");
-            Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/mysql?zeroDateTimeBehavior=convertToNull","root", "");
-            out.print(connection);
-            out.print("<br><br><h4>Test accounts:</h4><h5>Admin:<br>username: admin<br>password: password1</h5>");
-            out.print("<h5>User:<br>username: testUser<br>password: password2</h5>");
-            
-            
-            if(userName!=null){
-                User user = new User(userName, password);
-                String userType = user.validate1(userName,password);
-                if(userType.equals("admin")){
-                    request.getRequestDispatcher("adminPage.jsp").forward(request, response);
+            try{
+                //get a connection to database
+                connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/data", "root", "");            
+                
+                //prepare a statement
+                preparedStatement = connection.prepareStatement("select * from demographics where name = ? && password = ?");   
+                
+                //set the parameters
+                preparedStatement.setString(1, userName);
+                preparedStatement.setString(2, password);
+                
+                //execute SQL query
+                resultSet = preparedStatement.executeQuery();
+                
+                while(resultSet.next()){
+                    request.getRequestDispatcher("userPage.jsp").forward(request, response);                    
                 }
-                if(userType.equals("user")){
-                    request.getRequestDispatcher("userPage.jsp").forward(request, response);
-                }
+               
+                /*if(userName!=null){
+                    User user = new User(userName, password);
+                    String userType = user.validate1(userName,password);
+                    if(userType.equals("admin")){
+                        request.getRequestDispatcher("adminPage.jsp").forward(request, response);
+                    }
+                    if(userType.equals("user")){
+                        request.getRequestDispatcher("userPage.jsp").forward(request, response);
+                    }
+                }*/      
+            } catch (SQLException e){
+                e.printStackTrace();
             }
+            //debugging purpose
+            out.print("<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>#Debug inputted value:<br>username: " + userName + "<br>password: " + password+"<br>");            
+            out.print("<br><br><h4>Test accounts:</h4><h5>Admin:<br>username: admin<br>password: password1</h5>");
+            out.print("<h5>User:<br>username: Zorro Fan<br>password: zxcvbn1284</h5>");
+            
         %>
     </body>
 </html>
