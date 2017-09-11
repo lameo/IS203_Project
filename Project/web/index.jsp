@@ -1,10 +1,14 @@
-
+<%@page import="user.User"%>
 <%@page import="java.sql.SQLException"%>
 <%@page import="java.sql.Connection"%>
 <%@page import="java.sql.Timestamp"%>
 <%@page import="java.time.Instant"%>
 <%@page import="java.awt.SystemColor.*"%>
+<%@page import="user.user.*"%>
 <%@ include file="functions.jsp"%>
+
+
+<!-- %@page import="src.user.java"%> #wtf xy 
 <!DOCTYPE html>
 <!--
 To change this license header, choose License Headers in Project Properties.
@@ -53,15 +57,17 @@ and open the template in the editor.
             
             userName = request.getParameter("userName");
             String password = request.getParameter("password");
-            userName = validate(userName);
-            password = validate(password);
+            //userName = validate(userName);
+            //password = validate(password);
             
             // username and password checking, change to database when implemented
             if(userName!=null){
-                if(userName.equals(aUser) && password.equals(aPass)){
+                User user = new User(userName, password);
+                String userType = user.validate1(userName,password);
+                if(userType.equals("admin")){
                     request.getRequestDispatcher("adminPage.jsp").forward(request, response);
                 }
-                if(userName.equals(uUser) && password.equals(uPass)){
+                if(userType.equals("user")){
                     request.getRequestDispatcher("userPage.jsp").forward(request, response);
                 }
                 
