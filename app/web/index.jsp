@@ -17,7 +17,7 @@ and open the template in the editor. Hello!
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
     </head>
     <body>
-        <form method=post action="index.jsp">
+        <form method=post action="processLogin.jsp">
         <center>
             <table>
                 <tr>
@@ -44,48 +44,8 @@ and open the template in the editor. Hello!
             
         </form>
         <%
-            //Login details
-            Connection connection = null;
-            PreparedStatement preparedStatement = null;
-            ResultSet resultSet = null;
-            
-            String userName = request.getParameter("userName");
-            String password = request.getParameter("password");
-            //userName = validate(userName);
-            //password = validate(password);
-            
-            //username and password checking, change to database when implemented
-            try{
-                //get a connection to database
-                connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/data", "root", "");            
-                
-                //prepare a statement
-                preparedStatement = connection.prepareStatement("select * from demographics where name = ? && password = ?");   
-                
-                //set the parameters
-                preparedStatement.setString(1, userName);
-                preparedStatement.setString(2, password);
-                
-                //execute SQL query
-                resultSet = preparedStatement.executeQuery();
-                
-                while(resultSet.next()){
-                    request.getRequestDispatcher("userPage.jsp").forward(request, response);  
-                    return;
-                }
-                
-                if(userName!=null){
-                    User user = new User(userName, password);
-                    String userType = user.validate1(userName,password);
-                    if(userType.equals("admin")){
-                        request.getRequestDispatcher("adminPage.jsp").forward(request, response);
-                    }
-                }      
-            } catch (SQLException e){
-                out.println("Server Down. Please Try Again Later. Thank You");
-            }
             //debugging purpose
-            out.print("<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>#Debug inputted value:<br>username: " + userName + "<br>password: " + password+"<br>");            
+            out.print("<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>#Debug inputted value");            
             out.print("<br><br><h4>Test accounts:</h4><h5>Admin:<br>username: admin<br>password: password1</h5>");
             out.print("<h5>User:<br>username: Zorro Fan<br>password: zxcvbn1284</h5>");
             
