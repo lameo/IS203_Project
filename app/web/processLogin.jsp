@@ -44,12 +44,12 @@
                 session.setAttribute("user", user); //send user object to adminPage.jsp
                 response.sendRedirect("adminPage.jsp");               
             } else {
-                session.setAttribute("error", "Invalid Login"); //send error messsage to index.jsp
+                session.setAttribute("error", "Invalid Login"); //send error messsage to index.jsp           
                 response.sendRedirect("index.jsp");                   
             }
         }
     } catch (SQLException e){
-        session.setAttribute("error", "Server Down. Please Try Again Later. Thank You"); //send error messsage to index.jsp
+        session.setAttribute("error", "Server Down. Please Try Again Later. Thank You"); //send error messsage to index.jsp     
         response.sendRedirect("index.jsp");  
     }
     

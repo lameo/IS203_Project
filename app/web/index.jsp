@@ -24,10 +24,11 @@ and open the template in the editor. Hello!
                     <img src="resource/image/logo.png" width="260" height="100" />
                     <%  
                         String errorMsg = (String)session.getAttribute("error");                    //error message retrieved from processLogin.jsp
-                        if(errorMsg!=null && errorMsg.length()!=0){
+                        if(errorMsg!=null && errorMsg.length()>=1){
                             out.println("<font color='red'>");
                             out.println("<br/>" + errorMsg);
                             out.println("</font");
+                            session.invalidate(); //clear user session                        
                         }
                     %>
                 </tr><tr>

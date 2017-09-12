@@ -55,6 +55,7 @@
             <a href="#kp">Top-K Popular Places</a>
             <a href="#kc">Top-K Companions</a>
             <a href="#knp">Top-K Next Places</a>
+            <a href="logout.jsp">Logout</a>            
             <a href="#knp"><%="Welcome " + username +"!"%></a>
         </div>
         <%="<br>User: " + username + "<br>Session: " + timestamp%>
