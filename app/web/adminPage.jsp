@@ -1,6 +1,13 @@
+<%@page import="user.User"%>
 <%@page import="java.sql.Timestamp"%>
 <%@page import="java.time.Instant"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
+<%
+    if(session.getAttribute("user")==null){   //check if user arrive page via link or through login
+        response.sendRedirect("index.jsp");
+        return;
+    }
+%>
 <!DOCTYPE html>
 <html>
     <head>
@@ -35,16 +42,16 @@
         
     </style>
     <body>
-        
+        <%
+            User user = (User)session.getAttribute("user");
+            String username = user.getUsername();
+            String timestamp = user.getTimestamp();
+            timestamp = username +"-"+ timestamp;
+        %>        
         <div class="topnav" id="myTopnav">
             <a href="#upload">Upload new datafile</a>
-            <a href="#knp"><%="Welcome " + request.getParameter("userName") +"!"%></a>
+            <a href="#knp"><%="Welcome " + username +"!"%></a>
         </div>
-        <%
-            String userName = request.getParameter("userName");
-            String hide = request.getParameter("hide");
-            hide = userName +"-"+ hide;
-            out.print("<br>User: " + userName+"<br>Session: " + hide);
-        %>
+        <%="<br>User: " + username + "<br>Session: " + timestamp%>
     </body>
 </html>

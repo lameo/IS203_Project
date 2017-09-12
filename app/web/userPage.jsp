@@ -1,6 +1,13 @@
+<%@page import="user.User"%>
 <%@page import="java.sql.Timestamp"%>
 <%@page import="java.time.Instant"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
+<%
+    if(session.getAttribute("user")==null){   //check if user arrive page via link or through login
+        response.sendRedirect("index.jsp");
+        return;
+    }
+%>
 <!DOCTYPE html>
 <html>
     <head>
@@ -35,21 +42,21 @@
         
     </style>
     <body>
-        
-        <div class="topnav" id="myTopnav">
-            <a href="#heatmap">Heatmap</a>
-            <a href="#blr">Basic Location Reports</a>
-            <a href="#byg">Breakdown by year and gender</a>
-            <a href="#kp">Top-k popular places</a>
-            <a href="#kc">Top-k companions</a>
-            <a href="#knp">Top-k next places</a>
-            <a href="#knp"><%="Welcome " + request.getParameter("userName") +"!"%></a>
-        </div>
         <%
-            String userName = request.getParameter("userName");
-            String hide = request.getParameter("hide");
-            hide = userName +"-"+ hide;
-            out.print("<br>User: " + userName+"<br>Session: " + hide);
+            User user = (User)session.getAttribute("user");
+            String username = user.getUsername();
+            String timestamp = user.getTimestamp();
+            timestamp = username +"-"+ timestamp;
         %>
+        <div class="topnav" id="myTopnav">
+            <a href="#heatmap">Heat Map</a>
+            <a href="#blr">Basic Location Reports</a>
+            <a href="#byg">Breakdown by Year & Gender</a>
+            <a href="#kp">Top-K Popular Places</a>
+            <a href="#kc">Top-K Companions</a>
+            <a href="#knp">Top-K Next Places</a>
+            <a href="#knp"><%="Welcome " + username +"!"%></a>
+        </div>
+        <%="<br>User: " + username + "<br>Session: " + timestamp%>
     </body>
 </html>

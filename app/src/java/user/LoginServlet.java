@@ -14,10 +14,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 
-/**
- *
- * @author xuying
- */
+
 public class LoginServlet extends HttpServlet {
 
     /**

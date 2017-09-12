@@ -8,11 +8,9 @@ package user;
 import java.sql.*;
 import java.io.*;
 import java.util.*;
-/**
- *
- * @author xuying
- */
+
 public class UserDAO {
+    
     private static Connection connection = null;
     private static PreparedStatement preparedStatement = null;
     private static ResultSet resultSet = null;
@@ -62,3 +60,4 @@ public class UserDAO {
     }
     
 }
+

@@ -23,14 +23,16 @@ and open the template in the editor. Hello!
                 <tr>
                     <img src="resource/image/logo.png" width="260" height="100" />
                     <%  
-                        /*String userName = request.getParameter("userName");                         //login failed message
-                        if(userName==null){
-                            out.print("<h1>Login Failed</h1>");
-                        }*/
+                        String errorMsg = (String)session.getAttribute("error");                    //error message retrieved from processLogin.jsp
+                        if(errorMsg!=null && errorMsg.length()!=0){
+                            out.println("<font color='red'>");
+                            out.println("<br/>" + errorMsg);
+                            out.println("</font");
+                        }
                     %>
                 </tr><tr>
                     <td>Username:</td>
-                    <td><input type="text" name="userName" size="20" /></td>                        <%-- username textbox --%>
+                    <td><input type="text" name="username" size="20" /></td>                        <%-- username textbox --%>
                 </tr><tr>
                     <td>Password</td>
                     <td><input type="password" name="password" size="20" /></td>                    <%-- password textbox --%>
@@ -40,7 +42,7 @@ and open the template in the editor. Hello!
                 </tr>
             </table>
         </center>
-            <input type="hidden" name="hide" value="<%= new Timestamp(System.currentTimeMillis()).toString() %>">
+            <input type="hidden" name="timestamp" value="<%= new Timestamp(System.currentTimeMillis()).toString() %>">
             
         </form>
         <%
