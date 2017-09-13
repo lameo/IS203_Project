@@ -16,7 +16,7 @@ public class UserDAO {
     private static ResultSet resultSet = null;
     private static User user = null;
     
-    public static User retrieveUserByName(String userName, String password){
+    public static User retrieveUserByName(String username, String password){
         //username and password checking, change to database when implemented
             try{
                 //get a connection to database
@@ -26,7 +26,7 @@ public class UserDAO {
                 preparedStatement = connection.prepareStatement("select * from demographics where name = ? && password = ?");   
                 
                 //set the parameters
-                preparedStatement.setString(1, userName);
+                preparedStatement.setString(1, username);
                 
                 preparedStatement.setString(2, password);
                 
@@ -42,7 +42,7 @@ public class UserDAO {
                 
                 /*if(userName!=null){
                     User user = new User(userName, password);
-                    String userType = user.validate1(userName,password);
+                    String userType = user.validate1(username,password);
                     if(userType.equals("admin")){
                         request.getRequestDispatcher("adminPage.jsp").forward(request, response);
                     }

@@ -17,9 +17,9 @@
                 <tr>
                     <img src="resource/image/logo.png" width="260" height="100" />
                     <%  
-                        String errorMsg = (String)session.getAttribute("error"); //error message retrieved from processLogin.jsp
-                        if(errorMsg!=null && errorMsg.length()>=1){
-                            out.println("<font color='red'>" + "<br/>" + errorMsg + "</font");
+                        String error = (String)session.getAttribute("error"); //error message retrieved from processLogin.jsp
+                        if(error!=null && error.length()>=1){
+                            out.println("<font color='red'>" + "<br/>" + error + "</font");
                             session.invalidate(); //clear user session                        
                         }
                     %>

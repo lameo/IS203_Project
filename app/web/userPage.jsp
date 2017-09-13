@@ -44,9 +44,9 @@
     <body>
         <%
             User user = (User)session.getAttribute("user");
-            String username = user.getUsername();
+            String name = user.getName();
             String timestamp = user.getTimestamp();
-            timestamp = username +"-"+ timestamp;
+            timestamp = name +"-"+ timestamp;
         %>
         <div class="topnav" id="myTopnav">
             <a href="#heatmap">Heat Map</a>
@@ -56,8 +56,8 @@
             <a href="#kc">Top-K Companions</a>
             <a href="#knp">Top-K Next Places</a>
             <a href="logout.jsp">Logout</a>            
-            <a href="#knp"><%="Welcome " + username +"!"%></a>
+            <a href="#knp"><%="Welcome " + name +"!"%></a>
         </div>
-        <%="<br>User: " + username + "<br>Session: " + timestamp%>
+        <%="<br>User: " + name + "<br>Session: " + timestamp%>
     </body>
 </html>

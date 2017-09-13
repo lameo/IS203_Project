@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package user;
 
 import java.io.IOException;
@@ -12,8 +7,6 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-
-
 
 public class LoginServlet extends HttpServlet {
 
@@ -26,34 +19,32 @@ public class LoginServlet extends HttpServlet {
      * @throws ServletException if a servlet-specific error occurs
      * @throws IOException if an I/O error occurs
      */
-    protected void processRequest(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
+    protected void processRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
-        String userName = request.getParameter("userName");
+        String username = request.getParameter("username");
         String password = request.getParameter("password");
-        String ErrMsg = null;
+        String error = null;
         HttpSession session = request.getSession();
         
-        try (PrintWriter out = response.getWriter()) {
-            User user = UserDAO.retrieveUserByName(userName, password);
+        try (PrintWriter out = response.getWriter();) {
+            User user = UserDAO.retrieveUserByName(username, password);
             if(user!=null){
-                session.setAttribute("userName",userName);
-                String userType = User.validate1(userName,password);
+                session.setAttribute("username",username);
+                String userType = User.validate1(username,password);
                 if(userType.equals("admin")){
                     request.getRequestDispatcher("adminPage.jsp").forward(request, response);
                 }else if(userType.equals("user")){
                     request.getRequestDispatcher("userPage.jsp").forward(request, response);
                 }
             }else{
-                ErrMsg = "User name/ password is incorrect, please try again!";
-                session.setAttribute("ErrMsg", ErrMsg);
+                error = "User name/ password is incorrect, please try again!";
+                session.setAttribute("error", error);
                 request.getRequestDispatcher("index.jsp").forward(request, response);
             }
             
         }
     }
 
-    // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
     /**
      * Handles the HTTP <code>GET</code> method.
      *
@@ -63,8 +54,7 @@ public class LoginServlet extends HttpServlet {
      * @throws IOException if an I/O error occurs
      */
     @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         processRequest(request, response);
     }
 
@@ -77,8 +67,7 @@ public class LoginServlet extends HttpServlet {
      * @throws IOException if an I/O error occurs
      */
     @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         processRequest(request, response);
     }
 
@@ -90,6 +79,6 @@ public class LoginServlet extends HttpServlet {
     @Override
     public String getServletInfo() {
         return "Short description";
-    }// </editor-fold>
+    }
 
 }

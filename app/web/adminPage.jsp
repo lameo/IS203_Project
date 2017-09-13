@@ -44,15 +44,15 @@
     <body>
         <%
             User user = (User)session.getAttribute("user");
-            String username = user.getUsername();
+            String name = user.getName();
             String timestamp = user.getTimestamp();
-            timestamp = username +"-"+ timestamp;
+            timestamp = name +"-"+ timestamp;
         %>        
         <div class="topnav" id="myTopnav">
             <a href="#upload">Upload new datafile</a>
             <a href="logout.jsp">Logout</a>             
-            <a href="#knp"><%="Welcome " + username +"!"%></a>
+            <a href="#knp"><%="Welcome " + name +"!"%></a>
         </div>
-        <%="<br>User: " + username + "<br>Session: " + timestamp%>
+        <%="<br>User: " + name + "<br>Session: " + timestamp%>
     </body>
 </html>
