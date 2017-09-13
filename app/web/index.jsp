@@ -3,13 +3,7 @@
 <%@page import="java.time.Instant"%>
 <%@page import="java.awt.SystemColor.*"%>
 <%@ include file="functions.jsp"%>
-
 <!DOCTYPE html>
-<!--
-To change this license header, choose License Headers in Project Properties.
-To change this template file, choose Tools | Templates
-and open the template in the editor. Hello!
--->
 <html>
     <head>
         <title>SLOCA Login Page</title>
@@ -23,32 +17,29 @@ and open the template in the editor. Hello!
                 <tr>
                     <img src="resource/image/logo.png" width="260" height="100" />
                     <%  
-                        String errorMsg = (String)session.getAttribute("error");                    //error message retrieved from processLogin.jsp
+                        String errorMsg = (String)session.getAttribute("error"); //error message retrieved from processLogin.jsp
                         if(errorMsg!=null && errorMsg.length()>=1){
-                            out.println("<font color='red'>");
-                            out.println("<br/>" + errorMsg);
-                            out.println("</font");
+                            out.println("<font color='red'>" + "<br/>" + errorMsg + "</font");
                             session.invalidate(); //clear user session                        
                         }
                     %>
                 </tr><tr>
                     <td>Username:</td>
-                    <td><input type="text" name="username" size="20" /></td>                        <%-- username textbox --%>
+                    <td><input type="text" name="username" size="20" placeholder="Enter your username" required/></td> <%-- username textbox --%>
                 </tr><tr>
-                    <td>Password</td>
-                    <td><input type="password" name="password" size="20" /></td>                    <%-- password textbox --%>
+                    <td>Password:</td>
+                    <td><input type="password" name="password" size="20" placeholder="Enter your password" required/></td> <%-- password textbox --%>
                 </tr><tr>
                     <td></td>
-                    <td><div align="right"><input type="submit" value ="Login"/></div></td>         <%-- submit button --%>
+                    <td><div align="right"><input type="submit" value ="Login"/></div></td> <%-- submit button --%>
                 </tr>
             </table>
         </center>
             <input type="hidden" name="timestamp" value="<%= new Timestamp(System.currentTimeMillis()).toString() %>">
-            
         </form>
         <%
             //debugging purpose
-            out.print("<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>#Debug inputted value");            
+            out.print("<br><br><br><br><br><br><br><br><br><br><br>");            
             out.print("<br><br><h4>Test accounts:</h4><h5>Admin:<br>username: admin<br>password: password1</h5>");
             out.print("<h5>User:<br>username: Zorro Fan<br>password: zxcvbn1284</h5>");
             
