@@ -1,7 +1,6 @@
 <%@page import="user.User"%>
 <%@page import="java.sql.Timestamp"%>
 <%@page import="java.time.Instant"%>
-<%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%
     if(session.getAttribute("user")==null){   //check if user arrive page via link or through login
         response.sendRedirect("index.jsp");

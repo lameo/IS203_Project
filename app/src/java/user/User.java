@@ -21,12 +21,12 @@ public class User {
         this.gender = gender;
     }
 
-    public User(String name, String password){ //REMOVE THIS LATER, PUT HERE FOR NOW~~
+    public User(String name, String password){ //REMOVE THIS LATER, PUT HERE FOR NOW TO MAKE CURRENT CODE WORK~~
         this.name = name;
         this.password = password;       
     }
 
-    public static String validate1(String username, String password){
+    public static String validate1(String username, String password){ //REMOVE THIS AND PUT IN LoginServlet.java
         //Admin
         if(username.equals("admin") && password.equals("password1")){
             return "admin";
