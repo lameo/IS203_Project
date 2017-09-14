@@ -35,7 +35,7 @@ public class LoginServlet extends HttpServlet {
         String error = null;
         HttpSession session = request.getSession();  
         
-        try (PrintWriter out = response.getWriter()) {
+        try {
             //get a connection to database
             connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/data", "root", "");            
 

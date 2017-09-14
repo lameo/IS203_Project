@@ -11,13 +11,13 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
     </head>
     <body>
-        <form method=post action="processLogin">
+        <form method=post action="processLogin"> <%-- send data to LoginServlet M-V-C model --%>
         <center>
             <table>
                 <tr>
                     <img src="resource/image/logo.png" width="260" height="100" />
                     <%  
-                        String error = (String)session.getAttribute("error"); //error message retrieved from processLogin.jsp
+                        String error = (String)session.getAttribute("error"); //error message retrieved from LoginServlet
                         if(error!=null && error.length()>=1){
                             out.println("<font color='red'>" + "<br/>" + error + "</font");
                             session.invalidate(); //clear user session                        
