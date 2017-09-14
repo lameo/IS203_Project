@@ -1,4 +1,4 @@
-<%@page import="user.User"%>
+<%@page import="model.User"%>
 <%@page import="java.sql.Timestamp"%>
 <%@page import="java.time.Instant"%>
 <%

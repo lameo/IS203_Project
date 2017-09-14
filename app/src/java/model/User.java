@@ -1,4 +1,4 @@
-package user;
+package model;
 public class User {
     private String macaddress;
     private String name;

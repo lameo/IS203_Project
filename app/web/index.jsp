@@ -1,5 +1,5 @@
 <%@page import="java.sql.*"%>
-<%@page import="user.User"%>
+<%@page import="model.User"%>
 <%@page import="java.time.Instant"%>
 <%@page import="java.awt.SystemColor.*"%>
 <%@ include file="functions.jsp"%>
