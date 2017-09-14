@@ -22,7 +22,7 @@ public class ConnectionManager {
             return connection;
         }else{
             try{
-                InputStream inputStream = ConnectionManager.class.getClassLoader().getResourceAsStream("db.properties");
+                InputStream inputStream = ConnectionManager.class.getClassLoader().getResourceAsStream("/connection.properties");
                 Properties properties = new Properties();
                 if(properties != null){
                     properties.load(inputStream);

@@ -2,7 +2,6 @@ package controller;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.sql.*;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -24,11 +23,7 @@ public class LoginServlet extends HttpServlet {
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        response.setContentType("text/html;charset=UTF-8");
-        
-        Connection connection = null;
-        PreparedStatement preparedStatement = null;
-        ResultSet resultSet = null;    
+        response.setContentType("text/html;charset=UTF-8");   
         
         String username = request.getParameter("username");
         String password = request.getParameter("password");
@@ -36,21 +31,24 @@ public class LoginServlet extends HttpServlet {
         
         String error = null;
         HttpSession session = request.getSession();  
-        
-        try {
-            //get a connection to database
-            connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/data", "root", "");            
-
-            //prepare a statement
-            preparedStatement = connection.prepareStatement("select * from demographics where name = ? && password = ?");   
-
-            //set the parameters
-            preparedStatement.setString(1, username);
-            preparedStatement.setString(2, password);
-
-            //execute SQL query
-            resultSet = preparedStatement.executeQuery();
-
+        try (PrintWriter out = response.getWriter()) {
+            User user = UserDAO.retrieveUserByName(username, password);
+            
+            if (user != null){
+                user.setTimestamp(timestamp);            
+                String userType = User.validate1(username, password);
+                if(userType.equals("admin")){
+                    session.setAttribute("user", user); //send user object to adminPage.jsp
+                    response.sendRedirect("adminPage.jsp");               
+                } else {
+                    session.setAttribute("user", user); //send user object to adminPage.jsp
+                    response.sendRedirect("userPage.jsp"); 
+                }
+            } else {  
+                session.setAttribute("error", "Invalid Login"); //send error messsage to index.jsp           
+                response.sendRedirect("index.jsp");                   
+            }
+            /**
             while(resultSet.next()){
                 User user = new User(username, password);
                 user.setTimestamp(timestamp);
@@ -58,20 +56,8 @@ public class LoginServlet extends HttpServlet {
                 response.sendRedirect("userPage.jsp");         
                 return;
             }
-
-            if(username!=null && password!=null){
-                User user = new User(username, password);
-                user.setTimestamp(timestamp);            
-                String userType = user.validate1(username, password);
-                if(userType.equals("admin")){
-                    session.setAttribute("user", user); //send user object to adminPage.jsp
-                    response.sendRedirect("adminPage.jsp");               
-                } else {
-                    session.setAttribute("error", "Invalid Login"); //send error messsage to index.jsp           
-                    response.sendRedirect("index.jsp");                   
-                }
-            }
-        } catch (SQLException e){
+            **/
+        } catch (IOException e){
             session.setAttribute("error", "Server Down. Please Try Again Later. Thank You"); //send error messsage to index.jsp     
             response.sendRedirect("index.jsp");  
         }
