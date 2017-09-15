@@ -30,8 +30,6 @@ public class User {
         //Admin
         if(username.equals("admin") && password.equals("password1")){
             return "admin";
-        }else if(username.equals("user") && password.equals("password2")){
-            return "user";
         }
         return "failed";
     }

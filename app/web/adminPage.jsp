@@ -50,7 +50,10 @@
         <div class="topnav" id="myTopnav">
             <a href="#upload">Upload new datafile</a>
             <a href="logout.jsp">Logout</a>             
-            <a href="#knp"><%="Welcome " + name +"!"%></a>
+            <div class="right">
+                <a href="#knp"><%="Welcome " + name +"!"%></a>
+                <a href="logout.jsp">Logout</a>            
+            </div>
         </div>
         <%="<br>User: " + name + "<br>Session: " + timestamp%>
     </body>

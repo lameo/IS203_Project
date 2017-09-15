@@ -22,6 +22,7 @@
                             out.println("<font color='red'>" + "<br/>" + error + "</font");
                             session.invalidate(); //clear user session                        
                         }
+                        int x = report.retrieveQtyByYearAndGender("2014-03-23 13:40:000","2010","f");
                     %>
                 </tr><tr>
                     <td>Email:</td>
