@@ -2,8 +2,8 @@
 <%@page import="java.sql.Timestamp"%>
 <%@page import="java.time.Instant"%>
 <%
-    if(session.getAttribute("user")==null){   //check if user arrive page via link or through login
-        response.sendRedirect("index.jsp");
+    if(session.getAttribute("admin") == null || !session.getAttribute("admin").equals("admin")){   //check if user arrive page via link or through login
+        response.sendRedirect("userPage.jsp");
         return;
     }
 %>
@@ -42,10 +42,12 @@
     </style>
     <body>
         <%
-            User user = (User)session.getAttribute("user");
-            String name = user.getName();
-            String timestamp = user.getTimestamp();
+            //User user = (User)session.getAttribute("user");
+            //String name = user.getName();
+            String name = (String)session.getAttribute("admin");
+            String timestamp = (String)session.getAttribute("timestamp");
             timestamp = name +"-"+ timestamp;
+            //String timestamp = null;
         %>        
         <div class="topnav" id="myTopnav">
             <a href="#upload">Upload new datafile</a>

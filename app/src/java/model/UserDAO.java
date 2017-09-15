@@ -30,10 +30,10 @@ public class UserDAO {
                 connection = ConnectionManager.getConnection();            
                 //out.print(connection);
                 //prepare a statement
-                preparedStatement = connection.prepareStatement("select * from demographics where email = ? && password = ?");   
+                preparedStatement = connection.prepareStatement("select * from demographics where email like ? && password = ?");   
                 
                 //set the parameters
-                preparedStatement.setString(1, email);
+                preparedStatement.setString(1, email+"@%");
                 
                 preparedStatement.setString(2, password);
                 
@@ -69,10 +69,21 @@ public class UserDAO {
      *
      * Get user
      * 
+     * @param email
+     * @param password
      * @return user - a valid user of the website
      */     
-    public static User validateUser(String username, String password){
-        return null;       
+    public static boolean validateUser(String email, String password){
+        //Admin
+        User user = UserDAO.retrieveUserByName(email, password);
+        
+        boolean validateUser = false;
+        if (user != null){
+            validateUser = true;
+        } else if (email.equals("admin")&&password.equals("admin")){
+            validateUser = true;
+        }
+        return validateUser;
     }
 }
 
