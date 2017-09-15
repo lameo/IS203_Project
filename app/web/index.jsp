@@ -24,7 +24,7 @@
                         }
                     %>
                 </tr><tr>
-                    <td>Username:</td>
+                    <td>Email:</td>
                     <td><input type="text" name="email" size="20" placeholder="Enter your email" required/></td> <%-- username textbox --%>
                 </tr><tr>
                     <td>Password:</td>
