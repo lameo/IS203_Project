@@ -2,7 +2,10 @@
 <%@page import="java.sql.Timestamp"%>
 <%@page import="java.time.Instant"%>
 <%
-    if(session.getAttribute("user")==null){   //check if user arrive page via link or through login
+    if(session.getAttribute("admin") != null && session.getAttribute("admin").equals("admin")){   //check if user arrive page via link or through login
+        response.sendRedirect("adminPage.jsp");
+        return;
+    }else if(session.getAttribute("user")==null){   //check if user arrive page via link or through login
         response.sendRedirect("index.jsp");
         return;
     }

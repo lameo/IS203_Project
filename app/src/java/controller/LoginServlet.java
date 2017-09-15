@@ -32,19 +32,18 @@ public class LoginServlet extends HttpServlet {
         String error = null;
         HttpSession session = request.getSession();  
         try (PrintWriter out = response.getWriter()) {
-            User user = UserDAO.retrieveUserByName(email, password);
+            User user = UserDAO.retrieveUserByName(email,password);
             
-            if (user != null){
-                user.setTimestamp(timestamp);            
-                String userType = User.validate1(email, password);
-                if(userType.equals("admin")){
-                    session.setAttribute("user", user); //send user object to adminPage.jsp
-                    response.sendRedirect("adminPage.jsp");               
-                } else {
-                    session.setAttribute("user", user); //send user object to adminPage.jsp
-                    response.sendRedirect("userPage.jsp"); 
-                }
-            } else {  
+            if (user instanceof User){
+                session.setAttribute("user",user);
+                session.setAttribute("timestamp",timestamp);
+                response.sendRedirect("userPage.jsp");
+            } else if (email.equals("admin") && password.equals("password")) {  
+                session.setAttribute("admin",email);
+                session.setAttribute("timestamp",timestamp);
+                response.sendRedirect("adminPage.jsp");
+            }
+            else {
                 session.setAttribute("error", "Invalid Login"); //send error messsage to index.jsp           
                 response.sendRedirect("index.jsp");                   
             }
