@@ -25,18 +25,18 @@ public class LoginServlet extends HttpServlet {
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");   
         
-        String username = request.getParameter("username");
+        String email = request.getParameter("email");
         String password = request.getParameter("password");
         String timestamp = request.getParameter("timestamp");        
         
         String error = null;
         HttpSession session = request.getSession();  
         try (PrintWriter out = response.getWriter()) {
-            User user = UserDAO.retrieveUserByName(username, password);
+            User user = UserDAO.retrieveUserByName(email, password);
             
             if (user != null){
                 user.setTimestamp(timestamp);            
-                String userType = User.validate1(username, password);
+                String userType = User.validate1(email, password);
                 if(userType.equals("admin")){
                     session.setAttribute("user", user); //send user object to adminPage.jsp
                     response.sendRedirect("adminPage.jsp");               

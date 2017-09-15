@@ -19,7 +19,7 @@ public class UserDAO {
     
     
     
-    public static User retrieveUserByName(String username, String password){
+    public static User retrieveUserByName(String email, String password){
         //username and password checking, change to database when implemented
         Connection connection = null;
         PreparedStatement preparedStatement = null;
@@ -30,10 +30,10 @@ public class UserDAO {
                 connection = ConnectionManager.getConnection();            
                 //out.print(connection);
                 //prepare a statement
-                preparedStatement = connection.prepareStatement("select * from demographics where name = ? && password = ?");   
+                preparedStatement = connection.prepareStatement("select * from demographics where email = ? && password = ?");   
                 
                 //set the parameters
-                preparedStatement.setString(1, username);
+                preparedStatement.setString(1, email);
                 
                 preparedStatement.setString(2, password);
                 
@@ -42,7 +42,7 @@ public class UserDAO {
                 
                 while(resultSet.next()){
                     //request.getRequestDispatcher("userPage.jsp").forward(request, response);                    
-                    user = new User(resultSet.getString(1),resultSet.getString(2));
+                    user = new User(resultSet.getString(1),resultSet.getString(2),resultSet.getString(3),resultSet.getString(4),resultSet.getString(5).charAt(0));
                 }
                 
                 

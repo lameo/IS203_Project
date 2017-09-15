@@ -25,7 +25,7 @@
                     %>
                 </tr><tr>
                     <td>Username:</td>
-                    <td><input type="text" name="username" size="20" placeholder="Enter your username" required/></td> <%-- username textbox --%>
+                    <td><input type="text" name="email" size="20" placeholder="Enter your email" required/></td> <%-- username textbox --%>
                 </tr><tr>
                     <td>Password:</td>
                     <td><input type="password" name="password" size="20" placeholder="Enter your password" required/></td> <%-- password textbox --%>
@@ -41,7 +41,7 @@
             //debugging purpose
             out.print("<br><br><br><br><br><br><br><br><br><br><br>");            
             out.print("<br><br><h4>Test accounts:</h4><h5>Admin:<br>username: admin<br>password: password1</h5>");
-            out.print("<h5>User:<br>username: Zorro Fan<br>password: zxcvbn1284</h5>");
+            out.print("<h5>User:<br>username: zorro.fan.2010@economics.smu.edu.sg<br>password: zxcvbn1284</h5>");
             
         %>
     </body>

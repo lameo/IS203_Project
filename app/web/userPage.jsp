@@ -38,12 +38,17 @@
             background-color: #4CAF50;
             color: white;
         }
+        .right {
+            text-align: right;
+            float: right;
+        }
+        
         
     </style>
     <body>
         <%
             User user = (User)session.getAttribute("user");
-            String name = user.getName();
+            String name = user.getName();       //name is mac address, password is name
             String timestamp = user.getTimestamp();
             timestamp = name +"-"+ timestamp;
         %>
@@ -54,8 +59,10 @@
             <a href="#kp">Top-K Popular Places</a>
             <a href="#kc">Top-K Companions</a>
             <a href="#knp">Top-K Next Places</a>
-            <a href="logout.jsp">Logout</a>            
-            <a href="#knp"><%="Welcome " + name +"!"%></a>
+            <div class="right">
+                <a href="#knp"><%="Welcome " + name +"!"%></a>
+                <a href="logout.jsp">Logout</a>            
+            </div>
         </div>
         <%="<br>User: " + name + "<br>Session: " + timestamp%>
     </body>
