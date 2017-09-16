@@ -13,12 +13,13 @@ public class User {
      * and gender
      *
      */    
-    public User(String macaddress, String name, String password, String email, char gender){
+    public User(String macaddress, String name, String password, String email, char gender, String timestamp){
         this.macaddress = macaddress;
         this.name = name;
         this.password = password;
         this.email = email;
         this.gender = gender;
+        this.timestamp = timestamp;
     }
 
     public User(String name, String password){ //REMOVE THIS LATER, PUT HERE FOR NOW TO MAKE CURRENT CODE WORK~~

@@ -24,7 +24,7 @@ constraint location_pk primary key(macaddress, timestamp)
 );
 
 LOAD DATA LOCAL INFILE 'D:/testt/app/web/resource/data/location.csv' INTO TABLE location
-FIELDS TERMINATED BY ',' LINES TERMINATED BY '\r' IGNORE 1 LINES (timestamp, macaddress, locationid);
+FIELDS TERMINATED BY ',' LINES TERMINATED BY '\n' IGNORE 1 LINES (timestamp, macaddress, locationid);
 
 create table locationlookup
 (
@@ -34,4 +34,4 @@ constraint locationlookup_pk primary key(locationid)
 );
 
 LOAD DATA LOCAL INFILE 'D:/testt/app/web/resource/data/location-lookup.csv' INTO TABLE locationlookup
-FIELDS TERMINATED BY ',' LINES TERMINATED BY '\r' IGNORE 1 LINES (locationid, locationname);
+FIELDS TERMINATED BY ',' LINES TERMINATED BY '\n' IGNORE 1 LINES (locationid, locationname);

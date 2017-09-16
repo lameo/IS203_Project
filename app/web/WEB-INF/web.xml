@@ -4,14 +4,14 @@
         <servlet-name>processLogin</servlet-name>
         <servlet-class>controller.LoginServlet</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>report</servlet-name>
+        <servlet-class>controller.ReportServlet</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>processLogin</servlet-name>
         <url-pattern>/processLogin</url-pattern>
     </servlet-mapping>
-    <servlet>
-        <servlet-name>report</servlet-name>
-        <servlet-class>model.ReportServlet</servlet-class>
-    </servlet>
     <servlet-mapping>
         <servlet-name>report</servlet-name>
         <url-pattern>/report</url-pattern>

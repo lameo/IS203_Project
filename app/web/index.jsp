@@ -16,13 +16,12 @@
             <table>
                 <tr>
                     <img src="resource/image/logo.png" width="260" height="100" />
-                    <%  
+                    <%
                         String error = (String)session.getAttribute("error"); //error message retrieved from LoginServlet
                         if(error!=null && error.length()>=1){
                             out.println("<font color='red'>" + "<br/>" + error + "</font");
-                            session.invalidate(); //clear user session                        
+                            session.invalidate(); //clear user session
                         }
-                        int x = report.retrieveQtyByYearAndGender("2014-03-23 13:40:000","2010","f");
                     %>
                 </tr><tr>
                     <td>Email:</td>
@@ -40,10 +39,10 @@
         </form>
         <%
             //debugging purpose
-            out.print("<br><br><br><br><br><br><br><br><br><br><br>");            
+            out.print("<br><br><br><br><br><br><br><br><br><br><br>");
             out.print("<br><br><h4>Test accounts:</h4><h5>Admin:<br>username: admin<br>password: password1</h5>");
-            out.print("<h5>User:<br>username: zorro.fan.2010@economics.smu.edu.sg<br>password: zxcvbn1284</h5>");
-            
+            out.print("<h5>User:<br>username: zorro.fan.2010<br>password: zxcvbn1284</h5>");
+
         %>
     </body>
 </html>

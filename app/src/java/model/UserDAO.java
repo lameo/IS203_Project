@@ -19,7 +19,7 @@ public class UserDAO {
     
     
     
-    public static User retrieveUserByName(String email, String password){
+    public static User retrieveUserByName(String email, String password, String timestamp){
         //username and password checking, change to database when implemented
         Connection connection = null;
         PreparedStatement preparedStatement = null;
@@ -42,7 +42,7 @@ public class UserDAO {
                 
                 while(resultSet.next()){
                     //request.getRequestDispatcher("userPage.jsp").forward(request, response);                    
-                    user = new User(resultSet.getString(1),resultSet.getString(2),resultSet.getString(3),resultSet.getString(4),resultSet.getString(5).charAt(0));
+                    user = new User(resultSet.getString(1),resultSet.getString(2),resultSet.getString(3),resultSet.getString(4),resultSet.getString(5).charAt(0), timestamp);
                 }
                 
                 
@@ -73,17 +73,5 @@ public class UserDAO {
      * @param password
      * @return user - a valid user of the website
      */     
-    public static boolean validateUser(String email, String password){
-        //Admin
-        User user = UserDAO.retrieveUserByName(email, password);
-        
-        boolean validateUser = false;
-        if (user != null){
-            validateUser = true;
-        } else if (email.equals("admin")&&password.equals("admin")){
-            validateUser = true;
-        }
-        return validateUser;
-    }
 }
 

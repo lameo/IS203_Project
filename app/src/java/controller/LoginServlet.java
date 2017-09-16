@@ -32,7 +32,7 @@ public class LoginServlet extends HttpServlet {
         String error = null;
         HttpSession session = request.getSession();  
         try (PrintWriter out = response.getWriter()) {
-            User user = UserDAO.retrieveUserByName(email,password);
+            User user = UserDAO.retrieveUserByName(email,password, timestamp);
             
             if (user instanceof User){
                 session.setAttribute("user",user);
