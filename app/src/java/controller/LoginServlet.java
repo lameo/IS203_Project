@@ -26,21 +26,21 @@ public class LoginServlet extends HttpServlet {
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");   
         
-        String email = request.getParameter("email");
+        String username = request.getParameter("username");
         String password = request.getParameter("password");
         String timestamp = request.getParameter("timestamp");        
         
         String error = null;
         HttpSession session = request.getSession();  
         try {
-            if (email.equals("admin") && password.equals("password")) {  
-                session.setAttribute("admin", email);
+            if (username.equals("admin") && password.equals("password")) {  
+                session.setAttribute("admin", username);
                 session.setAttribute("timestamp", timestamp);
                 response.sendRedirect("adminPage.jsp");
                 return;
             }            
             
-            User user = UserDAO.retrieveUserByName(email, password);
+            User user = UserDAO.retrieveUserByName(username, password);
             
             if (user instanceof User){
                 session.setAttribute("user", user);

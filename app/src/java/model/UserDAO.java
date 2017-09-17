@@ -7,22 +7,19 @@ import java.sql.SQLException;
 
 public class UserDAO {
     
-    public static User retrieveUserByName(String email, String password) throws SQLException{
-        //username and password checking, change to database when implemented
-        Connection connection = null;
+    public static User retrieveUserByName(String username, String password) throws SQLException{
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
         User user = null;
         
         //get a connection to database
-        connection = ConnectionManager.getConnection();            
-        //out.print(connection);
+        Connection connection = ConnectionManager.getConnection();            
+
         //prepare a statement
-        preparedStatement = connection.prepareStatement("select * from demographics where email like ? && password = ?");   
+        preparedStatement = connection.prepareStatement("select * from demographics where email like ? && password = ?"); //email from the database
 
         //set the parameters
-        preparedStatement.setString(1, email+"@%");
-
+        preparedStatement.setString(1, username+"@%"); //e.g. john.doe.2016@%
         preparedStatement.setString(2, password);
 
         //execute SQL query

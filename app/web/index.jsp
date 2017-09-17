@@ -24,8 +24,8 @@
                         }
                     %>
                 </tr><tr>
-                    <td>Email:</td>
-                    <td><input type="text" name="email" size="20" placeholder="Enter your email" required/></td> <%-- username textbox --%>
+                    <td>Username:</td>
+                    <td><input type="text" name="username" size="20" placeholder="Enter your username" required/></td> <%-- username textbox --%>
                 </tr><tr>
                     <td>Password:</td>
                     <td><input type="password" name="password" size="20" placeholder="Enter your password" required/></td> <%-- password textbox --%>
