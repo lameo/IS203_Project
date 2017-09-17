@@ -48,8 +48,6 @@
             text-align: right;
             float: right;
         }
-
-
     </style>
     <body>
         <%
@@ -57,7 +55,7 @@
             String timedate = (String)session.getAttribute("timeDate");
             String topK = (String)session.getAttribute("topK");
             String name = user.getName();
-            String timestamp = user.getTimestamp();
+            String timestamp = (String)session.getAttribute("timestamp");
             timestamp = name +"-"+ timestamp;
         %>
         <div class="topnav" id="myTopnav">

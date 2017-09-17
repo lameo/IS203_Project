@@ -38,25 +38,24 @@
             background-color: #4CAF50;
             color: white;
         }
-        
+        .right {
+            text-align: right;
+            float: right;
+        }        
     </style>
     <body>
         <%
-            //User user = (User)session.getAttribute("user");
-            //String name = user.getName();
             String name = (String)session.getAttribute("admin");
             String timestamp = (String)session.getAttribute("timestamp");
             timestamp = name +"-"+ timestamp;
-            //String timestamp = null;
         %>        
         <div class="topnav" id="myTopnav">
-            <a href="#upload">Upload new datafile</a>
-            <a href="logout.jsp">Logout</a>             
+            <a href="#upload">Upload new datafile</a>          
             <div class="right">
                 <a href="#knp"><%="Welcome " + name +"!"%></a>
                 <a href="logout.jsp">Logout</a>            
             </div>
-        </div>
+        </div>               
         <%="<br>User: " + name + "<br>Session: " + timestamp%>
     </body>
 </html>

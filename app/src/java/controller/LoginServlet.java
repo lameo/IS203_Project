@@ -2,6 +2,7 @@ package controller;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.sql.SQLException;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -31,32 +32,25 @@ public class LoginServlet extends HttpServlet {
         
         String error = null;
         HttpSession session = request.getSession();  
-        try (PrintWriter out = response.getWriter()) {
-            User user = UserDAO.retrieveUserByName(email,password, timestamp);
+        try {
+            if (email.equals("admin") && password.equals("password")) {  
+                session.setAttribute("admin", email);
+                session.setAttribute("timestamp", timestamp);
+                response.sendRedirect("adminPage.jsp");
+                return;
+            }            
+            
+            User user = UserDAO.retrieveUserByName(email, password);
             
             if (user instanceof User){
-                session.setAttribute("user",user);
-                session.setAttribute("timestamp",timestamp);
+                session.setAttribute("user", user);
+                session.setAttribute("timestamp", timestamp);
                 response.sendRedirect("userPage.jsp");
-            } else if (email.equals("admin") && password.equals("password")) {  
-                session.setAttribute("admin",email);
-                session.setAttribute("timestamp",timestamp);
-                response.sendRedirect("adminPage.jsp");
-            }
-            else {
+            } else {
                 session.setAttribute("error", "Invalid Login"); //send error messsage to index.jsp           
                 response.sendRedirect("index.jsp");                   
             }
-            /**
-            while(resultSet.next()){
-                User user = new User(username, password);
-                user.setTimestamp(timestamp);
-                session.setAttribute("user", user); //send user object to userPage.jsp
-                response.sendRedirect("userPage.jsp");         
-                return;
-            }
-            **/
-        } catch (IOException e){
+        } catch (SQLException e){
             session.setAttribute("error", "Server Down. Please Try Again Later. Thank You"); //send error messsage to index.jsp     
             response.sendRedirect("index.jsp");  
         }
@@ -98,7 +92,7 @@ public class LoginServlet extends HttpServlet {
      */
     @Override
     public String getServletInfo() {
-        return "Short description";
+        return "This is a Login Servlet that processes user login";
     }// </editor-fold>
 
 }

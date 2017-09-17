@@ -5,10 +5,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-/**
- *
- * @author Yang
- */
 public class ReportDAO {
 
     public ReportDAO(){}
@@ -17,10 +13,11 @@ public class ReportDAO {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
-        //get a connection to database
-        connection = ConnectionManager.getConnection();
         String ans = "";
         try{
+            //get a connection to database
+            connection = ConnectionManager.getConnection();            
+            
             //prepare a statement
             preparedStatement = connection.prepareStatement("SELECT count(DISTINCT d.macaddress) FROM (SELECT * FROM data.location where timestamp between ? AND (SELECT DATE_ADD(?, INTERVAL 15 MINUTE))) l, demographics d where l.macaddress = d.macaddress and d.email like ? and d.gender = ?");
             
@@ -50,7 +47,7 @@ public class ReportDAO {
                         ans = resultSet.getString(1);
                     }
                 }
-            }
+            }      
         } catch (SQLException e){
             e.printStackTrace();
         }
@@ -61,10 +58,10 @@ public class ReportDAO {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
-        //get a connection to database
-        connection = ConnectionManager.getConnection();
         String ans = "";
         try{
+            //get a connection to database
+            connection = ConnectionManager.getConnection();            
             //prepare a statement
             preparedStatement = connection.prepareStatement("select n.locationname from (SELECT max(TIMESTAMP) as TIMESTAMP, macaddress FROM location WHERE timestamp BETWEEN ? AND (SELECT DATE_ADD(?,INTERVAL 15 MINUTE)) group by macaddress) l, location m, locationlookup n where l.macaddress = m.macaddress and m.timestamp = l.timestamp and m.locationid = n.locationid group by n.locationname order by count(n.locationname) desc limit ? ");
 
@@ -82,7 +79,7 @@ public class ReportDAO {
                 }else{
                     ans = resultSet.getString(1);
                 }
-            }
+            }       
         } catch (SQLException e){
             e.printStackTrace();
         }

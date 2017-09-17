@@ -1,4 +1,4 @@
-<%@page import="java.sql.*"%>
+<%@page import="java.sql.Timestamp"%>
 <%@page import="model.User"%>
 <%@page import="java.time.Instant"%>
 <%@page import="java.awt.SystemColor.*"%>
@@ -40,7 +40,7 @@
         <%
             //debugging purpose
             out.print("<br><br><br><br><br><br><br><br><br><br><br>");
-            out.print("<br><br><h4>Test accounts:</h4><h5>Admin:<br>username: admin<br>password: password1</h5>");
+            out.print("<br><br><h4>Test accounts:</h4><h5>Admin:<br>username: admin<br>password: password</h5>");
             out.print("<h5>User:<br>username: zorro.fan.2010<br>password: zxcvbn1284</h5>");
 
         %>
