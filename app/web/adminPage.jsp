@@ -40,7 +40,7 @@
             color: white;
         }
         .right {
-            text-align: right;
+            text-align: left;
             float: right;
         }        
     </style>

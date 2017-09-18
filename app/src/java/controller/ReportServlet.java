@@ -21,27 +21,23 @@ public class ReportServlet extends HttpServlet {
         
         //to retrieve session's user
         HttpSession session = request.getSession();
-        session.setAttribute("timeDate", timeDate);
+        request.setAttribute("timeDate", timeDate);
 
         switch (reportType) {
             case "breakdownReport":
                 String breakdownReport = ReportDAO.retrieveQtyByYearAndGender(timeDate);
                 request.setAttribute("breakdownReport", breakdownReport);
-                view = request.getRequestDispatcher("userPage.jsp");
-                view.forward(request, response);
                 break;
             case "topKPopular":
                 String topKPopular = ReportDAO.retrieveTopKPopularPlaces(timeDate, topK);
                 request.setAttribute("topKPopular", topKPopular);
                 request.setAttribute("topK", topK);
-                view = request.getRequestDispatcher("userPage.jsp");
-                view.forward(request, response);
                 break;
             default:
-                view = request.getRequestDispatcher("userPage.jsp");
-                view.forward(request, response);
                 break;
         }
+        view = request.getRequestDispatcher("userPage.jsp");
+        view.forward(request, response);        
     }
 
      // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
@@ -80,7 +76,7 @@ public class ReportServlet extends HttpServlet {
      */
     @Override
     public String getServletInfo() {
-        return "This is a Report Servlet that processes basic locator reports";
+        return "This is a Report Servlet that processes basic location report";
     }// </editor-fold>
 
 }

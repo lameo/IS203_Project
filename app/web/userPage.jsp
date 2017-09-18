@@ -45,18 +45,21 @@
             color: white;
         }
         .right {
-            text-align: right;
+            text-align: left;
             float: right;
-        }
+        }               
     </style>
     <body>
         <%
+            //user details, get using session
             User user = (User)session.getAttribute("user");
-            String timedate = (String)session.getAttribute("timeDate");
-            String topK = (String)session.getAttribute("topK");
             String name = user.getName();
             String timestamp = (String)session.getAttribute("timestamp");
-            timestamp = name + "-" + timestamp;
+            timestamp = name + "-" + timestamp;            
+            
+            //basic location report details, get using request
+            String timedate = (String)request.getAttribute("timeDate");
+            String topK = (String)request.getAttribute("topK");
         %>
         <div class="topnav" id="myTopnav">
             <a href="#heatmap">Basic Location Reports</a>
@@ -65,43 +68,7 @@
                 <a href="#knp"><%="Welcome " + name +"!"%></a>
                 <a href="processLogout">Logout</a>
             </div>
-        </div><br><br>
-        <%
-            //if basic report is generated
-            float totalCount = 0;
-            if(request.getAttribute("breakdownReport")!=null){
-                String breakdownReport = (String)(request.getAttribute("breakdownReport"));
-                String[] y = breakdownReport.split(",");
-                totalCount = Integer.parseInt(y[0]) + Integer.parseInt(y[1]);
-                out.print("Breakdown by Year & Gender at " + timedate);
-                out.print("<table border=\"1\">");
-                out.print("<tr><td></td><td>Male</td><td>Female</td><tr>");
-                out.print("<tr><td>2010</td><td>" + Math.round((Integer.parseInt(y[2])/totalCount*100)*10)/10.0 + "%</td><td>" + Math.round((Integer.parseInt(y[3])/totalCount*100)*10)/10.0 + "%</td><tr>");
-                out.print("<tr><td>2011</td><td>" + Math.round((Integer.parseInt(y[4])/totalCount*100)*10)/10.0 + "%</td><td>" + Math.round((Integer.parseInt(y[5])/totalCount*100)*10)/10.0 + "%</td><tr>");
-                out.print("<tr><td>2012</td><td>" + Math.round((Integer.parseInt(y[6])/totalCount*100)*10)/10.0 + "%</td><td>" + Math.round((Integer.parseInt(y[7])/totalCount*100)*10)/10.0 + "%</td><tr>");
-                out.print("<tr><td>2013</td><td>" + Math.round((Integer.parseInt(y[8])/totalCount*100)*10)/10.0 + "%</td><td>" + Math.round((Integer.parseInt(y[9])/totalCount*100)*10)/10.0 + "%</td><tr>");
-                out.print("<tr><td>2014</td><td>" + Math.round((Integer.parseInt(y[10])/totalCount*100)*10)/10.0 + "%</td><td>" + Math.round((Integer.parseInt(y[11])/totalCount*100)*10)/10.0 + "%</td><tr>");
-                out.print("<tr><td>Total:</td><td>" + Math.round((Integer.parseInt(y[0])/totalCount*100)*10)/10.0 + "%</td><td>" + Math.round((Integer.parseInt(y[1])/totalCount*100)*10)/10.0 + "%</td><tr>");
-                out.print("</table>");
-            }
-        %>
-
-
-        <%
-            //If top K report is generated
-            if(request.getAttribute("topKPopular")!=null){
-                out.print("Top-" + topK +" Popular Places at " + timedate);
-                out.print("<table border=\"1\">");
-                String topKPopular = (String)(request.getAttribute("topKPopular"));
-                String[] y = topKPopular.split(",");
-                out.print("<table border=\"1\">");
-                for(String next: y){
-                    out.print("<tr><td>" + next + "</td></tr>");
-                }
-                out.print("</table>");
-            }
-        %>
-
+        </div>
 
         <h2>Basic Location Reports</h2>
         <form method=post action="report">
@@ -142,9 +109,38 @@
             </tr>
         </table>
         </form>
-
-
         <%
+            //if basic report is generated
+            float totalCount = 0;
+            if(request.getAttribute("breakdownReport")!=null){
+                String breakdownReport = (String)(request.getAttribute("breakdownReport"));
+                String[] y = breakdownReport.split(",");
+                totalCount = Integer.parseInt(y[0]) + Integer.parseInt(y[1]);
+                out.print("<h3>Breakdown by Year & Gender at " + timedate + "</h3>");
+                out.print("<table border=\"1\">");
+                out.print("<tr><td></td><td>Male</td><td>Female</td><tr>");
+                out.print("<tr><td>2010</td><td>" + Math.round((Integer.parseInt(y[2])/totalCount*100)*10)/10.0 + "%</td><td>" + Math.round((Integer.parseInt(y[3])/totalCount*100)*10)/10.0 + "%</td><tr>");
+                out.print("<tr><td>2011</td><td>" + Math.round((Integer.parseInt(y[4])/totalCount*100)*10)/10.0 + "%</td><td>" + Math.round((Integer.parseInt(y[5])/totalCount*100)*10)/10.0 + "%</td><tr>");
+                out.print("<tr><td>2012</td><td>" + Math.round((Integer.parseInt(y[6])/totalCount*100)*10)/10.0 + "%</td><td>" + Math.round((Integer.parseInt(y[7])/totalCount*100)*10)/10.0 + "%</td><tr>");
+                out.print("<tr><td>2013</td><td>" + Math.round((Integer.parseInt(y[8])/totalCount*100)*10)/10.0 + "%</td><td>" + Math.round((Integer.parseInt(y[9])/totalCount*100)*10)/10.0 + "%</td><tr>");
+                out.print("<tr><td>2014</td><td>" + Math.round((Integer.parseInt(y[10])/totalCount*100)*10)/10.0 + "%</td><td>" + Math.round((Integer.parseInt(y[11])/totalCount*100)*10)/10.0 + "%</td><tr>");
+                out.print("<tr><td>Total:</td><td>" + Math.round((Integer.parseInt(y[0])/totalCount*100)*10)/10.0 + "%</td><td>" + Math.round((Integer.parseInt(y[1])/totalCount*100)*10)/10.0 + "%</td><tr>");
+                out.print("</table>");
+            }
+
+            //If top K report is generated
+            if(request.getAttribute("topKPopular")!=null){
+                out.print("<h3>Top-" + topK + " Popular Places at " + timedate + "</h3>");
+                out.print("<table border=\"1\">");
+                String topKPopular = (String)(request.getAttribute("topKPopular"));
+                String[] y = topKPopular.split(",");
+                out.print("<table border=\"1\">");
+                for(String next: y){
+                    out.print("<tr><td>" + next + "</td></tr>");
+                }
+                out.print("</table>");
+            }
+
             //debug
             out.print("<br>Top-K Companions & Top-K Next Places not working yet ");
             out.print("<br>Enter in this format: 2014-03-23 13:40:00");
