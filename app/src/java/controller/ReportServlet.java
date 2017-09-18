@@ -2,6 +2,7 @@ package controller;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -12,50 +13,34 @@ import model.User;
 
 public class ReportServlet extends HttpServlet {
 
-    public ReportServlet(){}
-
-
     protected void processRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        response.setContentType("text/html;charset=UTF-8");
         String reportType = request.getParameter("reportType");
         String timeDate = request.getParameter("timeDate");
         String topK = request.getParameter("topK");
-
+        RequestDispatcher view = null;
+        
         //to retrieve session's user
-        HttpSession sess = request.getSession(false);
-        User user = (User)sess.getAttribute("user");
-
-        String error = null;
         HttpSession session = request.getSession();
+        session.setAttribute("timeDate", timeDate);
 
-
-        try (PrintWriter out = response.getWriter()) {
-            session.setAttribute("user",user);
-            session.setAttribute("timeDate",timeDate);
-
-            switch (reportType) {
-                case "breakdownReport":
-                    String breakdownReport = ReportDAO.retrieveQtyByYearAndGender(timeDate);
-                    session.setAttribute("breakdownReport",breakdownReport);
-                    //to prevent topKPopular Report from showing again
-                    session.setAttribute("topKPopular",null);
-                    response.sendRedirect("userPage.jsp");
-                    break;
-                case "topKPopular":
-                    String topKPopular = ReportDAO.retrieveTopKPopularPlaces(timeDate, topK);
-                    session.setAttribute("topKPopular",topKPopular);
-                    session.setAttribute("topK",topK);
-                    //to prevent breakdown Report from showing again
-                    session.setAttribute("breakdownReport",null);
-                    response.sendRedirect("userPage.jsp");
-                    break;
-                default:
-                    response.sendRedirect("index.jsp");
-                    break;
-            }
-        } catch (IOException e){
-            session.setAttribute("error", "Server Down. Please Try Again Later. Thank You"); //send error messsage to index.jsp
-            response.sendRedirect("index.jsp");
+        switch (reportType) {
+            case "breakdownReport":
+                String breakdownReport = ReportDAO.retrieveQtyByYearAndGender(timeDate);
+                request.setAttribute("breakdownReport", breakdownReport);
+                view = request.getRequestDispatcher("userPage.jsp");
+                view.forward(request, response);
+                break;
+            case "topKPopular":
+                String topKPopular = ReportDAO.retrieveTopKPopularPlaces(timeDate, topK);
+                request.setAttribute("topKPopular", topKPopular);
+                request.setAttribute("topK", topK);
+                view = request.getRequestDispatcher("userPage.jsp");
+                view.forward(request, response);
+                break;
+            default:
+                view = request.getRequestDispatcher("userPage.jsp");
+                view.forward(request, response);
+                break;
         }
     }
 
@@ -95,7 +80,7 @@ public class ReportServlet extends HttpServlet {
      */
     @Override
     public String getServletInfo() {
-        return "Short description";
+        return "This is a Report Servlet that processes basic locator reports";
     }// </editor-fold>
 
 }

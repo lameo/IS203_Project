@@ -18,7 +18,7 @@ public class UserDAO {
         Connection connection = ConnectionManager.getConnection();            
 
         //prepare a statement
-        preparedStatement = connection.prepareStatement("select * from demographics where email like ? && password = ?"); //email from the database
+        preparedStatement = connection.prepareStatement("select * from demographics where email like ? && password = ?"); //email and password from the database
 
         //set the parameters
         preparedStatement.setString(1, username+"@%"); //e.g. john.doe.2016@%

@@ -3,13 +3,13 @@
 <%@page import="java.sql.Timestamp"%>
 <%@page import="java.time.Instant"%>
 <%
-    //check if user arrive page via link or through login
+    //check if admin arrive page via link or through login
     if(session.getAttribute("admin") != null && session.getAttribute("admin").equals("admin")){
-        response.sendRedirect("adminPage.jsp");
+        response.sendRedirect("adminPage.jsp"); //send back to admin page
         return;
     //check if user arrive page via link or through login
-    }else if(session.getAttribute("user")==null){
-        response.sendRedirect("index.jsp");
+    } else if(session.getAttribute("user")==null){
+        response.sendRedirect("index.jsp"); //send back to index page
         return;
     }
 %>
@@ -56,7 +56,7 @@
             String topK = (String)session.getAttribute("topK");
             String name = user.getName();
             String timestamp = (String)session.getAttribute("timestamp");
-            timestamp = name +"-"+ timestamp;
+            timestamp = name + "-" + timestamp;
         %>
         <div class="topnav" id="myTopnav">
             <a href="#heatmap">Basic Location Reports</a>
@@ -69,8 +69,8 @@
         <%
             //if basic report is generated
             float totalCount = 0;
-            if(session.getAttribute("breakdownReport")!=null){
-                String breakdownReport = (String)(session.getAttribute("breakdownReport"));
+            if(request.getAttribute("breakdownReport")!=null){
+                String breakdownReport = (String)(request.getAttribute("breakdownReport"));
                 String[] y = breakdownReport.split(",");
                 totalCount = Integer.parseInt(y[0]) + Integer.parseInt(y[1]);
                 out.print("Breakdown by Year & Gender at " + timedate);
@@ -89,10 +89,10 @@
 
         <%
             //If top K report is generated
-            if(session.getAttribute("topKPopular")!=null){
+            if(request.getAttribute("topKPopular")!=null){
                 out.print("Top-" + topK +" Popular Places at " + timedate);
                 out.print("<table border=\"1\">");
-                String topKPopular = (String)(session.getAttribute("topKPopular"));
+                String topKPopular = (String)(request.getAttribute("topKPopular"));
                 String[] y = topKPopular.split(",");
                 out.print("<table border=\"1\">");
                 for(String next: y){
