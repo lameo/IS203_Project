@@ -26,10 +26,16 @@ public class UserDAO {
 
         //execute SQL query
         resultSet = preparedStatement.executeQuery();
-
+        
         while(resultSet.next()){ //get query from database              
-            user = new User(resultSet.getString(1),resultSet.getString(2),resultSet.getString(3),resultSet.getString(4),resultSet.getString(5).charAt(0));
+            user = new User(resultSet.getString("macaddress"),resultSet.getString("name"),resultSet.getString("password"),resultSet.getString("email"),resultSet.getString("gender").charAt(0));
         }
+        
+        //close connections
+        resultSet.close();
+        preparedStatement.close();
+        connection.close();
+        
         return user;
     }    
     

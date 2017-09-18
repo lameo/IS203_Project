@@ -77,7 +77,13 @@ public class ReportDAO {
                 }else{
                     ans = resultSet.getString(1);
                 }
-            }       
+            }     
+
+            //close connections
+            resultSet.close();
+            preparedStatement.close();
+            connection.close();     
+            
         } catch (SQLException e){
             e.printStackTrace();
         }
