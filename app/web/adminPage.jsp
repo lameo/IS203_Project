@@ -53,7 +53,7 @@
             <a href="#upload">Upload new datafile</a>          
             <div class="right">
                 <a href="#knp"><%="Welcome " + name +"!"%></a>
-                <a href="logout.jsp">Logout</a>            
+                <a href="processLogout">Logout</a>            
             </div>
         </div>               
         <%="<br>User: " + name + "<br>Session: " + timestamp%>

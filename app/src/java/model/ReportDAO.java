@@ -7,8 +7,6 @@ import java.sql.SQLException;
 
 public class ReportDAO {
 
-    public ReportDAO(){}
-
     public static String retrieveQtyByYearAndGender(String time){
         Connection connection = null;
         PreparedStatement preparedStatement = null;
