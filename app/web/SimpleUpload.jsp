@@ -4,18 +4,11 @@
 
 <jsp:useBean id="upBean" scope="page" class="javazoom.upload.UploadBean" >
   <jsp:setProperty name="upBean" property="folderstore" value="c:/uploads" />
+  <jsp:setProperty name="upBean" property="filesizelimit" value="8589934592"/>  
 </jsp:useBean>
 
 <head>
 <title>Samples : Simple Upload</title>
-<style TYPE="text/css">
-<!--
-.style1 {
-	font-size: 12px;
-	font-family: Verdana;
-}
--->
-</style>
 <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
 </head>
 <body bgcolor="#FFFFFF" text="#000000">
@@ -66,36 +59,6 @@
   </table>
   <br>
   <br>
-  <table border="0" cellspacing="1" cellpadding="0" align="center">
-    <tr>
-      <td bgcolor="#666666">
-        <table width="100%" border="0" cellspacing="1" cellpadding="0" align="center" class="style1">
-          <tr>
-            <td bgcolor="#FFFFFF"><b><font color="#0000FF">&nbsp;
-              HTML tags used in this form : </font></b></td>
-          </tr>
-          <tr>
-            <td bgcolor="#FFFFFF">&nbsp;&lt;<b>form</b>
-              <b>method</b>=&quot;<b><font color="#FF0000">post</font></b>&quot;
-              <b>action</b>=&quot;<b><font color="#FF0000">SimpleUpload.jsp</font></b>&quot;
-              name=&quot;upload&quot; <b>enctype</b>=&quot;<b><font color="#FF0000">multipart/form-data</font></b>&quot;&gt;</td>
-          </tr>
-          <tr>
-            <td bgcolor="#FFFFFF">&nbsp;&lt;<b>input</b>
-              <b>type</b>=&quot;<b><font color="#FF0000">file</font></b>&quot;
-              <b>name</b>=&quot;<font color="#FF0000"><b>uploadfile</b></font>&quot;
-              size=&quot;50&quot;&gt;</td>
-          </tr>
-        </table>
-      </td>
-    </tr>
-  </table>
-  <p>&nbsp;</p>
-  <p>&nbsp;</p>
-  <p align="center">&nbsp;</p>
-  <p align="center">&nbsp;</p>
-  <p align="center"><font size="-1" face="Courier New, Courier, mono">Copyright
-    &copy; <a href="http://www.javazoom.net" target="_blank">JavaZOOM</a> 1999-2006</font></p>
 </form>
 </body>
 </html>
