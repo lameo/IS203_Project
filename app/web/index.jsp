@@ -18,7 +18,7 @@
                     <%
                         String error = (String)session.getAttribute("error"); //error message retrieved from LoginServlet
                         if(error!=null && error.length()>=1){
-                            out.println("<font color='red'>" + "<br/>" + error + "</font");
+                            out.println("<font color='red'>" + "<br/>" + error + "</font>");
                             session.invalidate(); //clear user session
                         }
                     %>

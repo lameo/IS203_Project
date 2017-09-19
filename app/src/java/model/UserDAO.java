@@ -9,6 +9,11 @@ import java.util.regex.Pattern;
 
 public class UserDAO {
     
+    /**
+     * Get valid user
+     *
+     * @return user - user object after validating with database
+     */     
     public static User retrieveUserByName(String username, String password) throws SQLException{
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
@@ -38,7 +43,12 @@ public class UserDAO {
         
         return user;
     }    
-    
+
+    /**
+     * Get valid username
+     *
+     * @return true - username is correctly entered
+     */      
     public static boolean validateUsername(String username){
         if(username==null && username.length()==0){
             return false;

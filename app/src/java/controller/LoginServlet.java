@@ -1,7 +1,6 @@
 package controller;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.sql.SQLException;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -27,7 +26,6 @@ public class LoginServlet extends HttpServlet {
         String password = request.getParameter("password");
         String timestamp = request.getParameter("timestamp");        
         HttpSession session = request.getSession();          
-        String error = null;
 
         try {
             if (username.equals("admin") && password.equals("password")) { //admin

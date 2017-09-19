@@ -52,23 +52,29 @@
             timestamp = name + "-" + timestamp;
         %>        
         <div class="topnav" id="myTopnav">
-            <a href="#upload">Upload new datafile</a>          
+            <a href="adminPage.jsp">Upload new datafile</a>          
             <div class="right">
                 <a href="#knp"><%="Welcome " + name +"!"%></a>
                 <a href="processLogout">Logout</a>            
             </div>
         </div>    
-        <ul>
         <%
             String error = (String)request.getAttribute("error"); //error message retrieved from UploadServlet
             if(error!=null && error.length()>=1){
-                out.println("<font color='red'>" + "<br/>" + error + "</font");
+                out.println("<font color='red'>" + "<br/>" + error + "</font>");
             }
         %>
+        <%
+            String success = (String)request.getAttribute("success"); //success message retrieved from UploadServlet
+            if(success!=null && success.length()>=1){
+                out.println("<font color='green'>" + "<br/> SUCCESS!!</font>");                
+                out.println("<font color='green'>" + "<br/>" + success + "</font>");
+            }
+        %>        
         <form method="post" action="processUpload" enctype="multipart/form-data">
             <table>
                 <tr>
-                    <td align="left"><b>Select a file to upload :</b></td>
+                    <td align="left"><b>Select a file to upload:</b></td>
                 </tr>
                 <tr>
                     <td align="left">

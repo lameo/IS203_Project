@@ -1,7 +1,6 @@
 package controller;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -24,31 +23,31 @@ public class UploadServlet extends HttpServlet implements java.io.Serializable{
     protected void processRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException  {      
         UploadBean upBean = new UploadBean();
         RequestDispatcher view = null;   
-        String error = null; 
         String success = null;
         
         try{
-            upBean.setFolderstore("d:/testt/dontupload");
-            Long size = Long.parseLong("8589934592");
+            upBean.setFolderstore("d:/testt/dontupload"); //the location of where documents will be stored, changing to database later
+            Long size = Long.parseLong("8589934592"); //the size limit of the file uploads
             upBean.setFilesizelimit(size);
 
             if (MultipartFormDataRequest.isMultipartFormData(request)){
                 //Uses MultipartFormDataRequest to parse the HTTP request.
-                MultipartFormDataRequest mrequest = new MultipartFormDataRequest(request);
-                String todo = null;
-                if (mrequest != null) {
-                    todo = mrequest.getParameter("todo");
-                }
-                if ((todo != null) && (todo.equalsIgnoreCase("upload"))){
-                    Hashtable files = mrequest.getFiles();
+                MultipartFormDataRequest multipartRequest = new MultipartFormDataRequest(request);
+                String todo = multipartRequest.getParameter("todo");
+                
+                if(todo.equalsIgnoreCase("upload")){
+                    Hashtable files = multipartRequest.getFiles();
                     if ((files != null) && (!files.isEmpty())){
                         UploadFile file = (UploadFile) files.get("uploadfile");
-                        if (file != null) {
+                        if (file != null && file.getFileSize()>0 && file.getFileName()!=null) {
                             success = "Uploaded file: " + file.getFileName()+ " (" + file.getFileSize() + " bytes)" + "<br>Content Type : " + file.getContentType();
                             request.setAttribute("success", success); //send error messsage to adminPage.jsp                                  
+                            
+                            // Uses the bean now to store specified by the properties
+                            upBean.store(multipartRequest, "uploadfile");
+                        } else {
+                            request.setAttribute("error", "No uploaded files"); //send error messsage to adminPage.jsp                      
                         }
-                        // Uses the bean now to store specified by jsp:setProperty at the top.
-                        upBean.store(mrequest, "uploadfile");
                     } else {
                         request.setAttribute("error", "No uploaded files"); //send error messsage to adminPage.jsp                      
                     }
