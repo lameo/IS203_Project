@@ -12,6 +12,10 @@
         <servlet-name>processLogout</servlet-name>
         <servlet-class>controller.LogoutServlet</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>processUpload</servlet-name>
+        <servlet-class>controller.UploadServlet</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>processLogin</servlet-name>
         <url-pattern>/processLogin</url-pattern>
@@ -23,6 +27,10 @@
     <servlet-mapping>
         <servlet-name>processLogout</servlet-name>
         <url-pattern>/processLogout</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>processUpload</servlet-name>
+        <url-pattern>/processUpload</url-pattern>
     </servlet-mapping>
     <session-config>
         <session-timeout>

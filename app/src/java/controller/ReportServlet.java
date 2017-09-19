@@ -36,7 +36,7 @@ public class ReportServlet extends HttpServlet {
             default:
                 break;
         }
-        view = request.getRequestDispatcher("userPage.jsp");
+        view = request.getRequestDispatcher("userPage.jsp");  //send back to userPage but same URL
         view.forward(request, response);        
     }
 
