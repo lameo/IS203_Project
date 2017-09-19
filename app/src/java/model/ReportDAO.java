@@ -65,7 +65,7 @@ public class ReportDAO {
             //get a connection to database
             connection = ConnectionManager.getConnection();            
             //prepare a statement
-            preparedStatement = connection.prepareStatement("select n.locationname from (SELECT max(TIMESTAMP) as TIMESTAMP, macaddress FROM location WHERE timestamp BETWEEN ? AND (SELECT DATE_ADD(?,INTERVAL 15 MINUTE)) group by macaddress) l, location m, locationlookup n where l.macaddress = m.macaddress and m.timestamp = l.timestamp and m.locationid = n.locationid group by n.locationname order by count(n.locationname) desc limit ? ");
+            preparedStatement = connection.prepareStatement("select n.locationname, count(n.locationname) from (SELECT max(TIMESTAMP) as TIMESTAMP, macaddress FROM location WHERE timestamp BETWEEN ? AND (SELECT DATE_ADD(?,INTERVAL 15 MINUTE)) group by macaddress) l, location m, locationlookup n where l.macaddress = m.macaddress and m.timestamp = l.timestamp and m.locationid = n.locationid group by n.locationname order by count(n.locationname) desc limit ? ");
 
             //set the parameters
             preparedStatement.setString(1, time);
@@ -77,9 +77,9 @@ public class ReportDAO {
             while(resultSet.next()){
                 //fencing
                 if(!ans.equals("")){
-                    ans += "," + resultSet.getString(1);
+                    ans += "," + resultSet.getString(1) + "," + resultSet.getString(2);
                 }else{
-                    ans = resultSet.getString(1);
+                    ans = resultSet.getString(1) + "," + resultSet.getString(2);
                 }
             }     
 

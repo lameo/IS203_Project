@@ -135,8 +135,9 @@
                 String topKPopular = (String)(request.getAttribute("topKPopular"));
                 String[] y = topKPopular.split(",");
                 out.print("<table border=\"1\">");
-                for(String next: y){
-                    out.print("<tr><td>" + next + "</td></tr>");
+                out.print("<tr><td>Rank</td><td>Semantic place</td><td>No pax</td></tr>");
+                for(int j =0; j< y.length; j+=2){
+                    out.print("<tr><td>" + (j/2 + 1) + "</td><td>"+ y[j] + "</td><td>" + y[j+1] + "</td></tr>");
                 }
                 out.print("</table>");
             }
