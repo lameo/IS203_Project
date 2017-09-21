@@ -2,7 +2,6 @@
 <%@page import="model.User"%>
 <%@page import="java.sql.Timestamp"%>
 <%@page import="java.time.Instant"%>
-<%@include file="clearCache.jsp"%>
 <%
     //check if admin arrive page via link or through login
     if (session.getAttribute("admin") != null && session.getAttribute("admin").equals("admin")) {
@@ -15,7 +14,9 @@
     }
 %>
 <!DOCTYPE html>
+<%@include file="clearCache.jsp"%>
 <html>
+    
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <title>User page</title>
