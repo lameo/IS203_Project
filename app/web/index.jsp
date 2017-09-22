@@ -14,7 +14,8 @@
         <center>
             <table>
                 <tr>
-                    <img src="resource/image/logo.png" width="260" height="100" />
+                    <img src="resource/image/giphy.gif" alt="Mya" style="width:240px;height:157px;">
+                    <h1>Singapore M(y)anagement University</h1>
                     <%
                         String error = (String)session.getAttribute("error"); //error message retrieved from LoginServlet
                         if(error!=null && error.length()>=1){
