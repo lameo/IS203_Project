@@ -16,10 +16,11 @@
 <!DOCTYPE html>
 <%@include file="clearCache.jsp"%>
 <html>
-    
+
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <title>User page</title>
+        <link href="css/bootstrap.css" rel="stylesheet">
     </head>
     <style>
         .topnav {
@@ -52,8 +53,9 @@
         }               
     </style>
     <body>
-        <%
-            //user details, get using session
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+        <script src='js/bootstrap.js'></script>
+        <%            //user details, get using session
             User user = (User) session.getAttribute("user");
             String name = user.getName();
             String timestamp = (String) session.getAttribute("timestamp");
@@ -63,6 +65,7 @@
             String timedate = (String) request.getAttribute("timeDate");
             String topK = (String) request.getAttribute("topK");
         %>
+
         <div class="topnav" id="myTopnav">
             <a href="#heatmap">Basic Location Reports</a>
             <a href="#heatmap">Heat Map</a>
@@ -72,45 +75,32 @@
             </div>
         </div>
 
-        <h2>Basic Location Reports</h2>
-        <form method=post action="report">
-            <table>
-                <!-- first row -->
-                <tr>
-                    <td><input type="radio" name="reportType" value="breakdownReport" checked></td>
-                    <td>Breakdown by Year & Gender&ensp;&ensp;</td>
-                    <td><input type="text" name="timeDate" size="25" placeholder="Enter date and time" required/></td>
-                </tr>
-                <!-- second row -->
-                <tr>
-                    <td><input type="radio" name="reportType" value="topKPopular"></td>
-                    <td>Top-K Popular Places</td>
-                    <td><select name = "topK">
-                            <option value="1">1</option>
-                            <option value="2">2</option>
-                            <option selected value="3">3</option>
-                            <option value="4">4</option>
-                            <option value="5">5</option>
-                            <option value="6">6</option>
-                            <option value="7">7</option>
-                            <option value="8">8</option>
-                            <option value="9">9</option>
-                            <option value="10">10</option>
-                        </select></td>
-                </tr>
-                <!-- third row -->
-                <tr>
-                    <td><input type="radio" name="reportType" value="tnp"></td>
-                    <td>Top-K Next Places</td>
-                    <td><input type="submit" value ="Generate"/></td>
-                </tr>
-                <!-- forth row -->
-                <tr>
-                    <td><input type="radio" name="reportType" value="tcc"></td>
-                    <td>Top-K Companions</td>
-                </tr>
-            </table>
-        </form>
+        <div class="container">
+            <h2>Basic Location Reports</h2>
+            <!-- first row -->
+            <div class="row" style="margin-top:10%;">
+                <div class="col-xs-6 col-lg-6">
+                    <button type="button" class="btn btn-primary">Breakdown by Year & Gender&ensp;&ensp;</button>
+                </div>
+                <div class="col-xs-6 col-lg-6">
+                    <button type="button" class="btn btn-primary">Top-K Popular Places</button>
+                </div>
+            </div>
+            <!-- second row -->
+            <div class="row" style="margin-top:10%;">
+                <div class="col-xs-6 col-lg-6">
+                    <button type="button" class="btn btn-primary">Top-K Next Places</button>
+                </div>
+                <div class="col-xs-6 col-lg-6">
+                    <button type="button" class="btn btn-primary">Top-K Companions</button>
+                </div>
+            </div>
+            
+            
+            
+
+
+        </div>
         <%
             //if basic report is generated
             float totalCount = 0;
