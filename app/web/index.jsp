@@ -39,9 +39,9 @@
         </form>
         <%
             //debugging purpose
-            out.print("<br><br><br><br>");
-            out.print("<br><br><h4>Test accounts:</h4><h5>Admin:<br>username: admin<br>password: password</h5>");
-            out.print("<h5>User:<br>username: zorro.fan.2010<br>password: zxcvbn1284</h5>");
+            out.print("<br>");
+            out.print("<br><br><h4>Test accounts:</h4><h5>Admin:<br>admin<br>password</h5>");
+            out.print("<h5>User:<br>zorro.fan.2010<br>zxcvbn1284</h5>");
 
         %>
     </body>
