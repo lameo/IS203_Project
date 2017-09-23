@@ -2,6 +2,7 @@
 <%@page import="model.User"%>
 <%@page import="java.time.Instant"%>
 <%@page import="java.awt.SystemColor.*"%>
+
 <!DOCTYPE html>
 <html>
     <head>
@@ -14,8 +15,8 @@
         <center>
             <table>
                 <tr>
-                    <img src="resource/image/giphy.gif" alt="Mya" style="width:240px;height:157px;">
-                    <h1>Singapore M(y)anagement University</h1>
+                    <img src="resource/image/logo.png" width="260" height="100">
+                    <h1>SMU LOCation Analytics Service<br>(SLOCA)</h1>
                     <%
                         String error = (String)session.getAttribute("error"); //error message retrieved from LoginServlet
                         if(error!=null && error.length()>=1){
@@ -39,7 +40,7 @@
         </form>
         <%
             //debugging purpose
-            out.print("<br><br><br><br><br><br><br><br><br><br><br>");
+            out.print("<br><br><br><br>");
             out.print("<br><br><h4>Test accounts:</h4><h5>Admin:<br>username: admin<br>password: password</h5>");
             out.print("<h5>User:<br>username: zorro.fan.2010<br>password: zxcvbn1284</h5>");
 
