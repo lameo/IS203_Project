@@ -39,37 +39,36 @@
         <nav class="navbar navbar-inverse"> <%-- navigation menu for user to click --%>
             <div class="container-fluid">
                 <div class="navbar-header">
-                    <a class="navbar-brand" href="#">SLOCA</a>
+                    <a class="navbar-brand" href="userPage.jsp">SLOCA</a>
                 </div>
                 <ul class="nav navbar-nav">
-                    <li><a href="userPage.jsp">Home</a></li>
-                    <li class="active"><a href="reportsPage.jsp">Basic Location Reports</a></li> <%-- send user to reports page --%>
+                    <li><a href="userPage.jsp">Home</a></li> <%-- send user to home page--%>
+                    <li class="active"><a href="reportsPage.jsp">Basic Location Reports</a></li> <%-- set active as user is in reports page. send user to reports page --%>
                     <li><a href="heatmapPage.jsp">Heat Map</a></li> <%-- send user to heatmap page --%>                  
                 </ul>
                 <ul class="nav navbar-nav navbar-right">
                     <li><a href="userPage.jsp"><%="Welcome " + name + "!"%></a></li>
-                    <li><a href="processLogout"><span class="glyphicon glyphicon-log-out"></span> Logout</a></li>  <%-- send user to logout servlet and process logout --%>
+                    <li><a href="processLogout"><span class="glyphicon glyphicon-log-out"></span> Logout</a></li> <%-- send user to logout servlet and process logout --%>
                 </ul>                
             </div>
         </nav>
         <div class="container">
-            <h2 style="text-align:center;">Basic Location Reports</h2>
             <!-- first row -->
             <div class="row" style="margin-top:2.5%;text-align:center;">
                 <div class="col-xs-6 col-lg-6">
-                    <button type="button" class="btn btn-primary">Breakdown by Year & Gender</button>
+                    <button type="button" class="btn"><b>Breakdown by Year & Gender</b></button>
                 </div>
                 <div class="col-xs-6 col-lg-6">
-                    <button type="button" class="btn btn-primary">Top-K Popular Places</button>
+                    <button type="button" class="btn"><b>Top-K Popular Places</b></button>
                 </div>
             </div>
             <!-- second row -->
             <div class="row" style="margin-top:5%;text-align:center;">
                 <div class="col-xs-6 col-lg-6">
-                    <button type="button" class="btn btn-primary">Top-K Next Places</button>
+                    <button type="button" class="btn"><b>Top-K Next Places</b></button>
                 </div>
                 <div class="col-xs-6 col-lg-6">
-                    <button type="button" class="btn btn-primary">Top-K Companions</button>
+                    <button type="button" class="btn"><b>Top-K Companions</b></button>
                 </div>
             </div>
         </div>
