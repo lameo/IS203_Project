@@ -53,11 +53,15 @@
         <div class="container">
             <!-- first row -->
             <div class="row" style="margin-top:2.5%;text-align:center;">
-                <div class="col-xs-6 col-lg-6">
-                    <button type="button" class="btn"><b>Breakdown by Year & Gender</b></button>
+                <div href="index.jsp" class="col-xs-6 col-lg-6">
+                    <a href="basicReport.jsp">
+                       <button  type="button"  class="btn"><b>Breakdown by Year & Gender</b></button>
+                    </a>
                 </div>
                 <div class="col-xs-6 col-lg-6">
-                    <button type="button" class="btn"><b>Top-K Popular Places</b></button>
+                    <a href="topKPop.jsp">
+                        <button type="button" class="btn"><b>Top-K Popular Places</b></button>
+                    </a>
                 </div>
             </div>
             <!-- second row -->
@@ -77,7 +81,7 @@
                 <!-- first row -->
                 <tr>
                     <td><input type="radio" name="reportType" value="breakdownReport" checked></td>
-                    <td>Breakdown by Year & Gender&ensp;&ensp;</td>
+                    <td>Breakdown by Year & Gender&ensp;</td>
                     <td><input type="text" name="timeDate" size="25" placeholder="Enter date and time" required/></td>
                 </tr>
                 <!-- second row -->

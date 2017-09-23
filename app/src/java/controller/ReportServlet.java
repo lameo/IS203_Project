@@ -13,32 +13,38 @@ public class ReportServlet extends HttpServlet {
 
     protected void processRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String reportType = request.getParameter("reportType");
-        String timeDate = request.getParameter("timeDate");
-        String topK = request.getParameter("topK");
         RequestDispatcher view = null;
-        
+
         //to retrieve session's user
         HttpSession session = request.getSession();
-        request.setAttribute("timeDate", timeDate);
 
         switch (reportType) {
-            case "breakdownReport":
-                String breakdownReport = ReportDAO.retrieveQtyByYearAndGender(timeDate);
+            case "basicReport":
+                String starttimeDate = request.getParameter("starttimeDate");
+                String endtimeDate = request.getParameter("endtimeDate");
+                String[] order = request.getParameterValues("order");
+
+                String breakdownReport = ReportDAO.notVeryBasicBreakdown(order, starttimeDate, endtimeDate);
                 request.setAttribute("breakdownReport", breakdownReport);
+                view = request.getRequestDispatcher("basicReport.jsp");  //send back to userPage but same URL
+                view.forward(request, response);
                 break;
             case "topKPopular":
+                String timeDate = request.getParameter("timeDate");
+                String topK = request.getParameter("topK");
+
                 String topKPopular = ReportDAO.retrieveTopKPopularPlaces(timeDate, topK);
                 request.setAttribute("topKPopular", topKPopular);
                 request.setAttribute("topK", topK);
+                view = request.getRequestDispatcher("topKPop.jsp");  //send back to userPage but same URL
+                view.forward(request, response);
                 break;
             default:
                 break;
         }
-        view = request.getRequestDispatcher("reportsPage.jsp");  //send back to userPage but same URL
-        view.forward(request, response);        
     }
 
-     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
+    // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
     /**
      * Handles the HTTP <code>GET</code> method.
      *
@@ -78,4 +84,3 @@ public class ReportServlet extends HttpServlet {
     }// </editor-fold>
 
 }
-
