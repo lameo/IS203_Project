@@ -1,5 +1,4 @@
 <%@page import="java.sql.Timestamp"%>
-<%@page import="model.User"%>
 <%@page import="java.time.Instant"%>
 <%@page import="java.awt.SystemColor.*"%>
 
@@ -15,11 +14,11 @@
         <center>
             <table>
                 <tr>
-                    <img src="resource/image/logo.png" width="260" height="100">
+                    <img src="resource/image/logo.png" width="260" height="100"> <%-- smu logo for login page --%>
                     <h1>SMU LOCation Analytics Service<br>(SLOCA)</h1>
                     <%
                         String error = (String)session.getAttribute("error"); //error message retrieved from LoginServlet
-                        if(error!=null && error.length()>=1){
+                        if(error!=null && error.length()>=1){ //if there is an error
                             out.println("<font color='red'>" + "<br/>" + error + "</font>");
                             session.invalidate(); //clear user session
                         }
@@ -32,7 +31,7 @@
                     <td><input type="password" name="password" size="20" placeholder="Enter your password" required/></td> <%-- password textbox --%>
                 </tr><tr>
                     <td></td>
-                    <td><div align="right"><input type="submit" value ="Login"/></div></td> <%-- submit button --%>
+                    <td><div align="right"><input type="submit" value ="Login"/></div></td> <%-- submit button, send data to LoginServlet M-V-C model --%>
                 </tr>
             </table>
         </center>

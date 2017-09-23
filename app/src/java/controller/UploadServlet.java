@@ -41,23 +41,23 @@ public class UploadServlet extends HttpServlet implements java.io.Serializable{
                         UploadFile file = (UploadFile) files.get("uploadfile");
                         if (file != null && file.getFileSize()>0 && file.getFileName()!=null) {
                             success = "Uploaded file: " + file.getFileName()+ " (" + file.getFileSize() + " bytes)" + "<br>Content Type : " + file.getContentType();
-                            request.setAttribute("success", success); //send error messsage to adminPage.jsp                                  
+                            request.setAttribute("success", success); //send error messsage to upload page.jsp                                  
                             
                             // Uses the bean now to store specified by the properties
                             upBean.store(multipartRequest, "uploadfile");
                         } else {
-                            request.setAttribute("error", "No uploaded files"); //send error messsage to adminPage.jsp                      
+                            request.setAttribute("error", "No uploaded files"); //send error messsage to upload page.jsp                      
                         }
                     } else {
-                        request.setAttribute("error", "No uploaded files"); //send error messsage to adminPage.jsp                      
+                        request.setAttribute("error", "No uploaded files"); //send error messsage to upload page.jsp                      
                     }
                 }
-                view = request.getRequestDispatcher("adminPage.jsp"); //send back to adminPage but same URL
+                view = request.getRequestDispatcher("uploadPage.jsp"); //send back to upload page but same URL
                 view.forward(request, response);                 
             }
         } catch (UploadException e){
-            request.setAttribute("error", "Unable to upload. Please try again later"); //send error messsage to adminPage.jsp
-            view = request.getRequestDispatcher("adminPage.jsp"); //send back to adminPage but same URL
+            request.setAttribute("error", "Unable to upload. Please try again later"); //send error messsage to uploadPage.jsp
+            view = request.getRequestDispatcher("uploadPage.jsp"); //send back to upload page but same URL
             view.forward(request, response);                     
         }    
     }

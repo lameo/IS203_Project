@@ -1,39 +1,32 @@
-<%@page import="java.util.Arrays"%>
 <%@page import="model.User"%>
 <%@page import="java.sql.Timestamp"%>
 <%@page import="java.time.Instant"%>
 
 <%
-    //check if admin arrive page via link or through login
-    if (session.getAttribute("admin") != null && session.getAttribute("admin").equals("admin")) {
+    if (session.getAttribute("admin") != null && session.getAttribute("admin").equals("admin")) { //check if admin arrive page via link or through login
         response.sendRedirect("adminPage.jsp"); //send back to admin page
         return;
-        //check if user arrive page via link or through login
-    } else if (session.getAttribute("user") == null) {
+    } else if (session.getAttribute("user") == null) { //check if user arrive page via link or through login
         response.sendRedirect("index.jsp"); //send back to index page
         return;
     }
 %>
 
 <!DOCTYPE html>
-<%@include file="clearCache.jsp"%>
+<%@include file="clearCache.jsp"%> <%-- clear cache, don't allow user to backpage after logging out --%>
 <html>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <link href="css/bootstrap.css" rel="stylesheet">    
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
-    <script src='js/bootstrap.js'></script>
+    <link href="css/bootstrap.css" rel="stylesheet"> <%-- twitter bootstrap for designing--%>    
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script> <%-- twitter bootstrap for designing--%>
+    <script src='js/bootstrap.js'></script> <%-- twitter bootstrap for designing--%>
 
     <%  //user details, get using session
         User user = (User) session.getAttribute("user");
         String name = user.getName();
         String timestamp = (String) session.getAttribute("timestamp");
-
-        //basic location report details, get using request
-        String timedate = (String) request.getAttribute("timeDate");
-        String topK = (String) request.getAttribute("topK");
     %>  
     <head>
-        <title>Reports Page</title>
+        <title>Heat Map Page</title>
     </head>
     <body>
         <nav class="navbar navbar-inverse"> <%-- navigation menu for user to click --%>
@@ -44,7 +37,7 @@
                 <ul class="nav navbar-nav">
                     <li><a href="userPage.jsp">Home</a></li> <%-- send user to home page--%>
                     <li><a href="reportsPage.jsp">Basic Location Reports</a></li> <%-- send user to reports page --%>
-                    <li class="active"><a href="heatmapPage.jsp">Heat Map</a></li> <%-- set active as user is in heat map page. send user to heatmap page --%>                  
+                    <li class="active"><a href="heatmapPage.jsp">Heat Map</a></li> <%-- set as active because user is in heat map page. send user to heatmap page --%>                  
                 </ul>
                 <ul class="nav navbar-nav navbar-right">
                     <li><a href="userPage.jsp"><%="Welcome " + name + "!"%></a></li>
@@ -52,10 +45,6 @@
                 </ul>                
             </div>
         </nav>
-    <center>
-        <%
-            out.print("<br>User session: " + timestamp);
-        %>
-    </center>
+    <center><%="<br>User session: " + timestamp%></center>
 </body>
 </html>
