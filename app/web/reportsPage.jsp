@@ -53,7 +53,7 @@
         <div class="container">
             <!-- first row -->
             <div class="row" style="margin-top:2.5%;text-align:center;">
-                <div href="index.jsp" class="col-xs-6 col-lg-6">
+                <div href="basicReport.jsp" class="col-xs-6 col-lg-6">
                     <a href="basicReport.jsp">
                         <button  type="button"  class="btn"><b>Breakdown by Year & Gender</b></button>
                     </a>

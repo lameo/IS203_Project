@@ -47,38 +47,41 @@
         </nav>
     <center>
 
-
+        <div class="container">
         <br><br>
+        <!-- Form for user to input date&time and top K for top K popular places report -->
         <form method=post action="report">
-            <table>
-                <input type="hidden" name="reportType" value="topKPopular">
-                <!-- first row -->
-                <tr>
-                    <td>Enter date & time:</td>
-                    <td colspan = "3"><input type="text" name="timeDate" size="25" placeholder="Enter date and time" required/></td>
-                </tr>
-                <tr>
-                    <td>Generate for top:</td>
-                    <td><select name = "topK">
-                            <option value="1">1</option>
-                            <option value="2">2</option>
-                            <option selected value="3">3</option>
-                            <option value="4">4</option>
-                            <option value="5">5</option>
-                            <option value="6">6</option>
-                            <option value="7">7</option>
-                            <option value="8">8</option>
-                            <option value="9">9</option>
-                            <option value="10">10</option>
-                        </select></td>
-                </tr>
-            </table>
-            <right><input type="submit" value ="Generate"/></right>
+            <!-- form input for date & time  -->
+            <div class="form-group">
+                <label class="form-control-label" for="formGroupExampleInput">Enter date & time:</label>
+                <input type="text" class="form-control" id="formGroupExampleInput" name="timeDate" placeholder="Example: 2017-09-24 15:05:20.9" required>
+            </div>
+            <!-- select menu for top K 1-10, default is 3  -->
+            <div class="form-group">
+                <label for="exampleFormControlSelect1">Generate for top:</label>
+                <select class="form-control" id="exampleFormControlSelect1" name = "topK">
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option selected value="3">3</option>
+                    <option value="4">4</option>
+                    <option value="5">5</option>
+                    <option value="6">6</option>
+                    <option value="7">7</option>
+                    <option value="8">8</option>
+                    <option value="9">9</option>
+                    <option value="10">10</option>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary">Generate</button>
         </form>
-
+        
+        
+            
+        </div>
         <%
             //If top K report is generated
             if (request.getAttribute("topK") != null) {
+
                 String timedate = (String) request.getAttribute("timeDate");
                 String topK = (String) request.getAttribute("topK");
                 out.print("<h3>Top-" + topK + " Popular Places at " + timedate + "</h3>");
