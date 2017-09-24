@@ -48,52 +48,56 @@
     <center>
 
         <div class="container">
-        <br><br>
-        <!-- Form for user to input date&time and top K for top K popular places report -->
-        <form method=post action="report">
-            <!-- form input for date & time  -->
-            <div class="form-group">
-                <label class="form-control-label" for="formGroupExampleInput">Enter date & time:</label>
-                <input type="text" class="form-control" id="formGroupExampleInput" name="timeDate" placeholder="Example: 2017-09-24 15:05:20.9" required>
-            </div>
-            <!-- select menu for top K 1-10, default is 3  -->
-            <div class="form-group">
-                <label for="exampleFormControlSelect1">Generate for top:</label>
-                <select class="form-control" id="exampleFormControlSelect1" name = "topK">
-                    <option value="1">1</option>
-                    <option value="2">2</option>
-                    <option selected value="3">3</option>
-                    <option value="4">4</option>
-                    <option value="5">5</option>
-                    <option value="6">6</option>
-                    <option value="7">7</option>
-                    <option value="8">8</option>
-                    <option value="9">9</option>
-                    <option value="10">10</option>
-                </select>
-            </div>
-            <button type="submit" class="btn btn-primary">Generate</button>
-        </form>
-        
-        
-            
+            <br><br>
+            <!-- Form for user to input date&time and top K for top K popular places report -->
+            <form method=post action="report">
+                <!-- report type -->
+                <input type="hidden" name="reportType" value="topKPopular">
+                <!-- form input for date & time  -->
+                <div class="form-group">
+                    <label class="form-control-label" for="formGroupExampleInput">Enter date & time:</label>
+                    <input type="text" class="form-control" id="formGroupExampleInput" name="timeDate" placeholder="Example: 2017-09-24 15:05:20.9" required>
+                </div>
+                <!-- select menu for top K 1-10, default is 3  -->
+                <div class="form-group">
+                    <label for="exampleFormControlSelect1">Generate for top:</label>
+                    <select class="form-control" id="exampleFormControlSelect1" name = "topK">
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option selected value="3">3</option>
+                        <option value="4">4</option>
+                        <option value="5">5</option>
+                        <option value="6">6</option>
+                        <option value="7">7</option>
+                        <option value="8">8</option>
+                        <option value="9">9</option>
+                        <option value="10">10</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary">Generate</button>
+            </form>
+
+
+
         </div>
         <%
             //If top K report is generated
             if (request.getAttribute("topK") != null) {
 
-                String timedate = (String) request.getAttribute("timeDate");
+                String timedate = request.getParameter("timeDate");
                 String topK = (String) request.getAttribute("topK");
                 out.print("<h3>Top-" + topK + " Popular Places at " + timedate + "</h3>");
-                out.print("<table border=\"1\">");
+                
+                
+                
+                out.print("<div class=\"container\"><table class=\"table table-bordered\"><thead>");
                 String topKPopular = (String) (request.getAttribute("topKPopular"));
                 String[] y = topKPopular.split(",");
-                out.print("<table border=\"1\">");
-                out.print("<tr><td>Rank</td><td>Semantic place</td><td>No pax</td></tr>");
+                out.print("<tr><th>Rank</th><th>Semantic place</th><th>No pax</th></tr></thead></tbody>");
                 for (int j = 0; j < y.length; j += 2) {
                     out.print("<tr><td>" + (j / 2 + 1) + "</td><td>" + y[j] + "</td><td>" + y[j + 1] + "</td></tr>");
                 }
-                out.print("</table>");
+                out.print("</tbody></table></div>");
             }
         %>
 
