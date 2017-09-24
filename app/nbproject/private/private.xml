@@ -5,6 +5,9 @@
         <group>
             <file>file:/D:/testt/app/web/userPage.jsp</file>
             <file>file:/D:/testt/app/web/reportsPage.jsp</file>
+            <file>file:/D:/testt/app/web/topKPop.jsp</file>
+            <file>file:/D:/testt/app/web/topKPop_1.jsp</file>
+            <file>file:/D:/testt/app/src/java/controller/LoginServlet.java</file>
             <file>file:/D:/testt/app/web/heatmapPage.jsp</file>
             <file>file:/D:/testt/app/web/index.jsp</file>
         </group>
