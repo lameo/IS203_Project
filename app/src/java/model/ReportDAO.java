@@ -7,7 +7,7 @@ import java.sql.SQLException;
 
 public class ReportDAO {
 
-    private static String retrieveByGender(String timeBegin, String timeEnd, String gender) {
+    private static int retrieveByGender(String timeBegin, String timeEnd, String gender) {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
@@ -37,10 +37,10 @@ public class ReportDAO {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return ans;
+        return Integer.parseInt(ans);
     }
 
-    private static String retrieveByEmail(String timeBegin, String timeEnd, String school) {
+    private static int retrieveByEmail(String timeBegin, String timeEnd, String school) {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
@@ -70,7 +70,39 @@ public class ReportDAO {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return ans;
+        return Integer.parseInt(ans);
+    }
+    
+    private static int everyoneWithinTime(String timeBegin, String timeEnd) {
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
+        String ans = "";
+        try {
+            //get a connection to database
+            connection = ConnectionManager.getConnection();
+
+            //prepare a statement
+            preparedStatement = connection.prepareStatement("select count(DISTINCT l.macaddress) from location l, demographics d where  timestamp between ? and ? and l.macaddress = d.macaddress");
+
+            //set the parameters
+            preparedStatement.setString(1, timeBegin);
+            preparedStatement.setString(2, timeEnd);
+
+            //execute SQL query
+            resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()) {
+                ans = resultSet.getString(1);
+            }
+
+            //close connections
+            resultSet.close();
+            preparedStatement.close();
+            connection.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return Integer.parseInt(ans);
     }
 
     public static String retrieveTopKPopularPlaces(String time, String topK) {
@@ -111,7 +143,7 @@ public class ReportDAO {
         return ans;
     }
 
-    private static String retrieveThreeBreakdown(String timeBegin, String timeEnd, String year, String gender, String school) {
+    private static int retrieveThreeBreakdown(String timeBegin, String timeEnd, String year, String gender, String school) {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
@@ -142,7 +174,7 @@ public class ReportDAO {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return ans;
+        return Integer.parseInt(ans);
     }
 
     public static String notVeryBasicBreakdown(String[] text, String startTimeDate, String endTimeDate) {
@@ -236,7 +268,18 @@ public class ReportDAO {
         }
 
         // start string to return
-        String returnThis = "<table border = 1>";
+        String returnThis = "<div class=\"container\">      <table class=\"table table-bordered\">";
+        // Print table header
+        returnThis += ("<thead><tr><th colspan = " + (total+2) + ">Report for " + startTimeDate + " to " + endTimeDate + "</th></tr>");
+        for(String header: used.split(" ")){
+            returnThis += "<th>" + header.substring(0, 1).toUpperCase() + header.substring(1) + "</th>";
+        }
+        returnThis += "<th>Qty</th><th>Percentage</th></thead><tbody>";
+
+        //For the percentage calculation later
+        int totalBetweenTime = everyoneWithinTime(startTimeDate, endTimeDate);
+        
+        
         for (int i = 1; i <= numberOfTimes; i++) {
             String currentLine = "<tr>";
 
@@ -271,83 +314,81 @@ public class ReportDAO {
 
             // run all the time
             System.out.print("Running " + i + "times\n\n\n");
+            int value = -1;
             switch (total) {
                 case 1:
                     switch (used) {
                         case "gender ":
-                            currentLine += "<td>" + retrieveByGender(startTimeDate, endTimeDate, gender[i - 1]) + "</td>";
+                            value = retrieveByGender(startTimeDate, endTimeDate, gender[i - 1]);
                             break;
                         case "school ":
-                            currentLine += "<td>" + retrieveByEmail(startTimeDate, endTimeDate, school[i - 1]) + "</td>";
+                            value = retrieveByEmail(startTimeDate, endTimeDate, school[i - 1]);
+                            break;
+                        case "year ":
+                            value = retrieveByEmail(startTimeDate, endTimeDate, year[i - 1]);
                             break;
                         default:
-                            currentLine += "<td>" + retrieveByEmail(startTimeDate, endTimeDate, year[i - 1]) + "</td>";
+                            value = -2;
                             break;
                     }
                     break;
                 case 2:
                     String[] current = used.split(" ");
                     //Checking which variable is not selected
-                    currentLine += "<td>";
                     int totalSum = 0;
                     if (current[0].equals("year") && current[1].equals("gender")) {
                         for (int j = 1; j < school.length; j++) {
-                            totalSum += Integer.parseInt(retrieveThreeBreakdown(startTimeDate, endTimeDate, year[(int) Math.ceil((i - 0.01) / 2)], gender[(i - 1) % 2 + 1], school[j]));
+                            totalSum += retrieveThreeBreakdown(startTimeDate, endTimeDate, year[(int) Math.ceil((i - 0.01) / 2)], gender[(i - 1) % 2 + 1], school[j]);
                         }
                     } else if (current[0].equals("year") && current[1].equals("school")) {
                         for (int j = 1; j < gender.length; j++) {
-                            totalSum += Integer.parseInt(retrieveThreeBreakdown(startTimeDate, endTimeDate, year[(int) (Math.ceil((i - 0.01) / 6))], gender[j], school[(i - 1) % 6 + 1]));
+                            totalSum += retrieveThreeBreakdown(startTimeDate, endTimeDate, year[(int) (Math.ceil((i - 0.01) / 6))], gender[j], school[(i - 1) % 6 + 1]);
                         }
                     } else if (current[0].equals("school") && current[1].equals("gender")) {
                         for (int j = 1; j < year.length; j++) {
-                            totalSum += Integer.parseInt(retrieveThreeBreakdown(startTimeDate, endTimeDate, year[j], gender[(i - 1) % 2 + 1], school[(int) Math.ceil((i - 0.01) / 2)]));
+                            totalSum += retrieveThreeBreakdown(startTimeDate, endTimeDate, year[j], gender[(i - 1) % 2 + 1], school[(int) Math.ceil((i - 0.01) / 2)]);
                         }
                     } else if (current[0].equals("school") && current[1].equals("year")) {
                         for (int j = 1; j < gender.length; j++) {
-                            totalSum += Integer.parseInt(retrieveThreeBreakdown(startTimeDate, endTimeDate, year[(i - 1) % 5 + 1], gender[j], school[(int) Math.ceil((i - 0.01) / 5)]));
+                            totalSum += retrieveThreeBreakdown(startTimeDate, endTimeDate, year[(i - 1) % 5 + 1], gender[j], school[(int) Math.ceil((i - 0.01) / 5)]);
                         }
                     } else if (current[0].equals("gender") && current[1].equals("school")) {
                         for (int j = 1; j < year.length; j++) {
-                            totalSum += Integer.parseInt(retrieveThreeBreakdown(startTimeDate, endTimeDate, year[j], gender[(int) Math.ceil((i - 0.01) / 6)], school[(i - 1) % 6 + 1]));
+                            totalSum += retrieveThreeBreakdown(startTimeDate, endTimeDate, year[j], gender[(int) Math.ceil((i - 0.01) / 6)], school[(i - 1) % 6 + 1]);
                         }
                     } else if (current[0].equals("gender") && current[1].equals("year")) {
                         for (int j = 1; j < school.length; j++) {
-                            totalSum += Integer.parseInt(retrieveThreeBreakdown(startTimeDate, endTimeDate, year[(i - 1) % 5 + 1], gender[(int) Math.ceil((i - 0.01) / 6)], school[j]));
+                            totalSum += retrieveThreeBreakdown(startTimeDate, endTimeDate, year[(i - 1) % 5 + 1], gender[(int) Math.ceil((i - 0.01) / 6)], school[j]);
                         }
-                    } else { // if (text[0].equals("gender") && text[1].equals("school"))
-                        totalSum += -1;
                     }
-                    currentLine += "" + totalSum;
+                    value = totalSum;
                     break;
                 default:
-                    currentLine += "<td>";
                     if (text[0].equals("year") && text[1].equals("gender") && text[2].equals("school")) {
-                        currentLine += retrieveThreeBreakdown(startTimeDate, endTimeDate, year[((int) Math.ceil((i - 0.01) / 12))], gender[((int) Math.ceil((i - 1) / 6)) % 2 + 1], school[(i - 1) % 6 + 1]);
-                        /*currentLine += "<br>";
-                        currentLine += " year: " + year[((int) Math.ceil((i - 0.01) / 12))];
-                        currentLine += " gender: " + gender[(i - 1) % 2 + 1];
-                        currentLine += " School: " + school[((int) Math.ceil((i - 1) / 2)) % 6 + 1];*/
+                        value = retrieveThreeBreakdown(startTimeDate, endTimeDate, year[((int) Math.ceil((i - 0.01) / 12))], gender[((int) Math.ceil((i - 1) / 6)) % 2 + 1], school[(i - 1) % 6 + 1]);
                     } else if (text[0].equals("year") && text[2].equals("gender") && text[1].equals("school")) {
-                        currentLine += retrieveThreeBreakdown(startTimeDate, endTimeDate, year[((int) Math.ceil((i - 0.01) / 12))], gender[(i - 1) % 2 + 1], school[((int) Math.ceil((i - 1) / 2)) % 6 + 1]);
+                        value = retrieveThreeBreakdown(startTimeDate, endTimeDate, year[((int) Math.ceil((i - 0.01) / 12))], gender[(i - 1) % 2 + 1], school[((int) Math.ceil((i - 1) / 2)) % 6 + 1]);
                     } else if (text[1].equals("year") && text[0].equals("gender") && text[2].equals("school")) {
-                        currentLine += retrieveThreeBreakdown(startTimeDate, endTimeDate, year[((int) Math.ceil((i - 1) / 6)) % 5 + 1], gender[((int) Math.ceil((i - 0.01) / 30))], school[(i - 1) % 6 + 1]);
+                        value = retrieveThreeBreakdown(startTimeDate, endTimeDate, year[((int) Math.ceil((i - 1) / 6)) % 5 + 1], gender[((int) Math.ceil((i - 0.01) / 30))], school[(i - 1) % 6 + 1]);
                     } else if (text[1].equals("year") && text[2].equals("gender") && text[0].equals("school")) {
-                        currentLine += retrieveThreeBreakdown(startTimeDate, endTimeDate, year[((int) Math.ceil((i - 1) / 2)) % 5 + 1], gender[(i - 1) % 2 + 1], school[((int) Math.ceil((i - 0.01) / 10))]);
+                        value = retrieveThreeBreakdown(startTimeDate, endTimeDate, year[((int) Math.ceil((i - 1) / 2)) % 5 + 1], gender[(i - 1) % 2 + 1], school[((int) Math.ceil((i - 0.01) / 10))]);
                     } else if (text[2].equals("year") && text[1].equals("gender") && text[0].equals("school")) {
-                        currentLine += retrieveThreeBreakdown(startTimeDate, endTimeDate, year[(i - 1) % 5 + 1], gender[((int) Math.ceil((i - 1) / 5)) % 2 + 1], school[((int) Math.ceil((i - 0.01) / 10))]);
-                    } else//if (text[2].equals("year") && text[1].equals("gender") && text[0].equals("school"))
-                    {
-                        currentLine += retrieveThreeBreakdown(startTimeDate, endTimeDate, year[(i - 1) % 5 + 1], gender[((int) Math.ceil((i - 0.01) / 30))], school[((int) Math.ceil((i - 1) / 5)) % 6 + 1]);
+                        value = retrieveThreeBreakdown(startTimeDate, endTimeDate, year[(i - 1) % 5 + 1], gender[((int) Math.ceil((i - 1) / 5)) % 2 + 1], school[((int) Math.ceil((i - 0.01) / 10))]);
+                    } else if (text[2].equals("year") && text[1].equals("gender") && text[0].equals("school")) {
+                        value = retrieveThreeBreakdown(startTimeDate, endTimeDate, year[(i - 1) % 5 + 1], gender[((int) Math.ceil((i - 0.01) / 30))], school[((int) Math.ceil((i - 1) / 5)) % 6 + 1]);
                     }
-                    currentLine += "</td>";
                     break;
             }
-
+            currentLine += "<td>" + value + "</td>";
+            
+            //Generating percentage
+            currentLine += "<td>" + Math.round(value*100/totalBetweenTime) + "%</td>";
+            
             //Ending
             currentLine += "</tr>";
             returnThis += currentLine;
         }
-        returnThis += "</table>";
+        returnThis += "</tbody></table></div>";
         return returnThis;
     }
 }

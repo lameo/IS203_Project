@@ -47,66 +47,86 @@
         </nav>
     <center>
 
+        <div class="container">
+            <br><br>
+            <form method=post action="report">
+                <table>
+                    <!-- report type -->
+                    <input type="hidden" name="reportType" value="basicReport">
 
-        <br><br>
-        <form method=post action="report">
-            <table>
-                <input type="hidden" name="reportType" value="basicReport">
-                <!-- first row -->
-                <tr>
-                    <td colspan = "3">Starting date & time:</td>
-                    <td colspan = "3"><input type="text" name="starttimeDate" size="25" placeholder="Enter date and time" required/></td>
-                </tr>
-                <tr>
-                    <td colspan = "3">Ending date & time:</td>
-                    <td colspan = "3"><input type="text" name="endtimeDate" size="25" placeholder="Enter date and time" required/></td>
-                </tr>
-                <tr><td><br></td></tr>
-                <tr>
-                    <td>First:</td>
-                    <td>
-                        <select name = "order">
-                            <option selected value="year">Year</option>
-                            <option value="gender">Gender</option>
-                            <option value="school">School</option>
+                    <!-- first row, starting time and date field -->
+                    <tr>
+                    <div class="form-group">
+                        <label class="form-control-label" for="formGroupExampleInput">Enter starting date & time:</label>
+                        <input type="text" class="form-control" id="formGroupExampleInput" name="starttimeDate" placeholder="Example: 2014-03-23 13:40:00" required>
+                    </div>
+                    </tr>
+
+                    <!-- second row, ending time and date field -->
+                    <tr>
+                    <div class="form-group">
+                        <label class="form-control-label" for="formGroupExampleInput">Enter ending date & time:</label>
+                        <input type="text" class="form-control" id="formGroupExampleInput" name="endtimeDate" placeholder="Example: 2014-03-23 13:55:00" required>
+                    </div>
+                    </tr>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="order">Sort by (first):</label>
+                        <select name="order" class="form-control">
+                            <option value = "year">Year</option>
+                            <option value = "gender">Gender</option>
+                            <option value = "school">School</option>
                         </select>
-                    </td>
-                    <td>&ensp;Second:</td>
-                    <td>
-                        <select name = "order">
-                            <option selected value="none">None</option>
-                            <option value="year">Year</option>
-                            <option value="gender">Gender</option>
-                            <option value="school">School</option>
+
+                        <label for="order">Sort by (second):</label>
+                        <select name="order" class="form-control">
+                            <option value = "none">(Optional)</option>
+                            <option value = "year">Year</option>
+                            <option value = "gender">Gender</option>
+                            <option value = "school">School</option>
                         </select>
-                    </td>
-                    <td>&ensp;Third:</td>
-                    <td>
-                        <select name = "order">
-                            <option selected value="none">None</option>
-                            <option value="year">Year</option>
-                            <option value="gender">Gender</option>
-                            <option value="school">School</option>
+
+                        <label for="order">Sort by (third):</label>
+                        <select name="order" class="form-control">
+                            <option value = "none">(Optional)</option>
+                            <option value = "year">Year</option>
+                            <option value = "gender">Gender</option>
+                            <option value = "school">School</option>
                         </select>
-                    </td>
-                </tr>
-            </table>
-            <right><input type="submit" value ="Generate"/></right>
-        </form>
+                    </div>
+
+
+                </table>
+                <button type="submit" class="btn btn-primary">Generate</button>
+            </form>
+        </div>
 
         <%
             //If top K report is generated
             if (request.getAttribute("breakdownReport") != null) {
-                String breakdownReport = (String) (request.getAttribute("breakdownReport"));
-                out.print(breakdownReport);
+                String[] options = request.getParameterValues("order");
+
+                String errMsg = "Duplicated option found: ";
+                boolean duplicate = false;
+                for (int i = 0; i < options.length; i++) {
+                    for (int j = 1; j < options.length; j++) {
+                        if (options[i].equals(options[j]) && !options[i].equals("none") && i != j) {
+                            // duplicate element found
+                            duplicate = true;
+                            errMsg += options[j];
+                        }
+                    }
+                }
+
+                if (duplicate) {
+                    out.print("<p style=\"color:red;\">Report Generation failed<br>" + errMsg + "</p>");
+                } else {
+                    String breakdownReport = (String) (request.getAttribute("breakdownReport"));
+                    out.print(breakdownReport);
+                }
             }
         %>
-
-
-
-
-
-
 
         <%="<br>User session: " + timestamp%>
     </center>
