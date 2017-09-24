@@ -24,7 +24,7 @@
         User user = (User) session.getAttribute("user");
         String name = user.getName();
         String timestamp = (String) session.getAttribute("timestamp");
-    %>  
+    %>
     <head>
         <title>Top-K popular places</title>
     </head>
@@ -37,12 +37,12 @@
                 <ul class="nav navbar-nav">
                     <li class="active"><a href="userPage.jsp">Home</a></li> <%-- set as active because user is in home page. send user to home page--%>
                     <li><a href="reportsPage.jsp">Basic Location Reports</a></li> <%-- send user to reports page --%>
-                    <li><a href="heatmapPage.jsp">Heat Map</a></li> <%-- send user to heatmap page --%>                  
+                    <li><a href="heatmapPage.jsp">Heat Map</a></li> <%-- send user to heatmap page --%>
                 </ul>
                 <ul class="nav navbar-nav navbar-right">
                     <li><a href="userPage.jsp"><%="Welcome " + name + "!"%></a></li>
                     <li><a href="processLogout"><span class="glyphicon glyphicon-log-out"></span> Logout</a></li> <%-- send user to logout servlet and process logout --%>
-                </ul>                
+                </ul>
             </div>
         </nav>
     <center>
@@ -94,10 +94,6 @@
                 out.print("</table>");
             }
         %>
-
-
-
-
 
 
 

@@ -1,3 +1,4 @@
+<%@page import="java.util.Arrays"%>
 <%@page import="model.User"%>
 <%@page import="java.sql.Timestamp"%>
 <%@page import="java.time.Instant"%>
@@ -24,9 +25,13 @@
         User user = (User) session.getAttribute("user");
         String name = user.getName();
         String timestamp = (String) session.getAttribute("timestamp");
-    %>  
+
+        //basic location report details, get using request
+        String timedate = (String) request.getAttribute("timeDate");
+        String topK = (String) request.getAttribute("topK");
+    %>
     <head>
-        <title>Top-K popular places</title>
+        <title>Reports Page</title>
     </head>
     <body>
         <nav class="navbar navbar-inverse"> <%-- navigation menu for user to click --%>
@@ -35,80 +40,45 @@
                     <a class="navbar-brand" href="userPage.jsp">SLOCA</a>
                 </div>
                 <ul class="nav navbar-nav">
-                    <li class="active"><a href="userPage.jsp">Home</a></li> <%-- set as active because user is in home page. send user to home page--%>
-                    <li><a href="reportsPage.jsp">Basic Location Reports</a></li> <%-- send user to reports page --%>
-                    <li><a href="heatmapPage.jsp">Heat Map</a></li> <%-- send user to heatmap page --%>                  
+                    <li><a href="userPage.jsp">Home</a></li> <%-- send user to home page--%>
+                    <li class="active"><a href="reportsPage.jsp">Basic Location Reports</a></li> <%-- set as active because user is in reports page. send user to reports page --%>
+                    <li><a href="heatmapPage.jsp">Heat Map</a></li> <%-- send user to heatmap page --%>
                 </ul>
                 <ul class="nav navbar-nav navbar-right">
                     <li><a href="userPage.jsp"><%="Welcome " + name + "!"%></a></li>
                     <li><a href="processLogout"><span class="glyphicon glyphicon-log-out"></span> Logout</a></li> <%-- send user to logout servlet and process logout --%>
-                </ul>                
+                </ul>
             </div>
         </nav>
-    <center>
-
-
-        <br><br>
-        <form method=post action="report">
-            <table>
-                <input type="hidden" name="reportType" value="basicReport">
-                <!-- first row -->
-                <tr>
-                    <td colspan = "3">Enter starting date & time:</td>
-                    <td colspan = "3"><input type="text" name="starttimeDate" size="25" placeholder="Enter date and time" required/></td>
-                </tr>
-                <tr>
-                    <td colspan = "3">Enter ending date & time:</td>
-                    <td colspan = "3"><input type="text" name="endtimeDate" size="25" placeholder="Enter date and time" required/></td>
-                </tr>
-                <tr><td><br></td></tr>
-                <tr>
-                    <td>First:</td>
-                    <td>
-                        <select name = "order">
-                            <option selected value="year">Year</option>
-                            <option value="gender">Gender</option>
-                            <option value="school">School</option>
-                        </select>
-                    </td>
-                    <td>&ensp;Second:</td>
-                    <td>
-                        <select name = "order">
-                            <option selected value="none">None</option>
-                            <option value="year">Year</option>
-                            <option value="gender">Gender</option>
-                            <option value="school">School</option>
-                        </select>
-                    </td>
-                    <td>&ensp;Third:</td>
-                    <td>
-                        <select name = "order">
-                            <option selected value="none">None</option>
-                            <option value="year">Year</option>
-                            <option value="gender">Gender</option>
-                            <option value="school">School</option>
-                        </select>
-                    </td>
-                </tr>
-            </table>
-            <right><input type="submit" value ="Generate"/></right>
-        </form>
-
+        <div class="container">
+            <!-- first row -->
+            <div class="row" style="margin-top:2.5%;text-align:center;">
+                <div href="index.jsp" class="col-xs-6 col-lg-6">
+                    <a href="basicReport.jsp">
+                        <button  type="button"  class="btn"><b>Breakdown by Year & Gender</b></button>
+                    </a>
+                </div>
+                <div class="col-xs-6 col-lg-6">
+                    <a href="topKPop.jsp">
+                        <button type="button" class="btn"><b>Top-K Popular Places</b></button>
+                    </a>
+                </div>
+            </div>
+            <!-- second row -->
+            <div class="row" style="margin-top:5%;text-align:center;">
+                <div class="col-xs-6 col-lg-6">
+                    <button type="button" class="btn"><b>Top-K Next Places</b></button>
+                </div>
+                <div class="col-xs-6 col-lg-6">
+                    <button type="button" class="btn"><b>Top-K Companions</b></button>
+                </div>
+            </div>
+        </div>
         <%
-            //If top K report is generated
-            if (request.getAttribute("breakdownReport") != null) {
-                String breakdownReport = (String) (request.getAttribute("breakdownReport"));
-                out.print(breakdownReport);
-            }
+            //debug
+            out.print("<br>Top-K Companions & Top-K Next Places not working yet ");
+            out.print("<br>Enter in this format: 2014-03-23 13:40:00");
         %>
-
-
-
-
-
-
-
-        <%="<br>User session: " + timestamp%>
-    </center>
+    <center><%="<br>User session: " + timestamp%></center>
 </body>
 </html>
