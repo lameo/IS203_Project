@@ -1,3 +1,5 @@
+<%@page import="java.util.ArrayList"%>
+<%@page import="java.util.Map"%>
 <%@page import="model.User"%>
 <%@page import="java.sql.Timestamp"%>
 <%@page import="java.time.Instant"%>
@@ -82,20 +84,22 @@
         </div>
         <%
             //If top K report is generated
-            if (request.getAttribute("topK") != null) {
-
+            if (request.getParameter("topK") != null) {
                 String timedate = request.getParameter("timeDate");
-                String topK = (String) request.getAttribute("topK");
+                int topK = Integer.parseInt(request.getParameter("topK"));
+                Map<Integer, String> map = (Map<Integer, String>) (request.getAttribute("topKPopular"));
+
                 out.print("<h3>Top-" + topK + " Popular Places at " + timedate + "</h3>");
-                
-                
-                
                 out.print("<div class=\"container\"><table class=\"table table-bordered\"><thead>");
-                String topKPopular = (String) (request.getAttribute("topKPopular"));
-                String[] y = topKPopular.split(",");
-                out.print("<tr><th>Rank</th><th>Semantic place</th><th>No pax</th></tr></thead></tbody>");
-                for (int j = 0; j < y.length; j += 2) {
-                    out.print("<tr><td>" + (j / 2 + 1) + "</td><td>" + y[j] + "</td><td>" + y[j + 1] + "</td></tr>");
+                out.print("<tr><th>Rank</th><th>Semantic place</th><th>No pax</th></tr></thead><tbody>");
+
+                ArrayList<Integer> keys = new ArrayList<Integer>(map.keySet());
+                int count = 1;
+                for (int i = keys.size() - 1; i >= 0; i--) {
+                    if (count <= topK) {
+                        System.out.print(map.get(keys.get(i)));
+                        out.print("<tr><td>" + count++ + "</td><td>" + map.get(keys.get(i)) + "</td><td>" + keys.get(i) + "</td></tr>");
+                    }
                 }
                 out.print("</tbody></table></div>");
             }

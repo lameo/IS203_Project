@@ -1,6 +1,7 @@
 package controller;
 
 import java.io.IOException;
+import java.util.Map;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -31,11 +32,9 @@ public class ReportServlet extends HttpServlet {
                 break;
             case "topKPopular":
                 String timeDate = request.getParameter("timeDate");
-                String topK = request.getParameter("topK");
 
-                String topKPopular = ReportDAO.retrieveTopKPopularPlaces(timeDate, topK);
+                Map<Integer, String> topKPopular = ReportDAO.retrieveTopKPopularPlaces(timeDate);
                 request.setAttribute("topKPopular", topKPopular);
-                request.setAttribute("topK", topK);
                 view = request.getRequestDispatcher("topKPopularPlaces.jsp");  //send back to userPage but same URL
                 view.forward(request, response);
                 break;

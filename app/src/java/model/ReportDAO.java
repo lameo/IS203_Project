@@ -4,6 +4,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Map;
 
 public class ReportDAO {
 
@@ -105,30 +107,28 @@ public class ReportDAO {
         return Integer.parseInt(ans);
     }
 
-    public static String retrieveTopKPopularPlaces(String time, String topK) {
+    public static Map<Integer, String> retrieveTopKPopularPlaces(String time) {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
-        String ans = "";
+        Map<Integer, String> map = new HashMap<>();
         try {
             //get a connection to database
             connection = ConnectionManager.getConnection();
             //prepare a statement
-            preparedStatement = connection.prepareStatement("select n.locationname, count(n.locationname) from (SELECT max(TIMESTAMP) as TIMESTAMP, macaddress FROM location WHERE timestamp BETWEEN ? AND (SELECT DATE_ADD(?,INTERVAL 15 MINUTE)) group by macaddress) l, location m, locationlookup n where l.macaddress = m.macaddress and m.timestamp = l.timestamp and m.locationid = n.locationid group by n.locationname order by count(n.locationname) desc limit ? ");
+            preparedStatement = connection.prepareStatement("select n.locationname, count(n.locationname) from (SELECT max(TIMESTAMP) as TIMESTAMP, macaddress FROM location WHERE timestamp BETWEEN ? AND (SELECT DATE_ADD(?,INTERVAL 15 MINUTE)) group by macaddress) l, location m, locationlookup n where l.macaddress = m.macaddress and m.timestamp = l.timestamp and m.locationid = n.locationid group by n.locationname order by count(n.locationname) desc limit 30 ");
 
             //set the parameters
             preparedStatement.setString(1, time);
             preparedStatement.setString(2, time);
-            int x = Integer.parseInt(topK);
-            preparedStatement.setInt(3, x);
 
             resultSet = preparedStatement.executeQuery();
+
             while (resultSet.next()) {
-                //fencing
-                if (!ans.equals("")) {
-                    ans += "," + resultSet.getString(1) + "," + resultSet.getString(2);
+                if (map.containsKey(resultSet.getInt(2))) {
+                    map.put(resultSet.getInt(2), map.get(resultSet.getInt(2)) + ", " + resultSet.getString(1));
                 } else {
-                    ans = resultSet.getString(1) + "," + resultSet.getString(2);
+                    map.put(resultSet.getInt(2), resultSet.getString(1));
                 }
             }
 
@@ -140,7 +140,7 @@ public class ReportDAO {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return ans;
+        return map;
     }
 
     private static int retrieveThreeBreakdown(String timeBegin, String timeEnd, String year, String gender, String school) {
