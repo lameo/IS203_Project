@@ -59,7 +59,7 @@
                     </a>
                 </div>
                 <div class="col-xs-6 col-lg-6">
-                    <a href="topKPop.jsp">
+                    <a href="topKPopularPlaces.jsp">
                         <button type="button" class="btn"><b>Top-K Popular Places</b></button>
                     </a>
                 </div>
@@ -67,17 +67,20 @@
             <!-- second row -->
             <div class="row" style="margin-top:5%;text-align:center;">
                 <div class="col-xs-6 col-lg-6">
-                    <button type="button" class="btn"><b>Top-K Next Places</b></button>
+                    <a href="topKNextPlaces.jsp">
+                        <button type="button" class="btn"><b>Top-K Next Places</b></button>
+                    </a>
                 </div>
                 <div class="col-xs-6 col-lg-6">
-                    <button type="button" class="btn"><b>Top-K Companions</b></button>
+                    <a href="topKCompanions.jsp">
+                        <button type="button" class="btn"><b>Top-K Companions</b></button>
+                    </a>
                 </div>
             </div>
         </div>
         <%
             //debug
-            out.print("<br>Top-K Companions & Top-K Next Places not working yet ");
-            out.print("<br>Enter in this format: 2014-03-23 13:40:00");
+            out.print("<br><br><p style=\"color:red;\">Top-K Companions & Top-K Next Places not working yet<br></p>");
         %>
     <center><%="<br>User session: " + timestamp%></center>
 </body>

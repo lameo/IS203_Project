@@ -36,7 +36,7 @@ public class ReportServlet extends HttpServlet {
                 String topKPopular = ReportDAO.retrieveTopKPopularPlaces(timeDate, topK);
                 request.setAttribute("topKPopular", topKPopular);
                 request.setAttribute("topK", topK);
-                view = request.getRequestDispatcher("topKPop.jsp");  //send back to userPage but same URL
+                view = request.getRequestDispatcher("topKPopularPlaces.jsp");  //send back to userPage but same URL
                 view.forward(request, response);
                 break;
             default:

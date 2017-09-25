@@ -179,7 +179,7 @@ public class ReportDAO {
 
     public static String notVeryBasicBreakdown(String[] text, String startTimeDate, String endTimeDate) {
         // initialize array
-        String[] first, second, third;
+        String[] first, second, third;  //category have name in their first value to know what does first, second or third variable contains
         String[] year = "Year 2010 2011 2012 2013 2014".split(" ");                                    //5
         String[] gender = "Gender M F".split(" ");                                                     //2
         String[] school = "School economics sis socsc accountancy business law".split(" ");            //6
@@ -270,15 +270,17 @@ public class ReportDAO {
 
         //string to return to ReportServlet.java
         String returnThis = "<div class=\"container\">      <table class=\"table table-bordered\">";
+        
+        //for the percentage calculation later to compare the number in each category with the total number of possible users
+        int totalBetweenTime = everyoneWithinTime(startTimeDate, endTimeDate);
+        
+        
         //Print table header
-        returnThis += ("<thead><tr><th colspan = " + (totalOptions+2) + ">Report for " + startTimeDate + " to " + endTimeDate + "</th></tr>");
+        returnThis += ("<thead><tr><th colspan = " + (totalOptions+2) + ">Report for " + startTimeDate + " to " + endTimeDate + "<br>Total: " + totalBetweenTime + "</th></tr>");
         for(String header : usedArray){ //can be year/gender/school
             returnThis += "<th>" + header.substring(0, 1).toUpperCase() + header.substring(1) + "</th>";
         }
         returnThis += "<th>Qty</th><th>Percentage</th></thead><tbody>";
-
-        //for the percentage calculation later to compare the number in each category with the total number of possible users
-        int totalBetweenTime = everyoneWithinTime(startTimeDate, endTimeDate);
         
         for (int i = 1; i <= numberOfRows; i++) {
             String currentLine = "<tr>";

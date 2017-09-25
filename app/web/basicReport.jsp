@@ -70,34 +70,39 @@
                     </div>
                     </tr>
                     </div>
-
-                    <div class="form-group">
-                        <label for="order">Sort by (first):</label>
-                        <select name="order" class="form-control">
-                            <option value = "year">Year</option>
-                            <option value = "gender">Gender</option>
-                            <option value = "school">School</option>
-                        </select>
-
-                        <label for="order">Sort by (second):</label>
-                        <select name="order" class="form-control">
-                            <option value = "none">(Optional)</option>
-                            <option value = "year">Year</option>
-                            <option value = "gender">Gender</option>
-                            <option value = "school">School</option>
-                        </select>
-
-                        <label for="order">Sort by (third):</label>
-                        <select name="order" class="form-control">
-                            <option value = "none">(Optional)</option>
-                            <option value = "year">Year</option>
-                            <option value = "gender">Gender</option>
-                            <option value = "school">School</option>
-                        </select>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <!-- first category box -->
+                            <label for="order">Sort by (first):</label>
+                            <select name="order" class="form-control">
+                                <option value = "year">Year</option>
+                                <option value = "gender">Gender</option>
+                                <option value = "school">School</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <!-- second category box -->
+                            <label for="order">Sort by (second):</label>
+                            <select name="order" class="form-control">
+                                <option value = "none">(Optional)</option>
+                                <option value = "year">Year</option>
+                                <option value = "gender">Gender</option>
+                                <option value = "school">School</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <!-- third category box -->
+                            <label for="order">Sort by (third):</label>
+                            <select name="order" class="form-control">
+                                <option value = "none">(Optional)</option>
+                                <option value = "year">Year</option>
+                                <option value = "gender">Gender</option>
+                                <option value = "school">School</option>
+                            </select>
+                        </div>
                     </div>
-
-
                 </table>
+                <br>
                 <button type="submit" class="btn btn-primary">Generate</button>
             </form>
         </div>
