@@ -180,26 +180,26 @@ public class ReportDAO {
     public static String notVeryBasicBreakdown(String[] text, String startTimeDate, String endTimeDate) {
         // initialize array
         String[] first, second, third;  //category have name in their first value to know what does first, second or third variable contains
-        String[] year = "Year 2010 2011 2012 2013 2014".split(" ");                                    //5
-        String[] gender = "Gender M F".split(" ");                                                     //2
-        String[] school = "School economics sis socsc accountancy business law".split(" ");            //6
+        String[] year = {"Year", "2010", "2011", "2012", "2013", "2014"};                              //5
+        String[] gender = {"Gender", "M", "F"};                                                        //2
+        String[] school = {"School", "economics", "sis", "socsc", "accountancy", "business", "law"};   //6
 
-        String used = "";
+        String userInput = "";
 
         switch (text[0]) { //get from basicReport.jsp, can be year/gender/school
             case "year":
                 first = year; //add year array into first
-                used += "year "; //user chose year
+                userInput += "year "; //user chose year
                 break;
 
             case "gender":
                 first = gender; //add gender array into first
-                used += "gender "; //user chose gender
+                userInput += "gender "; //user chose gender
                 break;
 
             case "school":
                 first = school; //add school array into first
-                used += "school "; //user chose school
+                userInput += "school "; //user chose school
                 break;
 
             default:
@@ -209,17 +209,17 @@ public class ReportDAO {
         switch (text[1]) { //get from basicReport.jsp, can be year/gender/school/optional
             case "year":
                 second = year; //add year array into second
-                used += "year "; //user chose year
+                userInput += "year "; //user chose year
                 break;
 
             case "gender":
                 second = gender; //add gender array into second
-                used += "gender "; //user chose gender
+                userInput += "gender "; //user chose gender
                 break;
 
             case "school":
                 second = school; //add school array into second
-                used += "school "; //user chose school
+                userInput += "school "; //user chose school
                 break;
 
             default:
@@ -229,25 +229,25 @@ public class ReportDAO {
         switch (text[2]) { //get from basicReport.jsp, can be year/gender/school/optional
             case "year":
                 third = year; //add year array into third
-                used += "year "; //user chose year
+                userInput += "year "; //user chose year
                 break;
 
             case "gender":
                 third = gender; //add gender array into third
-                used += "gender "; //user chose gender
+                userInput += "gender "; //user chose gender
                 break;
 
             case "school":
                 third = school; //add school array into third
-                used += "school "; //user chose school
+                userInput += "school "; //user chose school
                 break;
 
             default:
                 third = null; //user chose optional
         }
 
-        String[] usedArray = used.split(" "); //change from string into string array
-        int totalOptions = usedArray.length; //check how many options has the user selected, can be 1 2 or 3
+        String[] userInputArray = userInput.split(" "); //change from string into string array
+        int totalOptions = userInputArray.length; //check how many options has the user selected, can be 1 2 or 3
 
         int firstL = (first.length - 1); //to make sure the array doesn't have ArrayOutOfBoundException
         int secondL = 1;
@@ -277,7 +277,7 @@ public class ReportDAO {
         
         //Print table header
         returnThis += ("<thead><tr><th colspan = " + (totalOptions+2) + ">Report for " + startTimeDate + " to " + endTimeDate + "<br>Total: " + totalBetweenTime + "</th></tr>");
-        for(String header : usedArray){ //can be year/gender/school
+        for(String header : userInputArray){ //can be year/gender/school
             returnThis += "<th>" + header.substring(0, 1).toUpperCase() + header.substring(1) + "</th>";
         }
         returnThis += "<th>Qty</th><th>Percentage</th></thead><tbody>";
@@ -318,7 +318,7 @@ public class ReportDAO {
             int value = -1;
             switch (totalOptions) {
                 case 1: //user only choose 1 option
-                    switch (used) { //check which option did the user choose
+                    switch (userInput) { //check which option did the user choose
                         case "gender ":
                             value = retrieveByGender(startTimeDate, endTimeDate, gender[i]);
                             break;
@@ -333,49 +333,48 @@ public class ReportDAO {
                             break;
                     }
                     break;
-                case 2:
-                    String[] current = usedArray;
+                case 2: //user only choose 2 options
                     //Checking which variable is not selected
                     int totalSum = 0;
-                    if (current[0].equals("year") && current[1].equals("gender")) {
+                    if (userInputArray[0].equals("year") && userInputArray[1].equals("gender")) {
                         for (int j = 1; j < school.length; j++) {
                             totalSum += retrieveThreeBreakdown(startTimeDate, endTimeDate, year[(int) Math.ceil((i - 0.01) / 2)], gender[(i - 1) % 2 + 1], school[j]);
                         }
-                    } else if (current[0].equals("year") && current[1].equals("school")) {
+                    } else if (userInputArray[0].equals("year") && userInputArray[1].equals("school")) {
                         for (int j = 1; j < gender.length; j++) {
                             totalSum += retrieveThreeBreakdown(startTimeDate, endTimeDate, year[(int) (Math.ceil((i - 0.01) / 6))], gender[j], school[(i - 1) % 6 + 1]);
                         }
-                    } else if (current[0].equals("school") && current[1].equals("gender")) {
+                    } else if (userInputArray[0].equals("school") && userInputArray[1].equals("gender")) {
                         for (int j = 1; j < year.length; j++) {
                             totalSum += retrieveThreeBreakdown(startTimeDate, endTimeDate, year[j], gender[(i - 1) % 2 + 1], school[(int) Math.ceil((i - 0.01) / 2)]);
                         }
-                    } else if (current[0].equals("school") && current[1].equals("year")) {
+                    } else if (userInputArray[0].equals("school") && userInputArray[1].equals("year")) {
                         for (int j = 1; j < gender.length; j++) {
                             totalSum += retrieveThreeBreakdown(startTimeDate, endTimeDate, year[(i - 1) % 5 + 1], gender[j], school[(int) Math.ceil((i - 0.01) / 5)]);
                         }
-                    } else if (current[0].equals("gender") && current[1].equals("school")) {
+                    } else if (userInputArray[0].equals("gender") && userInputArray[1].equals("school")) {
                         for (int j = 1; j < year.length; j++) {
                             totalSum += retrieveThreeBreakdown(startTimeDate, endTimeDate, year[j], gender[(int) Math.ceil((i - 0.01) / 6)], school[(i - 1) % 6 + 1]);
                         }
-                    } else if (current[0].equals("gender") && current[1].equals("year")) {
+                    } else if (userInputArray[0].equals("gender") && userInputArray[1].equals("year")) {
                         for (int j = 1; j < school.length; j++) {
                             totalSum += retrieveThreeBreakdown(startTimeDate, endTimeDate, year[(i - 1) % 5 + 1], gender[(int) Math.ceil((i - 0.01) / 6)], school[j]);
                         }
                     }
                     value = totalSum;
                     break;
-                default:
-                    if (text[0].equals("year") && text[1].equals("gender") && text[2].equals("school")) {
+                default:  //user only choose 3 options
+                    if (userInputArray[0].equals("year") && userInputArray[1].equals("gender") && userInputArray[2].equals("school")) {
                         value = retrieveThreeBreakdown(startTimeDate, endTimeDate, year[((int) Math.ceil((i - 0.01) / 12))], gender[((int) Math.ceil((i - 1) / 6)) % 2 + 1], school[(i - 1) % 6 + 1]);
-                    } else if (text[0].equals("year") && text[2].equals("gender") && text[1].equals("school")) {
+                    } else if (userInputArray[0].equals("year") && userInputArray[1].equals("school") && userInputArray[2].equals("gender") ) {
                         value = retrieveThreeBreakdown(startTimeDate, endTimeDate, year[((int) Math.ceil((i - 0.01) / 12))], gender[(i - 1) % 2 + 1], school[((int) Math.ceil((i - 1) / 2)) % 6 + 1]);
-                    } else if (text[1].equals("year") && text[0].equals("gender") && text[2].equals("school")) {
+                    } else if (userInputArray[0].equals("gender") && userInputArray[1].equals("year") && userInputArray[2].equals("school")) {
                         value = retrieveThreeBreakdown(startTimeDate, endTimeDate, year[((int) Math.ceil((i - 1) / 6)) % 5 + 1], gender[((int) Math.ceil((i - 0.01) / 30))], school[(i - 1) % 6 + 1]);
-                    } else if (text[1].equals("year") && text[2].equals("gender") && text[0].equals("school")) {
+                    } else if (userInputArray[0].equals("school") && userInputArray[1].equals("year") && userInputArray[2].equals("gender")) {
                         value = retrieveThreeBreakdown(startTimeDate, endTimeDate, year[((int) Math.ceil((i - 1) / 2)) % 5 + 1], gender[(i - 1) % 2 + 1], school[((int) Math.ceil((i - 0.01) / 10))]);
-                    } else if (text[2].equals("year") && text[1].equals("gender") && text[0].equals("school")) {
+                    } else if (userInputArray[0].equals("school") && userInputArray[1].equals("gender") && userInputArray[2].equals("year")) {
                         value = retrieveThreeBreakdown(startTimeDate, endTimeDate, year[(i - 1) % 5 + 1], gender[((int) Math.ceil((i - 1) / 5)) % 2 + 1], school[((int) Math.ceil((i - 0.01) / 10))]);
-                    } else if (text[2].equals("year") && text[1].equals("gender") && text[0].equals("school")) {
+                    } else if (userInputArray[0].equals("school") && userInputArray[1].equals("gender") && userInputArray[2].equals("year")) {
                         value = retrieveThreeBreakdown(startTimeDate, endTimeDate, year[(i - 1) % 5 + 1], gender[((int) Math.ceil((i - 0.01) / 30))], school[((int) Math.ceil((i - 1) / 5)) % 6 + 1]);
                     }
                     break;

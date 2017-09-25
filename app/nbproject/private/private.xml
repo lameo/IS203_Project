@@ -5,12 +5,12 @@
         <group>
             <file>file:/D:/testt/app/web/userPage.jsp</file>
             <file>file:/D:/testt/app/web/reportsPage.jsp</file>
+            <file>file:/D:/testt/app/src/java/model/UserDAO.java</file>
             <file>file:/D:/testt/app/src/java/controller/ReportServlet.java</file>
-            <file>file:/D:/testt/app/web/topKCompanions.jsp</file>
             <file>file:/D:/testt/app/web/basicReport.jsp</file>
-            <file>file:/D:/testt/app/web/topKPopularPlaces.jsp</file>
             <file>file:/D:/testt/app/src/java/model/ReportDAO.java</file>
-            <file>file:/D:/testt/app/web/topKNextPlaces.jsp</file>
+            <file>file:/D:/testt/app/src/java/controller/LoginServlet.java</file>
+            <file>file:/D:/testt/app/web/index.jsp</file>
         </group>
     </open-files>
 </project-private>

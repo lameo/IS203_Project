@@ -132,7 +132,13 @@
                 }
             }
         %>
+        <%
+            //debugging purpose
+            out.print("<br><br>Copy Paste");
+            out.print("<br>2014-03-23 13:40:00");
+            out.print("<br>2014-03-23 13:55:00");
 
+        %>        
         <%="<br>User session: " + timestamp%>
     </center>
 </body>
