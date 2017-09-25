@@ -383,7 +383,7 @@ public class ReportDAO {
             currentLine += "<td>" + value + "</td>";
             
             //Generating percentage
-            currentLine += "<td>" + Math.round(value*100/totalBetweenTime) + "%</td>";
+            currentLine += "<td>" + Math.round(value*100.0/totalBetweenTime) + "%</td>";
             
             //Ending
             currentLine += "</tr>";
