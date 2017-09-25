@@ -337,28 +337,28 @@ public class ReportDAO {
                     //Checking which variable is not selected
                     int totalSum = 0;
                     if (userInputArray[0].equals("year") && userInputArray[1].equals("gender")) {
-                        for (int j = 1; j < school.length; j++) {
-                            totalSum += retrieveThreeBreakdown(startTimeDate, endTimeDate, year[(int) Math.ceil((i - 0.01) / 2)], gender[(i - 1) % 2 + 1], school[j]);
+                        for (int j = 1; j < school.length; j++) { //sum every school according to that year and gender, magic number is 2 (length of second input eg gender)
+                            totalSum += retrieveThreeBreakdown(startTimeDate, endTimeDate, year[(int) Math.ceil(i / 2.0)], gender[(i - 1) % 2 + 1], school[j]);
                         }
                     } else if (userInputArray[0].equals("year") && userInputArray[1].equals("school")) {
-                        for (int j = 1; j < gender.length; j++) {
-                            totalSum += retrieveThreeBreakdown(startTimeDate, endTimeDate, year[(int) (Math.ceil((i - 0.01) / 6))], gender[j], school[(i - 1) % 6 + 1]);
+                        for (int j = 1; j < gender.length; j++) { //sum every gender according to that year and school, magic number is 6 (length of second input eg school)
+                            totalSum += retrieveThreeBreakdown(startTimeDate, endTimeDate, year[(int) Math.ceil((i / 6.0))], gender[j], school[(i - 1) % 6 + 1]);
                         }
                     } else if (userInputArray[0].equals("school") && userInputArray[1].equals("gender")) {
-                        for (int j = 1; j < year.length; j++) {
-                            totalSum += retrieveThreeBreakdown(startTimeDate, endTimeDate, year[j], gender[(i - 1) % 2 + 1], school[(int) Math.ceil((i - 0.01) / 2)]);
+                        for (int j = 1; j < year.length; j++) { //sum every year according to that school and gender, magic number is 2 (length of second input eg gender)
+                            totalSum += retrieveThreeBreakdown(startTimeDate, endTimeDate, year[j], gender[(i - 1) % 2 + 1], school[(int) Math.ceil(i / 2.0)]);
                         }
                     } else if (userInputArray[0].equals("school") && userInputArray[1].equals("year")) {
-                        for (int j = 1; j < gender.length; j++) {
-                            totalSum += retrieveThreeBreakdown(startTimeDate, endTimeDate, year[(i - 1) % 5 + 1], gender[j], school[(int) Math.ceil((i - 0.01) / 5)]);
+                        for (int j = 1; j < gender.length; j++) { //sum every gender according to that school and year, magic number is 5 (length of second input eg year)
+                            totalSum += retrieveThreeBreakdown(startTimeDate, endTimeDate, year[(i - 1) % 5 + 1], gender[j], school[(int) Math.ceil(i / 5.0)]);
                         }
                     } else if (userInputArray[0].equals("gender") && userInputArray[1].equals("school")) {
-                        for (int j = 1; j < year.length; j++) {
-                            totalSum += retrieveThreeBreakdown(startTimeDate, endTimeDate, year[j], gender[(int) Math.ceil((i - 0.01) / 6)], school[(i - 1) % 6 + 1]);
+                        for (int j = 1; j < year.length; j++) { //sum every year according to that gender and school, magic number is 6 (length of second input eg school)
+                            totalSum += retrieveThreeBreakdown(startTimeDate, endTimeDate, year[j], gender[(int) Math.ceil(i / 6.0)], school[(i - 1) % 6 + 1]);
                         }
                     } else if (userInputArray[0].equals("gender") && userInputArray[1].equals("year")) {
-                        for (int j = 1; j < school.length; j++) {
-                            totalSum += retrieveThreeBreakdown(startTimeDate, endTimeDate, year[(i - 1) % 5 + 1], gender[(int) Math.ceil((i - 0.01) / 6)], school[j]);
+                        for (int j = 1; j < school.length; j++) { //sum every school according to that gender and year, magic number is 5 (length of second input eg year)
+                            totalSum += retrieveThreeBreakdown(startTimeDate, endTimeDate, year[(i - 1) % 5 + 1], gender[(int) Math.ceil(i / 5.0)], school[j]);
                         }
                     }
                     value = totalSum;
