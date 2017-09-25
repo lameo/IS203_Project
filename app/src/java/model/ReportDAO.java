@@ -363,19 +363,19 @@ public class ReportDAO {
                     }
                     value = totalSum;
                     break;
-                default:  //user only choose 3 options
-                    if (userInputArray[0].equals("year") && userInputArray[1].equals("gender") && userInputArray[2].equals("school")) {
-                        value = retrieveThreeBreakdown(startTimeDate, endTimeDate, year[((int) Math.ceil((i - 0.01) / 12))], gender[((int) Math.ceil((i - 1) / 6)) % 2 + 1], school[(i - 1) % 6 + 1]);
-                    } else if (userInputArray[0].equals("year") && userInputArray[1].equals("school") && userInputArray[2].equals("gender") ) {
-                        value = retrieveThreeBreakdown(startTimeDate, endTimeDate, year[((int) Math.ceil((i - 0.01) / 12))], gender[(i - 1) % 2 + 1], school[((int) Math.ceil((i - 1) / 2)) % 6 + 1]);
-                    } else if (userInputArray[0].equals("gender") && userInputArray[1].equals("year") && userInputArray[2].equals("school")) {
-                        value = retrieveThreeBreakdown(startTimeDate, endTimeDate, year[((int) Math.ceil((i - 1) / 6)) % 5 + 1], gender[((int) Math.ceil((i - 0.01) / 30))], school[(i - 1) % 6 + 1]);
-                    } else if (userInputArray[0].equals("school") && userInputArray[1].equals("year") && userInputArray[2].equals("gender")) {
-                        value = retrieveThreeBreakdown(startTimeDate, endTimeDate, year[((int) Math.ceil((i - 1) / 2)) % 5 + 1], gender[(i - 1) % 2 + 1], school[((int) Math.ceil((i - 0.01) / 10))]);
-                    } else if (userInputArray[0].equals("school") && userInputArray[1].equals("gender") && userInputArray[2].equals("year")) {
-                        value = retrieveThreeBreakdown(startTimeDate, endTimeDate, year[(i - 1) % 5 + 1], gender[((int) Math.ceil((i - 1) / 5)) % 2 + 1], school[((int) Math.ceil((i - 0.01) / 10))]);
-                    } else if (userInputArray[0].equals("school") && userInputArray[1].equals("gender") && userInputArray[2].equals("year")) {
-                        value = retrieveThreeBreakdown(startTimeDate, endTimeDate, year[(i - 1) % 5 + 1], gender[((int) Math.ceil((i - 0.01) / 30))], school[((int) Math.ceil((i - 1) / 5)) % 6 + 1]);
+                default: //user only choose 3 options
+                    if (userInputArray[0].equals("year") && userInputArray[1].equals("gender") && userInputArray[2].equals("school")) { //same year 12 times, same gender 6 times, 6 different schools
+                        value = retrieveThreeBreakdown(startTimeDate, endTimeDate, year[(int) Math.ceil(i / 12.0)], gender[((int) Math.ceil((i - 1) / 6)) % 2 + 1], school[(i - 1) % 6 + 1]);
+                    } else if (userInputArray[0].equals("year") && userInputArray[1].equals("school") && userInputArray[2].equals("gender") ) { //same year 12 times, same school 2 times, 2 different gender
+                        value = retrieveThreeBreakdown(startTimeDate, endTimeDate, year[(int) Math.ceil(i / 12.0)], gender[(i - 1) % 2 + 1], school[((int) Math.ceil((i - 1) / 2)) % 6 + 1]);
+                    } else if (userInputArray[0].equals("gender") && userInputArray[1].equals("year") && userInputArray[2].equals("school")) { //same gender 30 times, same year 6 times, 6 different school
+                        value = retrieveThreeBreakdown(startTimeDate, endTimeDate, year[((int) Math.ceil((i - 1) / 6)) % 5 + 1], gender[((int) Math.ceil(i / 30.0))], school[(i - 1) % 6 + 1]);
+                    } else if (userInputArray[0].equals("gender") && userInputArray[1].equals("school") && userInputArray[2].equals("year")) { //same gender 30 times, same school 5 times, 5 different year
+                        value = retrieveThreeBreakdown(startTimeDate, endTimeDate, year[(i - 1) % 5 + 1], gender[(int) Math.ceil(i / 30.0)], school[((int) Math.ceil((i - 1) / 5)) % 6 + 1]);
+                    } else if (userInputArray[0].equals("school") && userInputArray[1].equals("year") && userInputArray[2].equals("gender")) { //same school 10 times, same year 2 times, 2 different gender
+                        value = retrieveThreeBreakdown(startTimeDate, endTimeDate, year[((int) Math.ceil((i - 1) / 2)) % 5 + 1], gender[(i - 1) % 2 + 1], school[(int) Math.ceil(i / 10.0)]);
+                    } else if (userInputArray[0].equals("school") && userInputArray[1].equals("gender") && userInputArray[2].equals("year")) { //same school 10 times, same gender 5 times, 5 different year
+                        value = retrieveThreeBreakdown(startTimeDate, endTimeDate, year[(i - 1) % 5 + 1], gender[((int) Math.ceil((i - 1) / 5)) % 2 + 1], school[(int) Math.ceil(i / 10.0)]);
                     }
                     break;
             }
@@ -392,3 +392,4 @@ public class ReportDAO {
         return returnThis;
     }
 }
+
