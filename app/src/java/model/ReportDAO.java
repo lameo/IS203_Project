@@ -182,120 +182,120 @@ public class ReportDAO {
         String[] first, second, third;
         String[] year = "Year 2010 2011 2012 2013 2014".split(" ");                                    //5
         String[] gender = "Gender M F".split(" ");                                                     //2
-        String[] school = "School economics sis socsc accoutancy business law".split(" ");             //6
+        String[] school = "School economics sis socsc accountancy business law".split(" ");            //6
 
         String used = "";
 
-        switch (text[0]) {
+        switch (text[0]) { //get from basicReport.jsp, can be year/gender/school
             case "year":
-                first = year;
-                used += "year ";
+                first = year; //add year array into first
+                used += "year "; //user chose year
                 break;
 
             case "gender":
-                first = gender;
-                used += "gender ";
+                first = gender; //add gender array into first
+                used += "gender "; //user chose gender
                 break;
 
             case "school":
-                first = school;
-                used += "school ";
+                first = school; //add school array into first
+                used += "school "; //user chose school
                 break;
 
             default:
                 first = null;
         }
 
-        switch (text[1]) {
+        switch (text[1]) { //get from basicReport.jsp, can be year/gender/school/optional
             case "year":
-                second = year;
-                used += "year ";
+                second = year; //add year array into second
+                used += "year "; //user chose year
                 break;
 
             case "gender":
-                second = gender;
-                used += "gender ";
+                second = gender; //add gender array into second
+                used += "gender "; //user chose gender
                 break;
 
             case "school":
-                second = school;
-                used += "school ";
+                second = school; //add school array into second
+                used += "school "; //user chose school
                 break;
 
             default:
-                second = null;
+                second = null; //user chose optional
         }
 
-        switch (text[2]) {
+        switch (text[2]) { //get from basicReport.jsp, can be year/gender/school/optional
             case "year":
-                third = year;
-                used += "year ";
+                third = year; //add year array into third
+                used += "year "; //user chose year
                 break;
 
             case "gender":
-                third = gender;
-                used += "gender ";
+                third = gender; //add gender array into third
+                used += "gender "; //user chose gender
                 break;
 
             case "school":
-                third = school;
-                used += "school ";
+                third = school; //add school array into third
+                used += "school "; //user chose school
                 break;
 
             default:
-                third = null;
+                third = null; //user chose optional
         }
 
-        int total = used.split(" ").length;
+        String[] usedArray = used.split(" "); //change from string into string array
+        int totalOptions = usedArray.length; //check how many options has the user selected, can be 1 2 or 3
 
-        int firstL = (first.length - 1);
+        int firstL = (first.length - 1); //to make sure the array doesn't have ArrayOutOfBoundException
         int secondL = 1;
         int thirdL = 1;
-        if (second != null) {
-            secondL = (second.length - 1);
+        if (second != null) { //if user chose a second option
+            secondL = (second.length - 1); //to make sure the array doesn't have ArrayOutOfBoundException
         }
-        if (third != null) {
-            thirdL = (third.length - 1);
+        if (third != null) { //if user chose a third option
+            thirdL = (third.length - 1); //to make sure the array doesn't have ArrayOutOfBoundException
         }
 
         //Number of rows to print
-        int numberOfTimes = firstL;
+        int numberOfRows = firstL;
         if (second != null) {
-            numberOfTimes *= secondL;
+            numberOfRows *= secondL;
         }
         if (third != null) {
-            numberOfTimes *= thirdL;
+            numberOfRows *= thirdL;
         }
 
-        // start string to return
+        //string to return to ReportServlet.java
         String returnThis = "<div class=\"container\">      <table class=\"table table-bordered\">";
-        // Print table header
-        returnThis += ("<thead><tr><th colspan = " + (total+2) + ">Report for " + startTimeDate + " to " + endTimeDate + "</th></tr>");
-        for(String header: used.split(" ")){
+        //Print table header
+        returnThis += ("<thead><tr><th colspan = " + (totalOptions+2) + ">Report for " + startTimeDate + " to " + endTimeDate + "</th></tr>");
+        for(String header : usedArray){ //can be year/gender/school
             returnThis += "<th>" + header.substring(0, 1).toUpperCase() + header.substring(1) + "</th>";
         }
         returnThis += "<th>Qty</th><th>Percentage</th></thead><tbody>";
 
-        //For the percentage calculation later
+        //for the percentage calculation later to compare the number in each category with the total number of possible users
         int totalBetweenTime = everyoneWithinTime(startTimeDate, endTimeDate);
         
-        
-        for (int i = 1; i <= numberOfTimes; i++) {
+        for (int i = 1; i <= numberOfRows; i++) {
             String currentLine = "<tr>";
 
-            //First var to split by
+            //first var to split by
             //if 1 trigger = 0
             //if 2/3 trigger = 1
-            if (i % (secondL * thirdL) == total / 2) {
+            if (i % (secondL * thirdL) == totalOptions / 2) {
                 currentLine += "<td rowspan =\"" + (secondL * thirdL) + "\">"
                         //Text for first col
-                        + first[i / (secondL * thirdL) + total / 2]
+                        + first[i / (secondL * thirdL) + totalOptions / 2]
                         + "</td>";
             }
 
             //if 2 trigger = 0
             //if 3 trigger = 1
-            int trigger = total - 2;
+            int trigger = totalOptions - 2;
             //Second var to split by
             if (second != null && i % (thirdL) == trigger) {
                 currentLine += "<td rowspan =\"" + (thirdL) + "\">"
@@ -312,20 +312,19 @@ public class ReportDAO {
                         + "</td>";
             }
 
-            // run all the time
-            System.out.print("Running " + i + "times\n\n\n");
+            //run all the time
             int value = -1;
-            switch (total) {
-                case 1:
-                    switch (used) {
+            switch (totalOptions) {
+                case 1: //user only choose 1 option
+                    switch (used) { //check which option did the user choose
                         case "gender ":
-                            value = retrieveByGender(startTimeDate, endTimeDate, gender[i - 1]);
+                            value = retrieveByGender(startTimeDate, endTimeDate, gender[i]);
                             break;
                         case "school ":
-                            value = retrieveByEmail(startTimeDate, endTimeDate, school[i - 1]);
+                            value = retrieveByEmail(startTimeDate, endTimeDate, school[i]);
                             break;
                         case "year ":
-                            value = retrieveByEmail(startTimeDate, endTimeDate, year[i - 1]);
+                            value = retrieveByEmail(startTimeDate, endTimeDate, year[i]);
                             break;
                         default:
                             value = -2;
@@ -333,7 +332,7 @@ public class ReportDAO {
                     }
                     break;
                 case 2:
-                    String[] current = used.split(" ");
+                    String[] current = usedArray;
                     //Checking which variable is not selected
                     int totalSum = 0;
                     if (current[0].equals("year") && current[1].equals("gender")) {

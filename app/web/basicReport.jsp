@@ -35,8 +35,8 @@
                     <a class="navbar-brand" href="userPage.jsp">SLOCA</a>
                 </div>
                 <ul class="nav navbar-nav">
-                    <li class="active"><a href="userPage.jsp">Home</a></li> <%-- set as active because user is in home page. send user to home page--%>
-                    <li><a href="reportsPage.jsp">Basic Location Reports</a></li> <%-- send user to reports page --%>
+                    <li><a href="userPage.jsp">Home</a></li> <%-- send user to home page--%>
+                    <li class="active"><a href="reportsPage.jsp">Basic Location Reports</a></li> <%-- set as active because user is in reports page. send user to reports page --%>
                     <li><a href="heatmapPage.jsp">Heat Map</a></li> <%-- send user to heatmap page --%>                  
                 </ul>
                 <ul class="nav navbar-nav navbar-right">
