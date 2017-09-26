@@ -5,7 +5,7 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <link rel="icon" href="http://www.favicon.cc/?action=icon&file_id=433360">
+        <link rel="icon" href="resource/image/favicon.ico">
         <title>SLOCA Login Page</title>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
