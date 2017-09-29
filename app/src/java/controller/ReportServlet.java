@@ -21,11 +21,10 @@ public class ReportServlet extends HttpServlet {
 
         switch (reportType) {
             case "basicReport":
-                String starttimeDate = request.getParameter("starttimeDate");
                 String endtimeDate = request.getParameter("endtimeDate");
                 String[] order = request.getParameterValues("order");
 
-                String breakdownReport = ReportDAO.notVeryBasicBreakdown(order, starttimeDate, endtimeDate);
+                String breakdownReport = ReportDAO.notVeryBasicBreakdown(order, endtimeDate);
                 request.setAttribute("breakdownReport", breakdownReport);
                 view = request.getRequestDispatcher("basicReport.jsp");  //send back to userPage but same URL
                 view.forward(request, response);
