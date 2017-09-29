@@ -278,7 +278,7 @@ public class ReportDAO {
         int totalBetweenTime = everyoneWithinTime(endTimeDate);
 
         //Print table header
-        returnThis += ("<thead><tr><th colspan = " + (totalOptions + 2) + ">Report: Breakdown by Year/Gender/School <br>Total: " + totalBetweenTime + "</th></tr>");
+        returnThis += ("<thead><tr><th colspan = " + (totalOptions + 2) + ">Breakdown by " + userInput + " <br>Total: " + totalBetweenTime + "</th></tr>");
         for (String header : userInputArray) { //can be year/gender/school
             returnThis += "<th>" + header.substring(0, 1).toUpperCase() + header.substring(1) + "</th>";
         }

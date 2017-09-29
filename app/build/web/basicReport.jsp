@@ -57,7 +57,7 @@
                     <!-- ending time and date field -->
                     <tr>
                     <div class="form-group">
-                        <label class="form-control-label" for="formGroupExampleInput">Enter ending date & time:</label>
+                        <label class="form-control-label" for="formGroupExampleInput">Enter Date & Time:</label>
                         <input type="text" class="form-control" id="formGroupExampleInput" name="endtimeDate" placeholder="Example: 2014-03-23 13:55:00" required>
                     </div>
                     </tr>
