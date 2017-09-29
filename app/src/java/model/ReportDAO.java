@@ -4,12 +4,15 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
 public class ReportDAO {
 
-    private static int retrieveByGender(String timeBegin, String timeEnd, String gender) {
+    private static int retrieveByGender(String timeEnd, String gender) {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
@@ -19,10 +22,10 @@ public class ReportDAO {
             connection = ConnectionManager.getConnection();
 
             //prepare a statement
-            preparedStatement = connection.prepareStatement("select count(DISTINCT l.macaddress) from location l, demographics d where  timestamp between ? and ? and l.macaddress = d.macaddress and gender = ?");
+            preparedStatement = connection.prepareStatement("select count(DISTINCT l.macaddress) from location l, demographics d where  timestamp between DATE_SUB(?,INTERVAL 15 MINUTE) and DATE_SUB(?,INTERVAL 1 SECOND) and l.macaddress = d.macaddress and gender = ?");
 
             //set the parameters
-            preparedStatement.setString(1, timeBegin);
+            preparedStatement.setString(1, timeEnd);
             preparedStatement.setString(2, timeEnd);
             preparedStatement.setString(3, gender);
 
@@ -42,7 +45,7 @@ public class ReportDAO {
         return Integer.parseInt(ans);
     }
 
-    private static int retrieveByEmail(String timeBegin, String timeEnd, String school) {
+    private static int retrieveByEmail(String timeEnd, String school) {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
@@ -52,10 +55,10 @@ public class ReportDAO {
             connection = ConnectionManager.getConnection();
 
             //prepare a statement
-            preparedStatement = connection.prepareStatement("select count(DISTINCT l.macaddress) from location l, demographics d where  timestamp between ? and ? and l.macaddress = d.macaddress and email like ?");
+            preparedStatement = connection.prepareStatement("select count(DISTINCT l.macaddress) from location l, demographics d where  timestamp between DATE_SUB(?,INTERVAL 15 MINUTE) and DATE_SUB(?,INTERVAL 1 SECOND) and l.macaddress = d.macaddress and email like ?");
 
             //set the parameters
-            preparedStatement.setString(1, timeBegin);
+            preparedStatement.setString(1, timeEnd);
             preparedStatement.setString(2, timeEnd);
             preparedStatement.setString(3, "%" + school + "%");
 
@@ -74,8 +77,8 @@ public class ReportDAO {
         }
         return Integer.parseInt(ans);
     }
-    
-    private static int everyoneWithinTime(String timeBegin, String timeEnd) {
+
+    private static int everyoneWithinTime(String timeEnd) {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
@@ -85,10 +88,10 @@ public class ReportDAO {
             connection = ConnectionManager.getConnection();
 
             //prepare a statement
-            preparedStatement = connection.prepareStatement("select count(DISTINCT l.macaddress) from location l, demographics d where  timestamp between ? and ? and l.macaddress = d.macaddress");
+            preparedStatement = connection.prepareStatement("select count(DISTINCT l.macaddress) from location l, demographics d where  timestamp between DATE_SUB(?,INTERVAL 15 MINUTE) and DATE_SUB(?,INTERVAL 1 SECOND) and l.macaddress = d.macaddress");
 
             //set the parameters
-            preparedStatement.setString(1, timeBegin);
+            preparedStatement.setString(1, timeEnd);
             preparedStatement.setString(2, timeEnd);
 
             //execute SQL query
@@ -143,7 +146,7 @@ public class ReportDAO {
         return map;
     }
 
-    private static int retrieveThreeBreakdown(String timeBegin, String timeEnd, String year, String gender, String school) {
+    private static int retrieveThreeBreakdown(String timeEnd, String year, String gender, String school) {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
@@ -152,10 +155,10 @@ public class ReportDAO {
             //get a connection to database
             connection = ConnectionManager.getConnection();
             //prepare a statement
-            preparedStatement = connection.prepareStatement("select count(DISTINCT l.macaddress) from location l, demographics d where  timestamp between ? and ? and l.macaddress = d.macaddress and gender = ? and email like ? and email like ?");
+            preparedStatement = connection.prepareStatement("select count(DISTINCT l.macaddress) from location l, demographics d where  timestamp between DATE_SUB(?,INTERVAL 15 MINUTE) and DATE_SUB(?,INTERVAL 1 SECOND) and l.macaddress = d.macaddress and gender = ? and email like ? and email like ?");
 
             //set the parameters
-            preparedStatement.setString(1, timeBegin);
+            preparedStatement.setString(1, timeEnd);
             preparedStatement.setString(2, timeEnd);
             preparedStatement.setString(3, gender);
             preparedStatement.setString(4, "%" + year + "%");
@@ -177,7 +180,7 @@ public class ReportDAO {
         return Integer.parseInt(ans);
     }
 
-    public static String notVeryBasicBreakdown(String[] text, String startTimeDate, String endTimeDate) {
+    public static String notVeryBasicBreakdown(String[] text, String endTimeDate) {
         // initialize array
         String[] first, second, third;  //category have name in their first value to know what does first, second or third variable contains
         String[] year = {"Year", "2010", "2011", "2012", "2013", "2014"};                              //5
@@ -270,18 +273,17 @@ public class ReportDAO {
 
         //string to return to ReportServlet.java
         String returnThis = "<div class=\"container\">      <table class=\"table table-bordered\">";
-        
+
         //for the percentage calculation later to compare the number in each category with the total number of possible users
-        int totalBetweenTime = everyoneWithinTime(startTimeDate, endTimeDate);
-        
-        
+        int totalBetweenTime = everyoneWithinTime(endTimeDate);
+
         //Print table header
-        returnThis += ("<thead><tr><th colspan = " + (totalOptions+2) + ">Report for " + startTimeDate + " to " + endTimeDate + "<br>Total: " + totalBetweenTime + "</th></tr>");
-        for(String header : userInputArray){ //can be year/gender/school
+        returnThis += ("<thead><tr><th colspan = " + (totalOptions + 2) + ">Breakdown by " + userInput + " <br>Total: " + totalBetweenTime + "</th></tr>");
+        for (String header : userInputArray) { //can be year/gender/school
             returnThis += "<th>" + header.substring(0, 1).toUpperCase() + header.substring(1) + "</th>";
         }
         returnThis += "<th>Qty</th><th>Percentage</th></thead><tbody>";
-        
+
         for (int i = 1; i <= numberOfRows; i++) {
             String currentLine = "<tr>";
 
@@ -320,13 +322,13 @@ public class ReportDAO {
                 case 1: //user only choose 1 option
                     switch (userInput) { //check which option did the user choose
                         case "gender ":
-                            value = retrieveByGender(startTimeDate, endTimeDate, gender[i]);
+                            value = retrieveByGender(endTimeDate, gender[i]);
                             break;
                         case "school ":
-                            value = retrieveByEmail(startTimeDate, endTimeDate, school[i]);
+                            value = retrieveByEmail(endTimeDate, school[i]);
                             break;
                         case "year ":
-                            value = retrieveByEmail(startTimeDate, endTimeDate, year[i]);
+                            value = retrieveByEmail(endTimeDate, year[i]);
                             break;
                         default:
                             value = -2;
@@ -338,52 +340,52 @@ public class ReportDAO {
                     int totalSum = 0;
                     if (userInputArray[0].equals("year") && userInputArray[1].equals("gender")) {
                         for (int j = 1; j < school.length; j++) { //sum every school according to that year and gender, magic number is 2 (length of second input eg gender)
-                            totalSum += retrieveThreeBreakdown(startTimeDate, endTimeDate, year[(int) Math.ceil(i / 2.0)], gender[(i - 1) % 2 + 1], school[j]);
+                            totalSum += retrieveThreeBreakdown(endTimeDate, year[(int) Math.ceil(i / 2.0)], gender[(i - 1) % 2 + 1], school[j]);
                         }
                     } else if (userInputArray[0].equals("year") && userInputArray[1].equals("school")) {
                         for (int j = 1; j < gender.length; j++) { //sum every gender according to that year and school, magic number is 6 (length of second input eg school)
-                            totalSum += retrieveThreeBreakdown(startTimeDate, endTimeDate, year[(int) Math.ceil((i / 6.0))], gender[j], school[(i - 1) % 6 + 1]);
+                            totalSum += retrieveThreeBreakdown(endTimeDate, year[(int) Math.ceil((i / 6.0))], gender[j], school[(i - 1) % 6 + 1]);
                         }
                     } else if (userInputArray[0].equals("school") && userInputArray[1].equals("gender")) {
                         for (int j = 1; j < year.length; j++) { //sum every year according to that school and gender, magic number is 2 (length of second input eg gender)
-                            totalSum += retrieveThreeBreakdown(startTimeDate, endTimeDate, year[j], gender[(i - 1) % 2 + 1], school[(int) Math.ceil(i / 2.0)]);
+                            totalSum += retrieveThreeBreakdown(endTimeDate, year[j], gender[(i - 1) % 2 + 1], school[(int) Math.ceil(i / 2.0)]);
                         }
                     } else if (userInputArray[0].equals("school") && userInputArray[1].equals("year")) {
                         for (int j = 1; j < gender.length; j++) { //sum every gender according to that school and year, magic number is 5 (length of second input eg year)
-                            totalSum += retrieveThreeBreakdown(startTimeDate, endTimeDate, year[(i - 1) % 5 + 1], gender[j], school[(int) Math.ceil(i / 5.0)]);
+                            totalSum += retrieveThreeBreakdown(endTimeDate, year[(i - 1) % 5 + 1], gender[j], school[(int) Math.ceil(i / 5.0)]);
                         }
                     } else if (userInputArray[0].equals("gender") && userInputArray[1].equals("school")) {
                         for (int j = 1; j < year.length; j++) { //sum every year according to that gender and school, magic number is 6 (length of second input eg school)
-                            totalSum += retrieveThreeBreakdown(startTimeDate, endTimeDate, year[j], gender[(int) Math.ceil(i / 6.0)], school[(i - 1) % 6 + 1]);
+                            totalSum += retrieveThreeBreakdown(endTimeDate, year[j], gender[(int) Math.ceil(i / 6.0)], school[(i - 1) % 6 + 1]);
                         }
                     } else if (userInputArray[0].equals("gender") && userInputArray[1].equals("year")) {
                         for (int j = 1; j < school.length; j++) { //sum every school according to that gender and year, magic number is 5 (length of second input eg year)
-                            totalSum += retrieveThreeBreakdown(startTimeDate, endTimeDate, year[(i - 1) % 5 + 1], gender[(int) Math.ceil(i / 5.0)], school[j]);
+                            totalSum += retrieveThreeBreakdown(endTimeDate, year[(i - 1) % 5 + 1], gender[(int) Math.ceil(i / 5.0)], school[j]);
                         }
                     }
                     value = totalSum;
                     break;
                 default: //user only choose 3 options
                     if (userInputArray[0].equals("year") && userInputArray[1].equals("gender") && userInputArray[2].equals("school")) { //same year 12 times, same gender 6 times, 6 different schools
-                        value = retrieveThreeBreakdown(startTimeDate, endTimeDate, year[(int) Math.ceil(i / 12.0)], gender[((int) Math.ceil((i - 1) / 6)) % 2 + 1], school[(i - 1) % 6 + 1]);
-                    } else if (userInputArray[0].equals("year") && userInputArray[1].equals("school") && userInputArray[2].equals("gender") ) { //same year 12 times, same school 2 times, 2 different gender
-                        value = retrieveThreeBreakdown(startTimeDate, endTimeDate, year[(int) Math.ceil(i / 12.0)], gender[(i - 1) % 2 + 1], school[((int) Math.ceil((i - 1) / 2)) % 6 + 1]);
+                        value = retrieveThreeBreakdown(endTimeDate, year[(int) Math.ceil(i / 12.0)], gender[((int) Math.ceil((i - 1) / 6)) % 2 + 1], school[(i - 1) % 6 + 1]);
+                    } else if (userInputArray[0].equals("year") && userInputArray[1].equals("school") && userInputArray[2].equals("gender")) { //same year 12 times, same school 2 times, 2 different gender
+                        value = retrieveThreeBreakdown(endTimeDate, year[(int) Math.ceil(i / 12.0)], gender[(i - 1) % 2 + 1], school[((int) Math.ceil((i - 1) / 2)) % 6 + 1]);
                     } else if (userInputArray[0].equals("gender") && userInputArray[1].equals("year") && userInputArray[2].equals("school")) { //same gender 30 times, same year 6 times, 6 different school
-                        value = retrieveThreeBreakdown(startTimeDate, endTimeDate, year[((int) Math.ceil((i - 1) / 6)) % 5 + 1], gender[((int) Math.ceil(i / 30.0))], school[(i - 1) % 6 + 1]);
+                        value = retrieveThreeBreakdown(endTimeDate, year[((int) Math.ceil((i - 1) / 6)) % 5 + 1], gender[((int) Math.ceil(i / 30.0))], school[(i - 1) % 6 + 1]);
                     } else if (userInputArray[0].equals("gender") && userInputArray[1].equals("school") && userInputArray[2].equals("year")) { //same gender 30 times, same school 5 times, 5 different year
-                        value = retrieveThreeBreakdown(startTimeDate, endTimeDate, year[(i - 1) % 5 + 1], gender[(int) Math.ceil(i / 30.0)], school[((int) Math.ceil((i - 1) / 5)) % 6 + 1]);
+                        value = retrieveThreeBreakdown(endTimeDate, year[(i - 1) % 5 + 1], gender[(int) Math.ceil(i / 30.0)], school[((int) Math.ceil((i - 1) / 5)) % 6 + 1]);
                     } else if (userInputArray[0].equals("school") && userInputArray[1].equals("year") && userInputArray[2].equals("gender")) { //same school 10 times, same year 2 times, 2 different gender
-                        value = retrieveThreeBreakdown(startTimeDate, endTimeDate, year[((int) Math.ceil((i - 1) / 2)) % 5 + 1], gender[(i - 1) % 2 + 1], school[(int) Math.ceil(i / 10.0)]);
+                        value = retrieveThreeBreakdown(endTimeDate, year[((int) Math.ceil((i - 1) / 2)) % 5 + 1], gender[(i - 1) % 2 + 1], school[(int) Math.ceil(i / 10.0)]);
                     } else if (userInputArray[0].equals("school") && userInputArray[1].equals("gender") && userInputArray[2].equals("year")) { //same school 10 times, same gender 5 times, 5 different year
-                        value = retrieveThreeBreakdown(startTimeDate, endTimeDate, year[(i - 1) % 5 + 1], gender[((int) Math.ceil((i - 1) / 5)) % 2 + 1], school[(int) Math.ceil(i / 10.0)]);
+                        value = retrieveThreeBreakdown(endTimeDate, year[(i - 1) % 5 + 1], gender[((int) Math.ceil((i - 1) / 5)) % 2 + 1], school[(int) Math.ceil(i / 10.0)]);
                     }
                     break;
             }
             currentLine += "<td>" + value + "</td>";
-            
+
             //Generating percentage
-            currentLine += "<td>" + Math.round(value*100.0/totalBetweenTime) + "%</td>";
-            
+            currentLine += "<td>" + Math.round(value * 100.0 / totalBetweenTime) + "%</td>";
+
             //Ending
             currentLine += "</tr>";
             returnThis += currentLine;
@@ -391,5 +393,54 @@ public class ReportDAO {
         returnThis += "</tbody></table></div>";
         return returnThis;
     }
-}
 
+    public static int heatLevel(String semanticPlace, String timeDate) {
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
+        String ans = "";
+        try {
+            //get a connection to database
+            connection = ConnectionManager.getConnection();
+
+            //prepare a statement
+            preparedStatement = connection.prepareStatement("select count(DISTINCT macaddress) from location l, locationlookup ll where ll.locationname = ? and l.locationid = ll.locationid and l.timestamp BETWEEN (SELECT DATE_sub( ? ,INTERVAL 15 MINUTE)) AND ?");
+
+            //set the parameters
+            preparedStatement.setString(1, semanticPlace);
+            preparedStatement.setString(2, timeDate);
+            preparedStatement.setString(3, timeDate);
+
+            //execute SQL query
+            resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()) {
+                ans = resultSet.getString(1);
+            }
+
+            //close connections
+            resultSet.close();
+            preparedStatement.close();
+            connection.close();
+            
+            
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        
+        int level = Integer.parseInt(ans);
+        if(level <= 0){
+            return 0;
+        }else if(level <=2){
+            return 1;
+        }else if(level <=5){
+            return 2;
+        }else if(level <=10){
+            return 3;
+        }else if(level <=20){
+            return 4;
+        }else if(level <=20){
+            return 5;
+        }
+        return 6;
+    }
+}

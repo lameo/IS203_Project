@@ -54,18 +54,10 @@
                     <!-- report type -->
                     <input type="hidden" name="reportType" value="basicReport">
 
-                    <!-- first row, starting time and date field -->
+                    <!-- ending time and date field -->
                     <tr>
                     <div class="form-group">
-                        <label class="form-control-label" for="formGroupExampleInput">Enter starting date & time:</label>
-                        <input type="text" class="form-control" id="formGroupExampleInput" name="starttimeDate" placeholder="Example: 2014-03-23 13:40:00" required>
-                    </div>
-                    </tr>
-
-                    <!-- second row, ending time and date field -->
-                    <tr>
-                    <div class="form-group">
-                        <label class="form-control-label" for="formGroupExampleInput">Enter ending date & time:</label>
+                        <label class="form-control-label" for="formGroupExampleInput">Enter Date & Time:</label>
                         <input type="text" class="form-control" id="formGroupExampleInput" name="endtimeDate" placeholder="Example: 2014-03-23 13:55:00" required>
                     </div>
                     </tr>
