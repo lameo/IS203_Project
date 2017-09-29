@@ -276,15 +276,6 @@ public class ReportDAO {
 
         //for the percentage calculation later to compare the number in each category with the total number of possible users
         int totalBetweenTime = everyoneWithinTime(endTimeDate);
-        DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        Date startDate = null;
-
-        try {
-            // Convert from String to Date
-            startDate = df.parse(endTimeDate);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
 
         //Print table header
         returnThis += ("<thead><tr><th colspan = " + (totalOptions + 2) + ">Report: Breakdown by Year/Gender/School <br>Total: " + totalBetweenTime + "</th></tr>");
