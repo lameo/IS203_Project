@@ -26,7 +26,7 @@
         String timestamp = (String) session.getAttribute("timestamp");
     %>  
     <head>
-        <title>Top-K popular places</title>
+        <title>Breakdown Report</title>
     </head>
     <body>
         <nav class="navbar navbar-inverse"> <%-- navigation menu for user to click --%>
