@@ -4,6 +4,9 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -74,7 +77,7 @@ public class ReportDAO {
         }
         return Integer.parseInt(ans);
     }
-    
+
     private static int everyoneWithinTime(String timeEnd) {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
@@ -86,7 +89,7 @@ public class ReportDAO {
 
             //prepare a statement
             preparedStatement = connection.prepareStatement("select count(DISTINCT l.macaddress) from location l, demographics d where  timestamp between DATE_SUB(?,INTERVAL 15 MINUTE) and DATE_SUB(?,INTERVAL 1 SECOND) and l.macaddress = d.macaddress");
-                        
+
             //set the parameters
             preparedStatement.setString(1, timeEnd);
             preparedStatement.setString(2, timeEnd);
@@ -270,17 +273,26 @@ public class ReportDAO {
 
         //string to return to ReportServlet.java
         String returnThis = "<div class=\"container\">      <table class=\"table table-bordered\">";
-        
+
         //for the percentage calculation later to compare the number in each category with the total number of possible users
         int totalBetweenTime = everyoneWithinTime(endTimeDate);
-        
+        DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        Date startDate = null;
+
+        try {
+            // Convert from String to Date
+            startDate = df.parse(endTimeDate);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
         //Print table header
-        returnThis += ("<thead><tr><th colspan = " + (totalOptions+2) + ">Report for " + " Find how to change string to minus 15 minutes" + " to " + endTimeDate + "<br>Total: " + totalBetweenTime + "</th></tr>");
-        for(String header : userInputArray){ //can be year/gender/school
+        returnThis += ("<thead><tr><th colspan = " + (totalOptions + 2) + ">Report: Breakdown by Year/Gender/School <br>Total: " + totalBetweenTime + "</th></tr>");
+        for (String header : userInputArray) { //can be year/gender/school
             returnThis += "<th>" + header.substring(0, 1).toUpperCase() + header.substring(1) + "</th>";
         }
         returnThis += "<th>Qty</th><th>Percentage</th></thead><tbody>";
-        
+
         for (int i = 1; i <= numberOfRows; i++) {
             String currentLine = "<tr>";
 
@@ -365,7 +377,7 @@ public class ReportDAO {
                 default: //user only choose 3 options
                     if (userInputArray[0].equals("year") && userInputArray[1].equals("gender") && userInputArray[2].equals("school")) { //same year 12 times, same gender 6 times, 6 different schools
                         value = retrieveThreeBreakdown(endTimeDate, year[(int) Math.ceil(i / 12.0)], gender[((int) Math.ceil((i - 1) / 6)) % 2 + 1], school[(i - 1) % 6 + 1]);
-                    } else if (userInputArray[0].equals("year") && userInputArray[1].equals("school") && userInputArray[2].equals("gender") ) { //same year 12 times, same school 2 times, 2 different gender
+                    } else if (userInputArray[0].equals("year") && userInputArray[1].equals("school") && userInputArray[2].equals("gender")) { //same year 12 times, same school 2 times, 2 different gender
                         value = retrieveThreeBreakdown(endTimeDate, year[(int) Math.ceil(i / 12.0)], gender[(i - 1) % 2 + 1], school[((int) Math.ceil((i - 1) / 2)) % 6 + 1]);
                     } else if (userInputArray[0].equals("gender") && userInputArray[1].equals("year") && userInputArray[2].equals("school")) { //same gender 30 times, same year 6 times, 6 different school
                         value = retrieveThreeBreakdown(endTimeDate, year[((int) Math.ceil((i - 1) / 6)) % 5 + 1], gender[((int) Math.ceil(i / 30.0))], school[(i - 1) % 6 + 1]);
@@ -379,10 +391,10 @@ public class ReportDAO {
                     break;
             }
             currentLine += "<td>" + value + "</td>";
-            
+
             //Generating percentage
-            currentLine += "<td>" + Math.round(value*100.0/totalBetweenTime) + "%</td>";
-            
+            currentLine += "<td>" + Math.round(value * 100.0 / totalBetweenTime) + "%</td>";
+
             //Ending
             currentLine += "</tr>";
             returnThis += currentLine;
@@ -391,4 +403,3 @@ public class ReportDAO {
         return returnThis;
     }
 }
-
