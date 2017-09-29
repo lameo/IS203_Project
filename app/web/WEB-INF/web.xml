@@ -16,6 +16,10 @@
         <servlet-name>processUpload</servlet-name>
         <servlet-class>controller.UploadServlet</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>HeatMapServlet</servlet-name>
+        <servlet-class>controller.HeatMapServlet</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>processLogin</servlet-name>
         <url-pattern>/processLogin</url-pattern>
@@ -31,6 +35,10 @@
     <servlet-mapping>
         <servlet-name>processUpload</servlet-name>
         <url-pattern>/processUpload</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>HeatMapServlet</servlet-name>
+        <url-pattern>/HeatMapServlet</url-pattern>
     </servlet-mapping>
     <session-config>
         <session-timeout>

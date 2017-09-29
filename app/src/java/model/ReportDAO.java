@@ -145,7 +145,15 @@ public class ReportDAO {
         }
         return map;
     }
+    
+    public static Map<Integer, String> retrieveTopKCompanions(String time) {
+        return null;
+    }
 
+    public static Map<Integer, String> retrieveTopKNextPlaces(String time) {
+        return null;
+    }    
+    
     private static int retrieveThreeBreakdown(String timeEnd, String year, String gender, String school) {
         Connection connection = null;
         PreparedStatement preparedStatement = null;

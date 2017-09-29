@@ -26,7 +26,7 @@ public class ReportServlet extends HttpServlet {
 
                 String breakdownReport = ReportDAO.notVeryBasicBreakdown(order, endtimeDate);
                 request.setAttribute("breakdownReport", breakdownReport);
-                view = request.getRequestDispatcher("basicReport.jsp");  //send back to userPage but same URL
+                view = request.getRequestDispatcher("basicReport.jsp");  //send back with same URL
                 view.forward(request, response);
                 break;
             case "topKPopular":
@@ -34,9 +34,25 @@ public class ReportServlet extends HttpServlet {
 
                 Map<Integer, String> topKPopular = ReportDAO.retrieveTopKPopularPlaces(timeDate);
                 request.setAttribute("topKPopular", topKPopular);
-                view = request.getRequestDispatcher("topKPopularPlaces.jsp");  //send back to userPage but same URL
+                view = request.getRequestDispatcher("topKPopularPlaces.jsp");  //send back with same URL
                 view.forward(request, response);
                 break;
+            case "topKCompanions":
+                timeDate = request.getParameter("timeDate");
+
+                Map<Integer, String> topKCompanions = ReportDAO.retrieveTopKCompanions(timeDate);
+                request.setAttribute("topKCompanions", topKCompanions);
+                view = request.getRequestDispatcher("topKCompanions.jsp");  //send back with same URL
+                view.forward(request, response);
+                break;
+            case "topKNextPlaces":
+                timeDate = request.getParameter("timeDate");
+
+                Map<Integer, String> topKNextPlaces = ReportDAO.retrieveTopKNextPlaces(timeDate);
+                request.setAttribute("topKNextPlaces", topKNextPlaces);
+                view = request.getRequestDispatcher("topKNextPlaces.jsp");  //send back with same URL
+                view.forward(request, response);
+                break;                
             default:
                 break;
         }

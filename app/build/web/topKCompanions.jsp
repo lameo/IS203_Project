@@ -52,7 +52,7 @@
             <!-- Form for user to input date&time and top K for top K popular places report -->
             <form method=post action="report">
                 <!-- report type -->
-                <input type="hidden" name="reportType" value="topKNextPlaces">
+                <input type="hidden" name="reportType" value="topKCompanions">
                 <!-- form input for date & time  -->
                 <div class="form-group">
                     <label class="form-control-label" for="timing">Enter date & time:</label>
