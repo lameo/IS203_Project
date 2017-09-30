@@ -2,12 +2,14 @@ package controller;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.Map;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import model.HeatMap;
 import model.HeatMapDAO;
 
 public class HeatMapServlet extends HttpServlet {
@@ -27,8 +29,8 @@ public class HeatMapServlet extends HttpServlet {
         
         String endtimeDate = request.getParameter("endtimeDate");
         int floor = Integer.parseInt(request.getParameter("floor"));
-
-        Map<String, Integer> heatmap = HeatMapDAO.retrieveHeatMap(endtimeDate, floor);
+        
+        ArrayList<HeatMap> heatmap = HeatMapDAO.retrieveHeatMap(endtimeDate, floor);
         request.setAttribute("heatmap", heatmap);
         view = request.getRequestDispatcher("heatmapPage.jsp");  //send back with same URL
         view.forward(request, response);

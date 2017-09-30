@@ -1,9 +1,9 @@
 package model;
 
-import java.util.Map;
+import java.util.ArrayList;
 
 public class HeatMapDAO {
-    public static Map<String, Integer> retrieveHeatMap(String time, int floor) {
+    public static ArrayList<HeatMap> retrieveHeatMap(String endtimeDate, int floor) {
         return null;
     }
 
