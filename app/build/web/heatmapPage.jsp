@@ -1,3 +1,5 @@
+<%@page import="java.util.ArrayList"%>
+<%@page import="model.HeatMap"%>
 <%@page import="model.User"%>
 <%@page import="java.sql.Timestamp"%>
 <%@page import="java.time.Instant"%>
@@ -51,6 +53,58 @@
                 </ul>                
             </div>
         </nav>
+
+    <center>
+        <div class="container">
+            <br><br>
+            <!-- Form for user to input date&time and level for heat map -->
+            <form method=post action="processHeatMap">
+                <!-- form input for date & time  -->
+                <div class="form-group">
+                    <label class="form-control-label" for="timing">Enter date & time:</label>
+                    <input type="text" class="form-control" id="timing" name="endtimeDate" placeholder="Example: 2014-03-23 13:40:00" required>
+                </div>
+                <!-- select menu for level, default is B1  -->
+                <div class="form-group">
+                    <label for="floor">Generate Level in SIS Building:</label>
+                    <select class="form-control" id="floor" name = "floor">
+                        <option selected value="0">B1</option>
+                        <option value="1">Level 1</option>
+                        <option value="2">Level 2</option>
+                        <option value="3">Level 3</option>                        
+                        <option value="4">Level 4</option>
+                        <option value="5">Level 5</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary">Generate</button>
+            </form>
+        </div>
+        <%
+            if (session.getAttribute("floorName") != null && session.getAttribute("endtimeDate") != null) {
+                String floor = (String) session.getAttribute("floorName");
+                String date = (String) session.getAttribute("endtimeDate");
+
+                out.print("<h3>Floor:" + floor + " Date:" + date + "</h3>");
+                out.print("<div class=\"container\"><table class=\"table table-bordered\"><thead>");
+                out.print("<tr><th>Areas</th></thead><tbody>");
+
+                if (session.getAttribute("heatmapList") != null) {
+                    ArrayList<HeatMap> heatmapList = (ArrayList<HeatMap>) session.getAttribute("heatmapList");
+                    for (HeatMap heatmap : heatmapList) {
+                        out.print("<tr><td>" + heatmap + "<tr></td>");
+                    }
+                }
+                out.print("</tbody></table></div>");
+                session.removeAttribute("heatmapList");
+                session.removeAttribute("endtimeDate");
+                session.removeAttribute("floor");
+            }
+            //debugging purpose
+            out.print("<br><br>Copy Paste");
+            out.print("<br>2014-03-23 13:55:00");
+        %>
+        <%="<br><br>User session: " + timestamp%>      
+
         <div id="demo"></div>
         <script id="demo-code" type="text/javascript">
             var xscale = d3.scale.linear()
@@ -91,6 +145,6 @@
                         .datum(mapdata).call(map);
             });
         </script>
-        <center><%="<br>User session: " + timestamp%></center>
+    </center>      
 </body>
 </html>

@@ -16,7 +16,6 @@ public class ReportServlet extends HttpServlet {
 
     protected void processRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String reportType = request.getParameter("reportType");
-        RequestDispatcher view = null;
         HttpSession session = request.getSession(); 
         
         switch (reportType) {
@@ -45,17 +44,15 @@ public class ReportServlet extends HttpServlet {
                 timeDate = request.getParameter("timeDate");
 
                 Map<Integer, String> topKCompanions = ReportDAO.retrieveTopKCompanions(timeDate);
-                request.setAttribute("topKCompanions", topKCompanions);
-                view = request.getRequestDispatcher("topKCompanions.jsp");  //send back with same URL
-                view.forward(request, response);
+                session.setAttribute("topKCompanions", topKCompanions);
+                response.sendRedirect("topKCompanions.jsp");  //send back to topKCompanions
                 break;
             case "topKNextPlaces":
                 timeDate = request.getParameter("timeDate");
 
                 Map<Integer, String> topKNextPlaces = ReportDAO.retrieveTopKNextPlaces(timeDate);
-                request.setAttribute("topKNextPlaces", topKNextPlaces);
-                view = request.getRequestDispatcher("topKNextPlaces.jsp");  //send back with same URL
-                view.forward(request, response);
+                session.setAttribute("topKNextPlaces", topKNextPlaces);
+                response.sendRedirect("topKNextPlaces.jsp");  //send back to topKNextPlaces
                 break;                
             default:
                 break;

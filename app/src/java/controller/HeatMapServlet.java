@@ -1,14 +1,14 @@
 package controller;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.ArrayList;
-import java.util.Map;
+import java.util.HashMap;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import model.HeatMap;
 import model.HeatMapDAO;
 
@@ -25,15 +25,24 @@ public class HeatMapServlet extends HttpServlet {
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        RequestDispatcher view = null;   
+        HttpSession session = request.getSession(); 
+
+        String endtimeDate = request.getParameter("endtimeDate"); //retrieve time from user input
+        int floor = Integer.parseInt(request.getParameter("floor")); //retrieve floor from user input
+        String floorName = "B1";
         
-        String endtimeDate = request.getParameter("endtimeDate");
-        int floor = Integer.parseInt(request.getParameter("floor"));
+        if(floor>0){
+            floorName = "L" + floor;
+        }
         
-        ArrayList<HeatMap> heatmap = HeatMapDAO.retrieveHeatMap(endtimeDate, floor);
-        request.setAttribute("heatmap", heatmap);
-        view = request.getRequestDispatcher("heatmapPage.jsp");  //send back with same URL
-        view.forward(request, response);
+        ArrayList<HeatMap> heatmapList = HeatMapDAO.retrieveHeatMap(endtimeDate, floorName);
+
+        session.setAttribute("floorName", floorName);
+        session.setAttribute("endtimeDate", endtimeDate);
+        session.setAttribute("heatmapList", heatmapList);
+
+        response.sendRedirect("heatmapPage.jsp"); //send back to heatmapPage
+        return;
     }
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
@@ -46,7 +55,7 @@ public class HeatMapServlet extends HttpServlet {
      * @throws IOException if an I/O error occurs
      */
     @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+        protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         processRequest(request, response);
     }
@@ -60,7 +69,7 @@ public class HeatMapServlet extends HttpServlet {
      * @throws IOException if an I/O error occurs
      */
     @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+        protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         processRequest(request, response);
     }
@@ -71,8 +80,8 @@ public class HeatMapServlet extends HttpServlet {
      * @return a String containing servlet description
      */
     @Override
-    public String getServletInfo() {
-        return "This is a Heatmap Servlet to display heatmap";
+        public String getServletInfo() {
+        return "This is a Heatmap Servlet to process heatmap";
     }// </editor-fold>
 
 }
