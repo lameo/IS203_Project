@@ -25,7 +25,7 @@ public class ReportServlet extends HttpServlet {
                 String[] order = request.getParameterValues("order"); //retrieve order from user input
                 
                 String breakdownReport = ReportDAO.notVeryBasicBreakdown(order, endtimeDate); //retrieve HTML table from reportDAO after getting data from SQL
-                List<String> orderList = Arrays.asList(order);                
+                List<String> orderList = Arrays.asList(order); //changing array into list object so that it can be transferred over through session             
                 
                 session.setAttribute("breakdownReport", breakdownReport);
                 session.setAttribute("orderList", orderList);                
@@ -33,11 +33,13 @@ public class ReportServlet extends HttpServlet {
                 break;
             case "topKPopular":
                 String timeDate = request.getParameter("timeDate"); //retrieve time from user input
-
+                int topK = Integer.parseInt(request.getParameter("topK"));
+                
                 Map<Integer, String> topKPopular = ReportDAO.retrieveTopKPopularPlaces(timeDate);
-                request.setAttribute("topKPopular", topKPopular);
-                view = request.getRequestDispatcher("topKPopularPlaces.jsp");  //send back with same URL
-                view.forward(request, response);
+                session.setAttribute("topKPopular", topKPopular);
+                session.setAttribute("timeDate", timeDate);
+                session.setAttribute("topK", topK);                
+                response.sendRedirect("topKPopularPlaces.jsp");  //send back to topKPopularPlaces
                 break;
             case "topKCompanions":
                 timeDate = request.getParameter("timeDate");

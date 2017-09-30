@@ -128,12 +128,12 @@ public class ReportDAO {
             preparedStatement = connection.prepareStatement("select n.locationname, count(n.locationname) "
                     + "from (SELECT max(TIMESTAMP) as TIMESTAMP, macaddress "
                         + "FROM location "
-                        + "WHERE timestamp BETWEEN ? AND (SELECT DATE_ADD(?,INTERVAL 15 MINUTE)) "
+                        + "WHERE timestamp BETWEEN (SELECT DATE_SUB(?,INTERVAL 15 MINUTE)) AND (SELECT DATE_SUB(?,INTERVAL 1 SECOND)) "
                         + "group by macaddress) l, location m, locationlookup n "
                     + "where l.macaddress = m.macaddress and m.timestamp = l.timestamp and m.locationid = n.locationid "
                     + "group by n.locationname "
                     + "order by count(n.locationname) desc limit 30 ");
-
+            
             //set the parameters
             preparedStatement.setString(1, time);
             preparedStatement.setString(2, time);

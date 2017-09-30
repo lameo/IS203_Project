@@ -83,11 +83,11 @@
 
         </div>
         <%
-            //If top K report is generated
-            if (request.getParameter("topK") != null) {
-                String timedate = request.getParameter("timeDate");
-                int topK = Integer.parseInt(request.getParameter("topK"));
-                Map<Integer, String> map = (Map<Integer, String>) (request.getAttribute("topKPopular"));
+            //If top K popular places report is generated
+            if (session.getAttribute("topKPopular") != null) {
+                String timedate = (String)session.getAttribute("timeDate");
+                int topK = (Integer)session.getAttribute("topK");
+                Map<Integer, String> map = (Map<Integer, String>)(session.getAttribute("topKPopular"));
 
                 out.print("<h3>Top-" + topK + " Popular Places at " + timedate + "</h3>");
                 out.print("<div class=\"container\"><table class=\"table table-bordered\"><thead>");
@@ -103,11 +103,15 @@
                 }
                 out.print("</tbody></table></div>");
             }
+            session.removeAttribute("topKPopular"); //remove session attribute from the session object
+            session.removeAttribute("timeDate"); //remove session attribute from the session object
+            session.removeAttribute("topK"); //remove session attribute from the session object
+            
+            //debugging purpose
+            out.print("<br><br>Copy Paste");
+            out.print("<br>2014-03-23 13:55:00");
         %>
-
-
-
-        <%="<br>User session: " + timestamp%>
+        <%="<br><br>User session: " + timestamp%>
     </center>
 </body>
 </html>
