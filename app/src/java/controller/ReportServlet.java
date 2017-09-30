@@ -1,6 +1,8 @@
 package controller;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
@@ -15,22 +17,22 @@ public class ReportServlet extends HttpServlet {
     protected void processRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String reportType = request.getParameter("reportType");
         RequestDispatcher view = null;
-
-        //to retrieve session's user
-        HttpSession session = request.getSession();
-
+        HttpSession session = request.getSession(); 
+        
         switch (reportType) {
             case "basicReport":
-                String endtimeDate = request.getParameter("endtimeDate");
-                String[] order = request.getParameterValues("order");
-
-                String breakdownReport = ReportDAO.notVeryBasicBreakdown(order, endtimeDate);
-                request.setAttribute("breakdownReport", breakdownReport);
-                view = request.getRequestDispatcher("basicReport.jsp");  //send back with same URL
-                view.forward(request, response);
+                String endtimeDate = request.getParameter("endtimeDate"); //retrieve time from user input
+                String[] order = request.getParameterValues("order"); //retrieve order from user input
+                
+                String breakdownReport = ReportDAO.notVeryBasicBreakdown(order, endtimeDate); //retrieve HTML table from reportDAO after getting data from SQL
+                List<String> orderList = Arrays.asList(order);                
+                
+                session.setAttribute("breakdownReport", breakdownReport);
+                session.setAttribute("orderList", orderList);                
+                response.sendRedirect("basicReport.jsp");  //send back to basicReport
                 break;
             case "topKPopular":
-                String timeDate = request.getParameter("timeDate");
+                String timeDate = request.getParameter("timeDate"); //retrieve time from user input
 
                 Map<Integer, String> topKPopular = ReportDAO.retrieveTopKPopularPlaces(timeDate);
                 request.setAttribute("topKPopular", topKPopular);

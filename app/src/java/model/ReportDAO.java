@@ -4,9 +4,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -22,7 +19,10 @@ public class ReportDAO {
             connection = ConnectionManager.getConnection();
 
             //prepare a statement
-            preparedStatement = connection.prepareStatement("select count(DISTINCT l.macaddress) from location l, demographics d where  timestamp between DATE_SUB(?,INTERVAL 15 MINUTE) and DATE_SUB(?,INTERVAL 1 SECOND) and l.macaddress = d.macaddress and gender = ?");
+            preparedStatement = connection.prepareStatement("select count(DISTINCT l.macaddress) "
+                    + "from location l, demographics d "
+                    + "where  timestamp between DATE_SUB(?,INTERVAL 15 MINUTE) and DATE_SUB(?,INTERVAL 1 SECOND) "
+                    + "and l.macaddress = d.macaddress and gender = ?");
 
             //set the parameters
             preparedStatement.setString(1, timeEnd);
@@ -55,7 +55,10 @@ public class ReportDAO {
             connection = ConnectionManager.getConnection();
 
             //prepare a statement
-            preparedStatement = connection.prepareStatement("select count(DISTINCT l.macaddress) from location l, demographics d where  timestamp between DATE_SUB(?,INTERVAL 15 MINUTE) and DATE_SUB(?,INTERVAL 1 SECOND) and l.macaddress = d.macaddress and email like ?");
+            preparedStatement = connection.prepareStatement("select count(DISTINCT l.macaddress) "
+                    + "from location l, demographics d "
+                    + "where timestamp between DATE_SUB(?,INTERVAL 15 MINUTE) and DATE_SUB(?,INTERVAL 1 SECOND) "
+                    + "and l.macaddress = d.macaddress and email like ?");
 
             //set the parameters
             preparedStatement.setString(1, timeEnd);
@@ -88,7 +91,10 @@ public class ReportDAO {
             connection = ConnectionManager.getConnection();
 
             //prepare a statement
-            preparedStatement = connection.prepareStatement("select count(DISTINCT l.macaddress) from location l, demographics d where  timestamp between DATE_SUB(?,INTERVAL 15 MINUTE) and DATE_SUB(?,INTERVAL 1 SECOND) and l.macaddress = d.macaddress");
+            preparedStatement = connection.prepareStatement("select count(DISTINCT l.macaddress) "
+                    + "from location l, demographics d "
+                    + "where timestamp between DATE_SUB(?,INTERVAL 15 MINUTE) and DATE_SUB(?,INTERVAL 1 SECOND) "
+                    + "and l.macaddress = d.macaddress");
 
             //set the parameters
             preparedStatement.setString(1, timeEnd);
@@ -119,7 +125,14 @@ public class ReportDAO {
             //get a connection to database
             connection = ConnectionManager.getConnection();
             //prepare a statement
-            preparedStatement = connection.prepareStatement("select n.locationname, count(n.locationname) from (SELECT max(TIMESTAMP) as TIMESTAMP, macaddress FROM location WHERE timestamp BETWEEN ? AND (SELECT DATE_ADD(?,INTERVAL 15 MINUTE)) group by macaddress) l, location m, locationlookup n where l.macaddress = m.macaddress and m.timestamp = l.timestamp and m.locationid = n.locationid group by n.locationname order by count(n.locationname) desc limit 30 ");
+            preparedStatement = connection.prepareStatement("select n.locationname, count(n.locationname) "
+                    + "from (SELECT max(TIMESTAMP) as TIMESTAMP, macaddress "
+                        + "FROM location "
+                        + "WHERE timestamp BETWEEN ? AND (SELECT DATE_ADD(?,INTERVAL 15 MINUTE)) "
+                        + "group by macaddress) l, location m, locationlookup n "
+                    + "where l.macaddress = m.macaddress and m.timestamp = l.timestamp and m.locationid = n.locationid "
+                    + "group by n.locationname "
+                    + "order by count(n.locationname) desc limit 30 ");
 
             //set the parameters
             preparedStatement.setString(1, time);
@@ -163,7 +176,10 @@ public class ReportDAO {
             //get a connection to database
             connection = ConnectionManager.getConnection();
             //prepare a statement
-            preparedStatement = connection.prepareStatement("select count(DISTINCT l.macaddress) from location l, demographics d where  timestamp between DATE_SUB(?,INTERVAL 15 MINUTE) and DATE_SUB(?,INTERVAL 1 SECOND) and l.macaddress = d.macaddress and gender = ? and email like ? and email like ?");
+            preparedStatement = connection.prepareStatement("select count(DISTINCT l.macaddress) "
+                    + "from location l, demographics d "
+                    + "where timestamp between DATE_SUB(?,INTERVAL 15 MINUTE) and DATE_SUB(?,INTERVAL 1 SECOND) "
+                    + "and l.macaddress = d.macaddress and gender = ? and email like ? and email like ?");
 
             //set the parameters
             preparedStatement.setString(1, timeEnd);
@@ -402,53 +418,4 @@ public class ReportDAO {
         return returnThis;
     }
 
-    public static int heatLevel(String semanticPlace, String timeDate) {
-        Connection connection = null;
-        PreparedStatement preparedStatement = null;
-        ResultSet resultSet = null;
-        String ans = "";
-        try {
-            //get a connection to database
-            connection = ConnectionManager.getConnection();
-
-            //prepare a statement
-            preparedStatement = connection.prepareStatement("select count(DISTINCT macaddress) from location l, locationlookup ll where ll.locationname = ? and l.locationid = ll.locationid and l.timestamp BETWEEN (SELECT DATE_sub( ? ,INTERVAL 15 MINUTE)) AND ?");
-
-            //set the parameters
-            preparedStatement.setString(1, semanticPlace);
-            preparedStatement.setString(2, timeDate);
-            preparedStatement.setString(3, timeDate);
-
-            //execute SQL query
-            resultSet = preparedStatement.executeQuery();
-            while (resultSet.next()) {
-                ans = resultSet.getString(1);
-            }
-
-            //close connections
-            resultSet.close();
-            preparedStatement.close();
-            connection.close();
-            
-            
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        
-        int level = Integer.parseInt(ans);
-        if(level <= 0){
-            return 0;
-        }else if(level <=2){
-            return 1;
-        }else if(level <=5){
-            return 2;
-        }else if(level <=10){
-            return 3;
-        }else if(level <=20){
-            return 4;
-        }else if(level <=20){
-            return 5;
-        }
-        return 6;
-    }
 }

@@ -1,3 +1,4 @@
+<%@page import="java.util.List"%>
 <%@page import="model.User"%>
 <%@page import="java.sql.Timestamp"%>
 <%@page import="java.time.Instant"%>
@@ -100,18 +101,24 @@
         </div>
 
         <%
-            //If top K report is generated
-            if (request.getAttribute("breakdownReport") != null) {
-                String[] options = request.getParameterValues("order");
-
+            //If breakdown report is generated
+            if (session.getAttribute("breakdownReport") != null) {
+                List<String> options = (List<String>) session.getAttribute("orderList");
                 String errMsg = "Duplicated option found: ";
                 boolean duplicate = false;
-                for (int i = 0; i < options.length; i++) {
-                    for (int j = 1; j < options.length; j++) {
-                        if (options[i].equals(options[j]) && !options[i].equals("none") && i != j) {
-                            // duplicate element found
-                            duplicate = true;
-                            errMsg += options[j];
+
+                if (options != null) {
+                    for (int i = 0; i < options.size(); i++) {
+                        for (int j = 1; j < options.size(); j++) {
+                            if (options.get(i).equals(options.get(j)) && !options.get(i).equals("none") && i != j) {
+                                // duplicate element found
+                                duplicate = true;
+                                errMsg += options.get(j);
+                                break; //once a duplicate element is found, exit the loop
+                            }
+                        }
+                        if (duplicate) {
+                            break; //once a duplicate element is found, exit the loop
                         }
                     }
                 }
@@ -119,19 +126,18 @@
                 if (duplicate) {
                     out.print("<p style=\"color:red;\">Report Generation failed<br>" + errMsg + "</p>");
                 } else {
-                    String breakdownReport = (String) (request.getAttribute("breakdownReport"));
+                    String breakdownReport = (String) (session.getAttribute("breakdownReport"));
                     out.print(breakdownReport);
                 }
+                session.removeAttribute("breakdownReport"); //remove session attribute from the session object
+                session.removeAttribute("order"); //remove session attribute from the session object
             }
-        %>
-        <%
+
             //debugging purpose
             out.print("<br><br>Copy Paste");
-            out.print("<br>2014-03-23 13:40:00");
             out.print("<br>2014-03-23 13:55:00");
-
         %>        
-        <%="<br>User session: " + timestamp%>
+        <%="<br><br>User session: " + timestamp%>
     </center>
 </body>
 </html>

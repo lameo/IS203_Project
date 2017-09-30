@@ -43,7 +43,6 @@
             out.print("<br>");
             out.print("<br><br><h4>Test accounts:</h4><h5>Admin:<br>admin<br>password</h5>");
             out.print("<h5>User:<br>zorro.fan.2010<br>zxcvbn1284</h5>");
-
         %>
     </body>
 </html>

@@ -25,13 +25,9 @@
         User user = (User) session.getAttribute("user");
         String name = user.getName();
         String timestamp = (String) session.getAttribute("timestamp");
-
-        //basic location report details, get using request
-        String timedate = (String) request.getAttribute("timeDate");
-        String topK = (String) request.getAttribute("topK");
     %>
     <head>
-        <title>Reports Page</title>
+        <title>Basic Location Reports</title>
     </head>
     <body>
         <nav class="navbar navbar-inverse"> <%-- navigation menu for user to click --%>
@@ -78,10 +74,6 @@
                 </div>
             </div>
         </div>
-        <%
-            //debug
-            out.print("<br><br><p style=\"color:red;\">Top-K Companions & Top-K Next Places not working yet<br></p>");
-        %>
     <center><%="<br>User session: " + timestamp%></center>
 </body>
 </html>
