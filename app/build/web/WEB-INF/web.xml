@@ -20,6 +20,10 @@
         <servlet-name>processHeatMap</servlet-name>
         <servlet-class>controller.HeatMapServlet</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>AutoGroupServlet</servlet-name>
+        <servlet-class>controller.AutoGroupServlet</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>processLogin</servlet-name>
         <url-pattern>/processLogin</url-pattern>
@@ -39,6 +43,10 @@
     <servlet-mapping>
         <servlet-name>processHeatMap</servlet-name>
         <url-pattern>/processHeatMap</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>AutoGroupServlet</servlet-name>
+        <url-pattern>/AutoGroupServlet</url-pattern>
     </servlet-mapping>
     <session-config>
         <session-timeout>
