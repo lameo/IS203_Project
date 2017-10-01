@@ -16,7 +16,13 @@ import java.util.ArrayList;
  * @author xuying
  */
 public class AutoGroupDAO {
-    public static ArrayList<String> retrieveAutoIndividual(String endtimeDate){
+    public static ArrayList<Group> retrieveAutoGroups(String endtimeDate){
+        ArrayList<String> AutoUsers = retrieveAutoUsers(endtimeDate);
+        ArrayList<Group> groups = new ArrayList<Group>();
+        return groups;
+    }
+    
+    public static ArrayList<String> retrieveAutoUsers(String endtimeDate){
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
@@ -44,4 +50,7 @@ public class AutoGroupDAO {
         }catch (SQLException e) {
             e.printStackTrace();
         }
+        return AutoGroupList;
+    }
+    
 }
