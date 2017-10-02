@@ -98,7 +98,7 @@ public class HeatMapDAO {
             return 3;
         } else if (quantity <= 20) {
             return 4;
-        } else if (quantity <= 20) {
+        } else if (quantity <= 30) {
             return 5;
         }
         return 6;        
