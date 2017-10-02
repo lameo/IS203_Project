@@ -117,8 +117,6 @@
                     map = d3.floorplan().xScale(xscale).yScale(yscale), //setup a floor plan map to hold layers and manage pan/zoom functionality
                     imagelayer = d3.floorplan.imagelayer(), //create a new image layer
                     heatmap = d3.floorplan.heatmap(), //create a heat map layer
-                    vectorfield = d3.floorplan.vectorfield(), //create a new vector field layer
-                    pathplot = d3.floorplan.pathplot(), //create a new path plot layer
                     mapdata = {};
 
             mapdata[imagelayer.id()] = [{
@@ -131,14 +129,10 @@
                 }];
 
             map.addLayer(imagelayer) //add layer to the image
-                    .addLayer(heatmap)
-                    .addLayer(vectorfield)
-                    .addLayer(pathplot);
+                    .addLayer(heatmap);
 
             d3.json("resource/test.json", function (data) {
                 mapdata[heatmap.id()] = data.heatmap; //set variable from json
-                mapdata[vectorfield.id()] = data.vectorfield; //set variable from json
-                mapdata[pathplot.id()] = data.pathplot; //set variable from json
                 d3.select("#B1HeatMap").append("svg")
                         .attr("height", 487).attr("width", 720)
                         .datum(mapdata).call(map);
@@ -156,8 +150,6 @@
                     map = d3.floorplan().xScale(xscale).yScale(yscale), //setup a floor plan map to hold layers and manage pan/zoom functionality
                     imagelayer = d3.floorplan.imagelayer(), //create a new image layer
                     heatmap = d3.floorplan.heatmap(), //create a heat map layer
-                    vectorfield = d3.floorplan.vectorfield(), //create a new vector field layer
-                    pathplot = d3.floorplan.pathplot(), //create a new path plot layer
                     mapdata = {};
 
             mapdata[imagelayer.id()] = [{
@@ -170,14 +162,10 @@
                 }];
 
             map.addLayer(imagelayer) //add layer to the image
-                    .addLayer(heatmap)
-                    .addLayer(vectorfield)
-                    .addLayer(pathplot);
+                    .addLayer(heatmap);
 
             d3.json("resource/test.json", function (data) {
                 mapdata[heatmap.id()] = data.heatmap; //set variable from json
-                mapdata[vectorfield.id()] = data.vectorfield; //set variable from json
-                mapdata[pathplot.id()] = data.pathplot; //set variable from json
                 d3.select("#L1HeatMap").append("svg")
                         .attr("height", 487).attr("width", 720)
                         .datum(mapdata).call(map);
@@ -196,8 +184,6 @@
                     map = d3.floorplan().xScale(xscale).yScale(yscale), //setup a floor plan map to hold layers and manage pan/zoom functionality
                     imagelayer = d3.floorplan.imagelayer(), //create a new image layer
                     heatmap = d3.floorplan.heatmap(), //create a heat map layer
-                    vectorfield = d3.floorplan.vectorfield(), //create a new vector field layer
-                    pathplot = d3.floorplan.pathplot(), //create a new path plot layer
                     mapdata = {};
 
             mapdata[imagelayer.id()] = [{
@@ -210,14 +196,10 @@
                 }];
 
             map.addLayer(imagelayer) //add layer to the image
-                    .addLayer(heatmap)
-                    .addLayer(vectorfield)
-                    .addLayer(pathplot);
+                    .addLayer(heatmap);
 
             d3.json("resource/test.json", function (data) {
                 mapdata[heatmap.id()] = data.heatmap; //set variable from json
-                mapdata[vectorfield.id()] = data.vectorfield; //set variable from json
-                mapdata[pathplot.id()] = data.pathplot; //set variable from json
                 d3.select("#L2HeatMap").append("svg")
                         .attr("height", 487).attr("width", 720)
                         .datum(mapdata).call(map);
@@ -236,8 +218,6 @@
                     map = d3.floorplan().xScale(xscale).yScale(yscale), //setup a floor plan map to hold layers and manage pan/zoom functionality
                     imagelayer = d3.floorplan.imagelayer(), //create a new image layer
                     heatmap = d3.floorplan.heatmap(), //create a heat map layer
-                    vectorfield = d3.floorplan.vectorfield(), //create a new vector field layer
-                    pathplot = d3.floorplan.pathplot(), //create a new path plot layer
                     mapdata = {};
 
             mapdata[imagelayer.id()] = [{
@@ -250,14 +230,10 @@
                 }];
 
             map.addLayer(imagelayer) //add layer to the image
-                    .addLayer(heatmap)
-                    .addLayer(vectorfield)
-                    .addLayer(pathplot);
+                    .addLayer(heatmap);
 
             d3.json("resource/test.json", function (data) {
                 mapdata[heatmap.id()] = data.heatmap; //set variable from json
-                mapdata[vectorfield.id()] = data.vectorfield; //set variable from json
-                mapdata[pathplot.id()] = data.pathplot; //set variable from json
                 d3.select("#L3HeatMap").append("svg")
                         .attr("height", 487).attr("width", 720)
                         .datum(mapdata).call(map);
@@ -276,8 +252,6 @@
                     map = d3.floorplan().xScale(xscale).yScale(yscale), //setup a floor plan map to hold layers and manage pan/zoom functionality
                     imagelayer = d3.floorplan.imagelayer(), //create a new image layer
                     heatmap = d3.floorplan.heatmap(), //create a heat map layer
-                    vectorfield = d3.floorplan.vectorfield(), //create a new vector field layer
-                    pathplot = d3.floorplan.pathplot(), //create a new path plot layer
                     mapdata = {};
 
             mapdata[imagelayer.id()] = [{
@@ -290,14 +264,10 @@
                 }];
 
             map.addLayer(imagelayer) //add layer to the image
-                    .addLayer(heatmap)
-                    .addLayer(vectorfield)
-                    .addLayer(pathplot);
+                    .addLayer(heatmap);
 
             d3.json("resource/test.json", function (data) {
                 mapdata[heatmap.id()] = data.heatmap; //set variable from json
-                mapdata[vectorfield.id()] = data.vectorfield; //set variable from json
-                mapdata[pathplot.id()] = data.pathplot; //set variable from json
                 d3.select("#L4HeatMap").append("svg")
                         .attr("height", 487).attr("width", 720)
                         .datum(mapdata).call(map);
@@ -316,8 +286,6 @@
                     map = d3.floorplan().xScale(xscale).yScale(yscale), //setup a floor plan map to hold layers and manage pan/zoom functionality
                     imagelayer = d3.floorplan.imagelayer(), //create a new image layer
                     heatmap = d3.floorplan.heatmap(), //create a heat map layer
-                    vectorfield = d3.floorplan.vectorfield(), //create a new vector field layer
-                    pathplot = d3.floorplan.pathplot(), //create a new path plot layer
                     mapdata = {};
 
             mapdata[imagelayer.id()] = [{
@@ -330,14 +298,10 @@
                 }];
 
             map.addLayer(imagelayer) //add layer to the image
-                    .addLayer(heatmap)
-                    .addLayer(vectorfield)
-                    .addLayer(pathplot);
+                    .addLayer(heatmap);
 
             d3.json("resource/test.json", function (data) {
                 mapdata[heatmap.id()] = data.heatmap; //set variable from json
-                mapdata[vectorfield.id()] = data.vectorfield; //set variable from json
-                mapdata[pathplot.id()] = data.pathplot; //set variable from json
                 d3.select("#L5HeatMap").append("svg")
                         .attr("height", 487).attr("width", 720)
                         .datum(mapdata).call(map);
