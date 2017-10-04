@@ -1,5 +1,6 @@
 package controller;
 
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -11,6 +12,8 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import model.HeatMap;
 import model.HeatMapDAO;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 public class HeatMapServlet extends HttpServlet {
 
@@ -25,7 +28,23 @@ public class HeatMapServlet extends HttpServlet {
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        HttpSession session = request.getSession(); 
+        HttpSession session = request.getSession();         
+        String heatmap = request.getParameter("heatmap");
+        if(heatmap!=null && heatmap.length()>0){
+            String filename = (String)session.getAttribute("floorName");            
+            try(
+                FileWriter fileWriter = new FileWriter("D:\\testt\\app\\web\\resource\\" + filename + ".json");
+            ){        
+                JSONObject obj = new JSONObject(); 
+                JSONObject obj2 = new JSONObject(heatmap); 
+                obj.put("heatmap", obj2);
+                fileWriter.write(obj.toString());
+                fileWriter.close();
+            } catch (JSONException e){
+                e.printStackTrace();
+            } 
+            return;
+        }
 
         String endtimeDate = request.getParameter("endtimeDate"); //retrieve time from user input
         int floor = Integer.parseInt(request.getParameter("floor")); //retrieve floor from user input

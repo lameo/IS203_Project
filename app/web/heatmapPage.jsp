@@ -80,32 +80,41 @@
             </form>
         </div>
         <%
-            String floor = "";
-            if (session.getAttribute("floorName") != null && session.getAttribute("endtimeDate") != null) {
-                floor = (String) session.getAttribute("floorName");
-                String date = (String) session.getAttribute("endtimeDate");
-
+            String floor = (String) session.getAttribute("floorName");
+            String date = (String) session.getAttribute("endtimeDate");
+            ArrayList<HeatMap> heatmapList = (ArrayList<HeatMap>)session.getAttribute("heatmapList");            
+            if (floor != null && date != null) {
                 out.print("<h3>Floor:" + floor + " Date:" + date + "</h3>");
                 out.print("<div class=\"container\"><table class=\"table table-bordered\"><thead>");
                 out.print("<tr><th>Areas</th></thead><tbody>");
 
-                if (session.getAttribute("heatmapList") != null) {
-                    ArrayList<HeatMap> heatmapList = (ArrayList<HeatMap>) session.getAttribute("heatmapList");
+                if (heatmapList != null) {
                     for (HeatMap heatmap : heatmapList) {
                         out.print("<tr><td>" + heatmap + "<tr></td>");
                     }
                 }
                 out.print("</tbody></table></div>");
-                session.removeAttribute("heatmapList");
-                session.removeAttribute("endtimeDate");
-                session.removeAttribute("floor");
-            }
-            //debugging purpose
-            out.print("<br><br>Copy Paste");
-            out.print("<br>2014-03-23 13:55:00");
-        %>   
-        
+            
+        %>
         <%if(floor.equals("B1")) {%>
+        
+        <script>
+            var obj = new Object();
+            $.getJSON("resource/B1.json", function(data) {
+                obj = data.heatmap;      
+                obj.map[0].value = <%=heatmapList.get(0).getHeatLevel()%>;  
+                obj.map[1].value = <%=heatmapList.get(1).getHeatLevel()%>;                                
+                var JSONString = JSON.stringify(obj);     
+                $.ajax({
+                     url: 'processHeatMap',
+                     type: 'POST', 
+                     dataType: 'json',
+                     data: {
+                         heatmap: JSONString,
+                     }
+                });                 
+            });                                     
+        </script>
         <div id="B1HeatMap"></div>
         <script type="text/javascript">
             var xscale = d3.scale.linear()
@@ -131,7 +140,7 @@
             map.addLayer(imagelayer) //add layer to the image
                     .addLayer(heatmap);
 
-            d3.json("resource/test.json", function (data) {
+            d3.json("resource/B1.json", function (data) {
                 mapdata[heatmap.id()] = data.heatmap; //set variable from json
                 d3.select("#B1HeatMap").append("svg")
                         .attr("height", 487).attr("width", 720)
@@ -139,6 +148,24 @@
             });
         </script>
         <% } else if(floor.equals("L1")) {%>
+        <script>
+            var obj = new Object();
+            $.getJSON("resource/L1.json", function(data) {
+                obj = data.heatmap;      
+                obj.map[0].value = <%=heatmapList.get(0).getHeatLevel()%>;  
+                obj.map[1].value = <%=heatmapList.get(1).getHeatLevel()%>;                                  
+                var JSONString = JSON.stringify(obj);     
+                $.ajax({
+                     url: 'processHeatMap',
+                     type: 'POST', 
+                     dataType: 'json',
+                     data: {
+                         heatmap: JSONString,
+                     }
+                });                 
+            });                                     
+        </script>        
+        
         <div id="L1HeatMap"></div>
         <script type="text/javascript">
             var xscale = d3.scale.linear()
@@ -164,7 +191,7 @@
             map.addLayer(imagelayer) //add layer to the image
                     .addLayer(heatmap);
 
-            d3.json("resource/test.json", function (data) {
+            d3.json("resource/L1.json", function (data) {
                 mapdata[heatmap.id()] = data.heatmap; //set variable from json
                 d3.select("#L1HeatMap").append("svg")
                         .attr("height", 487).attr("width", 720)
@@ -173,6 +200,24 @@
         </script>        
         
         <% } else if(floor.equals("L2")) {%>
+        <script>
+            var obj = new Object();
+            $.getJSON("resource/L2.json", function(data) {
+                obj = data.heatmap;      
+                obj.map[0].value = <%=heatmapList.get(0).getHeatLevel()%>;  
+                obj.map[1].value = <%=heatmapList.get(1).getHeatLevel()%>;                         
+                var JSONString = JSON.stringify(obj);     
+                $.ajax({
+                     url: 'processHeatMap',
+                     type: 'POST', 
+                     dataType: 'json',
+                     data: {
+                         heatmap: JSONString,
+                     }
+                });                 
+            });                                     
+        </script>        
+        
         <div id="L2HeatMap"></div>
         <script type="text/javascript">
             var xscale = d3.scale.linear()
@@ -198,7 +243,7 @@
             map.addLayer(imagelayer) //add layer to the image
                     .addLayer(heatmap);
 
-            d3.json("resource/test.json", function (data) {
+            d3.json("resource/L2.json", function (data) {
                 mapdata[heatmap.id()] = data.heatmap; //set variable from json
                 d3.select("#L2HeatMap").append("svg")
                         .attr("height", 487).attr("width", 720)
@@ -207,6 +252,24 @@
         </script>        
         
         <% } else if(floor.equals("L3")) {%>
+        <script>
+            var obj = new Object();
+            $.getJSON("resource/L3.json", function(data) {
+                obj = data.heatmap;      
+                obj.map[0].value = <%=heatmapList.get(0).getHeatLevel()%>;  
+                obj.map[1].value = <%=heatmapList.get(1).getHeatLevel()%>;                                  
+                var JSONString = JSON.stringify(obj);     
+                $.ajax({
+                     url: 'processHeatMap',
+                     type: 'POST', 
+                     dataType: 'json',
+                     data: {
+                         heatmap: JSONString,
+                     }
+                });                 
+            });                                     
+        </script>        
+        
         <div id="L3HeatMap"></div>
         <script type="text/javascript">
             var xscale = d3.scale.linear()
@@ -232,7 +295,7 @@
             map.addLayer(imagelayer) //add layer to the image
                     .addLayer(heatmap);
 
-            d3.json("resource/test.json", function (data) {
+            d3.json("resource/L3.json", function (data) {
                 mapdata[heatmap.id()] = data.heatmap; //set variable from json
                 d3.select("#L3HeatMap").append("svg")
                         .attr("height", 487).attr("width", 720)
@@ -241,6 +304,24 @@
         </script>        
         
         <% } else if(floor.equals("L4")) { %>
+        <script>
+            var obj = new Object();
+            $.getJSON("resource/L4.json", function(data) {
+                obj = data.heatmap;      
+                obj.map[0].value = <%=heatmapList.get(0).getHeatLevel()%>;  
+                obj.map[1].value = <%=heatmapList.get(1).getHeatLevel()%>;                               
+                var JSONString = JSON.stringify(obj);     
+                $.ajax({
+                     url: 'processHeatMap',
+                     type: 'POST', 
+                     dataType: 'json',
+                     data: {
+                         heatmap: JSONString,
+                     }
+                });                 
+            });                                     
+        </script>        
+        
         <div id="L4HeatMap"></div>
         <script type="text/javascript">
             var xscale = d3.scale.linear()
@@ -266,7 +347,7 @@
             map.addLayer(imagelayer) //add layer to the image
                     .addLayer(heatmap);
 
-            d3.json("resource/test.json", function (data) {
+            d3.json("resource/L4.json", function (data) {
                 mapdata[heatmap.id()] = data.heatmap; //set variable from json
                 d3.select("#L4HeatMap").append("svg")
                         .attr("height", 487).attr("width", 720)
@@ -276,6 +357,24 @@
         
         <% } else if(floor.equals("L5")){ %>  
         <div id="L5HeatMap"></div>
+        <script>
+            var obj = new Object();
+            $.getJSON("resource/L5.json", function(data) {
+                obj = data.heatmap;      
+                obj.map[0].value = <%=heatmapList.get(0).getHeatLevel()%>;  
+                obj.map[1].value = <%=heatmapList.get(1).getHeatLevel()%>;                            
+                var JSONString = JSON.stringify(obj);     
+                $.ajax({
+                     url: 'processHeatMap',
+                     type: 'POST', 
+                     dataType: 'json',
+                     data: {
+                         heatmap: JSONString,
+                     }
+                });                 
+            });                                     
+        </script>        
+        
         <script type="text/javascript">
             var xscale = d3.scale.linear()
                     .domain([0, 50.0])
@@ -300,14 +399,21 @@
             map.addLayer(imagelayer) //add layer to the image
                     .addLayer(heatmap);
 
-            d3.json("resource/test.json", function (data) {
+            d3.json("resource/L5.json", function (data) {
                 mapdata[heatmap.id()] = data.heatmap; //set variable from json
                 d3.select("#L5HeatMap").append("svg")
                         .attr("height", 487).attr("width", 720)
                         .datum(mapdata).call(map);
             });
         </script> 
-        <%}%>
+        <%}}%>
+        <%
+            session.removeAttribute("heatmapList");
+            session.removeAttribute("endtimeDate");
+            session.removeAttribute("floor");              
+        %>
+        <%="<br><br>Copy Paste"%>
+        <%="<br>2014-03-23 13:55:00"%>
         <%="<br><br>User session: " + timestamp%>           
     </center>      
 </body>
