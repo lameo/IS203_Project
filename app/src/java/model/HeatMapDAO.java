@@ -5,15 +5,15 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import model.HeatMap;
+import java.util.HashMap;
 
 public class HeatMapDAO {
 
-    public static ArrayList<HeatMap> retrieveHeatMap(String endtimeDate, String floor) {
+    public static HashMap<String, HeatMap> retrieveHeatMap(String endtimeDate, String floor) {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
-        ArrayList<HeatMap> heatmapList = new ArrayList<HeatMap>();
+        HashMap<String, HeatMap> heatmapList = new HashMap<>();
         
         String ans = "";
         try {
@@ -36,7 +36,7 @@ public class HeatMapDAO {
                 ans = resultSet.getString(1);
                 int quantity = getStudentQuantity(ans, endtimeDate);
                 int heatLevel = getHeatLevel(quantity);
-                heatmapList.add(new HeatMap(ans, quantity, heatLevel));
+                heatmapList.put(ans, new HeatMap(ans, quantity, heatLevel));
             }
 
             //close connections

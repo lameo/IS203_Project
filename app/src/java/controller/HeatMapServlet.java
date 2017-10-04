@@ -2,9 +2,7 @@ package controller;
 
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
-import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -38,7 +36,7 @@ public class HeatMapServlet extends HttpServlet {
             floorName = "L" + floor;
         }
 
-        ArrayList<HeatMap> heatmapList = HeatMapDAO.retrieveHeatMap(endtimeDate, floorName);
+        HashMap<String, HeatMap> heatmapList = HeatMapDAO.retrieveHeatMap(endtimeDate, floorName);
 
         session.setAttribute("floorName", floorName);
         session.setAttribute("endtimeDate", endtimeDate);
