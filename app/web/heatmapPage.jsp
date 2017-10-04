@@ -27,7 +27,7 @@
     <%-- javascript library to manipulate documents based on data for heat map--%>
     <script data-require="d3@2.10.0" data-semver="2.10.0" src="//cdnjs.cloudflare.com/ajax/libs/d3/2.10.0/d3.v2.js"></script>     
     <script type="text/javascript" src="http://dciarletta.github.io/d3-floorplan/d3.floorplan.min.js"></script>        
-    
+
     <%  //user details, get using session
         User user = (User) session.getAttribute("user");
         String name = user.getName();
@@ -82,7 +82,7 @@
         <%
             String floor = (String) session.getAttribute("floorName");
             String date = (String) session.getAttribute("endtimeDate");
-            ArrayList<HeatMap> heatmapList = (ArrayList<HeatMap>)session.getAttribute("heatmapList");            
+            ArrayList<HeatMap> heatmapList = (ArrayList<HeatMap>) session.getAttribute("heatmapList");
             if (floor != null && date != null) {
                 out.print("<h3>Floor:" + floor + " Date:" + date + "</h3>");
                 out.print("<div class=\"container\"><table class=\"table table-bordered\"><thead>");
@@ -94,77 +94,86 @@
                     }
                 }
                 out.print("</tbody></table></div>");
-            
+
         %>
-        <%if(floor.equals("B1")) {%>
+        <%if (floor.equals("B1")) {%>
+        <div id="B1HeatMap"></div>            
+        <script>
+            window.setTimeout(function myFunction() {
+
+                var xscale = d3.scale.linear()
+                        .domain([0, 50.0])
+                        .range([0, 720]),
+                        yscale = d3.scale.linear()
+                        .domain([0, 33.79])
+                        .range([0, 487]),
+                        map = d3.floorplan().xScale(xscale).yScale(yscale), //setup a floor plan map to hold layers and manage pan/zoom functionality
+                        imagelayer = d3.floorplan.imagelayer(), //create a new image layer
+                        heatmap = d3.floorplan.heatmap(), //create a heat map layer
+                        mapdata = {};
+
+                mapdata[imagelayer.id()] = [{
+                        url: 'resource/image/SISB1.jpg', //URL of the image to display
+                        x: 0, //X coordinate of the upper left corner of the image (in xScale coordinates)
+                        y: 0, //Y coordinate of the upper left corner of the image (in yScale coordinates)
+                        height: 33.79, //height of the image (in yScale coordinates)
+                        width: 50.0 //width of the image (in xScale coordinates)
+                                // (optional) opacity of the displayed image [0.0-1.0] (default: 1.0)
+                    }];
+
+                map.addLayer(imagelayer) //add layer to the image
+                        .addLayer(heatmap);
+
+                d3.json("resource/B1.json", function (data) {
+                    mapdata[heatmap.id()] = data.heatmap; //set variable from json
+                    d3.select("#B1HeatMap").append("svg")
+                            .attr("height", 487).attr("width", 720)
+                            .datum(mapdata).call(map);
+                });
+            }, 5000);
+
+
+            var obj = new Object();
+            $.getJSON("resource/B1.json", function (data) {
+                obj = data.heatmap;
+                obj.map[0].value = <%=heatmapList.get(0).getHeatLevel()%>;
+                obj.map[1].value = <%=heatmapList.get(1).getHeatLevel()%>;
+                var JSONString = JSON.stringify(obj);
+                $.ajax({
+                    url: 'processHeatMap',
+                    type: 'get',
+                    dataType: 'json',
+                    data: {
+                        heatmap: JSONString,
+                    },
+                    success: function (data) {
+                        myFunction();
+                    },
+                    error: function () {
+                        alert("error");
+                    }
+                });
+            });
+        </script>    
+        <% } else if (floor.equals("L1")) {%>
         <script>
             var obj = new Object();
-            $.getJSON("resource/B1.json", function(data) {
-                obj = data.heatmap;      
-                obj.map[0].value = <%=heatmapList.get(0).getHeatLevel()%>;  
-                obj.map[1].value = <%=heatmapList.get(1).getHeatLevel()%>;                                  
-                var JSONString = JSON.stringify(obj);     
+            $.getJSON("resource/L1.json", function (data) {
+                obj = data.heatmap;
+                obj.map[0].value = <%=heatmapList.get(0).getHeatLevel()%>;
+                obj.map[1].value = <%=heatmapList.get(1).getHeatLevel()%>;
+                var JSONString = JSON.stringify(obj);
                 $.ajax({
-                     url: 'processHeatMap',
-                     type: 'get', 
-                     dataType: 'json',
-                     data: {
-                         heatmap: JSONString,
-                     }
-                });                 
-            });   
-        </script>
-        <div id="B1HeatMap"></div>        
-        <script type="text/javascript">
-            var xscale = d3.scale.linear()
-                    .domain([0, 50.0])
-                    .range([0, 720]),
-                    yscale = d3.scale.linear()
-                    .domain([0, 33.79])
-                    .range([0, 487]),
-                    map = d3.floorplan().xScale(xscale).yScale(yscale), //setup a floor plan map to hold layers and manage pan/zoom functionality
-                    imagelayer = d3.floorplan.imagelayer(), //create a new image layer
-                    heatmap = d3.floorplan.heatmap(), //create a heat map layer
-                    mapdata = {};
-
-            mapdata[imagelayer.id()] = [{
-                    url: 'resource/image/SISB1.jpg', //URL of the image to display
-                    x: 0, //X coordinate of the upper left corner of the image (in xScale coordinates)
-                    y: 0, //Y coordinate of the upper left corner of the image (in yScale coordinates)
-                    height: 33.79, //height of the image (in yScale coordinates)
-                    width: 50.0 //width of the image (in xScale coordinates)
-                    // (optional) opacity of the displayed image [0.0-1.0] (default: 1.0)
-                }];
-
-            map.addLayer(imagelayer) //add layer to the image
-                    .addLayer(heatmap);
-
-            d3.json("resource/B1.json", function (data) {
-                mapdata[heatmap.id()] = data.heatmap; //set variable from json
-                d3.select("#B1HeatMap").append("svg")
-                        .attr("height", 487).attr("width", 720)
-                        .datum(mapdata).call(map);
-            });       
-        </script>
-        <% } else if(floor.equals("L1")) {%>
-        <script>
-            var obj = new Object();
-            $.getJSON("resource/L1.json", function(data) {
-                obj = data.heatmap;      
-                obj.map[0].value = <%=heatmapList.get(0).getHeatLevel()%>;  
-                obj.map[1].value = <%=heatmapList.get(1).getHeatLevel()%>;                                  
-                var JSONString = JSON.stringify(obj);     
-                $.ajax({
-                     url: 'processHeatMap',
-                     type: 'get', 
-                     dataType: 'json',
-                     data: {
-                         heatmap: JSONString,
-                     }
-                });                 
-            });                                     
+                    url: 'processHeatMap',
+                    type: 'get',
+                    dataType: 'json',
+                    data: {
+                        heatmap: JSONString,
+                    }
+                });
+            });
         </script>        
-        
+
         <div id="L1HeatMap"></div>
         <script type="text/javascript">
             var xscale = d3.scale.linear()
@@ -184,7 +193,7 @@
                     y: 0, //Y coordinate of the upper left corner of the image (in yScale coordinates)
                     height: 33.79, //height of the image (in yScale coordinates)
                     width: 50.0 //width of the image (in xScale coordinates)
-                    // (optional) opacity of the displayed image [0.0-1.0] (default: 1.0)
+                            // (optional) opacity of the displayed image [0.0-1.0] (default: 1.0)
                 }];
 
             map.addLayer(imagelayer) //add layer to the image
@@ -197,26 +206,26 @@
                         .datum(mapdata).call(map);
             });
         </script>        
-        
-        <% } else if(floor.equals("L2")) {%>
+
+        <% } else if (floor.equals("L2")) {%>
         <script>
             var obj = new Object();
-            $.getJSON("resource/L2.json", function(data) {
-                obj = data.heatmap;      
-                obj.map[0].value = <%=heatmapList.get(0).getHeatLevel()%>;  
-                obj.map[1].value = <%=heatmapList.get(1).getHeatLevel()%>;                         
-                var JSONString = JSON.stringify(obj);     
+            $.getJSON("resource/L2.json", function (data) {
+                obj = data.heatmap;
+                obj.map[0].value = <%=heatmapList.get(0).getHeatLevel()%>;
+                obj.map[1].value = <%=heatmapList.get(1).getHeatLevel()%>;
+                var JSONString = JSON.stringify(obj);
                 $.ajax({
-                     url: 'processHeatMap',
-                     type: 'get', 
-                     dataType: 'json',
-                     data: {
-                         heatmap: JSONString,
-                     }
-                });                 
-            });                                     
+                    url: 'processHeatMap',
+                    type: 'get',
+                    dataType: 'json',
+                    data: {
+                        heatmap: JSONString,
+                    }
+                });
+            });
         </script>        
-        
+
         <div id="L2HeatMap"></div>
         <script type="text/javascript">
             var xscale = d3.scale.linear()
@@ -236,7 +245,7 @@
                     y: 0, //Y coordinate of the upper left corner of the image (in yScale coordinates)
                     height: 33.79, //height of the image (in yScale coordinates)
                     width: 50.0 //width of the image (in xScale coordinates)
-                    // (optional) opacity of the displayed image [0.0-1.0] (default: 1.0)
+                            // (optional) opacity of the displayed image [0.0-1.0] (default: 1.0)
                 }];
 
             map.addLayer(imagelayer) //add layer to the image
@@ -249,26 +258,26 @@
                         .datum(mapdata).call(map);
             });
         </script>        
-        
-        <% } else if(floor.equals("L3")) {%>
+
+        <% } else if (floor.equals("L3")) {%>
         <script>
             var obj = new Object();
-            $.getJSON("resource/L3.json", function(data) {
-                obj = data.heatmap;      
-                obj.map[0].value = <%=heatmapList.get(0).getHeatLevel()%>;  
-                obj.map[1].value = <%=heatmapList.get(1).getHeatLevel()%>;                                  
-                var JSONString = JSON.stringify(obj);     
+            $.getJSON("resource/L3.json", function (data) {
+                obj = data.heatmap;
+                obj.map[0].value = <%=heatmapList.get(0).getHeatLevel()%>;
+                obj.map[1].value = <%=heatmapList.get(1).getHeatLevel()%>;
+                var JSONString = JSON.stringify(obj);
                 $.ajax({
-                     url: 'processHeatMap',
-                     type: 'get', 
-                     dataType: 'json',
-                     data: {
-                         heatmap: JSONString,
-                     }
-                });                 
-            });                                     
+                    url: 'processHeatMap',
+                    type: 'get',
+                    dataType: 'json',
+                    data: {
+                        heatmap: JSONString,
+                    }
+                });
+            });
         </script>        
-        
+
         <div id="L3HeatMap"></div>
         <script type="text/javascript">
             var xscale = d3.scale.linear()
@@ -288,7 +297,7 @@
                     y: 0, //Y coordinate of the upper left corner of the image (in yScale coordinates)
                     height: 33.79, //height of the image (in yScale coordinates)
                     width: 50.0 //width of the image (in xScale coordinates)
-                    // (optional) opacity of the displayed image [0.0-1.0] (default: 1.0)
+                            // (optional) opacity of the displayed image [0.0-1.0] (default: 1.0)
                 }];
 
             map.addLayer(imagelayer) //add layer to the image
@@ -301,26 +310,26 @@
                         .datum(mapdata).call(map);
             });
         </script>        
-        
-        <% } else if(floor.equals("L4")) { %>
+
+        <% } else if (floor.equals("L4")) {%>
         <script>
             var obj = new Object();
-            $.getJSON("resource/L4.json", function(data) {
-                obj = data.heatmap;      
-                obj.map[0].value = <%=heatmapList.get(0).getHeatLevel()%>;  
-                obj.map[1].value = <%=heatmapList.get(1).getHeatLevel()%>;                               
-                var JSONString = JSON.stringify(obj);     
+            $.getJSON("resource/L4.json", function (data) {
+                obj = data.heatmap;
+                obj.map[0].value = <%=heatmapList.get(0).getHeatLevel()%>;
+                obj.map[1].value = <%=heatmapList.get(1).getHeatLevel()%>;
+                var JSONString = JSON.stringify(obj);
                 $.ajax({
-                     url: 'processHeatMap',
-                     type: 'get', 
-                     dataType: 'json',
-                     data: {
-                         heatmap: JSONString,
-                     }
-                });                 
-            });                                     
+                    url: 'processHeatMap',
+                    type: 'get',
+                    dataType: 'json',
+                    data: {
+                        heatmap: JSONString,
+                    }
+                });
+            });
         </script>        
-        
+
         <div id="L4HeatMap"></div>
         <script type="text/javascript">
             var xscale = d3.scale.linear()
@@ -340,7 +349,7 @@
                     y: 0, //Y coordinate of the upper left corner of the image (in yScale coordinates)
                     height: 33.79, //height of the image (in yScale coordinates)
                     width: 50.0 //width of the image (in xScale coordinates)
-                    // (optional) opacity of the displayed image [0.0-1.0] (default: 1.0)
+                            // (optional) opacity of the displayed image [0.0-1.0] (default: 1.0)
                 }];
 
             map.addLayer(imagelayer) //add layer to the image
@@ -353,27 +362,27 @@
                         .datum(mapdata).call(map);
             });
         </script>        
-        
-        <% } else if(floor.equals("L5")){ %>  
+
+        <% } else if (floor.equals("L5")) {%>  
         <div id="L5HeatMap"></div>
         <script>
             var obj = new Object();
-            $.getJSON("resource/L5.json", function(data) {
-                obj = data.heatmap;      
-                obj.map[0].value = <%=heatmapList.get(0).getHeatLevel()%>;  
-                obj.map[1].value = <%=heatmapList.get(1).getHeatLevel()%>;                            
-                var JSONString = JSON.stringify(obj);     
+            $.getJSON("resource/L5.json", function (data) {
+                obj = data.heatmap;
+                obj.map[0].value = <%=heatmapList.get(0).getHeatLevel()%>;
+                obj.map[1].value = <%=heatmapList.get(1).getHeatLevel()%>;
+                var JSONString = JSON.stringify(obj);
                 $.ajax({
-                     url: 'processHeatMap',
-                     type: 'get', 
-                     dataType: 'json',
-                     data: {
-                         heatmap: JSONString,
-                     }
-                });                 
-            });                                     
+                    url: 'processHeatMap',
+                    type: 'get',
+                    dataType: 'json',
+                    data: {
+                        heatmap: JSONString,
+                    }
+                });
+            });
         </script>        
-        
+
         <script type="text/javascript">
             var xscale = d3.scale.linear()
                     .domain([0, 50.0])
@@ -392,7 +401,7 @@
                     y: 0, //Y coordinate of the upper left corner of the image (in yScale coordinates)
                     height: 33.79, //height of the image (in yScale coordinates)
                     width: 50.0 //width of the image (in xScale coordinates)
-                    // (optional) opacity of the displayed image [0.0-1.0] (default: 1.0)
+                            // (optional) opacity of the displayed image [0.0-1.0] (default: 1.0)
                 }];
 
             map.addLayer(imagelayer) //add layer to the image
@@ -405,11 +414,12 @@
                         .datum(mapdata).call(map);
             });
         </script> 
-        <%}}%>
+        <%}
+            }%>
         <%
             session.removeAttribute("heatmapList");
             session.removeAttribute("endtimeDate");
-            session.removeAttribute("floor");              
+            session.removeAttribute("floor");
         %>
         <%="<br><br>Copy Paste"%>
         <%="<br>2014-03-23 13:55:00"%>

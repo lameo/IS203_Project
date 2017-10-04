@@ -62,6 +62,8 @@ public class HeatMapServlet extends HttpServlet {
                 obj.put("heatmap", obj2);
                 fileWriter.write(obj.toString());
                 fileWriter.close();
+                response.setContentType("text/plain");
+                response.getWriter().write("true");
             } catch (JSONException e){
                 e.printStackTrace();
             }

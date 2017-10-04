@@ -5,9 +5,13 @@
         <group>
             <file>file:/D:/testt/app/src/java/model/HeatMapDAO.java</file>
             <file>file:/D:/testt/app/web/resource/B1.json</file>
-            <file>file:/D:/testt/app/src/java/model/HeatMap.java</file>
+            <file>file:/D:/testt/app/web/resource/L3.json</file>
             <file>file:/D:/testt/app/src/java/controller/HeatMapServlet.java</file>
+            <file>file:/D:/testt/app/web/resource/L2.json</file>
+            <file>file:/D:/testt/app/web/resource/L4.json</file>
+            <file>file:/D:/testt/app/web/resource/L1.json</file>
             <file>file:/D:/testt/app/web/heatmapPage.jsp</file>
+            <file>file:/D:/testt/app/web/resource/L5.json</file>
         </group>
     </open-files>
 </project-private>
