@@ -97,25 +97,24 @@
             
         %>
         <%if(floor.equals("B1")) {%>
-        
         <script>
             var obj = new Object();
             $.getJSON("resource/B1.json", function(data) {
                 obj = data.heatmap;      
                 obj.map[0].value = <%=heatmapList.get(0).getHeatLevel()%>;  
-                obj.map[1].value = <%=heatmapList.get(1).getHeatLevel()%>;                                
+                obj.map[1].value = <%=heatmapList.get(1).getHeatLevel()%>;                                  
                 var JSONString = JSON.stringify(obj);     
                 $.ajax({
                      url: 'processHeatMap',
-                     type: 'POST', 
+                     type: 'get', 
                      dataType: 'json',
                      data: {
                          heatmap: JSONString,
                      }
                 });                 
-            });                                     
+            });   
         </script>
-        <div id="B1HeatMap"></div>
+        <div id="B1HeatMap"></div>        
         <script type="text/javascript">
             var xscale = d3.scale.linear()
                     .domain([0, 50.0])
@@ -145,7 +144,7 @@
                 d3.select("#B1HeatMap").append("svg")
                         .attr("height", 487).attr("width", 720)
                         .datum(mapdata).call(map);
-            });
+            });       
         </script>
         <% } else if(floor.equals("L1")) {%>
         <script>
@@ -157,7 +156,7 @@
                 var JSONString = JSON.stringify(obj);     
                 $.ajax({
                      url: 'processHeatMap',
-                     type: 'POST', 
+                     type: 'get', 
                      dataType: 'json',
                      data: {
                          heatmap: JSONString,
@@ -209,7 +208,7 @@
                 var JSONString = JSON.stringify(obj);     
                 $.ajax({
                      url: 'processHeatMap',
-                     type: 'POST', 
+                     type: 'get', 
                      dataType: 'json',
                      data: {
                          heatmap: JSONString,
@@ -261,7 +260,7 @@
                 var JSONString = JSON.stringify(obj);     
                 $.ajax({
                      url: 'processHeatMap',
-                     type: 'POST', 
+                     type: 'get', 
                      dataType: 'json',
                      data: {
                          heatmap: JSONString,
@@ -313,7 +312,7 @@
                 var JSONString = JSON.stringify(obj);     
                 $.ajax({
                      url: 'processHeatMap',
-                     type: 'POST', 
+                     type: 'get', 
                      dataType: 'json',
                      data: {
                          heatmap: JSONString,
@@ -366,7 +365,7 @@
                 var JSONString = JSON.stringify(obj);     
                 $.ajax({
                      url: 'processHeatMap',
-                     type: 'POST', 
+                     type: 'get', 
                      dataType: 'json',
                      data: {
                          heatmap: JSONString,

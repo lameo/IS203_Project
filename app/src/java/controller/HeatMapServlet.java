@@ -29,6 +29,28 @@ public class HeatMapServlet extends HttpServlet {
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         HttpSession session = request.getSession();         
+
+        String endtimeDate = request.getParameter("endtimeDate"); //retrieve time from user input
+        int floor = Integer.parseInt(request.getParameter("floor")); //retrieve floor from user input
+        String floorName = "B1";
+
+        if(floor>0){
+            floorName = "L" + floor;
+        }
+
+        ArrayList<HeatMap> heatmapList = HeatMapDAO.retrieveHeatMap(endtimeDate, floorName);
+
+        session.setAttribute("floorName", floorName);
+        session.setAttribute("endtimeDate", endtimeDate);
+        session.setAttribute("heatmapList", heatmapList);
+
+        response.sendRedirect("heatmapPage.jsp"); //send back to heatmapPage
+        
+    }
+
+    protected void processRequest2(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        HttpSession session = request.getSession();         
         String heatmap = request.getParameter("heatmap");
         if(heatmap!=null && heatmap.length()>0){
             String filename = (String)session.getAttribute("floorName");            
@@ -42,28 +64,9 @@ public class HeatMapServlet extends HttpServlet {
                 fileWriter.close();
             } catch (JSONException e){
                 e.printStackTrace();
-            } 
-            return;
-        }
-
-        String endtimeDate = request.getParameter("endtimeDate"); //retrieve time from user input
-        int floor = Integer.parseInt(request.getParameter("floor")); //retrieve floor from user input
-        String floorName = "B1";
-        
-        if(floor>0){
-            floorName = "L" + floor;
-        }
-        
-        ArrayList<HeatMap> heatmapList = HeatMapDAO.retrieveHeatMap(endtimeDate, floorName);
-
-        session.setAttribute("floorName", floorName);
-        session.setAttribute("endtimeDate", endtimeDate);
-        session.setAttribute("heatmapList", heatmapList);
-
-        response.sendRedirect("heatmapPage.jsp"); //send back to heatmapPage
-        return;
+            }
+        }         
     }
-
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
     /**
      * Handles the HTTP <code>GET</code> method.
@@ -76,7 +79,7 @@ public class HeatMapServlet extends HttpServlet {
     @Override
         protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        processRequest(request, response);
+            processRequest2(request, response);
     }
 
     /**
