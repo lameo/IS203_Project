@@ -2,16 +2,6 @@
 <project-private xmlns="http://www.netbeans.org/ns/project-private/1">
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
-        <group>
-            <file>file:/D:/testt/app/src/java/model/HeatMapDAO.java</file>
-            <file>file:/D:/testt/app/web/resource/B1.json</file>
-            <file>file:/D:/testt/app/web/resource/L3.json</file>
-            <file>file:/D:/testt/app/src/java/controller/HeatMapServlet.java</file>
-            <file>file:/D:/testt/app/web/resource/L2.json</file>
-            <file>file:/D:/testt/app/web/resource/L4.json</file>
-            <file>file:/D:/testt/app/web/resource/L1.json</file>
-            <file>file:/D:/testt/app/web/heatmapPage.jsp</file>
-            <file>file:/D:/testt/app/web/resource/L5.json</file>
-        </group>
+        <group/>
     </open-files>
 </project-private>

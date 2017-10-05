@@ -51,7 +51,6 @@ public class HeatMapServlet extends HttpServlet {
             throws ServletException, IOException {
         HttpSession session = request.getSession();         
         String heatmap = request.getParameter("heatmap");
-        File directory = new File(".");
         if(heatmap!=null && heatmap.length()>0){
             String filename = (String)session.getAttribute("floorName");            
             try(
