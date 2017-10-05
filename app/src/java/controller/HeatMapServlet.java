@@ -2,6 +2,7 @@ package controller;
 
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.HashMap;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -53,6 +54,7 @@ public class HeatMapServlet extends HttpServlet {
         if(heatmap!=null && heatmap.length()>0){
             String filename = (String)session.getAttribute("floorName");            
             try(
+                PrintWriter out = response.getWriter();
                 FileWriter fileWriter = new FileWriter("D:\\testt\\app\\web\\resource\\" + filename + ".json");
             ){        
                 JSONObject obj = new JSONObject(); 
@@ -60,8 +62,9 @@ public class HeatMapServlet extends HttpServlet {
                 obj.put("heatmap", obj2);
                 fileWriter.write(obj.toString());
                 fileWriter.close();
-                response.setContentType("text/plain");
-                response.getWriter().write("true");
+                
+                response.setContentType("text/html;charset=UTF-8");                
+                out.write("true");
             } catch (JSONException e){
                 e.printStackTrace();
             }

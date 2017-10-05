@@ -1,1 +1,31 @@
-{"heatmap":{"binSize":3,"map":[{"locationname":"SMUSISB1CORRIDORTOSOE","x":27.6,"y":3.8,"value":1},{"locationname":"SMUSISB1NEAROSL","x":30.6,"y":3.8,"value":2},{"locationname":"SMUSISB1STUDYAREA","x":0,"y":3.8,"value":0},{"locationname":"SMUSISB1CORRIDORTOLKS","x":0,"y":10,"value":1},{"locationname":"SMUSISB1LIFTLOBBY","x":10,"y":10,"value":0}]}}
+{
+    "heatmap": {
+        "binSize": 3,
+        "map": [{
+                "locationname": "SMUSISB1CORRIDORTOSOE",
+                "x": 27.6,
+                "y": 3.8,
+                "value": 6
+            }, {
+                "locationname": "SMUSISB1NEAROSL",
+                "x": 30.6,
+                "y": 3.8,
+                "value": 5
+            }, {
+                "locationname": "SMUSISB1STUDYAREA",
+                "x": 0,
+                "y": 3.8,
+                "value": 4
+            }, {
+                "locationname": "SMUSISB1CORRIDORTOLKS",
+                "x": 0,
+                "y": 10,
+                "value": 3
+            }, {
+                "locationname": "SMUSISB1LIFTLOBBY",
+                "x": 10,
+                "y": 10,
+                "value": 3
+            }]
+    }
+}
