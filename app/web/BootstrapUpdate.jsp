@@ -37,28 +37,29 @@
                     <a class="navbar-brand" href="adminPage.jsp">SLOCA</a>
                 </div>
                 <div class="collapse navbar-collapse" id="myNavbar">
-                <ul class="nav navbar-nav">
-                    <li ><a href="adminPage.jsp">Home</a></li> <%-- set as active because user is in home page. send user to home page--%>
-                        <%-- Dropdown menu for admin to boostrap and update the location data  --%>
-                    <li class="dropdown">
-                        <a class="dropdown-toggle" data-toggle="dropdown" href="#">Boostrap
-                            <span class="caret"></span></a>
-                        <ul class="dropdown-menu">
-                            <li><a href="uploadPage.jsp">Initialize SLOCA</a></li> <%-- send user to upload page --%>
-                            <li><a href="uploadPage.jsp">Upload Additional Data</a></li> <%-- send user to upload page --%>
-                        </ul>
-                    </li>
-                </ul>
+                    <ul class="nav navbar-nav">
+                        <li ><a href="adminPage.jsp">Home</a></li> <%-- set as active because user is in home page. send user to home page--%>
+                            <%-- Dropdown menu for admin to boostrap and update the location data  --%>
+                        <li class="dropdown active">
+                            <a class="dropdown-toggle" data-toggle="dropdown" href="#">Boostrap
+                                <span class="caret"></span></a>
+                            <ul class="dropdown-menu">
+                                <li><a href="BootstrapInitialize.jsp">Initialize SLOCA</a></li> <%-- send user to BootstrapInitialize page --%>
+                                <li><a href="BootstrapUpdate.jsp">Upload Additional Data</a></li> <%-- send user to BootstrapUpdate page --%>
+                            </ul>
+                        </li>
+                    </ul>
+                    <ul class="nav navbar-nav navbar-right">
+                        <li><a href="adminPage.jsp"><%="Welcome " + name + "!"%></a></li>
+                        <li><a href="processLogout"><span class="glyphicon glyphicon-log-out"></span> Logout</a></li> <%-- send user to logout servlet and process logout --%>
+                    </ul>  
                 </div>
-                <ul class="nav navbar-nav navbar-right">
-                    <li><a href="adminPage.jsp"><%="Welcome " + name + "!"%></a></li>
-                    <li><a href="processLogout"><span class="glyphicon glyphicon-log-out"></span> Logout</a></li> <%-- send user to logout servlet and process logout --%>
-                </ul>                
+
             </div>
         </nav>
 
         <div class="container-fluid text-center">
-            <h1>Initialize SLOCA</h1><br>
+            <h1>Upload additional data to SLOCA</h1><br>
             <center>
                 <%
                     String error = (String) request.getAttribute("error"); //error message retrieved from UploadServlet
@@ -74,23 +75,18 @@
                     }
                 %>  
                 <form method="post" action="processUpload" enctype="multipart/form-data">
-                    <table>
-                        <tr>
-                            <td align="left"><b>Select a file to upload:</b></td>
-                        </tr>
-                        <tr>
-                            <td align="left">
-                                <input type="file" name="uploadfile" size="50">
-                            </td>
-                        </tr>
-                        <tr>
-                            <td align="left">
-                                <input type="hidden" name="todo" value="upload">
-                                <input type="submit" name="Submit" value="Upload">
-                                <input type="reset" name="Reset" value="Cancel">
-                            </td>
-                        </tr>
-                    </table>
+                    <div class="form-group">
+                        <label for="exampleFormControlFile1">Choose file&hellip;</label>
+                        <input type="file" name="uploadfile" class="form-control-file" id="exampleFormControlFile1">
+                    </div>
+                    <br>
+                    <br>
+
+                    <input type="hidden" name="todo" value="upload">
+                    <button type="submit" name="Submit" class="btn btn-primary">Submit</button>
+                    <button type="reset" name="Reset" class="btn btn-primary">Cancel</button>
+
+
                 </form>        
                 <%="<br>User session: " + timestamp%>
             </center>
