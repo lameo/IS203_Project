@@ -32,8 +32,16 @@
                     <a class="navbar-brand" href="adminPage.jsp">SLOCA</a>
                 </div>
                 <ul class="nav navbar-nav">
-                    <li class="active"><a href="adminPage.jsp">Home</a></li> <%-- set as active because user is in home page. send user to home page--%>
-                    <li><a href="uploadPage.jsp">Upload New Datafile</a></li> <%-- send user to upload page --%>         
+                    <li ><a href="adminPage.jsp">Home</a></li> <%-- set as active because user is in home page. send user to home page--%>
+                    <%-- Dropdown menu for admin to boostrap and update the location data  --%>
+                    <li class="dropdown">
+                        <a class="dropdown-toggle" data-toggle="dropdown" href="#">Boostrap
+                            <span class="caret"></span></a>
+                        <ul class="dropdown-menu">
+                            <li class="active"><a href="uploadPage.jsp">Initialize SLOCA</a></li> <%-- send user to upload page --%>
+                            <li><a href="uploadPage.jsp">Upload Additional Data</a></li> <%-- send user to upload page --%>
+                        </ul>
+                    </li>
                 </ul>
                 <ul class="nav navbar-nav navbar-right">
                     <li><a href="adminPage.jsp"><%="Welcome " + name + "!"%></a></li>
