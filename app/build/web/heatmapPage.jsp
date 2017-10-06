@@ -16,7 +16,31 @@
 %>
 
 <style type="text/css"> 
-    @import url('http://dciarletta.github.io/d3-floorplan/d3.floorplan.css'); <%-- heatmap css --%>
+    <%-- heatmap css --%>
+    /* map menu controls */
+    .ui-active rect {fill: #212121}
+    .ui-active text {fill: #fff}
+    .ui-default rect {fill: #e6e6e6}
+    .ui-default text {fill: #000}
+
+    /* heatmap colors (courtesy of colorbrewer2.org) */
+    .RdYlBu .d6-6 {fill:#ff0000;background:#ff0000;color:#121212}
+    .RdYlBu .d6-5 {fill:#e11f27;background:#e11f27;color:#121212}
+    .RdYlBu .d6-4 {fill:#F08080;background:#F08080;color:#121212}
+    .RdYlBu .d6-3 {fill:#FFA07A;background:#FFA07A;color:#121212}
+    .RdYlBu .d6-2 {fill:#ffe5e5;background:#ffe5e5;color:#121212}
+    .RdYlBu .d6-1 {fill:#fffeb7;background:#fffeb7;color:#121212}    
+
+    /* overlays */
+    .polygon {stroke:white;stroke-width:2px;fill-opacity:0.2}
+    .vertex {stroke:lime;stroke-width:2px;fill:none}
+
+    /* vector field */
+    .vector {stroke-width:1px;stroke:lightsteelblue}
+
+    /* path plot */
+    .pathplot path {stroke-width:2px;stroke:steelblue}
+    .planned {stroke-dasharray:9, 5}    
 </style>
 <!DOCTYPE html>
 <%@include file="clearCache.jsp"%> <%-- clear cache, don't allow user to backpage after logging out --%>
@@ -145,11 +169,15 @@
 
                 map.addLayer(imagelayer) //add layer to the image
                         .addLayer(heatmap);
-
+                    
+                heatmap.colorMode(['custom']); //set custom mode for colors
+                heatmap.customThresholds([1, 2, 3, 4, 5, 6]); //set colors to heat levels 
+                
                 mapdata[heatmap.id()] = data.heatmap; //set variable from json
                 d3.select("#B1HeatMap").append("svg")
                         .attr("height", 487).attr("width", 720)
                         .datum(mapdata).call(map);
+                    
                                
             });
         </script>    
@@ -181,6 +209,9 @@
 
                 map.addLayer(imagelayer) //add layer to the image
                         .addLayer(heatmap);
+
+                heatmap.colorMode(['custom']); //set custom mode for colors
+                heatmap.customThresholds([1, 2, 3, 4, 5, 6]); //set colors to heat levels 
 
                 mapdata[heatmap.id()] = data.heatmap; //set variable from json
                 d3.select("#L1HeatMap").append("svg")
@@ -224,6 +255,9 @@
 
                 map.addLayer(imagelayer) //add layer to the image
                         .addLayer(heatmap);
+
+                heatmap.colorMode(['custom']); //set custom mode for colors
+                heatmap.customThresholds([1, 2, 3, 4, 5, 6]); //set colors to heat levels 
 
                 mapdata[heatmap.id()] = data.heatmap; //set variable from json
                 d3.select("#L2HeatMap").append("svg")
@@ -269,6 +303,9 @@
                 map.addLayer(imagelayer) //add layer to the image
                         .addLayer(heatmap);
 
+                heatmap.colorMode(['custom']); //set custom mode for colors
+                heatmap.customThresholds([1, 2, 3, 4, 5, 6]); //set colors to heat levels 
+
                 mapdata[heatmap.id()] = data.heatmap; //set variable from json
                 d3.select("#L3HeatMap").append("svg")
                         .attr("height", 487).attr("width", 720)
@@ -310,6 +347,9 @@
                 map.addLayer(imagelayer) //add layer to the image
                         .addLayer(heatmap);
 
+                heatmap.colorMode(['custom']); //set custom mode for colors
+                heatmap.customThresholds([1, 2, 3, 4, 5, 6]); //set colors to heat levels 
+
                 mapdata[heatmap.id()] = data.heatmap; //set variable from json
                 d3.select("#L4HeatMap").append("svg")
                         .attr("height", 487).attr("width", 720)
@@ -346,6 +386,9 @@
 
                 map.addLayer(imagelayer) //add layer to the image
                         .addLayer(heatmap);
+
+                heatmap.colorMode(['custom']); //set custom mode for colors
+                heatmap.customThresholds([1, 2, 3, 4, 5, 6]); //set colors to heat levels 
 
                 mapdata[heatmap.id()] = data.heatmap; //set variable from json
                 d3.select("#L5HeatMap").append("svg")
