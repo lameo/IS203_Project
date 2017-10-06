@@ -7,7 +7,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javazoom.upload.*;
 import java.util.*;
-import javax.servlet.RequestDispatcher;
+import javax.servlet.http.HttpSession;
 
 public class UploadServlet extends HttpServlet implements java.io.Serializable{
 
@@ -21,10 +21,10 @@ public class UploadServlet extends HttpServlet implements java.io.Serializable{
      * @throws IOException if an I/O error occurs
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException  {      
+        HttpSession session = request.getSession();
         UploadBean upBean = new UploadBean();
-        RequestDispatcher view = null;   
-        String success = null;
-        
+        String success = "";
+        String uploadType = "";     
         try{
             upBean.setFolderstore("d:/testt/dontupload"); //the location of where documents will be stored, changing to database later
             Long size = Long.parseLong("8589934592"); //the size limit of the file uploads
@@ -33,6 +33,7 @@ public class UploadServlet extends HttpServlet implements java.io.Serializable{
             if (MultipartFormDataRequest.isMultipartFormData(request)){
                 //Uses MultipartFormDataRequest to parse the HTTP request.
                 MultipartFormDataRequest multipartRequest = new MultipartFormDataRequest(request);
+                uploadType = multipartRequest.getParameter("uploadType"); //either intialize or update              
                 String todo = multipartRequest.getParameter("todo");
                 
                 if(todo.equalsIgnoreCase("upload")){
@@ -41,25 +42,26 @@ public class UploadServlet extends HttpServlet implements java.io.Serializable{
                         UploadFile file = (UploadFile) files.get("uploadfile");
                         if (file != null && file.getFileSize()>0 && file.getFileName()!=null) {
                             success = "Uploaded file: " + file.getFileName()+ " (" + file.getFileSize() + " bytes)" + "<br>Content Type : " + file.getContentType();
-                            request.setAttribute("success", success); //send error messsage to upload page.jsp                                  
+                            session.setAttribute("success", success); //send error messsage to BootstrapInitialize.jsp                                  
                             
                             // Uses the bean now to store specified by the properties
                             upBean.store(multipartRequest, "uploadfile");
                         } else {
-                            request.setAttribute("error", "No uploaded files"); //send error messsage to upload page.jsp                      
+                            session.setAttribute("error", "No uploaded files"); //send error messsage to BootstrapInitialize.jsp                      
                         }
                     } else {
-                        request.setAttribute("error", "No uploaded files"); //send error messsage to upload page.jsp                      
+                        session.setAttribute("error", "No uploaded files"); //send error messsage to BootstrapInitialize.jsp                      
                     }
-                }
-                view = request.getRequestDispatcher("uploadPage.jsp"); //send back to upload page but same URL
-                view.forward(request, response);                 
+                }            
             }
         } catch (UploadException e){
-            request.setAttribute("error", "Unable to upload. Please try again later"); //send error messsage to uploadPage.jsp
-            view = request.getRequestDispatcher("uploadPage.jsp"); //send back to upload page but same URL
-            view.forward(request, response);                     
+            session.setAttribute("error", "Unable to upload. Please try again later"); //send error messsage to BootstrapInitialize.jsp
         }    
+        if(uploadType.equals("update")){
+            response.sendRedirect("BootstrapUpdate.jsp");                  
+        } else {
+            response.sendRedirect("BootstrapInitialize.jsp");     
+        }
     }
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
