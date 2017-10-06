@@ -14,8 +14,9 @@
         return;
     }
 %>
-<style type="text/css">
-    @import url('http://dciarletta.github.io/d3-floorplan/d3.floorplan.css');
+
+<style type="text/css"> 
+    @import url('http://dciarletta.github.io/d3-floorplan/d3.floorplan.css'); <%-- heatmap css --%>
 </style>
 <!DOCTYPE html>
 <%@include file="clearCache.jsp"%> <%-- clear cache, don't allow user to backpage after logging out --%>
@@ -110,16 +111,15 @@
                     heatmap = d3.floorplan.heatmap(), //create a heat map layer
                     mapdata = {};            
             
-            var delay = 8000; //8 seconds
             var obj = new Object();            
         </script>
         <%if (floor.equals("B1")) {%>
         <div id="B1HeatMap"></div>            
         <script>
-            $.getJSON("resource/B1.json", function (data) {
-                obj = data.heatmap;
-                var array = obj.map;
-                for (i = 0; i < array.length; i++) {
+            $.getJSON("resource/B1.json", function (data) { //Jquery to get json
+                obj = data.heatmap; //set json data into variable object
+                var array = obj.map; //get map array from obj
+                for (i = 0; i < array.length; i++) { //change the values according to SQL data
                     var locationname = obj.map[i].locationname;
                     if (locationname === "SMUSISB1CORRIDORTOSOE") {
                             obj.map[i].value = <%if(heatmapList.get("SMUSISB1CORRIDORTOSOE")!=null){out.print(heatmapList.get("SMUSISB1CORRIDORTOSOE").getHeatLevel());}else{out.print("0");}%>;
@@ -156,10 +156,10 @@
         <% } else if (floor.equals("L1")) {%>
         <div id="L1HeatMap"></div>
         <script>
-            $.getJSON("resource/L1.json", function (data) {
-                obj = data.heatmap;
-                var array = obj.map;
-                for (i = 0; i < array.length; i++) {
+            $.getJSON("resource/L1.json", function (data) { //Jquery to get json
+                obj = data.heatmap; //set json data into variable object
+                var array = obj.map; //get map array from obj
+                for (i = 0; i < array.length; i++) { //change the values according to SQL data
                     var locationname = obj.map[i].locationname;
                     if (locationname === "SMUSISL1RECEPTION") {
                             obj.map[i].value = <%if(heatmapList.get("SMUSISL1RECEPTION")!=null){out.print(heatmapList.get("SMUSISL1RECEPTION").getHeatLevel());}else{out.print("0");}%>;
@@ -191,10 +191,10 @@
         <% } else if (floor.equals("L2")) {%>       
         <div id="L2HeatMap"></div>
         <script>
-            $.getJSON("resource/L2.json", function (data) {
-                obj = data.heatmap;
-                var array = obj.map;
-                for (i = 0; i < array.length; i++) {
+            $.getJSON("resource/L2.json", function (data) { //Jquery to get json
+                obj = data.heatmap; //set json data into variable object
+                var array = obj.map; //get map array from obj
+                for (i = 0; i < array.length; i++) { //change the values according to SQL data
                     var locationname = obj.map[i].locationname;
                     if (locationname === "SMUSISL2LOBBY") {
                             obj.map[i].value = <%if(heatmapList.get("SMUSISL2LOBBY")!=null){out.print(heatmapList.get("SMUSISL2LOBBY").getHeatLevel());}else{out.print("0");}%>;
@@ -234,10 +234,10 @@
         <% } else if (floor.equals("L3")) {%>
         <div id="L3HeatMap"></div>       
         <script>
-            $.getJSON("resource/L3.json", function (data) {
-                obj = data.heatmap;
-                var array = obj.map;
-                for (i = 0; i < array.length; i++) {
+            $.getJSON("resource/L3.json", function (data) { //Jquery to get json
+                obj = data.heatmap; //set json data into variable object
+                var array = obj.map; //get map array from obj
+                for (i = 0; i < array.length; i++) { //change the values according to SQL data
                     var locationname = obj.map[i].locationname;
                     if (locationname === "SMUSISL3LOBBY") {
                             obj.map[i].value = <%if(heatmapList.get("SMUSISL3LOBBY")!=null){out.print(heatmapList.get("SMUSISL3LOBBY").getHeatLevel());}else{out.print("0");}%>;
@@ -278,10 +278,10 @@
         <% } else if (floor.equals("L4")) {%>
         <div id="L4HeatMap"></div>       
         <script>
-            $.getJSON("resource/L4.json", function (data) {
-                obj = data.heatmap;
-                var array = obj.map;
-                for (i = 0; i < array.length; i++) {
+            $.getJSON("resource/L4.json", function (data) { //Jquery to get json
+                obj = data.heatmap; //set json data into variable object
+                var array = obj.map; //get map array from obj
+                for (i = 0; i < array.length; i++) { //change the values according to SQL data
                     var locationname = obj.map[i].locationname;
                     if (locationname === "SMUSISL4LOBBY") {
                             obj.map[i].value = <%if(heatmapList.get("SMUSISL4LOBBY")!=null){out.print(heatmapList.get("SMUSISL4LOBBY").getHeatLevel());}else{out.print("0");}%>;
@@ -319,10 +319,10 @@
         <% } else if (floor.equals("L5")) {%>  
         <div id="L5HeatMap"></div>
         <script>
-            $.getJSON("resource/L5.json", function (data) {
-                obj = data.heatmap;
-                var array = obj.map;
-                for (i = 0; i < array.length; i++) {
+            $.getJSON("resource/L5.json", function (data) { //Jquery to get json
+                obj = data.heatmap; //set json data into variable object
+                var array = obj.map; //get map array from obj
+                for (i = 0; i < array.length; i++) { //change the values according to SQL data
                     var locationname = obj.map[i].locationname;
                     if (locationname === "SMUSISL5LOBBY") {
                             obj.map[i].value = <%if(heatmapList.get("SMUSISL5LOBBY")!=null){out.print(heatmapList.get("SMUSISL5LOBBY").getHeatLevel());}else{out.print("0");}%>;
