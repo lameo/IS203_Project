@@ -116,27 +116,6 @@
         <%if (floor.equals("B1")) {%>
         <div id="B1HeatMap"></div>            
         <script>
-            function myFunction() {
-                mapdata[imagelayer.id()] = [{
-                        url: 'resource/image/SISB1.jpg', //URL of the image to display
-                        x: 0, //X coordinate of the upper left corner of the image (in xScale coordinates)
-                        y: 0, //Y coordinate of the upper left corner of the image (in yScale coordinates)
-                        height: 33.79, //height of the image (in yScale coordinates)
-                        width: 50.0 //width of the image (in xScale coordinates)
-                                // (optional) opacity of the displayed image [0.0-1.0] (default: 1.0)
-                    }];
-
-                map.addLayer(imagelayer) //add layer to the image
-                        .addLayer(heatmap);
-
-                d3.json("resource/B1.json", function (data) {
-                    mapdata[heatmap.id()] = data.heatmap; //set variable from json
-                    d3.select("#B1HeatMap").append("svg")
-                            .attr("height", 487).attr("width", 720)
-                            .datum(mapdata).call(map);
-                });
-            };
-
             $.getJSON("resource/B1.json", function (data) {
                 obj = data.heatmap;
                 var array = obj.map;
@@ -154,31 +133,9 @@
                             obj.map[i].value = <%if(heatmapList.get("SMUSISB1LIFTLOBBY")!=null){out.print(heatmapList.get("SMUSISB1LIFTLOBBY").getHeatLevel());}else{out.print("0");}%>;                   
                     }
                 }
-                var JSONString = JSON.stringify(obj);
-                $.ajax({
-                    url: 'processHeatMap',
-                    type: 'get',
-                    dataType: 'json',
-                    data: {
-                        heatmap: JSONString,
-                    },
-                    success: function (data) {
-                        setTimeout(function() {
-                            myFunction();
-                        },delay);
-                    },
-                    error: function () {
-                        alert("error");
-                    }
-                });
-            });
-        </script>    
-        <% } else if (floor.equals("L1")) {%>
-        <div id="L1HeatMap"></div>
-        <script>
-            function myFunction() {
+                
                 mapdata[imagelayer.id()] = [{
-                        url: 'resource/image/SISL1.jpg', //URL of the image to display
+                        url: 'resource/image/SISB1.jpg', //URL of the image to display
                         x: 0, //X coordinate of the upper left corner of the image (in xScale coordinates)
                         y: 0, //Y coordinate of the upper left corner of the image (in yScale coordinates)
                         height: 33.79, //height of the image (in yScale coordinates)
@@ -189,14 +146,16 @@
                 map.addLayer(imagelayer) //add layer to the image
                         .addLayer(heatmap);
 
-                d3.json("resource/L1.json", function (data) {
-                    mapdata[heatmap.id()] = data.heatmap; //set variable from json
-                    d3.select("#L1HeatMap").append("svg")
-                            .attr("height", 487).attr("width", 720)
-                            .datum(mapdata).call(map);
-                });
-            };
-
+                mapdata[heatmap.id()] = data.heatmap; //set variable from json
+                d3.select("#B1HeatMap").append("svg")
+                        .attr("height", 487).attr("width", 720)
+                        .datum(mapdata).call(map);
+                               
+            });
+        </script>    
+        <% } else if (floor.equals("L1")) {%>
+        <div id="L1HeatMap"></div>
+        <script>
             $.getJSON("resource/L1.json", function (data) {
                 obj = data.heatmap;
                 var array = obj.map;
@@ -210,31 +169,9 @@
                             obj.map[i].value = <%if(heatmapList.get("SMUSISL1WAITINGAREA")!=null){out.print(heatmapList.get("SMUSISL1WAITINGAREA").getHeatLevel());}else{out.print("0");}%>;                 
                     } 
                 }
-                var JSONString = JSON.stringify(obj);
-                $.ajax({
-                    url: 'processHeatMap',
-                    type: 'get',
-                    dataType: 'json',
-                    data: {
-                        heatmap: JSONString,
-                    },
-                    success: function (data) {
-                        setTimeout(function() {
-                            myFunction();
-                        },delay);
-                    },
-                    error: function () {
-                        alert("error");
-                    }
-                });
-            });
-        </script>  
-        <% } else if (floor.equals("L2")) {%>       
-        <div id="L2HeatMap"></div>
-        <script>
-            function myFunction() {
+                
                 mapdata[imagelayer.id()] = [{
-                        url: 'resource/image/SISL2.jpg', //URL of the image to display
+                        url: 'resource/image/SISL1.jpg', //URL of the image to display
                         x: 0, //X coordinate of the upper left corner of the image (in xScale coordinates)
                         y: 0, //Y coordinate of the upper left corner of the image (in yScale coordinates)
                         height: 33.79, //height of the image (in yScale coordinates)
@@ -245,14 +182,15 @@
                 map.addLayer(imagelayer) //add layer to the image
                         .addLayer(heatmap);
 
-                d3.json("resource/L2.json", function (data) {
-                    mapdata[heatmap.id()] = data.heatmap; //set variable from json
-                    d3.select("#L2HeatMap").append("svg")
-                            .attr("height", 487).attr("width", 720)
-                            .datum(mapdata).call(map);
-                });
-            };
-
+                mapdata[heatmap.id()] = data.heatmap; //set variable from json
+                d3.select("#L1HeatMap").append("svg")
+                        .attr("height", 487).attr("width", 720)
+                        .datum(mapdata).call(map);
+            });
+        </script>  
+        <% } else if (floor.equals("L2")) {%>       
+        <div id="L2HeatMap"></div>
+        <script>
             $.getJSON("resource/L2.json", function (data) {
                 obj = data.heatmap;
                 var array = obj.map;
@@ -274,31 +212,9 @@
                             obj.map[i].value = <%if(heatmapList.get("SMUSISL2SR2-1")!=null){out.print(heatmapList.get("SMUSISL2SR2-1").getHeatLevel());}else{out.print("0");}%>;                 
                     } 
                 }
-                var JSONString = JSON.stringify(obj);
-                $.ajax({
-                    url: 'processHeatMap',
-                    type: 'get',
-                    dataType: 'json',
-                    data: {
-                        heatmap: JSONString,
-                    },
-                    success: function (data) {
-                        setTimeout(function() {
-                            myFunction();
-                        },delay);
-                    },
-                    error: function () {
-                        alert("error");
-                    }
-                });
-            });
-        </script>     
-        <% } else if (floor.equals("L3")) {%>
-        <div id="L3HeatMap"></div>       
-        <script>
-            function myFunction() {
+                
                 mapdata[imagelayer.id()] = [{
-                        url: 'resource/image/SISL3.jpg', //URL of the image to display
+                        url: 'resource/image/SISL2.jpg', //URL of the image to display
                         x: 0, //X coordinate of the upper left corner of the image (in xScale coordinates)
                         y: 0, //Y coordinate of the upper left corner of the image (in yScale coordinates)
                         height: 33.79, //height of the image (in yScale coordinates)
@@ -309,14 +225,15 @@
                 map.addLayer(imagelayer) //add layer to the image
                         .addLayer(heatmap);
 
-                d3.json("resource/L3.json", function (data) {
-                    mapdata[heatmap.id()] = data.heatmap; //set variable from json
-                    d3.select("#L3HeatMap").append("svg")
-                            .attr("height", 487).attr("width", 720)
-                            .datum(mapdata).call(map);
-                });
-            };
-
+                mapdata[heatmap.id()] = data.heatmap; //set variable from json
+                d3.select("#L2HeatMap").append("svg")
+                        .attr("height", 487).attr("width", 720)
+                        .datum(mapdata).call(map);
+            });
+        </script>     
+        <% } else if (floor.equals("L3")) {%>
+        <div id="L3HeatMap"></div>       
+        <script>
             $.getJSON("resource/L3.json", function (data) {
                 obj = data.heatmap;
                 var array = obj.map;
@@ -340,31 +257,8 @@
                             obj.map[i].value = <%if(heatmapList.get("SMUSISL3SR3-1")!=null){out.print(heatmapList.get("SMUSISL3SR3-1").getHeatLevel());}else{out.print("0");}%>;                 
                     }
                 }
-                var JSONString = JSON.stringify(obj);
-                $.ajax({
-                    url: 'processHeatMap',
-                    type: 'get',
-                    dataType: 'json',
-                    data: {
-                        heatmap: JSONString,
-                    },
-                    success: function (data) {
-                        setTimeout(function() {
-                            myFunction();
-                        },delay);
-                    },
-                    error: function () {
-                        alert("error");
-                    }
-                });
-            });
-        </script> 
-        <% } else if (floor.equals("L4")) {%>
-        <div id="L4HeatMap"></div>       
-        <script>
-            function myFunction() {
                 mapdata[imagelayer.id()] = [{
-                        url: 'resource/image/SISL4.jpg', //URL of the image to display
+                        url: 'resource/image/SISL3.jpg', //URL of the image to display
                         x: 0, //X coordinate of the upper left corner of the image (in xScale coordinates)
                         y: 0, //Y coordinate of the upper left corner of the image (in yScale coordinates)
                         height: 33.79, //height of the image (in yScale coordinates)
@@ -375,14 +269,15 @@
                 map.addLayer(imagelayer) //add layer to the image
                         .addLayer(heatmap);
 
-                d3.json("resource/L4.json", function (data) {
-                    mapdata[heatmap.id()] = data.heatmap; //set variable from json
-                    d3.select("#L4HeatMap").append("svg")
-                            .attr("height", 487).attr("width", 720)
-                            .datum(mapdata).call(map);
-                });
-            };
-
+                mapdata[heatmap.id()] = data.heatmap; //set variable from json
+                d3.select("#L3HeatMap").append("svg")
+                        .attr("height", 487).attr("width", 720)
+                        .datum(mapdata).call(map);
+            });
+        </script> 
+        <% } else if (floor.equals("L4")) {%>
+        <div id="L4HeatMap"></div>       
+        <script>
             $.getJSON("resource/L4.json", function (data) {
                 obj = data.heatmap;
                 var array = obj.map;
@@ -402,31 +297,9 @@
                             obj.map[i].value = <%if(heatmapList.get("SMUSISL4STUDYAREA4")!=null){out.print(heatmapList.get("SMUSISL4STUDYAREA4").getHeatLevel());}else{out.print("0");}%>;                    
                     }
                 }
-                var JSONString = JSON.stringify(obj);
-                $.ajax({
-                    url: 'processHeatMap',
-                    type: 'get',
-                    dataType: 'json',
-                    data: {
-                        heatmap: JSONString,
-                    },
-                    success: function (data) {
-                        setTimeout(function() {
-                            myFunction();
-                        },delay);
-                    },
-                    error: function () {
-                        alert("error");
-                    }
-                });
-            });
-        </script> 
-        <% } else if (floor.equals("L5")) {%>  
-        <div id="L5HeatMap"></div>
-        <script>
-            function myFunction() {
+                
                 mapdata[imagelayer.id()] = [{
-                        url: 'resource/image/SISL5.jpg', //URL of the image to display
+                        url: 'resource/image/SISL4.jpg', //URL of the image to display
                         x: 0, //X coordinate of the upper left corner of the image (in xScale coordinates)
                         y: 0, //Y coordinate of the upper left corner of the image (in yScale coordinates)
                         height: 33.79, //height of the image (in yScale coordinates)
@@ -437,14 +310,15 @@
                 map.addLayer(imagelayer) //add layer to the image
                         .addLayer(heatmap);
 
-                d3.json("resource/L5.json", function (data) {
-                    mapdata[heatmap.id()] = data.heatmap; //set variable from json
-                    d3.select("#L5HeatMap").append("svg")
-                            .attr("height", 487).attr("width", 720)
-                            .datum(mapdata).call(map);
-                });
-            };
-
+                mapdata[heatmap.id()] = data.heatmap; //set variable from json
+                d3.select("#L4HeatMap").append("svg")
+                        .attr("height", 487).attr("width", 720)
+                        .datum(mapdata).call(map);
+            });
+        </script> 
+        <% } else if (floor.equals("L5")) {%>  
+        <div id="L5HeatMap"></div>
+        <script>
             $.getJSON("resource/L5.json", function (data) {
                 obj = data.heatmap;
                 var array = obj.map;
@@ -460,23 +334,23 @@
                             obj.map[i].value = <%if(heatmapList.get("SMUSISL5STUDYAREA2")!=null){out.print(heatmapList.get("SMUSISL5STUDYAREA2").getHeatLevel());}else{out.print("0");}%>;                    
                     }
                 }
-                var JSONString = JSON.stringify(obj);
-                $.ajax({
-                    url: 'processHeatMap',
-                    type: 'get',
-                    dataType: 'json',
-                    data: {
-                        heatmap: JSONString,
-                    },
-                    success: function (data) {
-                        setTimeout(function() {
-                            myFunction();
-                        },delay);
-                    },
-                    error: function () {
-                        alert("error");
-                    }
-                });
+                
+                mapdata[imagelayer.id()] = [{
+                        url: 'resource/image/SISL5.jpg', //URL of the image to display
+                        x: 0, //X coordinate of the upper left corner of the image (in xScale coordinates)
+                        y: 0, //Y coordinate of the upper left corner of the image (in yScale coordinates)
+                        height: 33.79, //height of the image (in yScale coordinates)
+                        width: 50.0 //width of the image (in xScale coordinates)
+                                // (optional) opacity of the displayed image [0.0-1.0] (default: 1.0)
+                    }];
+
+                map.addLayer(imagelayer) //add layer to the image
+                        .addLayer(heatmap);
+
+                mapdata[heatmap.id()] = data.heatmap; //set variable from json
+                d3.select("#L5HeatMap").append("svg")
+                        .attr("height", 487).attr("width", 720)
+                        .datum(mapdata).call(map);
             });
         </script>         
         <%}}%>

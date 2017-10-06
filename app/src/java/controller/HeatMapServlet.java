@@ -47,29 +47,6 @@ public class HeatMapServlet extends HttpServlet {
         
     }
 
-    protected void processRequest2(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        HttpSession session = request.getSession();         
-        String heatmap = request.getParameter("heatmap");
-        if(heatmap!=null && heatmap.length()>0){
-            String filename = (String)session.getAttribute("floorName");            
-            try(
-                PrintWriter out = response.getWriter();
-                FileWriter fileWriter = new FileWriter("D:\\testt\\app\\web\\resource\\" + filename + ".json");
-            ){        
-                JSONObject obj = new JSONObject(); 
-                JSONObject obj2 = new JSONObject(heatmap); 
-                obj.put("heatmap", obj2);
-                fileWriter.write(obj.toString());
-                fileWriter.close();
-                
-                response.setContentType("text/html;charset=UTF-8");                
-                out.write("true");
-            } catch (JSONException e){
-                e.printStackTrace();
-            }
-        }         
-    }
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
     /**
      * Handles the HTTP <code>GET</code> method.
@@ -82,7 +59,7 @@ public class HeatMapServlet extends HttpServlet {
     @Override
         protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-            processRequest2(request, response);
+            processRequest(request, response);
     }
 
     /**
