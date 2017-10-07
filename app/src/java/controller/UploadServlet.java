@@ -1,5 +1,6 @@
 package controller;
 
+import java.io.File;
 import java.io.IOException;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -7,7 +8,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javazoom.upload.*;
 import java.util.*;
+import javax.servlet.ServletContext;
 import javax.servlet.http.HttpSession;
+import model.UploadDAO;
+import org.apache.tomcat.util.http.fileupload.disk.DiskFileItemFactory;
 
 public class UploadServlet extends HttpServlet implements java.io.Serializable{
 
@@ -26,38 +30,57 @@ public class UploadServlet extends HttpServlet implements java.io.Serializable{
         String success = "";
         String uploadType = "";     
         try{
-            upBean.setFolderstore("d:/testt/dontupload"); //the location of where documents will be stored, changing to database later
+            DiskFileItemFactory factory = new DiskFileItemFactory();   
+            ServletContext servletContext = this.getServletConfig().getServletContext();
+            File repository = (File) servletContext.getAttribute("javax.servlet.context.tempdir"); 
+            String directory = "d:/testt/dontupload"; //repository
+            
+            upBean.setFolderstore(directory); //the location of where documents will be stored
             Long size = Long.parseLong("8589934592"); //the size limit of the file uploads
             upBean.setFilesizelimit(size);
-
+        
             if (MultipartFormDataRequest.isMultipartFormData(request)){
                 //Uses MultipartFormDataRequest to parse the HTTP request.
-                MultipartFormDataRequest multipartRequest = new MultipartFormDataRequest(request);
+                MultipartFormDataRequest multipartRequest = new MultipartFormDataRequest(request); //specialized version of request object to interpret the data
                 uploadType = multipartRequest.getParameter("uploadType"); //either intialize or update              
                 String todo = multipartRequest.getParameter("todo");
                 
                 if(todo.equalsIgnoreCase("upload")){
-                    Hashtable files = multipartRequest.getFiles();
+                    Hashtable files = multipartRequest.getFiles(); //get the files sent over, hastable is the older version of hashmap
                     if ((files != null) && (!files.isEmpty())){
-                        UploadFile file = (UploadFile) files.get("uploadfile");
+                        UploadFile file = (UploadFile) files.get("uploadfile"); //get the files from bootstrapinitialize or bootstrapupdate
                         if (file != null && file.getFileSize()>0 && file.getFileName()!=null) {
-                            success = "Uploaded file: " + file.getFileName()+ " (" + file.getFileSize() + " bytes)" + "<br>Content Type : " + file.getContentType();
-                            session.setAttribute("success", success); //send error messsage to BootstrapInitialize.jsp                                  
+                            String contentType = file.getContentType(); //Get the file type
+                            String filePath = directory + File.separator + file.getFileName(); //get the zip file directory 
                             
-                            // Uses the bean now to store specified by the properties
-                            upBean.store(multipartRequest, "uploadfile");
+                            if(contentType.equals("application/x-zip-compressed")){ //if it is a zip file
+                                upBean.store(multipartRequest, "uploadfile"); //uses the bean now to store specified by the properties                                      
+                                UploadDAO.unzip(filePath, directory); //unzip the files in the zip and save into the directory    
+                                
+                                success = "Uploaded file: " + file.getFileName()+ " (" + file.getFileSize() + " bytes)";
+                                session.setAttribute("success", success); //send success messsage                                
+
+                                upBean.store(multipartRequest, "uploadfile"); //uses the bean now to store specified by the properties                                       
+                            } else if(UploadDAO.checkFileName(file.getFileName())){ //if location.csv or location-lookup.csv or demographics.csv
+                                upBean.store(multipartRequest, "uploadfile"); //uses the bean now to store specified by the properties                                  
+                                success = "Uploaded file: " + file.getFileName()+ " (" + file.getFileSize() + " bytes)";
+                                session.setAttribute("success", success); //send success messsage                                                                  
+                            } else {
+                                session.setAttribute("error", "Wrong file name or type"); //send error messsage                                  
+                            }
                         } else {
-                            session.setAttribute("error", "No uploaded files"); //send error messsage to BootstrapInitialize.jsp                      
+                            session.setAttribute("error", "No uploaded files"); //send error messsage                     
                         }
                     } else {
-                        session.setAttribute("error", "No uploaded files"); //send error messsage to BootstrapInitialize.jsp                      
+                        session.setAttribute("error", "No uploaded files"); //send error messsage                   
                     }
                 }            
             }
         } catch (UploadException e){
-            session.setAttribute("error", "Unable to upload. Please try again later"); //send error messsage to BootstrapInitialize.jsp
+            session.setAttribute("error", "Unable to upload. Please try again later"); //send error messsage
         }    
-        if(uploadType.equals("update")){
+        
+        if(uploadType.equals("update")){ //check where did the request come from and send back to the respective place
             response.sendRedirect("BootstrapUpdate.jsp");                  
         } else {
             response.sendRedirect("BootstrapInitialize.jsp");     
