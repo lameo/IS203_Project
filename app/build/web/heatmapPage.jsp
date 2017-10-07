@@ -125,11 +125,11 @@
         %>
         <script>
             var xscale = d3.scale.linear()
-                    .domain([0, 50.0])
-                    .range([0, 720]),
+                    .domain([0, 50])
+                    .range([0, 1205]),
                     yscale = d3.scale.linear()
-                    .domain([0, 33.79])
-                    .range([0, 487]),
+                    .domain([0, 38])
+                    .range([0, 1106]),
                     map = d3.floorplan().xScale(xscale).yScale(yscale), //setup a floor plan map to hold layers and manage pan/zoom functionality
                     imagelayer = d3.floorplan.imagelayer(), //create a new image layer
                     heatmap = d3.floorplan.heatmap(), //create a heat map layer
@@ -175,7 +175,7 @@
                 
                 mapdata[heatmap.id()] = data.heatmap; //set variable from json
                 d3.select("#B1HeatMap").append("svg")
-                        .attr("height", 487).attr("width", 720)
+                        .attr("height", 1106).attr("width", 1205)
                         .datum(mapdata).call(map);
                     
                                
@@ -215,7 +215,7 @@
 
                 mapdata[heatmap.id()] = data.heatmap; //set variable from json
                 d3.select("#L1HeatMap").append("svg")
-                        .attr("height", 487).attr("width", 720)
+                        .attr("height", 1106).attr("width", 1205)
                         .datum(mapdata).call(map);
             });
         </script>  
@@ -261,7 +261,7 @@
 
                 mapdata[heatmap.id()] = data.heatmap; //set variable from json
                 d3.select("#L2HeatMap").append("svg")
-                        .attr("height", 487).attr("width", 720)
+                        .attr("height", 1106).attr("width", 1205)
                         .datum(mapdata).call(map);
             });
         </script>     
@@ -308,7 +308,7 @@
 
                 mapdata[heatmap.id()] = data.heatmap; //set variable from json
                 d3.select("#L3HeatMap").append("svg")
-                        .attr("height", 487).attr("width", 720)
+                        .attr("height", 1106).attr("width", 1205)
                         .datum(mapdata).call(map);
             });
         </script> 
@@ -352,7 +352,7 @@
 
                 mapdata[heatmap.id()] = data.heatmap; //set variable from json
                 d3.select("#L4HeatMap").append("svg")
-                        .attr("height", 487).attr("width", 720)
+                        .attr("height", 1106).attr("width", 1205)
                         .datum(mapdata).call(map);
             });
         </script> 
@@ -392,7 +392,7 @@
 
                 mapdata[heatmap.id()] = data.heatmap; //set variable from json
                 d3.select("#L5HeatMap").append("svg")
-                        .attr("height", 487).attr("width", 720)
+                        .attr("height", 1106).attr("width", 1205)
                         .datum(mapdata).call(map);
             });
         </script>         
