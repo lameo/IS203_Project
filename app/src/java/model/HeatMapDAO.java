@@ -60,14 +60,16 @@ public class HeatMapDAO {
             connection = ConnectionManager.getConnection();
 
             //prepare a statement
-            preparedStatement = connection.prepareStatement("select count(DISTINCT macaddress) "
-                    + "from location l, locationlookup ll "
-                    + "where ll.locationname like ? and l.locationid = ll.locationid and l.timestamp BETWEEN DATE_SUB(?,INTERVAL 15 MINUTE) and DATE_SUB(?,INTERVAL 1 SECOND)");
+            preparedStatement = connection.prepareStatement("select count(DISTINCT l.macaddress) "
+                    + "from location l, locationlookup ll, (SELECT max(TIMESTAMP) as TIMESTAMP, macaddress "
+                        + "FROM location "
+                        + "WHERE timestamp BETWEEN (SELECT DATE_SUB(?,INTERVAL 15 MINUTE)) AND (SELECT DATE_SUB(?,INTERVAL 1 SECOND)) group by macaddress) as temp "
+                    + "where ll.locationname like ? and l.locationid = ll.locationid and temp.macaddress = l.macaddress and temp.timestamp = l.timestamp;");
 
             //set the parameters
-            preparedStatement.setString(1, "%" + semanticPlace + "%");
+            preparedStatement.setString(1, timeDate);            
             preparedStatement.setString(2, timeDate);
-            preparedStatement.setString(3, timeDate);
+            preparedStatement.setString(3, "%" + semanticPlace + "%");
 
             //execute SQL query
             resultSet = preparedStatement.executeQuery();
