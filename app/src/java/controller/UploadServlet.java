@@ -12,6 +12,7 @@ import java.util.*;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpSession;
 import model.UploadDAO;
+import org.apache.tomcat.util.http.fileupload.disk.DiskFileItemFactory;
 
 
 public class UploadServlet extends HttpServlet implements java.io.Serializable{
@@ -33,10 +34,10 @@ public class UploadServlet extends HttpServlet implements java.io.Serializable{
         String success = "";
         String uploadType = "";     
         try{
-            //DiskFileItemFactory factory = new DiskFileItemFactory();   
-            //ServletContext servletContext = this.getServletConfig().getServletContext();
-            //File repository = (File) servletContext.getAttribute("javax.servlet.context.tempdir"); 
-            String outputDirectory = "d:/testt/dontupload"; //repository
+            DiskFileItemFactory factory = new DiskFileItemFactory();   
+            ServletContext servletContext = this.getServletConfig().getServletContext();
+            File repository = (File) servletContext.getAttribute("javax.servlet.context.tempdir"); //Pathname to a scratch directory to be provided by this Context for temporary read-write use by servlets within the associated web application
+            String outputDirectory = "" + repository; 
             
             upBean.setFolderstore(outputDirectory); //the location of where documents will be stored
             Long size = Long.parseLong("8589934592"); //the size limit of the file uploads
@@ -57,17 +58,21 @@ public class UploadServlet extends HttpServlet implements java.io.Serializable{
                             String filePath = outputDirectory + File.separator + file.getFileName(); //get the zip file directory 
                             
                             if(contentType.equals("application/x-zip-compressed")){ //if it is a zip file
-                                upBean.store(multipartRequest, "uploadfile"); //uses the bean now to store specified by the properties                                      
+                                upBean.store(multipartRequest, "uploadfile"); //save to directory
+                                
                                 out.print(UploadDAO.unzip(filePath, outputDirectory)); //unzip the files in the zip and save into the directory    
                                 
                                 success = "Uploaded file: " + file.getFileName()+ " (" + file.getFileSize() + " bytes)";
                                 session.setAttribute("success", success); //send success messsage                                
-
-                                upBean.store(multipartRequest, "uploadfile"); //uses the bean now to store specified by the properties                                       
+                                   
                             } else if(UploadDAO.checkFileName(file.getFileName())){ //if location.csv or location-lookup.csv or demographics.csv
-                                upBean.store(multipartRequest, "uploadfile"); //uses the bean now to store specified by the properties                                  
+                                upBean.store(multipartRequest, "uploadfile"); //save to directory
+                                
+                                out.print(UploadDAO.readCSV(filePath));
+                                
                                 success = "Uploaded file: " + file.getFileName()+ " (" + file.getFileSize() + " bytes)";
-                                session.setAttribute("success", success); //send success messsage                                                                  
+                                session.setAttribute("success", success); //send success messsage         
+                                
                             } else {
                                 session.setAttribute("error", "Wrong file name or type"); //send error messsage                                  
                             }
