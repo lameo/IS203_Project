@@ -1,6 +1,6 @@
 package model;
 
-import com.opencsv.CSVReader;
+import au.com.bytecode.opencsv.CSVReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -97,40 +97,43 @@ public class UploadDAO {
         return true;
     }
 
-    public static void unzip(String filePath, String directory) {
-        File dir = new File(directory);
-        // create output directory if it doesn't exist
-        if (!dir.exists()) {
-            dir.mkdirs();
-        }
-        byte[] buffer = new byte[2048]; //buffer for read and write data to file
-        try (
-            FileInputStream fis = new FileInputStream(filePath);
-            ZipInputStream zis = new ZipInputStream(fis);
-        ) {
-            ZipEntry ze = zis.getNextEntry();
+    public static String unzip(String zipFile, String outputDirectory) {
+        String test = "";
+        byte[] buffer = new byte[1024];
+        try {
+            File folder = new File(outputDirectory);
+            if (!folder.exists()) { //create output directory is not exists
+                folder.mkdir();
+            }
+
+            ZipInputStream zis = new ZipInputStream(new FileInputStream(zipFile)); //get the zip file content
+            ZipEntry ze = zis.getNextEntry(); //get the zipped file list entry
+
             while (ze != null) {
                 String fileName = ze.getName();
-                if (checkFileName(fileName)) { //if valid filename
-                    String eachFilePath = directory + File.separator + fileName;
-                    File newFile = new File(eachFilePath);
-                    //create directories for sub directories in zip
+                if (checkFileName(fileName)) { //unzip only the correct csv files
+                    File newFile = new File(outputDirectory + File.separator + fileName);
+
+                    //create all non exists folders else you will hit FileNotFoundException for compressed folder
                     new File(newFile.getParent()).mkdirs();
                     FileOutputStream fos = new FileOutputStream(newFile);
+
                     int len;
                     while ((len = zis.read(buffer)) > 0) {
                         fos.write(buffer, 0, len);
                     }
-                    fos.close();                 
+                    fos.close();
+                    test += readCSV(outputDirectory + File.separator + fileName);                      
                 }
-                zis.closeEntry(); //close this ZipEntry
-                zis.getNextEntry();
+                ze = zis.getNextEntry();
             }
-            //close last ZipEntry
             zis.closeEntry();
-        } catch (IOException e) {
-            e.printStackTrace();
+            zis.close();
+          
+        } catch (IOException ex) {
+            ex.printStackTrace();
         }
+        return test;        
     }
 
     public static boolean checkFileName(String fileName) {
@@ -143,17 +146,19 @@ public class UploadDAO {
         }
         return false;
     }
-    
-    public static void readCSV(String filePath){
-        try(              
+
+    public static String readCSV(String filePath) {
+        String test = "";
+        try {
             CSVReader reader = new CSVReader(new FileReader(filePath));
-        ){
             String[] columns;
-            while((columns = reader.readNext())!=null){
-                
+            while ((columns = reader.readNext()) != null) {
+                test = columns[0];
             }
-        } catch(IOException e){
+            reader.close();
+        } catch (IOException e) {
             e.printStackTrace();
         }
+        return test;
     }
 }

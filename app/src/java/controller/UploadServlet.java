@@ -2,6 +2,7 @@ package controller;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintWriter;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -11,7 +12,7 @@ import java.util.*;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpSession;
 import model.UploadDAO;
-import org.apache.tomcat.util.http.fileupload.disk.DiskFileItemFactory;
+
 
 public class UploadServlet extends HttpServlet implements java.io.Serializable{
 
@@ -25,17 +26,19 @@ public class UploadServlet extends HttpServlet implements java.io.Serializable{
      * @throws IOException if an I/O error occurs
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException  {      
+        response.setContentType("text/html;charset=UTF-8");
+        PrintWriter out = response.getWriter();        
         HttpSession session = request.getSession();
         UploadBean upBean = new UploadBean();
         String success = "";
         String uploadType = "";     
         try{
-            DiskFileItemFactory factory = new DiskFileItemFactory();   
-            ServletContext servletContext = this.getServletConfig().getServletContext();
-            File repository = (File) servletContext.getAttribute("javax.servlet.context.tempdir"); 
-            String directory = "d:/testt/dontupload"; //repository
+            //DiskFileItemFactory factory = new DiskFileItemFactory();   
+            //ServletContext servletContext = this.getServletConfig().getServletContext();
+            //File repository = (File) servletContext.getAttribute("javax.servlet.context.tempdir"); 
+            String outputDirectory = "d:/testt/dontupload"; //repository
             
-            upBean.setFolderstore(directory); //the location of where documents will be stored
+            upBean.setFolderstore(outputDirectory); //the location of where documents will be stored
             Long size = Long.parseLong("8589934592"); //the size limit of the file uploads
             upBean.setFilesizelimit(size);
         
@@ -51,11 +54,11 @@ public class UploadServlet extends HttpServlet implements java.io.Serializable{
                         UploadFile file = (UploadFile) files.get("uploadfile"); //get the files from bootstrapinitialize or bootstrapupdate
                         if (file != null && file.getFileSize()>0 && file.getFileName()!=null) {
                             String contentType = file.getContentType(); //Get the file type
-                            String filePath = directory + File.separator + file.getFileName(); //get the zip file directory 
+                            String filePath = outputDirectory + File.separator + file.getFileName(); //get the zip file directory 
                             
                             if(contentType.equals("application/x-zip-compressed")){ //if it is a zip file
                                 upBean.store(multipartRequest, "uploadfile"); //uses the bean now to store specified by the properties                                      
-                                UploadDAO.unzip(filePath, directory); //unzip the files in the zip and save into the directory    
+                                out.print(UploadDAO.unzip(filePath, outputDirectory)); //unzip the files in the zip and save into the directory    
                                 
                                 success = "Uploaded file: " + file.getFileName()+ " (" + file.getFileSize() + " bytes)";
                                 session.setAttribute("success", success); //send success messsage                                
@@ -81,9 +84,9 @@ public class UploadServlet extends HttpServlet implements java.io.Serializable{
         }    
         
         if(uploadType.equals("update")){ //check where did the request come from and send back to the respective place
-            response.sendRedirect("BootstrapUpdate.jsp");                  
+            //response.sendRedirect("BootstrapUpdate.jsp");                  
         } else {
-            response.sendRedirect("BootstrapInitialize.jsp");     
+            //response.sendRedirect("BootstrapInitialize.jsp");     
         }
     }
 
