@@ -10,6 +10,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  *
@@ -17,16 +18,22 @@ import java.util.ArrayList;
  */
 public class AutoGroupDAO {
     public static ArrayList<Group> retrieveAutoGroups(String endtimeDate){
-        ArrayList<String> AutoUsers = retrieveAutoUsers(endtimeDate);
+        HashMap<String,ArrayList<String>> AutoUsers = retrieveAutoUsers(endtimeDate);
         ArrayList<Group> groups = new ArrayList<Group>();
+        
+        
+        
+        
         return groups;
     }
     
-    public static ArrayList<String> retrieveAutoUsers(String endtimeDate){
+    //retreive users in hashmap form, hashmap key is macaddress and hashmap value is array of email, locationid and timestamp
+    public static HashMap<String,ArrayList<String>> retrieveAutoUsers(String endtimeDate){
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
-        ArrayList<String> AutoGroupList = new ArrayList<String>();
+        HashMap<String,ArrayList<String>> AutoUsers = new HashMap<String,ArrayList<String>>();
+        ArrayList<String> UserInfo = new ArrayList<String>();
         
         try {
             //get a connection to database
@@ -45,12 +52,22 @@ public class AutoGroupDAO {
             //execute SQL query
             resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
-                AutoGroupList.add(resultSet.getString(1)+","+resultSet.getString(2)+","+resultSet.getString(3)+","+resultSet.getString(4));
+                //create arraylist of email, locationid and timestamp
+                UserInfo.add(resultSet.getString(2)+","+resultSet.getString(3)+","+resultSet.getString(4));
+                //create hashmap of macaddress
+                AutoUsers.put(resultSet.getString(1),UserInfo);
             }
         }catch (SQLException e) {
             e.printStackTrace();
         }
-        return AutoGroupList;
+        return AutoUsers;
     }
+    
+    //retreive groups of users
+    public static HashMap<String,ArrayList<String>> retrieveGroups(HashMap<String,ArrayList<String>> AutoUsers){
+        return AutoUsers;
+    }
+    
+    
     
 }
