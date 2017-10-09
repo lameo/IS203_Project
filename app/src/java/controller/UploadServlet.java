@@ -12,7 +12,7 @@ import java.util.*;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpSession;
 import model.UploadDAO;
-import org.apache.tomcat.util.http.fileupload.disk.DiskFileItemFactory;
+//import org.apache.tomcat.util.http.fileupload.disk.DiskFileItemFactory;
 
 
 public class UploadServlet extends HttpServlet implements java.io.Serializable{
@@ -34,7 +34,7 @@ public class UploadServlet extends HttpServlet implements java.io.Serializable{
         String success = "";
         String uploadType = "";     
         try{
-            DiskFileItemFactory factory = new DiskFileItemFactory();   
+            //DiskFileItemFactory factory = new DiskFileItemFactory();   
             ServletContext servletContext = this.getServletConfig().getServletContext();
             File repository = (File) servletContext.getAttribute("javax.servlet.context.tempdir"); //Pathname to a scratch directory to be provided by this Context for temporary read-write use by servlets within the associated web application
             String outputDirectory = "" + repository; 
