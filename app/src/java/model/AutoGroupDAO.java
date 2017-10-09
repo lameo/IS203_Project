@@ -113,7 +113,7 @@ public class AutoGroupDAO {
                     timestampStart = new java.sql.Timestamp(parsedStartDate.getTime());
                     //situation where only one location update under user, users is assumed to stay at location for 5 minutes
                     if (LocationTimestamps.size() == 1) {
-                        timeDateEnd = new Date();
+                        //timeDateEnd = new Date();
                         Calendar cal = Calendar.getInstance();
                         cal.setTime(parsedStartDate);
                         cal.add(Calendar.MINUTE, 5);
