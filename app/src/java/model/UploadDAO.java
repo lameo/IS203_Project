@@ -213,56 +213,164 @@ public class UploadDAO {
         }
         return emptyDataSet;
     }
-
-    public static void readCSV(String filePath) {
-        String macaddress = "";
-        String name = "";
-        String password = "";
-        String email = "";
-        String gender = "";
-        try {
-            CSVReader reader = new CSVReader(new FileReader(filePath));
-            String[] columns;
-            while ((columns = reader.readNext()) != null) {
-                macaddress = columns[0];
-                name = columns[1];
-                password = columns[2];
-                email = columns[3];
-                gender = columns[4];
-            }
-            reader.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
+    
+    public static void clearDemographics(){
         Connection connection = null;
-        PreparedStatement preparedStatement = null;
-        ResultSet resultSet = null;
+        PreparedStatement preparedStatement = null;   
+        try {
+            //get a connection to database
+            connection = ConnectionManager.getConnection();
+
+            //prepare a statement
+            preparedStatement = connection.prepareStatement("truncate demographics");
+
+            //execute SQL query
+            preparedStatement.executeUpdate();
+
+            preparedStatement.close();
+            connection.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }         
+    }
+    
+    public static void clearLocation(){
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;   
+        try {
+            //get a connection to database
+            connection = ConnectionManager.getConnection();
+
+            //prepare a statement
+            preparedStatement = connection.prepareStatement("truncate location");
+
+            //execute SQL query
+            preparedStatement.executeUpdate();
+
+            preparedStatement.close();
+            connection.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }         
+    }    
+    
+    public static void clearLookup(){
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;   
+        try {
+            //get a connection to database
+            connection = ConnectionManager.getConnection();
+
+            //prepare a statement
+            preparedStatement = connection.prepareStatement("truncate locationlookup");
+
+            //execute SQL query
+            preparedStatement.executeUpdate();
+
+            preparedStatement.close();
+            connection.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }         
+    }    
+
+    public static void readDemographics(String filePath) {
+        clearDemographics();     
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;           
         try {
             //get a connection to database
             connection = ConnectionManager.getConnection();
 
             //prepare a statement
             preparedStatement = connection.prepareStatement("insert into demographics (macaddress,name,password,email,gender) values(?,?,?,?,?)");
+            
+            CSVReader reader = new CSVReader(new FileReader(filePath));
+            String[] columns;
+            while ((columns = reader.readNext()) != null) {
+                //set the parameters
+                preparedStatement.setString(1, columns[0]);
+                preparedStatement.setString(2, columns[1]);
+                preparedStatement.setString(3, columns[2]);
+                preparedStatement.setString(4, columns[3]);
+                preparedStatement.setString(5, columns[4]);                
 
-            //set the parameters
-            preparedStatement.setString(1, macaddress);
-            preparedStatement.setString(2, name);
-            preparedStatement.setString(3, password);
-            preparedStatement.setString(4, email);
-            preparedStatement.setString(5, gender);
-
-            //execute SQL query
-            preparedStatement.executeUpdate();
-
-            //resultSet.close();
+                //execute SQL query
+                preparedStatement.executeUpdate();                
+            }
+            reader.close();
             preparedStatement.close();
-            connection.close();
+            connection.close();            
         } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    
+    public static void readLookup(String filePath) {
+        clearLookup();     
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;           
+        try {
+            //get a connection to database
+            connection = ConnectionManager.getConnection();
+
+            //prepare a statement
+            preparedStatement = connection.prepareStatement("insert into locationlookup (locationid, locationname) values(?,?)");
+            
+            CSVReader reader = new CSVReader(new FileReader(filePath));
+            String[] columns;
+            while ((columns = reader.readNext()) != null) {
+                //set the parameters
+                preparedStatement.setString(1, columns[0]);
+                preparedStatement.setString(2, columns[1]);               
+
+                //execute SQL query
+                preparedStatement.executeUpdate();                
+            }
+            reader.close();
+            preparedStatement.close();
+            connection.close();            
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
+    public static void readLocation(String filePath) {
+        clearLocation();     
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;           
+        try {
+            //get a connection to database
+            connection = ConnectionManager.getConnection();
+
+            //prepare a statement
+            preparedStatement = connection.prepareStatement("insert into location (timestamp, macaddress, locationid) values(?,?,?)");
+            
+            CSVReader reader = new CSVReader(new FileReader(filePath));
+            String[] columns;
+            while ((columns = reader.readNext()) != null) {
+                //set the parameters
+                preparedStatement.setString(1, columns[0]);
+                preparedStatement.setString(2, columns[1]);
+                preparedStatement.setString(3, columns[2]);              
+
+                //execute SQL query
+                preparedStatement.executeUpdate();                
+            }
+            reader.close();
+            preparedStatement.close();
+            connection.close();            
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }    
+    
     public static String unzip(String zipFile, String outputDirectory) {
         String fileExist = "";
         byte[] buffer = new byte[1024];
