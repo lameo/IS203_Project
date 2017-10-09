@@ -163,7 +163,47 @@ public class ReportDAO {
     }
 
     public static Map<Integer, String> retrieveTopKCompanions(String endTimeDate, String macaddress) {
+        ArrayList<String> UserLocationTimestamps = retrieveUserLocationTimestamps(macaddress, endTimeDate);
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
+        String ans = "";
+        for(String UserLocationTimestamp: UserLocationTimestamps){
+            String[] LocationTimestamp = UserLocationTimestamp.split(",");
+            String locationid = LocationTimestamp[0];
+            String timestampStart = LocationTimestamp[1];
+            String timestampEnd = LocationTimestamp[2];
+        }
+        try {
+            //get a connection to database
+            connection = ConnectionManager.getConnection();
+            //prepare a statement
+            preparedStatement = connection.prepareStatement("select macaddress, locationid, timestamp,DATE_SUB(?, INTERVAL 1 SECOND) "
+                    + "from demographics d, location l"
+                    + "where macaddress <> ? and timestamp between DATE_SUB(?, INTERVAL 15 MINUTE)"
+                    + "and DATE_SUB(?, INTERVAL 1 SECOND) order by timestamp");
 
+            //set the parameters
+            preparedStatement.setString(1, endTimeDate);
+            preparedStatement.setString(2, macaddress);
+            //preparedStatement.setString(3, gender);
+            //preparedStatement.setString(4, "%" + year + "%");
+            //preparedStatement.setString(5, "%" + school + "%");
+
+            //execute SQL query
+            resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()) {
+                ans = resultSet.getString(1);
+            }
+
+            //close connections
+            resultSet.close();
+            preparedStatement.close();
+            connection.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        //return Integer.parseInt(ans);
         return null;
     }
 
@@ -491,6 +531,77 @@ public class ReportDAO {
             e.printStackTrace();
         }
         return UserLocationTimestamps;
+    }
+    
+    //retreive users in hashmap form, hashmap key is macaddress and hashmap value is array of email, locationid and timestamp
+    public static ArrayList<String> retrieveCompanionLocationTimestamps(String macaddress, String endtimeDate) {
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
+        String ans = "";
+        int duration;
+        ArrayList<String> CompanionLocationTimestamps = new ArrayList<String>();
+
+        try {
+            //get a connection to database
+            connection = ConnectionManager.getConnection();
+
+            //prepare a statement
+            preparedStatement = connection.prepareStatement("select macaddress, locationid, timestamp,DATE_SUB(?, INTERVAL 1 SECOND) "
+                    + "from demographics d, location l"
+                    + "where macaddress <> ? and timestamp between DATE_SUB(?, INTERVAL 15 MINUTE)"
+                    + "and DATE_SUB(?, INTERVAL 1 SECOND) order by timestamp");
+
+            //set the parameters
+            preparedStatement.setString(1, endtimeDate);
+            preparedStatement.setString(2, macaddress);
+            preparedStatement.setString(3, endtimeDate);
+            preparedStatement.setString(3, endtimeDate);
+
+            //execute SQL query
+            resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()) {
+                String locationid = resultSet.getString(1);
+                Timestamp timestamp = resultSet.getTimestamp(2);
+                Timestamp timestampEnd = resultSet.getTimestamp(3);
+                if (resultSet.isLast()) {
+                    duration = (int) (TimeUnit.MILLISECONDS.toMinutes(timestampEnd.getTime() - timestamp.getTime()));
+                    if (duration > 5) {
+                        duration = 5;
+                    }
+                    ans += "," + locationid + "," + timestamp + "," + duration;
+                } else {
+                    while (resultSet.next()) {
+                        String locationidNext = resultSet.getString(1);
+                        Timestamp timestampNext = resultSet.getTimestamp(2);
+                        if (locationid != locationidNext) {
+                            duration = (int) (TimeUnit.MILLISECONDS.toMinutes(timestampNext.getTime() - timestamp.getTime()));
+                            if (duration > 5) {
+                                duration = 5;
+                            }
+                            ans += "," + locationid + "," + timestamp + "," + duration;
+                            break;
+                            //if the next update location is same as the previous one
+                        } else {
+                            duration = (int) (TimeUnit.MILLISECONDS.toMinutes(timestampNext.getTime() - timestamp.getTime()));
+                            if (duration > 5) {
+                                duration = 5;
+                                ans += "," + locationid + "," + timestamp + "," + duration;
+                                break;
+                            }else{
+                                timestamp = timestampNext;
+                                duration += (int) (TimeUnit.MILLISECONDS.toMinutes(timestampNext.getTime() - timestamp.getTime()));
+                            }
+                            
+                        }
+                        CompanionLocationTimestamps.add(ans);
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return CompanionLocationTimestamps;
     }
 
 }
