@@ -4,10 +4,10 @@ use `data`;
 #demographics
 create table demographics
 (
-macaddress varchar(40) not null, 
-name varchar(50) not null, 
-password varchar(50) not null, 
-email varchar(50) not null, 
+macaddress varchar(40) ,
+name varchar(50) ,
+password varchar(50) ,
+email varchar(50) ,
 gender char(1) not null,
 constraint demographics_pk primary key(macaddress)
 );
@@ -29,9 +29,9 @@ FIELDS TERMINATED BY ',' LINES TERMINATED BY '\r\n' IGNORE 1 LINES (locationid, 
 
 create table location
 (
-timestamp datetime(6) not null, 
-macaddress varchar(40) not null, 
-locationid varchar(10) not null, 
+timestamp varchar(20) ,
+macaddress varchar(40) ,
+locationid varchar(10) ,
 constraint location_pk primary key(macaddress, timestamp)
 );
 
@@ -41,8 +41,8 @@ FIELDS TERMINATED BY ',' LINES TERMINATED BY '\r\n' IGNORE 1 LINES (timestamp, m
 
 create table stalkerMode
 (
-macaddress varchar(40) not null, 
-locationid varchar(10) not null, 
+macaddress varchar(40) ,
+locationid varchar(10) ,
 locationname varchar(25) not null,
 maxTimestamp datetime(6) not null,
 minTimestamp datetime(6) not null,

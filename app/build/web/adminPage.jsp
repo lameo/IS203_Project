@@ -41,7 +41,7 @@
                         <li class="active"><a href="adminPage.jsp">Home</a></li> <%-- set as active because user is in home page. send user to home page--%>
                             <%-- Dropdown menu for admin to boostrap and update the location data  --%>
                         <li class="dropdown">
-                            <a class="dropdown-toggle" data-toggle="dropdown" href="#">Boostrap
+                            <a class="dropdown-toggle" data-toggle="dropdown" href="#">Bootstrap
                                 <span class="caret"></span></a>
                             <ul class="dropdown-menu">
                                 <li><a href="BootstrapInitialize.jsp">Initialize SLOCA</a></li> <%-- send user to BootstrapInitialize page --%>

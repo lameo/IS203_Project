@@ -1,5 +1,4 @@
-<%@page import="java.util.ArrayList"%>
-<%@page import="java.util.Map"%>
+<%@page import="java.util.Arrays"%>
 <%@page import="model.User"%>
 <%@page import="java.sql.Timestamp"%>
 <%@page import="java.time.Instant"%>
@@ -28,7 +27,7 @@
         String timestamp = (String) session.getAttribute("timestamp");
     %>
     <head>
-        <title>Top-K popular places</title>
+        <title>Automatic Group Detection</title>
     </head>
     <body>
         <nav class="navbar navbar-inverse"> <%-- navigation menu for user to click --%>
@@ -38,9 +37,9 @@
                 </div>
                 <ul class="nav navbar-nav">
                     <li><a href="userPage.jsp">Home</a></li> <%-- send user to home page--%>
-                    <li class="active"><a href="reportsPage.jsp">Basic Location Reports</a></li> <%-- set as active because user is in reports page. send user to reports page --%>
+                    <li><a href="reportsPage.jsp">Basic Location Reports</a></li> <%-- set as active because user is in reports page. send user to reports page --%>
                     <li><a href="heatmapPage.jsp">Heat Map</a></li> <%-- send user to heatmap page --%>
-                    <li><a href="automaticGroupDetection.jsp">Automatic Group Detection</a></li> <%-- send user to Automatic Group Detection page --%>
+                    <li class="active"><a href="automaticGroupDetection.jsp">Automatic Group Detection</a></li> <%-- send user to Automatic Group Detection page --%>
                 </ul>
                 <ul class="nav navbar-nav navbar-right">
                     <li><a href="userPage.jsp"><%="Welcome " + name + "!"%></a></li>
@@ -53,29 +52,18 @@
         <div class="container">
             <br><br>
             <!-- Form for user to input date&time and top K for top K popular places report -->
-            <form method=post action="report">
+            <form method=post action="xyChangeHere">
                 <!-- report type -->
-                <input type="hidden" name="reportType" value="topKPopular">
+                <input type="hidden" name="andHere" value="xyChangeHereTooooooo">
                 <!-- form input for date & time  -->
                 <div class="form-group">
                     <label class="form-control-label" for="timing">Enter date & time:</label>
                     <input type="text" class="form-control" id="timing" name="timeDate" placeholder="Example: 2014-03-23 13:40:00" required>
                 </div>
-                <!-- select menu for top K 1-10, default is 3  -->
+                <!-- form input for mac-address  -->
                 <div class="form-group">
-                    <label for="topK">Generate for top:</label>
-                    <select class="form-control" id="topK" name = "topK">
-                        <option value="1">1</option>
-                        <option value="2">2</option>
-                        <option selected value="3">3</option>
-                        <option value="4">4</option>
-                        <option value="5">5</option>
-                        <option value="6">6</option>
-                        <option value="7">7</option>
-                        <option value="8">8</option>
-                        <option value="9">9</option>
-                        <option value="10">10</option>
-                    </select>
+                    <label class="form-control-label" for="locationGetter">Enter MAC Addresse:</label>
+                    <input type="text" class="form-control" id="locationGetter" name="location" placeholder="Example: 009562b08360d78848a977dc26368b53cc0f1d44" required>
                 </div>
                 <button type="submit" class="btn btn-primary">Generate</button>
             </form>
@@ -84,35 +72,29 @@
 
         </div>
         <%
-            //If top K popular places report is generated
-            if (session.getAttribute("topKPopular") != null) {
-                String timedate = (String)session.getAttribute("timeDate");
-                int topK = (Integer)session.getAttribute("topK");
-                Map<Integer, String> map = (Map<Integer, String>)(session.getAttribute("topKPopular"));
+            //If top K report is generated
+            if (request.getAttribute("topK") != null) {
 
+                String timedate = request.getParameter("timeDate");
+                String topK = (String) request.getAttribute("topK");
                 out.print("<h3>Top-" + topK + " Popular Places at " + timedate + "</h3>");
+                
+                
+                
                 out.print("<div class=\"container\"><table class=\"table table-bordered\"><thead>");
-                out.print("<tr><th>Rank</th><th>Semantic place</th><th>No pax</th></tr></thead><tbody>");
-
-                ArrayList<Integer> keys = new ArrayList<Integer>(map.keySet());
-                int count = 1;
-                for (int i = keys.size() - 1; i >= 0; i--) {
-                    if (count <= topK) {
-                        System.out.print(map.get(keys.get(i)));
-                        out.print("<tr><td>" + count++ + "</td><td>" + map.get(keys.get(i)) + "</td><td>" + keys.get(i) + "</td></tr>");
-                    }
+                String topKPopular = (String) (request.getAttribute("topKPopular"));
+                String[] y = topKPopular.split(",");
+                out.print("<tr><th>Rank</th><th>Semantic place</th><th>No pax</th></tr></thead></tbody>");
+                for (int j = 0; j < y.length; j += 2) {
+                    out.print("<tr><td>" + (j / 2 + 1) + "</td><td>" + y[j] + "</td><td>" + y[j + 1] + "</td></tr>");
                 }
                 out.print("</tbody></table></div>");
             }
-            session.removeAttribute("topKPopular"); //remove session attribute from the session object
-            session.removeAttribute("timeDate"); //remove session attribute from the session object
-            session.removeAttribute("topK"); //remove session attribute from the session object
-            
-            //debugging purpose
-            out.print("<br><br>Copy Paste");
-            out.print("<br>2014-03-23 13:55:00");
         %>
-        <%="<br><br>User session: " + timestamp%>
+
+        <%="<br>Example: 2014-03-23 13:40:00"%>
+        <%="<br>Mac address: 009562b08360d78848a977dc26368b53cc0f1d44"%>
+        <%="<br>User session: " + timestamp%>
     </center>
 </body>
 </html>
