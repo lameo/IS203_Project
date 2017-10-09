@@ -61,7 +61,11 @@ public class UploadServlet extends HttpServlet implements java.io.Serializable {
                                 String fileExist = UploadDAO.unzip(filePath, outputDirectory); //unzip the files in the zip and save into the directory    
 
                                 if (fileExist != null && fileExist.contains("demographics.csv")) {
-                                    UploadDAO.demographicsImport(outputDirectory + File.separator + "demographics.csv");
+                                        UploadDAO.demographicsImport1(outputDirectory + File.separator + "demographics.csv");
+                                        UploadDAO.demographicsImport2(outputDirectory + File.separator + "demographics.csv");
+                                        UploadDAO.demographicsImport3(outputDirectory + File.separator + "demographics.csv");
+                                        UploadDAO.demographicsImport4(outputDirectory + File.separator + "demographics.csv");
+                                        UploadDAO.demographicsImport5(outputDirectory + File.separator + "demographics.csv");
                                     demographicsError = UploadDAO.demographicsNilChecking();
                                 } else if (fileExist != null && fileExist.contains("location.csv")) {
                                     //locationError = UploadDAO.demographicsImport(outputDirectory + File.separator + "location.csv");
@@ -74,14 +78,24 @@ public class UploadServlet extends HttpServlet implements java.io.Serializable {
 
                             } else if (UploadDAO.checkFileName(fileName) != null && UploadDAO.checkFileName(fileName).length() > 0) { //if location.csv or location-lookup.csv or demographics.csv
                                 upBean.store(multipartRequest, "uploadfile"); //save to directory
-
-                                if (fileName.equals("demographics.csv")) {
-                                    UploadDAO.demographicsImport(outputDirectory + File.separator + "demographics.csv");
-                                    demographicsError = UploadDAO.demographicsNilChecking();
-                                } else if (fileName.equals("location.csv")) {
-                                    //locationError = UploadDAO.demographicsImport(outputDirectory + File.separator + "location.csv");
-                                } else if (fileName.equals("location-lookup.csv")) {
-                                    //lookupError = UploadDAO.demographicsImport(outputDirectory + File.separator + "location-lookup.csv");
+                                switch (fileName) {
+                                    case "demographics.csv":
+                                        UploadDAO.readCSV(outputDirectory + File.separator + "demographics.csv");
+                                        UploadDAO.demographicsImport1(outputDirectory + File.separator + "demographics.csv");
+                                        UploadDAO.demographicsImport2(outputDirectory + File.separator + "demographics.csv");
+                                        UploadDAO.demographicsImport3(outputDirectory + File.separator + "demographics.csv");
+                                        UploadDAO.demographicsImport4(outputDirectory + File.separator + "demographics.csv");
+                                        UploadDAO.demographicsImport5(outputDirectory + File.separator + "demographics.csv");
+                                        demographicsError = UploadDAO.demographicsNilChecking();
+                                        break;
+                                //locationError = UploadDAO.demographicsImport(outputDirectory + File.separator + "location.csv");
+                                    case "location.csv":
+                                        break;
+                                //lookupError = UploadDAO.demographicsImport(outputDirectory + File.separator + "location-lookup.csv");
+                                    case "location-lookup.csv":
+                                        break;
+                                    default:
+                                        break;
                                 }
 
                                 success = "Uploaded file: " + fileName + " (" + file.getFileSize() + " bytes)";

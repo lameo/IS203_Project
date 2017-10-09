@@ -53,7 +53,7 @@ public class UploadDAO {
         return ans.equals("demographic");
     }
 
-    public static void demographicsImport(String fileLocation) {
+    public static void demographicsImport1(String fileLocation) {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
@@ -64,17 +64,119 @@ public class UploadDAO {
 
             //prepare a statement
             preparedStatement = connection.prepareStatement(
-                    "LOAD DATA LOCAL INFILE ? INTO TABLE demographics"
-                    + "FIELDS TERMINATED BY ',' LINES TERMINATED BY '\\r' IGNORE 1 LINES (macaddress, name, password, email, gender);"
+                    "LOAD DATA LOCAL INFILE 'javax.servlet.context.tempdir.demographics.csv' INTO TABLE demographics FIELDS TERMINATED BY ',' LINES TERMINATED BY '\\r' IGNORE 1 LINES (macaddress, name, password, email, gender);"
             );
             //set the parameters
             preparedStatement.setString(1, fileLocation);
 
             //execute SQL query
-            resultSet = preparedStatement.executeQuery();
+            preparedStatement.executeUpdate();
 
-            //close connections
-            resultSet.close();
+            preparedStatement.close();
+            connection.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void demographicsImport2(String fileLocation) {
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
+        ArrayList<String[]> emptyDataSet = new ArrayList<>();
+        try {
+            //get a connection to database
+            connection = ConnectionManager.getConnection();
+
+            //prepare a statement
+            preparedStatement = connection.prepareStatement(
+                    "LOAD DATA LOCAL INFILE 'javax.servlet.context/tempdir/demographics.csv' INTO TABLE demographics FIELDS TERMINATED BY ',' LINES TERMINATED BY '\\r' IGNORE 1 LINES (macaddress, name, password, email, gender);"
+            );
+            //set the parameters
+            preparedStatement.setString(1, fileLocation);
+
+            //execute SQL query
+            preparedStatement.executeUpdate();
+
+            preparedStatement.close();
+            connection.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void demographicsImport3(String fileLocation) {
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
+        ArrayList<String[]> emptyDataSet = new ArrayList<>();
+        try {
+            //get a connection to database
+            connection = ConnectionManager.getConnection();
+
+            //prepare a statement
+             preparedStatement = connection.prepareStatement(
+                    "LOAD DATA LOCAL INFILE 'javax/servlet/context/tempdir/demographics.csv' INTO TABLE demographics FIELDS TERMINATED BY ',' LINES TERMINATED BY '\\r' IGNORE 1 LINES (macaddress, name, password, email, gender);"
+            );
+            //set the parameters
+            preparedStatement.setString(1, fileLocation);
+
+            //execute SQL query
+            preparedStatement.executeUpdate();
+
+            preparedStatement.close();
+            connection.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void demographicsImport4(String fileLocation) {
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
+        ArrayList<String[]> emptyDataSet = new ArrayList<>();
+        try {
+            //get a connection to database
+            connection = ConnectionManager.getConnection();
+
+            //prepare a statement
+             preparedStatement = connection.prepareStatement(
+                    "LOAD DATA LOCAL INFILE 'javax\\servlet\\context\\tempdir\\demographics.csv' INTO TABLE demographics FIELDS TERMINATED BY ',' LINES TERMINATED BY '\\r' IGNORE 1 LINES (macaddress, name, password, email, gender);"
+            );
+            //set the parameters
+            preparedStatement.setString(1, fileLocation);
+
+            //execute SQL query
+            preparedStatement.executeUpdate();
+
+            preparedStatement.close();
+            connection.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void demographicsImport5(String fileLocation) {
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
+        ArrayList<String[]> emptyDataSet = new ArrayList<>();
+        try {
+            //get a connection to database
+            connection = ConnectionManager.getConnection();
+
+            //prepare a statement
+            //prepare a statement
+             preparedStatement = connection.prepareStatement(
+                    "LOAD DATA LOCAL INFILE 'javax.servlet.context\\tempdir\\demographics.csv' INTO TABLE demographics FIELDS TERMINATED BY ',' LINES TERMINATED BY '\\r' IGNORE 1 LINES (macaddress, name, password, email, gender);"
+            );
+            //set the parameters
+            preparedStatement.setString(1, fileLocation);
+
+            //execute SQL query
+            preparedStatement.executeUpdate();
+
             preparedStatement.close();
             connection.close();
         } catch (SQLException e) {
@@ -110,6 +212,55 @@ public class UploadDAO {
             e.printStackTrace();
         }
         return emptyDataSet;
+    }
+
+    public static void readCSV(String filePath) {
+        String macaddress = "";
+        String name = "";
+        String password = "";
+        String email = "";
+        String gender = "";
+        try {
+            CSVReader reader = new CSVReader(new FileReader(filePath));
+            String[] columns;
+            while ((columns = reader.readNext()) != null) {
+                macaddress = columns[0];
+                name = columns[1];
+                password = columns[2];
+                email = columns[3];
+                gender = columns[4];
+            }
+            reader.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
+        try {
+            //get a connection to database
+            connection = ConnectionManager.getConnection();
+
+            //prepare a statement
+            preparedStatement = connection.prepareStatement("insert into demographics (macaddress,name,password,email,gender) values(?,?,?,?,?)");
+
+            //set the parameters
+            preparedStatement.setString(1, macaddress);
+            preparedStatement.setString(2, name);
+            preparedStatement.setString(3, password);
+            preparedStatement.setString(4, email);
+            preparedStatement.setString(5, gender);
+
+            //execute SQL query
+            preparedStatement.executeUpdate();
+
+            //resultSet.close();
+            preparedStatement.close();
+            connection.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     public static String unzip(String zipFile, String outputDirectory) {
