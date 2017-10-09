@@ -18,6 +18,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -30,8 +31,8 @@ public class AutoGroupDAO {
     public static ArrayList<Group> retrieveAutoGroups(String endtimeDate) {
         HashMap<String, ArrayList<String>> AutoUsers = retrieveAutoUsers(endtimeDate);
         ArrayList<Group> groups = new ArrayList<Group>();
-        HashMap<String, HashMap<Timestamp, ArrayList<Long>>> AutoUserbyTimestampStart = retreiveAutoUsersByTimestampStart(AutoUsers, endtimeDate);
-        ArrayList<Group> Groups = retreiveGroups(AutoUserbyTimestampStart);
+        HashMap<String, TreeMap<Timestamp, ArrayList<Long>>> AutoUsersbyTimestampStart = retreiveAutoUsersByTimestampStart(AutoUsers, endtimeDate);
+        ArrayList<Group> Groups = retreiveGroups(AutoUsersbyTimestampStart);
         return groups;
     }
 
@@ -78,7 +79,7 @@ public class AutoGroupDAO {
      * @param endtimeDate
      * @return
      */
-    public static HashMap<String, HashMap<Timestamp, ArrayList<Long>>> retreiveAutoUsersByTimestampStart(HashMap<String, ArrayList<String>> AutoUsers, String endtimeDate) {
+    public static HashMap<String, TreeMap<Timestamp, ArrayList<Long>>> retreiveAutoUsersByTimestampStart(HashMap<String, ArrayList<String>> AutoUsers, String endtimeDate) {
         //loop for each Automatic user identification
         String timeDateStart = null;
         Date timeDateEnd = null;
@@ -87,8 +88,8 @@ public class AutoGroupDAO {
         Timestamp timestampEnd = null;
         long duration = 0L;
         boolean update = true;
-        HashMap<String, HashMap<Timestamp, ArrayList<Long>>> AutoUserByTimestampStart = new HashMap<String, HashMap<Timestamp, ArrayList<Long>>>();
-        HashMap<Timestamp, ArrayList<Long>> TimestampStarts = new HashMap<Timestamp, ArrayList<Long>>();
+        HashMap<String, TreeMap<Timestamp, ArrayList<Long>>> AutoUsersByTimestampStart = new HashMap<String, TreeMap<Timestamp, ArrayList<Long>>>();
+        TreeMap<Timestamp, ArrayList<Long>> TimestampStarts = new TreeMap<Timestamp, ArrayList<Long>>();
         ArrayList<Long> LocationTime = new ArrayList<Long>();
         for (Map.Entry<String, ArrayList<String>> AutoUser : AutoUsers.entrySet()) {
             //a set of user macaddress
@@ -155,23 +156,36 @@ public class AutoGroupDAO {
                     update = false;
                     duration += TimeUnit.MILLISECONDS.toMinutes(timestampEnd.getTime() - timestampStart.getTime());
                     //add duration of start and end datetime to arraylist locationtime
-                    LocationTime.set(LocationTime.size()-2,duration);
+                    LocationTime.set(LocationTime.size() - 2, duration);
                     //add timedateend to arraylist locationtime
-                    LocationTime.set(LocationTime.size()-1,timeDateEnd.getTime());
+                    LocationTime.set(LocationTime.size() - 1, timeDateEnd.getTime());
                 }
 
             }
-            if(update){
+            if (update) {
                 //add timestampStart in TimestampStarts as key, ArrayList LocationTime as values
-                AutoUserByTimestampStart.put(Macaddress, TimestampStarts);
+                AutoUsersByTimestampStart.put(Macaddress, TimestampStarts);
             }
-            
+
         }
-        return AutoUserByTimestampStart;
+        return AutoUsersByTimestampStart;
     }
-    
-    public static ArrayList<Group> retreiveGroups(HashMap<String, HashMap<Timestamp, ArrayList<Long>>> AutoUserbyTimestampStart){
+
+    public static ArrayList<Group> retreiveGroups(HashMap<String, TreeMap<Timestamp, ArrayList<Long>>> AutoUsersbyTimestampStart) {
         ArrayList<Group> groups = new ArrayList<Group>();
+        for (Map.Entry<String, TreeMap<Timestamp, ArrayList<Long>>> AutoUserbyTimestampStart : AutoUsersbyTimestampStart.entrySet()) {
+            //a set of user macaddress
+            String Macaddress = AutoUserbyTimestampStart.getKey();
+            //treemap, key-timestampstart, value-arraylist of location id, duration, timedateend in long
+            TreeMap<Timestamp, ArrayList<Long>> TimestampStarts = AutoUserbyTimestampStart.getValue();
+            for (Map.Entry<Timestamp, ArrayList<Long>> TimestampStart : TimestampStarts.entrySet()) {
+                //retrieve timestampstart
+                Timestamp timestampStart = TimestampStart.getKey();
+                //arraylist of location id, duration, timedateend in long
+                ArrayList<Long> LocationTime = TimestampStart.getValue();
+                
+            }
+        }
         return groups;
     }
 
