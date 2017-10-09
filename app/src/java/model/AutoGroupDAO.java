@@ -16,6 +16,7 @@ import java.util.HashMap;
  *
  * @author xuying
  */
+//retreive groups of users
 public class AutoGroupDAO {
     public static ArrayList<Group> retrieveAutoGroups(String endtimeDate){
         HashMap<String,ArrayList<String>> AutoUsers = retrieveAutoUsers(endtimeDate);
@@ -60,11 +61,6 @@ public class AutoGroupDAO {
         }catch (SQLException e) {
             e.printStackTrace();
         }
-        return AutoUsers;
-    }
-    
-    //retreive groups of users
-    public static HashMap<String,ArrayList<String>> retrieveGroups(HashMap<String,ArrayList<String>> AutoUsers){
         return AutoUsers;
     }
     
