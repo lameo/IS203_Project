@@ -18,6 +18,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -30,8 +31,8 @@ public class AutoGroupDAO {
     public static ArrayList<Group> retrieveAutoGroups(String endtimeDate) {
         HashMap<String, ArrayList<String>> AutoUsers = retrieveAutoUsers(endtimeDate);
         ArrayList<Group> groups = new ArrayList<Group>();
-        HashMap<String, HashMap<String, ArrayList<String>>> AutoUserbyLocation = retreiveAutoUsersByLocation(AutoUsers, endtimeDate);
-
+        HashMap<String, TreeMap<Timestamp, ArrayList<Long>>> AutoUsersbyTimestampStart = retreiveAutoUsersByTimestampStart(AutoUsers, endtimeDate);
+        ArrayList<Group> Groups = retreiveGroups(AutoUsersbyTimestampStart);
         return groups;
     }
 
@@ -72,19 +73,27 @@ public class AutoGroupDAO {
     }
 
     //retreive auto users in hashmap form, key is macaddress, value is a hashmap, key is location, value is time start and time end
-    public static HashMap<String, ArrayList<String>> retreiveAutoUsersByLocation(HashMap<String, ArrayList<String>> AutoUsers, String endtimeDate) {
+    /**
+     *
+     * @param AutoUsers
+     * @param endtimeDate
+     * @return
+     */
+    public static HashMap<String, TreeMap<Timestamp, ArrayList<Long>>> retreiveAutoUsersByTimestampStart(HashMap<String, ArrayList<String>> AutoUsers, String endtimeDate) {
         //loop for each Automatic user identification
         String timeDateStart = null;
         Date timeDateEnd = null;
         String[] locationtimestamp = null;
         Timestamp timestampStart = null;
         Timestamp timestampEnd = null;
-        HashMap<String, HashMap<String, ArrayList<String>>> AutoUserByLocation = new HashMap<String, HashMap<String, ArrayList<String>>>();
-        HashMap<String, ArrayList<String>> Locations = new HashMap<String, ArrayList<String>>();
-        ArrayList<String> LocationTime = new ArrayList
+        long duration = 0L;
+        boolean update = true;
+        HashMap<String, TreeMap<Timestamp, ArrayList<Long>>> AutoUsersByTimestampStart = new HashMap<String, TreeMap<Timestamp, ArrayList<Long>>>();
+        TreeMap<Timestamp, ArrayList<Long>> TimestampStarts = new TreeMap<Timestamp, ArrayList<Long>>();
+        ArrayList<Long> LocationTime = new ArrayList<Long>();
         for (Map.Entry<String, ArrayList<String>> AutoUser : AutoUsers.entrySet()) {
             //a set of user macaddress
-            String Macaddresses = AutoUser.getKey();
+            String Macaddress = AutoUser.getKey();
             //a collection of locationid and timestamp
             ArrayList<String> LocationTimestamps = AutoUser.getValue();
 
@@ -99,33 +108,85 @@ public class AutoGroupDAO {
                 timeDateStart = locationtimestamp[1];
                 //add 5 minuts to startdatetime
                 try {
-
+                    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss.SSS");
+                    Date parsedStartDate = (Date) dateFormat.parse(timeDateStart);
+                    timestampStart = new java.sql.Timestamp(parsedStartDate.getTime());
                     //situation where only one location update under user, users is assumed to stay at location for 5 minutes
                     if (LocationTimestamps.size() == 1) {
-                        //timeDateEnd is 5 minutes after timeDateStart
-                        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss.SSS");
-                        Date parsedStartDate = (Date) dateFormat.parse(timeDateStart);
-                        timestampStart = new java.sql.Timestamp(parsedStartDate.getTime());
                         timeDateEnd = new Date();
                         Calendar cal = Calendar.getInstance();
                         cal.setTime(parsedStartDate);
                         cal.add(Calendar.MINUTE, 5);
+                        //timeDateEnd is 5 minutes after timeDateStart
                         timeDateEnd = (Date) cal.getTime();
                         //get the time in long
                         timestampEnd = new java.sql.Timestamp(timeDateEnd.getTime());
+                    } else {
+                        //check the next update location
+                        String LocationTimestampNext = LocationTimestamps.get(i + 2);
+                        //split string into location and timestamp
+                        String[] locationtimestampNext = LocationTimestamp.split(",");
+                        //location stores location id string
+                        String locationNext = locationtimestamp[0];
+                        //timeDateStart store first timestamp string under user
+                        String timeDateStartNext = locationtimestamp[1];
+                        //timedateend of this update is the start of the next location
+
+                        timeDateEnd = (Date) dateFormat.parse(timeDateStartNext);
+
                     }
                 } catch (Exception e) { //this generic but you can control another types of exception
                     // look the origin of excption 
                 }
-                //get the time duration between start and end in minutes
-                long duration = TimeUnit.MILLISECONDS.toMinutes(timestampStart.getTime()-timestampEnd.getTime);
-                //
-                if (i == LocationTimestamps.size() - 1) {
-                    timeDateEnd = endtimeDate;
+                //check the previous update location
+                //if the previous update location is not this update location
+                if (i == 0 || LocationTime.get(LocationTime.size() - 3) != Long.parseLong(location)) {
+                    //get the time duration between start and end in minutes
+                    duration = TimeUnit.MILLISECONDS.toMinutes(timestampEnd.getTime() - timestampStart.getTime());
+                    //convert long from string to long and add to arraylist locationtime
+                    LocationTime.add(Long.parseLong(location));
+                    //add duration of start and end datetime to arraylist locationtime
+                    LocationTime.add(duration);
+                    //add timedateend to arraylist locationtime
+                    LocationTime.add(timeDateEnd.getTime());
+                    //add timestampStart in TimestampStarts as key, ArrayList LocationTime as values
+                    TimestampStarts.put(timestampStart, LocationTime);
+                } else {
+                    //if the previous update location is this update location, 
+                    update = false;
+                    duration += TimeUnit.MILLISECONDS.toMinutes(timestampEnd.getTime() - timestampStart.getTime());
+                    //add duration of start and end datetime to arraylist locationtime
+                    LocationTime.set(LocationTime.size() - 2, duration);
+                    //add timedateend to arraylist locationtime
+                    LocationTime.set(LocationTime.size() - 1, timeDateEnd.getTime());
                 }
+
+            }
+            if (update) {
+                //add timestampStart in TimestampStarts as key, ArrayList LocationTime as values
+                AutoUsersByTimestampStart.put(Macaddress, TimestampStarts);
+            }
+
+        }
+        return AutoUsersByTimestampStart;
+    }
+
+    public static ArrayList<Group> retreiveGroups(HashMap<String, TreeMap<Timestamp, ArrayList<Long>>> AutoUsersbyTimestampStart) {
+        ArrayList<Group> groups = new ArrayList<Group>();
+        for (Map.Entry<String, TreeMap<Timestamp, ArrayList<Long>>> AutoUserbyTimestampStart : AutoUsersbyTimestampStart.entrySet()) {
+            //a set of user macaddress
+            String Macaddress = AutoUserbyTimestampStart.getKey();
+            //treemap, key-timestampstart, value-arraylist of location id, duration, timedateend in long
+            TreeMap<Timestamp, ArrayList<Long>> TimestampStarts = AutoUserbyTimestampStart.getValue();
+            for (Map.Entry<Timestamp, ArrayList<Long>> TimestampStart : TimestampStarts.entrySet()) {
+                //retrieve timestampstart
+                Timestamp timestampStart = TimestampStart.getKey();
+                //arraylist of location id, duration, timedateend in long
+                ArrayList<Long> LocationTime = TimestampStart.getValue();
+                
             }
         }
-
+        return groups;
     }
 
 }
