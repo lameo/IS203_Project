@@ -33,10 +33,10 @@ public class UploadServlet extends HttpServlet implements java.io.Serializable {
         //ArrayList<List<String>> lookupError = new ArrayList<List<String>>();        
         try {
             ServletContext servletContext = this.getServletConfig().getServletContext();
-            File repository = (File) servletContext.getAttribute("javax.servlet.context.tempdir"); //Pathname to a scratch directory to be provided by this Context for temporary read-write use by servlets within the associated web application
-            String outputDirectory = "" + repository;
+            File directory = (File) servletContext.getAttribute("javax.servlet.context.tempdir"); //Pathname to a scratch directory to be provided by this Context for temporary read-write use by servlets within the associated web application
+            String outputDirectory = "" + directory; //String format of directory
 
-            upBean.setFolderstore(outputDirectory); //the location of where documents will be stored
+            upBean.setFolderstore(outputDirectory); //set upBean output directory
             Long size = Long.parseLong("8589934592"); //the size limit of the file uploads
             upBean.setFilesizelimit(size);
 
@@ -49,11 +49,11 @@ public class UploadServlet extends HttpServlet implements java.io.Serializable {
                 if (todo.equalsIgnoreCase("upload")) {
                     Hashtable files = multipartRequest.getFiles(); //get the files sent over, hastable is the older version of hashmap
                     if ((files != null) && (!files.isEmpty())) {
-                        UploadFile file = (UploadFile) files.get("uploadfile"); //get the files from bootstrapinitialize or bootstrapupdate
+                        UploadFile file = (UploadFile) files.get("uploadfile"); //get the files from bootstrapinitialize
                         if (file != null && file.getFileSize() > 0 && file.getFileName() != null) {
                             String fileName = file.getFileName();
                             String contentType = file.getContentType(); //Get the file type
-                            String filePath = outputDirectory + File.separator + fileName; //get the zip file directory 
+                            String filePath = outputDirectory + File.separator + fileName; //get the file path 
 
                             if (contentType.equals("application/x-zip-compressed")) { //if it is a zip file
                                 upBean.store(multipartRequest, "uploadfile"); //save to directory
@@ -80,19 +80,19 @@ public class UploadServlet extends HttpServlet implements java.io.Serializable {
                                 upBean.store(multipartRequest, "uploadfile"); //save to directory
                                 switch (fileName) {
                                     case "demographics.csv":
-                                        UploadDAO.readCSV(outputDirectory + File.separator + "demographics.csv");
-                                        UploadDAO.demographicsImport1(outputDirectory + File.separator + "demographics.csv");
-                                        UploadDAO.demographicsImport2(outputDirectory + File.separator + "demographics.csv");
-                                        UploadDAO.demographicsImport3(outputDirectory + File.separator + "demographics.csv");
-                                        UploadDAO.demographicsImport4(outputDirectory + File.separator + "demographics.csv");
-                                        UploadDAO.demographicsImport5(outputDirectory + File.separator + "demographics.csv");
-                                        demographicsError = UploadDAO.demographicsNilChecking();
+                                        UploadDAO.readDemographics(outputDirectory + File.separator + "demographics.csv");
+                                        //UploadDAO.demographicsImport1(outputDirectory + File.separator + "demographics.csv");
+                                        //UploadDAO.demographicsImport2(outputDirectory + File.separator + "demographics.csv");
+                                        //UploadDAO.demographicsImport3(outputDirectory + File.separator + "demographics.csv");
+                                        //UploadDAO.demographicsImport4(outputDirectory + File.separator + "demographics.csv");
+                                        //UploadDAO.demographicsImport5(outputDirectory + File.separator + "demographics.csv");
+                                        //demographicsError = UploadDAO.demographicsNilChecking();
                                         break;
-                                //locationError = UploadDAO.demographicsImport(outputDirectory + File.separator + "location.csv");
                                     case "location.csv":
+                                        UploadDAO.readLocation(outputDirectory + File.separator + "location.csv");                                        
                                         break;
-                                //lookupError = UploadDAO.demographicsImport(outputDirectory + File.separator + "location-lookup.csv");
                                     case "location-lookup.csv":
+                                        UploadDAO.readLookup(outputDirectory + File.separator + "location-lookup.csv");                                        
                                         break;
                                     default:
                                         break;
