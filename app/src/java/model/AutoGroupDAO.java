@@ -30,8 +30,8 @@ public class AutoGroupDAO {
     public static ArrayList<Group> retrieveAutoGroups(String endtimeDate) {
         HashMap<String, ArrayList<String>> AutoUsers = retrieveAutoUsers(endtimeDate);
         ArrayList<Group> groups = new ArrayList<Group>();
-        HashMap<String, HashMap<Timestamp, ArrayList<Long>>> AutoUserbyLocation = retreiveAutoUsersByTimestampStart(AutoUsers, endtimeDate);
-
+        HashMap<String, HashMap<Timestamp, ArrayList<Long>>> AutoUserbyTimestampStart = retreiveAutoUsersByTimestampStart(AutoUsers, endtimeDate);
+        
         return groups;
     }
 
@@ -167,6 +167,7 @@ public class AutoGroupDAO {
             }
             
         }
+        return AutoUserByTimestampStart;
     }
 
 }
