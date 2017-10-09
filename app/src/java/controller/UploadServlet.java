@@ -89,10 +89,10 @@ public class UploadServlet extends HttpServlet implements java.io.Serializable {
                                         //demographicsError = UploadDAO.demographicsNilChecking();
                                         break;
                                     case "location.csv":
-                                        UploadDAO.readLocation(outputDirectory + File.separator + "demographics.csv");                                        
+                                        UploadDAO.readLocation(outputDirectory + File.separator + "location.csv");                                        
                                         break;
                                     case "location-lookup.csv":
-                                        UploadDAO.readLookup(outputDirectory + File.separator + "demographics.csv");                                        
+                                        UploadDAO.readLookup(outputDirectory + File.separator + "location-lookup.csv");                                        
                                         break;
                                     default:
                                         break;
