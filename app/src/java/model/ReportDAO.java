@@ -6,6 +6,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -15,6 +17,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class ReportDAO {
 
@@ -170,47 +174,129 @@ public class ReportDAO {
     
     public static Map<Integer, String> retrieveTopKNextPlaces(String time) {
         return null;
-    } 
-    
+    }
+
     //retrieve user who are in a specific place given a specific time frame in a specific location
     public static ArrayList<String> retrieveUserBasedOnLocation(String inputTime, String locationName) {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
         ArrayList<String> usersInSpecificPlace = new ArrayList<>();
-        
+
         try {
             //get a connection to database
             connection = ConnectionManager.getConnection();
-            
+
             //prepare a statement
             preparedStatement = connection.prepareStatement("SELECT distinct l.macaddress FROM location l, locationlookup llu"
-                    + "WHERE timestamp BETWEEN (SELECT DATE_SUB(? ,INTERVAL 15 MINUTE))" 
+                    + "WHERE timestamp BETWEEN (SELECT DATE_SUB(? ,INTERVAL 15 MINUTE))"
                     + "AND (SELECT DATE_SUB(? ,INTERVAL 1 SECOND))"
                     + "AND l.locationid = llu.locationid"
                     + "AND llu.locationname = ?"
                     + "GROUP BY l.macaddress");
-            
-             //set the parameters
+
+            //set the parameters
             preparedStatement.setString(1, inputTime);
             preparedStatement.setString(2, inputTime);
             preparedStatement.setString(3, locationName);
 
             resultSet = preparedStatement.executeQuery();
-            
-            while(resultSet.next()) {
+
+            while (resultSet.next()) {
                 usersInSpecificPlace.add(resultSet.getString(1));
             }
-            
+
             //close connections
             resultSet.close();
             preparedStatement.close();
             connection.close();
-            
+
         } catch (SQLException e) {
             e.printStackTrace();
         }
         return usersInSpecificPlace;
+    }
+
+    public static String retrieveTimelineForUser(String macaddress, String dateTime) {
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
+        ArrayList<String> locationTimestampList = new ArrayList<>();
+        HashMap<String, Integer> userCurrent = new HashMap<>();
+        
+        try {
+            //get a connection to database
+            connection = ConnectionManager.getConnection();
+
+            //prepare a statement
+            preparedStatement = connection.prepareStatement("select llu.locationname, l.timestamp from "
+                    + "locationlookup llu, location l"
+                    + "where macaddress = ?"
+                    + "and timestamp BETWEEN (SELECT DATE_ADD(? ,INTERVAL 0 MINUTE))"
+                    + "AND (SELECT DATE_ADD(DATE_ADD(? ,INTERVAL 14 MINUTE), INTERVAL 59 SECOND))"
+                    + "and llu.locationid = l.locationid;");
+
+            //set the parameters
+            preparedStatement.setString(1, macaddress);
+            preparedStatement.setString(2, dateTime);
+            preparedStatement.setString(3, dateTime);
+
+            resultSet = preparedStatement.executeQuery();
+
+            while (resultSet.next()) {
+                String locationName = resultSet.getString(1);
+                String timestamp = resultSet.getString(2);
+                locationTimestampList.add(locationName);
+                locationTimestampList.add(timestamp);
+            }
+
+            //close connections
+            resultSet.close();
+            preparedStatement.close();
+            connection.close();
+
+            String currentPlace = "";
+            int currentQuantity = 0;
+
+            //arraylist locationTimestampList has locationname and timestamp in alternate order for 1 user only
+            for (int i = 0; i < locationTimestampList.size(); i += 2) { //for-loop to loop every location name added
+                if (currentPlace.equals("")) {
+                    currentPlace = locationTimestampList.get(i);
+                }
+                if (i + 2 < locationTimestampList.size()) { //prevent arrayindexoutofbounds
+                    String nextLocation = locationTimestampList.get(i + 2);
+                    String date = locationTimestampList.get(i + 1);
+                    String nextDate = locationTimestampList.get(i + 3);
+
+                    DateFormat df = new SimpleDateFormat("yyyy-mm-dd HH:mm:ss.SSSSSS");
+                    java.util.Date firstDateAdded = df.parse(date);
+                    java.util.Date nextDateAdded = df.parse(nextDate);
+                    long diff = nextDateAdded.getTime() - firstDateAdded.getTime(); // to get the time the user stayed at currentPlace
+                    if (currentPlace.equals(nextLocation)) {
+                        if (diff >= 5) {
+                            currentQuantity += (int) diff; // update the latest time                           
+                            userCurrent.put(currentPlace, currentQuantity); //put into map currentPlace and the updated currentQuantity
+                        }
+                    } else { //not the same location
+                        if (diff >= 5) {
+                            currentQuantity = (int) diff;
+                            userCurrent.put(currentPlace, currentQuantity);                            
+                            currentPlace = nextLocation; //set the next place as current place
+                            currentQuantity = 0; // reset currentQuantity
+                        }
+                    }
+                }
+            }
+            if(userCurrent.containsKey(currentPlace)) {
+                return currentPlace;
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (ParseException ex) {
+            Logger.getLogger(ReportDAO.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return "";
     }
 
     private static int retrieveThreeBreakdown(String timeEnd, String year, String gender, String school) {
