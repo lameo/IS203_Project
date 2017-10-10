@@ -56,7 +56,7 @@ public class UploadDAO {
         return ans.equals("demographic");
     }
 
-    public static void demographicsImport1(String fileLocation) {
+    /*public static void demographicsImport1(String fileLocation) {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
@@ -80,147 +80,10 @@ public class UploadDAO {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-    }
-
-    public static void demographicsImport2(String fileLocation) {
+    }*/
+    public static void clearDemographics() {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
-        ResultSet resultSet = null;
-        ArrayList<String[]> emptyDataSet = new ArrayList<>();
-        try {
-            //get a connection to database
-            connection = ConnectionManager.getConnection();
-
-            //prepare a statement
-            preparedStatement = connection.prepareStatement(
-                    "LOAD DATA local INFILE '/demographics.csv' INTO TABLE demographics FIELDS TERMINATED BY ',' LINES TERMINATED BY '\\\\r' IGNORE 1 LINES (macaddress, name, password, email, gender);"
-            );
-            //set the parameters
-            preparedStatement.setString(1, fileLocation);
-
-            //execute SQL query
-            preparedStatement.executeUpdate();
-
-            preparedStatement.close();
-            connection.close();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public static void demographicsImport3(String fileLocation) {
-        Connection connection = null;
-        PreparedStatement preparedStatement = null;
-        ResultSet resultSet = null;
-        ArrayList<String[]> emptyDataSet = new ArrayList<>();
-        try {
-            //get a connection to database
-            connection = ConnectionManager.getConnection();
-
-            //prepare a statement
-             preparedStatement = connection.prepareStatement(
-                    "LOAD DATA LOCAL INFILE 'javax/servlet/context/tempdir/demographics.csv' INTO TABLE demographics FIELDS TERMINATED BY ',' LINES TERMINATED BY '\\r' IGNORE 1 LINES (macaddress, name, password, email, gender);"
-            );
-            //set the parameters
-            preparedStatement.setString(1, fileLocation);
-
-            //execute SQL query
-            preparedStatement.executeUpdate();
-
-            preparedStatement.close();
-            connection.close();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public static void demographicsImport4(String fileLocation) {
-        Connection connection = null;
-        PreparedStatement preparedStatement = null;
-        ResultSet resultSet = null;
-        ArrayList<String[]> emptyDataSet = new ArrayList<>();
-        try {
-            //get a connection to database
-            connection = ConnectionManager.getConnection();
-
-            //prepare a statement
-            preparedStatement = connection.prepareStatement(
-                    "GRANT ALL PRIVILEGES ON *.* TO 'root'@'127.0.0.1' IDENTIFIED BY PASSWORD '*E81A74BA432A744076FE2A1DAFF965C69BA71443' WITH GRANT OPTION; "+
-                    "LOAD DATA INFILE '/demographics.csv' INTO TABLE demographics FIELDS TERMINATED BY ',' LINES TERMINATED BY '\\r' IGNORE 1 LINES (macaddress, name, password, email, gender);"
-            );
-            //set the parameters
-            preparedStatement.setString(1, fileLocation);
-
-            //execute SQL query
-            preparedStatement.executeUpdate();
-
-            preparedStatement.close();
-            connection.close();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public static void demographicsImport5(String fileLocation) {
-        Connection connection = null;
-        PreparedStatement preparedStatement = null;
-        ResultSet resultSet = null;
-        ArrayList<String[]> emptyDataSet = new ArrayList<>();
-        try {
-            //get a connection to database
-            connection = ConnectionManager.getConnection();
-
-            //prepare a statement
-            //prepare a statement
-             preparedStatement = connection.prepareStatement(
-                    "GRANT ALL PRIVILEGES ON *.* TO 'root'@'127.0.0.1' IDENTIFIED BY PASSWORD '*E81A74BA432A744076FE2A1DAFF965C69BA71443' WITH GRANT OPTION; "+
-                    "LOAD DATA LOCAL INFILE 'javax/servlet/context/tempdir/demographics.csv' INTO TABLE demographics FIELDS TERMINATED BY ',' LINES TERMINATED BY '\\r' IGNORE 1 LINES (macaddress, name, password, email, gender);"
-            );
-            //set the parameters
-            preparedStatement.setString(1, fileLocation);
-
-            //execute SQL query
-            preparedStatement.executeUpdate();
-
-            preparedStatement.close();
-            connection.close();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public static ArrayList<String[]> demographicsNilChecking() {
-        Connection connection = null;
-        PreparedStatement preparedStatement = null;
-        ResultSet resultSet = null;
-        ArrayList<String[]> emptyDataSet = new ArrayList<>();
-        try {
-            //get a connection to database
-            connection = ConnectionManager.getConnection();
-
-            //prepare a statement
-            preparedStatement = connection.prepareStatement("select  *  from  demographics where password is null or password like '' or name is null or name like '' or macaddress is null or macaddress like '' or gender is null or gender like '' or email is null or email like ''");
-            //set the parameters
-
-            //execute SQL query
-            resultSet = preparedStatement.executeQuery();
-            while (resultSet.next()) {
-                emptyDataSet.add(new String[]{resultSet.getString(1), resultSet.getString(2), resultSet.getString(3), resultSet.getString(4), resultSet.getString(5)});
-            }
-
-            //close connections
-            resultSet.close();
-            preparedStatement.close();
-            connection.close();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return emptyDataSet;
-    }
-    
-    public static void clearDemographics(){
-        Connection connection = null;
-        PreparedStatement preparedStatement = null;   
         try {
             //get a connection to database
             connection = ConnectionManager.getConnection();
@@ -235,12 +98,12 @@ public class UploadDAO {
             connection.close();
         } catch (SQLException e) {
             e.printStackTrace();
-        }         
+        }
     }
-    
-    public static void clearLocation(){
+
+    public static void clearLocation() {
         Connection connection = null;
-        PreparedStatement preparedStatement = null;   
+        PreparedStatement preparedStatement = null;
         try {
             //get a connection to database
             connection = ConnectionManager.getConnection();
@@ -255,12 +118,12 @@ public class UploadDAO {
             connection.close();
         } catch (SQLException e) {
             e.printStackTrace();
-        }         
-    }    
-    
-    public static void clearLookup(){
+        }
+    }
+
+    public static void clearLookup() {
         Connection connection = null;
-        PreparedStatement preparedStatement = null;   
+        PreparedStatement preparedStatement = null;
         try {
             //get a connection to database
             connection = ConnectionManager.getConnection();
@@ -275,16 +138,16 @@ public class UploadDAO {
             connection.close();
         } catch (SQLException e) {
             e.printStackTrace();
-        }         
-    }    
+        }
+    }
 
     public static HashMap<Integer, String> readDemographics(String filePath) {
-        clearDemographics();     
+        clearDemographics();
         Connection connection = null;
-        PreparedStatement preparedStatement = null;   
+        PreparedStatement preparedStatement = null;
         final int batchSize = 30000;
         HashMap<Integer, String> errorMap = new HashMap<>();
-        int lineNumber = 0;
+        int lineNumber = 1;
         int count = 0;
         try {
             //get a connection to database
@@ -293,52 +156,82 @@ public class UploadDAO {
             //prepare a statement
             preparedStatement = connection.prepareStatement("insert into demographics (macaddress,name,password,email,gender) values(?,?,?,?,?)");
 
-            BufferedReader bufferReader = new BufferedReader(new InputStreamReader(new FileInputStream(filePath)));  
-            
+            BufferedReader bufferReader = new BufferedReader(new InputStreamReader(new FileInputStream(filePath)));
+
             CSVReader reader = new CSVReader(bufferReader);
             String[] columns;
             reader.readNext();
             while ((columns = reader.readNext()) != null) {
                 lineNumber++;
-                String errors = "";   
-                String macaddress = columns[0].trim();
-                String name = columns[1].trim();
-                String password = columns[2].trim();
-                String email = columns[3].trim();
-                String gender = columns[4].trim();   
+                String errors = "";
+                String macaddress = "";
+                String name = "";
+                String password = "";
+                String email = "";
+                String gender = "";
                 
-                //set the parameters
-                if(macaddress.length()!=40){
-                    errors+=" Invalid mac address";
+                //Mac Address
+                if (columns[0] != null) {
+                    macaddress = columns[0].trim();
+                    if (macaddress.length() != 40) {
+                        errors += " Invalid mac address";
+                    }
+                } else {
+                    errors += " Missing MAC address";
+                }
+                
+                // Name
+                if (columns[1] != null) {
+                    name = columns[1].trim();
+                } else {
+                    errors += " Missing name";
                 }
 
-                if(password.length()<8 || password.contains(" ")){
-                    errors+=" Invalid password";
-                }                
-                
-                String[] schools = "business socsc law sis accountancy economics".split(" ");
-                String[] years = "2013 2014 2015 2016 2017".split(" ");
-                boolean valid = false;
-                for(String school: schools){
-                    for(String year: years){
-                        String tempo = year + "@" + school;
-                        if(columns[3].contains(tempo)){
-                            valid = true;
+                // Password
+                if (columns[2] != null) {
+                    password = columns[2].trim();
+                    if (password.length() < 8 || password.contains(" ")) {
+                        errors += " Invalid password";
+                    }
+                } else {
+                    errors += " Missing password";
+                }
+
+                // Email
+                if (columns[3] != null) {
+                    email = columns[3].trim();
+                    String[] schools = "business socsc law sis accountancy economics".split(" ");
+                    String[] years = "2013 2014 2015 2016 2017".split(" ");
+                    boolean valid = false;
+                    for (String school : schools) {
+                        for (String year : years) {
+                            String tempo = year + "@" + school;
+                            if (columns[3].contains(tempo)) {
+                                valid = true;
+                            }
                         }
                     }
-                }
-                
-                if(email.contains("@")){
-                    if(!UserDAO.validateUsername(email.substring(0, email.indexOf("@"))) && !valid){
-                        errors+=" Invalid email";                      
+                    if (email.contains("@")) {
+                        if (!UserDAO.validateUsername(email.substring(0, email.indexOf("@"))) && !valid) {
+                            errors += " Invalid email";
+                        }
                     }
+                } else {
+                    errors += " Missing email";
                 }
                 
-                if(!gender.equalsIgnoreCase("M") || !gender.equalsIgnoreCase("F")){
-                    errors+=" Invalid gender";                    
+                // Gender
+                if (columns[4] != null) {
+                    email = columns[4];
+                    if (!(gender.contains("M") || gender.contains("F"))) {
+                        errors += " Invalid gender";
+                    }
+                } else {
+                    errors += " Missing gender";
                 }
-                
-                if(errors.length()>0){
+
+                //set the parameters
+                if (errors.length() > 0) {
                     errorMap.put(lineNumber, errors);
                 } else {
                     preparedStatement.setString(1, macaddress);
@@ -346,20 +239,19 @@ public class UploadDAO {
                     preparedStatement.setString(3, password);
                     preparedStatement.setString(4, email);
                     preparedStatement.setString(5, gender);
-                    preparedStatement.addBatch();     
-                    
+                    preparedStatement.addBatch();
                 }
 
-                if(++count % batchSize == 0){
+                if (++count % batchSize == 0) {
                     preparedStatement.executeBatch();
-                    preparedStatement.clearParameters();                    
+                    preparedStatement.clearParameters();
                 }
-                          
+
             }
             preparedStatement.executeBatch(); //insert remaining records
             reader.close();
             preparedStatement.close();
-            connection.close();            
+            connection.close();
         } catch (SQLException e) {
             e.printStackTrace();
         } catch (IOException e) {
@@ -367,41 +259,41 @@ public class UploadDAO {
         }
         return errorMap;
     }
-    
+
     public static void readLookup(String filePath) {
-        clearLookup();     
+        clearLookup();
         Connection connection = null;
-        PreparedStatement preparedStatement = null;      
+        PreparedStatement preparedStatement = null;
         final int batchSize = 30000;
-        int count = 0;        
+        int count = 0;
         try {
             //get a connection to database
             connection = ConnectionManager.getConnection();
 
             //prepare a statement
             preparedStatement = connection.prepareStatement("insert into locationlookup (locationid, locationname) values(?,?)");
-            
-            BufferedReader bufferReader = new BufferedReader(new InputStreamReader(new FileInputStream(filePath)));            
-            
+
+            BufferedReader bufferReader = new BufferedReader(new InputStreamReader(new FileInputStream(filePath)));
+
             CSVReader reader = new CSVReader(bufferReader);
             String[] columns;
             while ((columns = reader.readNext()) != null) {
                 //set the parameters
                 preparedStatement.setString(1, columns[0]);
-                preparedStatement.setString(2, columns[1]);               
+                preparedStatement.setString(2, columns[1]);
 
                 preparedStatement.addBatch();
-                
-                if(++count % batchSize == 0){
+
+                if (++count % batchSize == 0) {
                     preparedStatement.executeBatch();
                     preparedStatement.clearParameters();
                 }
-                                                 
+
             }
             preparedStatement.executeBatch(); //insert remaining records            
             reader.close();
             preparedStatement.close();
-            connection.close();            
+            connection.close();
         } catch (SQLException e) {
             e.printStackTrace();
         } catch (IOException e) {
@@ -410,11 +302,11 @@ public class UploadDAO {
     }
 
     public static void readLocation(String filePath) {
-        clearLocation();     
+        clearLocation();
         Connection connection = null;
-        PreparedStatement preparedStatement = null;  
+        PreparedStatement preparedStatement = null;
         final int batchSize = 30000;
-        int count = 0;           
+        int count = 0;
         try {
             //get a connection to database
             connection = ConnectionManager.getConnection();
@@ -422,37 +314,37 @@ public class UploadDAO {
 
             //prepare a statement
             preparedStatement = connection.prepareStatement("insert into location (timestamp, macaddress, locationid) values(?,?,?)");
-            
+
             BufferedReader bufferReader = new BufferedReader(new InputStreamReader(new FileInputStream(filePath)));
-            
+
             CSVReader reader = new CSVReader(bufferReader);
             String[] columns;
             while ((columns = reader.readNext()) != null) {
                 //set the parameters
                 preparedStatement.setString(1, columns[0]);
                 preparedStatement.setString(2, columns[1]);
-                preparedStatement.setString(3, columns[2]);              
+                preparedStatement.setString(3, columns[2]);
 
                 preparedStatement.addBatch();
-                
-                if(++count % batchSize == 0){
+
+                if (++count % batchSize == 0) {
                     preparedStatement.executeBatch();
                     connection.commit();
-                    preparedStatement.clearParameters();                    
-                }          
+                    preparedStatement.clearParameters();
+                }
             }
             preparedStatement.executeBatch(); //insert remaining records     
-            connection.commit();            
+            connection.commit();
             reader.close();
             preparedStatement.close();
-            connection.close();            
+            connection.close();
         } catch (SQLException e) {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }    
-    
+    }
+
     public static String unzip(String zipFile, String outputDirectory) {
         String fileExist = "";
         byte[] buffer = new byte[1024];
@@ -478,7 +370,7 @@ public class UploadDAO {
                     int len;
                     while ((len = zis.read(buffer)) > 0) {
                         fos.write(buffer, 0, len);
-                    }                
+                    }
                     fos.close();
                 }
                 ze = zis.getNextEntry();
