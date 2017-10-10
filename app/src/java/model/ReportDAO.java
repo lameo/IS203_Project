@@ -464,9 +464,11 @@ public class ReportDAO {
         return returnThis;
     }
 
-    public static HashMap<ArrayList<String>, ArrayList<Integer>> retrieveTopKCompanions(String endTimeDate, String macaddress, int k) {
+    public static Map<ArrayList<String>, ArrayList<Integer>> retrieveTopKCompanions(String endTimeDate, String macaddress, int k) {
         ArrayList<String> UserLocationTimestamps = retrieveUserLocationTimestamps(macaddress, endTimeDate);
-
+        System.out.println(UserLocationTimestamps);
+        Map<ArrayList<String>, ArrayList<Integer>> result = new HashMap<ArrayList<String>, ArrayList<Integer>>();
+        
         Map<String, Integer> CompanionColocations = new LinkedHashMap<String, Integer>();
         for (String UserLocationTimestamp : UserLocationTimestamps) {
             String[] LocationTimestamp = UserLocationTimestamp.split(",");
@@ -488,7 +490,7 @@ public class ReportDAO {
             }
             int rank = 0;
             int rankcolocationTime = 0;
-            HashMap<ArrayList<String>, ArrayList<Integer>> result = new HashMap<ArrayList<String>, ArrayList<Integer>>();
+            
             ArrayList<String> Companions = new ArrayList<String>();
             ArrayList<Integer> Companions2 = new ArrayList<Integer>();
             while (rank <= k) {
@@ -508,11 +510,10 @@ public class ReportDAO {
 
                 }
             }
-            return result;
+            
 
         }
-        //return Integer.parseInt(ans);
-        return null;
+        return result;
     }
 
     //retreive users in hashmap form, hashmap key is macaddress and hashmap value is array of email, locationid and timestamp
@@ -521,7 +522,7 @@ public class ReportDAO {
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
         String ans = "";
-        int duration;
+        int duration = 0;
         ArrayList<String> UserLocationTimestamps = new ArrayList<String>();
 
         try {
@@ -563,6 +564,7 @@ public class ReportDAO {
                                 duration += 5;
                             }
                             ans += "," + locationid + "," + timestamp + "," + duration;
+                            
                             break;
                             //if the next update location is same as the previous one
                         } else {
@@ -570,6 +572,7 @@ public class ReportDAO {
                             if (duration > 5) {
                                 duration = 5;
                                 ans += "," + locationid + "," + timestamp + "," + duration;
+                                
                                 break;
                             } else {
                                 timestamp = timestampNext;
@@ -577,13 +580,15 @@ public class ReportDAO {
                             }
 
                         }
-                        UserLocationTimestamps.add(ans);
+                        
                     }
                 }
+                UserLocationTimestamps.add(ans);
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
+        //UserLocationTimestamps.add("1010110032"+","+"014-03-24 09:07:27.000000"+","+"1");
         return UserLocationTimestamps;
     }
 

@@ -43,10 +43,14 @@ public class ReportServlet extends HttpServlet {
                 response.sendRedirect("topKPopularPlaces.jsp");  //send back to topKPopularPlaces
                 break;
             case "topKCompanions":
-                String macaddress = request.getParameter("macaddress");
+                String macaddress = request.getParameter("macAddress");
                 timeDate = request.getParameter("timeDate");
                 topK = Integer.parseInt(request.getParameter("topK"));
-                HashMap<ArrayList<String>, ArrayList<Integer>> topKCompanions = ReportDAO.retrieveTopKCompanions(macaddress, timeDate, topK);
+                
+                Map<ArrayList<String>, ArrayList<Integer>> topKCompanions = ReportDAO.retrieveTopKCompanions(timeDate,macaddress, topK);
+                
+                session.setAttribute("topK", topK); 
+                session.setAttribute("timeDate", timeDate);
                 session.setAttribute("topKCompanions", topKCompanions);
                 response.sendRedirect("topKCompanions.jsp");  //send back to topKCompanions
                 break;

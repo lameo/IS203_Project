@@ -1,3 +1,7 @@
+<%@page import="java.util.Map"%>
+<%@page import="java.util.Map.Entry"%>
+<%@page import="java.util.ArrayList"%>
+<%@page import="java.util.HashMap"%>
 <%@page import="model.User"%>
 <%@page import="java.sql.Timestamp"%>
 <%@page import="java.time.Instant"%>
@@ -88,22 +92,36 @@
         </div>
         <%
             //If top K report is generated
-            if (request.getAttribute("topK") != null) {
+            if (session.getAttribute("topKCompanions") != null) {
 
-                String timedate = request.getParameter("timeDate");
-                String topK = (String) request.getAttribute("topK");
+                String timedate = (String)session.getAttribute("timeDate");
+                int topK = (Integer) session.getAttribute("topK");
                 out.print("<h3>Top-" + topK + " Popular Places at " + timedate + "</h3>");
                 
                 
                 
                 out.print("<div class=\"container\"><table class=\"table table-bordered\"><thead>");
-                String topKPopular = (String) (request.getAttribute("topKPopular"));
-                String[] y = topKPopular.split(",");
+                Map<ArrayList<String>, ArrayList<Integer>> topKCompanions = (Map<ArrayList<String>, ArrayList<Integer>>) (session.getAttribute("topKCompanions"));
+                
+                //String[] y = topKPopular.split(",");
                 out.print("<tr><th>Rank</th><th>Semantic place</th><th>No pax</th></tr></thead></tbody>");
-                for (int j = 0; j < y.length; j += 2) {
-                    out.print("<tr><td>" + (j / 2 + 1) + "</td><td>" + y[j] + "</td><td>" + y[j + 1] + "</td></tr>");
+                //for (int j = 0; j < y.length; j += 2) {
+                    //out.print("<tr><td>" + (j / 2 + 1) + "</td><td>" + y[j] + "</td><td>" + y[j + 1] + "</td></tr>");
+                //}
+                
+                for(Map.Entry<ArrayList<String>, ArrayList<Integer>> entry : topKCompanions.entrySet()){
+                    ArrayList<String> macaddresses = entry.getKey();
+                    ArrayList<Integer> companions = entry.getValue();
+                    int rank = companions.get(0);
+                    int colocationTime = companions.get(1);
+                    for(int i = 0; i<macaddresses.size();i++){
+                        String macaddress = macaddresses.get(i);
+                        out.print("<tr><td>" + (rank) + "</td><td>" + macaddress + "</td><td>" + colocationTime + "</td></tr>");
+                    }
                 }
                 out.print("</tbody></table></div>");
+            }else{
+                out.print("<h3>"+ "error" + "</h3>");
             }
         %>
 
