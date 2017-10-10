@@ -13,6 +13,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -277,11 +278,13 @@ public class UploadDAO {
         }         
     }    
 
-    public static void readDemographics(String filePath) {
+    public static HashMap<Integer, String> readDemographics(String filePath) {
         clearDemographics();     
         Connection connection = null;
         PreparedStatement preparedStatement = null;   
         final int batchSize = 30000;
+        HashMap<Integer, String> errorMap = new HashMap<>();
+        int lineNumber = 0;
         int count = 0;
         try {
             //get a connection to database
@@ -295,15 +298,50 @@ public class UploadDAO {
             CSVReader reader = new CSVReader(bufferReader);
             String[] columns;
             while ((columns = reader.readNext()) != null) {
+                lineNumber++;
+                String errors = "";                
                 //set the parameters
-                preparedStatement.setString(1, columns[0]);
-                preparedStatement.setString(2, columns[1]);
-                preparedStatement.setString(3, columns[2]);
-                preparedStatement.setString(4, columns[3]);
-                preparedStatement.setString(5, columns[4]);
+                if(columns[0].length()!=40){
+                    errors+=" Invalid mac address";
+                }
+                /*
+                if(columns[2].length()<8 || columns[2].contains(" ")){
+                    errors+=" Invalid password";
+                }                
+            
+                String[] schools = "business socsc law sis accountancy economics".split(" ");
+                String[] years = "2013 2014 2015 2016 2017".split(" ");
+                boolean valid = false;
+                for(String school: schools){
+                    for(String year: years){
+                        String tempo = year + "@" + school;
+                        if(columns[3].contains(tempo)){
+                            valid = true;
+                        }
+                    }
+                }
+                if(columns[3].contains("@")){
+                    if(!UserDAO.validateUsername(columns[3].substring(0, columns[3].indexOf("@"))) && !valid){
+                        errors+=" Invalid email";                      
+                    }
+                }
                 
-                preparedStatement.addBatch();
+                if(!columns[4].equalsIgnoreCase("M") || !columns[4].equalsIgnoreCase("F")){
+                    errors+=" Invalid gender";                    
+                }*/
                 
+                if(errors.length()>0){
+                    errorMap.put(lineNumber, errors);
+                } else {
+                    preparedStatement.setString(1, columns[0]);
+                    preparedStatement.setString(2, columns[1]);
+                    preparedStatement.setString(3, columns[2]);
+                    preparedStatement.setString(4, columns[3]);
+                    preparedStatement.setString(5, columns[4]);
+                    preparedStatement.addBatch();     
+                    
+                }
+
                 if(++count % batchSize == 0){
                     preparedStatement.executeBatch();
                     preparedStatement.clearParameters();                    
@@ -319,6 +357,7 @@ public class UploadDAO {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        return errorMap;
     }
     
     public static void readLookup(String filePath) {

@@ -1,3 +1,4 @@
+<%@page import="java.util.HashMap"%>
 <%@page import="java.util.Arrays"%>
 <%@page import="java.util.ArrayList"%>
 <%@page import="model.User"%>
@@ -68,10 +69,10 @@
                         session.removeAttribute("error");                        
                     }
                     
-                    ArrayList<String[]> demoError = (ArrayList<String[]>)session.getAttribute("demoError");
+                    HashMap<Integer, String> demoError = (HashMap<Integer, String>)session.getAttribute("demoError");
                     if(demoError!=null && demoError.size()>0){
-                        for(String[] eachDemoError : demoError){
-                            out.println("<font color='red'>" + "<br/>" + Arrays.deepToString(eachDemoError) + "</font>");
+                        for(Integer key : demoError.keySet()){
+                            out.println("<font color='red'>" + "<br/>Row: " + key + " ERRORS: " + demoError.get(key) + "</font>");
                         }
                         session.removeAttribute("demoError");                            
                     }

@@ -28,7 +28,7 @@ public class UploadServlet extends HttpServlet implements java.io.Serializable {
         UploadBean upBean = new UploadBean();
         String success = "";
         String uploadType = "";
-        ArrayList<String[]> demographicsError = null;
+        HashMap<Integer, String> demographicsError = null;
         ArrayList<List<String>> locationError = null;
         ArrayList<List<String>> lookupError = null;      
         try {
@@ -62,7 +62,6 @@ public class UploadServlet extends HttpServlet implements java.io.Serializable {
 
                                 if (fileExist != null && fileExist.contains("demographics.csv")) {
                                     UploadDAO.readDemographics(outputDirectory + File.separator + "demographics.csv");
-                                    demographicsError = UploadDAO.demographicsNilChecking();
                                 }
                                 
                                 if (fileExist != null && fileExist.contains("location.csv")) {
@@ -77,8 +76,7 @@ public class UploadServlet extends HttpServlet implements java.io.Serializable {
                                 upBean.store(multipartRequest, "uploadfile"); //save to directory
                                 switch (fileName) {
                                     case "demographics.csv":
-                                        UploadDAO.readDemographics(outputDirectory + File.separator + "demographics.csv");
-                                        demographicsError = UploadDAO.demographicsNilChecking();
+                                        demographicsError = UploadDAO.readDemographics(outputDirectory + File.separator + "demographics.csv");
                                         break;
                                     case "location.csv":
                                         UploadDAO.readLocation(outputDirectory + File.separator + "location.csv");                                        
