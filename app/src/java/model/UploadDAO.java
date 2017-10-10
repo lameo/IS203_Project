@@ -279,7 +279,9 @@ public class UploadDAO {
     public static void readDemographics(String filePath) {
         clearDemographics();     
         Connection connection = null;
-        PreparedStatement preparedStatement = null;           
+        PreparedStatement preparedStatement = null;   
+        final int batchSize = 30000;
+        int count = 0;
         try {
             //get a connection to database
             connection = ConnectionManager.getConnection();
@@ -295,11 +297,16 @@ public class UploadDAO {
                 preparedStatement.setString(2, columns[1]);
                 preparedStatement.setString(3, columns[2]);
                 preparedStatement.setString(4, columns[3]);
-                preparedStatement.setString(5, columns[4]);                
-
-                //execute SQL query
-                preparedStatement.executeUpdate();                
+                preparedStatement.setString(5, columns[4]);
+                
+                preparedStatement.addBatch();
+                
+                if(++count % batchSize == 0){
+                    preparedStatement.executeBatch();
+                }
+                          
             }
+            preparedStatement.executeBatch(); //insert remaining records
             reader.close();
             preparedStatement.close();
             connection.close();            
@@ -313,7 +320,9 @@ public class UploadDAO {
     public static void readLookup(String filePath) {
         clearLookup();     
         Connection connection = null;
-        PreparedStatement preparedStatement = null;           
+        PreparedStatement preparedStatement = null;      
+        final int batchSize = 30000;
+        int count = 0;        
         try {
             //get a connection to database
             connection = ConnectionManager.getConnection();
@@ -328,9 +337,14 @@ public class UploadDAO {
                 preparedStatement.setString(1, columns[0]);
                 preparedStatement.setString(2, columns[1]);               
 
-                //execute SQL query
-                preparedStatement.executeUpdate();                
+                preparedStatement.addBatch();
+                
+                if(++count % batchSize == 0){
+                    preparedStatement.executeBatch();
+                }
+                                                 
             }
+            preparedStatement.executeBatch(); //insert remaining records            
             reader.close();
             preparedStatement.close();
             connection.close();            
@@ -344,7 +358,9 @@ public class UploadDAO {
     public static void readLocation(String filePath) {
         clearLocation();     
         Connection connection = null;
-        PreparedStatement preparedStatement = null;           
+        PreparedStatement preparedStatement = null;  
+        final int batchSize = 30000;
+        int count = 0;           
         try {
             //get a connection to database
             connection = ConnectionManager.getConnection();
@@ -360,9 +376,13 @@ public class UploadDAO {
                 preparedStatement.setString(2, columns[1]);
                 preparedStatement.setString(3, columns[2]);              
 
-                //execute SQL query
-                preparedStatement.executeUpdate();                
+                preparedStatement.addBatch();
+                
+                if(++count % batchSize == 0){
+                    preparedStatement.executeBatch();
+                }          
             }
+            preparedStatement.executeBatch(); //insert remaining records                   
             reader.close();
             preparedStatement.close();
             connection.close();            
