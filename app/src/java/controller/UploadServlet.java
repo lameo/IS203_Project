@@ -28,9 +28,9 @@ public class UploadServlet extends HttpServlet implements java.io.Serializable {
         UploadBean upBean = new UploadBean();
         String success = "";
         String uploadType = "";
-        HashMap<Integer, String> demographicsError = null;
-        ArrayList<List<String>> locationError = null;
-        ArrayList<List<String>> lookupError = null;      
+        HashMap<Integer, String> demographicsError = new HashMap<>();
+        HashMap<Integer, String> locationLookupError = new HashMap<>();
+        HashMap<Integer, String> locationError = new HashMap<>();
         try {
             ServletContext servletContext = this.getServletConfig().getServletContext();
             File directory = (File) servletContext.getAttribute("javax.servlet.context.tempdir"); //Pathname to a scratch directory to be provided by this Context for temporary read-write use by servlets within the associated web application
@@ -61,16 +61,14 @@ public class UploadServlet extends HttpServlet implements java.io.Serializable {
                                 String fileExist = UploadDAO.unzip(filePath, outputDirectory); //unzip the files in the zip and save into the directory    
 
                                 if (fileExist != null && fileExist.contains("demographics.csv")) {
-                                    UploadDAO.readDemographics(outputDirectory + File.separator + "demographics.csv");
+                                    demographicsError = UploadDAO.readDemographics(outputDirectory + File.separator + "demographics.csv");
                                 }
-                                
                                 if (fileExist != null && fileExist.contains("location.csv")) {
-                                    //locationError = UploadDAO.demographicsImport(outputDirectory + File.separator + "location.csv");
+                                    locationError = UploadDAO.readLocation(outputDirectory + File.separator + "location.csv");
                                 }
-                                
                                 if (fileExist != null && fileExist.contains("location-lookup.csv")) {
-                                    //lookupError = UploadDAO.demographicsImport(outputDirectory + File.separator + "location-lookup.csv");
-                                }                    
+                                    locationLookupError = UploadDAO.readLookup(outputDirectory + File.separator + "location-lookup.csv");
+                                }
 
                             } else if (UploadDAO.checkFileName(fileName) != null && UploadDAO.checkFileName(fileName).length() > 0) { //if location.csv or location-lookup.csv or demographics.csv
                                 upBean.store(multipartRequest, "uploadfile"); //save to directory
@@ -79,10 +77,10 @@ public class UploadServlet extends HttpServlet implements java.io.Serializable {
                                         demographicsError = UploadDAO.readDemographics(outputDirectory + File.separator + "demographics.csv");
                                         break;
                                     case "location.csv":
-                                        UploadDAO.readLocation(outputDirectory + File.separator + "location.csv");                                        
+                                        locationError = UploadDAO.readLocation(outputDirectory + File.separator + "location.csv");
                                         break;
                                     case "location-lookup.csv":
-                                        UploadDAO.readLookup(outputDirectory + File.separator + "location-lookup.csv");                                        
+                                        locationLookupError = UploadDAO.readLookup(outputDirectory + File.separator + "location-lookup.csv");
                                         break;
                                     default:
                                         break;
@@ -90,19 +88,33 @@ public class UploadServlet extends HttpServlet implements java.io.Serializable {
                             } else {
                                 session.setAttribute("error", "Wrong file name or type"); //send error messsage                                  
                             }
-                            
-                            if(demographicsError==null && locationError==null && lookupError==null){
+
+                            if (demographicsError.isEmpty() && locationError.isEmpty() && locationLookupError.isEmpty()) {
                                 success = "Uploaded file: " + fileName + " (" + file.getFileSize() + " bytes)";
                                 session.setAttribute("success", success); //send success messsage       
                             } else {
-                                session.setAttribute("demoError", demographicsError); //send error messsage                                      
-                            }                            
-                            
+                                session.setAttribute("demographicsError", demographicsError); //send error messsage       
+                                session.setAttribute("locationLookupError", locationLookupError);
+                                session.setAttribute("locationError", locationError);
+                            }
+                            file = null;
                         } else {
                             session.setAttribute("error", "No uploaded files"); //send error messsage                     
                         }
                     } else {
                         session.setAttribute("error", "No uploaded files"); //send error messsage                   
+                    }
+                }
+            }
+            if (outputDirectory == null) {
+                return;
+            }
+            File dir = new File(outputDirectory);
+            if (dir.exists() && dir.isDirectory()) {
+                File[] files = dir.listFiles();
+                if (null != files) {
+                    for (File file : files) {
+                        file.delete();
                     }
                 }
             }
