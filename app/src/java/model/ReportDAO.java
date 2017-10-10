@@ -464,7 +464,7 @@ public class ReportDAO {
         return returnThis;
     }
 
-    public static Map<ArrayList<String>, ArrayList<Integer>> retrieveTopKCompanions(String endTimeDate, String macaddress, int k) {
+    public static HashMap<ArrayList<String>, ArrayList<Integer>> retrieveTopKCompanions(String endTimeDate, String macaddress, int k) {
         ArrayList<String> UserLocationTimestamps = retrieveUserLocationTimestamps(macaddress, endTimeDate);
 
         Map<String, Integer> CompanionColocations = new LinkedHashMap<String, Integer>();
@@ -488,7 +488,7 @@ public class ReportDAO {
             }
             int rank = 0;
             int rankcolocationTime = 0;
-            Map<ArrayList<String>, ArrayList<Integer>> result = new HashMap<ArrayList<String>, ArrayList<Integer>>();
+            HashMap<ArrayList<String>, ArrayList<Integer>> result = new HashMap<ArrayList<String>, ArrayList<Integer>>();
             ArrayList<String> Companions = new ArrayList<String>();
             ArrayList<Integer> Companions2 = new ArrayList<Integer>();
             while (rank <= k) {
@@ -543,6 +543,7 @@ public class ReportDAO {
             //execute SQL query
             resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
+                duration = 0;
                 String locationid = resultSet.getString(1);
                 Timestamp timestamp = resultSet.getTimestamp(2);
                 Timestamp timestampEnd = resultSet.getTimestamp(3);
@@ -559,7 +560,7 @@ public class ReportDAO {
                         if (locationid != locationidNext) {
                             duration = (int) (TimeUnit.MILLISECONDS.toMinutes(timestampNext.getTime() - timestamp.getTime()));
                             if (duration > 5) {
-                                duration = 5;
+                                duration += 5;
                             }
                             ans += "," + locationid + "," + timestamp + "," + duration;
                             break;

@@ -1,7 +1,9 @@
 package controller;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.servlet.RequestDispatcher;
@@ -43,13 +45,14 @@ public class ReportServlet extends HttpServlet {
             case "topKCompanions":
                 String macaddress = request.getParameter("macaddress");
                 timeDate = request.getParameter("timeDate");
-                Map<Integer, String> topKCompanions = ReportDAO.retrieveTopKCompanions(macaddress, timeDate);
+                topK = Integer.parseInt(request.getParameter("topK"));
+                HashMap<ArrayList<String>, ArrayList<Integer>> topKCompanions = ReportDAO.retrieveTopKCompanions(macaddress, timeDate, topK);
                 session.setAttribute("topKCompanions", topKCompanions);
                 response.sendRedirect("topKCompanions.jsp");  //send back to topKCompanions
                 break;
             case "topKNextPlaces":
                 timeDate = request.getParameter("timeDate");
-
+                String locationname = request.getParameter("locationname");
                 Map<Integer, String> topKNextPlaces = ReportDAO.retrieveTopKNextPlaces(timeDate);
                 session.setAttribute("topKNextPlaces", topKNextPlaces);
                 response.sendRedirect("topKNextPlaces.jsp");  //send back to topKNextPlaces
