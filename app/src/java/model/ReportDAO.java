@@ -1,13 +1,19 @@
 package model;
 
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.TreeMap;
 import java.util.concurrent.TimeUnit;
 
 public class ReportDAO {
@@ -160,51 +166,6 @@ public class ReportDAO {
             e.printStackTrace();
         }
         return map;
-    }
-
-    public static Map<Integer, String> retrieveTopKCompanions(String endTimeDate, String macaddress) {
-        ArrayList<String> UserLocationTimestamps = retrieveUserLocationTimestamps(macaddress, endTimeDate);
-        Connection connection = null;
-        PreparedStatement preparedStatement = null;
-        ResultSet resultSet = null;
-        String ans = "";
-        for(String UserLocationTimestamp: UserLocationTimestamps){
-            String[] LocationTimestamp = UserLocationTimestamp.split(",");
-            String locationid = LocationTimestamp[0];
-            String timestampStart = LocationTimestamp[1];
-            String timestampEnd = LocationTimestamp[2];
-        }
-        try {
-            //get a connection to database
-            connection = ConnectionManager.getConnection();
-            //prepare a statement
-            preparedStatement = connection.prepareStatement("select macaddress, locationid, timestamp,DATE_SUB(?, INTERVAL 1 SECOND) "
-                    + "from demographics d, location l"
-                    + "where macaddress <> ? and timestamp between DATE_SUB(?, INTERVAL 15 MINUTE)"
-                    + "and DATE_SUB(?, INTERVAL 1 SECOND) order by timestamp");
-
-            //set the parameters
-            preparedStatement.setString(1, endTimeDate);
-            preparedStatement.setString(2, macaddress);
-            //preparedStatement.setString(3, gender);
-            //preparedStatement.setString(4, "%" + year + "%");
-            //preparedStatement.setString(5, "%" + school + "%");
-
-            //execute SQL query
-            resultSet = preparedStatement.executeQuery();
-            while (resultSet.next()) {
-                ans = resultSet.getString(1);
-            }
-
-            //close connections
-            resultSet.close();
-            preparedStatement.close();
-            connection.close();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        //return Integer.parseInt(ans);
-        return null;
     }
 
     public static Map<Integer, String> retrieveTopKNextPlaces(String time) {
@@ -462,6 +423,57 @@ public class ReportDAO {
         return returnThis;
     }
 
+    public static Map<ArrayList<String>, ArrayList<Integer>> retrieveTopKCompanions(String endTimeDate, String macaddress, int k) {
+        ArrayList<String> UserLocationTimestamps = retrieveUserLocationTimestamps(macaddress, endTimeDate);
+
+        Map<String, Integer> CompanionColocations = new LinkedHashMap<String, Integer>();
+        for (String UserLocationTimestamp : UserLocationTimestamps) {
+            String[] LocationTimestamp = UserLocationTimestamp.split(",");
+            String locationid = LocationTimestamp[0];
+            String timestringStart = LocationTimestamp[1];
+            String stringDuration = LocationTimestamp[2];
+            ArrayList<String> CompanionLocationTimestamps = retrieveCompanionLocationTimestamps(macaddress, locationid, timestringStart, stringDuration);
+            for (String CompanionLocationTimestamp : CompanionLocationTimestamps) {
+                String[] LocationTimestampc = UserLocationTimestamp.split(",");
+                String macaddressc = LocationTimestampc[0];
+                int colocationTime = Integer.parseInt(LocationTimestamp[3]);
+                if (!CompanionColocations.containsKey(macaddressc)) {
+                    CompanionColocations.put(macaddressc, colocationTime);
+                } else {
+                    int colocationTime2 = CompanionColocations.get(macaddressc);
+                    colocationTime2 += colocationTime;
+                    CompanionColocations.put(macaddressc, colocationTime2);
+                }
+            }
+            int rank = 0;
+            int rankcolocationTime = 0;
+            Map<ArrayList<String>, ArrayList<Integer>> result = new HashMap<ArrayList<String>, ArrayList<Integer>>();
+            ArrayList<String> Companions = new ArrayList<String>();
+            ArrayList<Integer> Companions2 = new ArrayList<Integer>();
+            while (rank <= k) {
+                for (Entry<String, Integer> entry : CompanionColocations.entrySet()) {
+                    String macaddress2 = entry.getKey();
+                    int colocationTime3 = entry.getValue();
+                    if (!result.containsKey(macaddress2)) {
+                        Companions.add(macaddress2);
+                        if (colocationTime3 != rankcolocationTime) {
+                            rankcolocationTime = colocationTime3;
+                        } else {
+                            rank += 1;
+                            Companions2.add(rank,rankcolocationTime);
+                            result.put(Companions, Companions2);
+                        }
+                    }
+
+                }
+            }
+            return result;
+
+        }
+        //return Integer.parseInt(ans);
+        return null;
+    }
+
     //retreive users in hashmap form, hashmap key is macaddress and hashmap value is array of email, locationid and timestamp
     public static ArrayList<String> retrieveUserLocationTimestamps(String macaddress, String endtimeDate) {
         Connection connection = null;
@@ -517,11 +529,11 @@ public class ReportDAO {
                                 duration = 5;
                                 ans += "," + locationid + "," + timestamp + "," + duration;
                                 break;
-                            }else{
+                            } else {
                                 timestamp = timestampNext;
                                 duration += (int) (TimeUnit.MILLISECONDS.toMinutes(timestampNext.getTime() - timestamp.getTime()));
                             }
-                            
+
                         }
                         UserLocationTimestamps.add(ans);
                     }
@@ -532,68 +544,90 @@ public class ReportDAO {
         }
         return UserLocationTimestamps;
     }
-    
+
     //retreive users in hashmap form, hashmap key is macaddress and hashmap value is array of email, locationid and timestamp
-    public static ArrayList<String> retrieveCompanionLocationTimestamps(String macaddress, String endtimeDate) {
+    public static ArrayList<String> retrieveCompanionLocationTimestamps(String userMacaddress, String locationid, String timestringStart, String stringDuration) {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
         String ans = "";
         int duration;
+        int colocationTime = 0;
+        Timestamp timestampStart = null;
+        Timestamp timestampEnd = null;
+        Date timedateEnd;
+        String datestringBeforeStart = null;
+        String timestringEnd = null;
         ArrayList<String> CompanionLocationTimestamps = new ArrayList<String>();
+
+        try {
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss.SSS");
+            Date parsedStartDate = (Date) dateFormat.parse(timestringStart);
+            timestampStart = new java.sql.Timestamp(parsedStartDate.getTime());
+            duration = Integer.parseInt(stringDuration);
+            //timeDateEnd = new Date();
+            Calendar cal = Calendar.getInstance();
+            cal.setTime(parsedStartDate);
+            cal.add(Calendar.MINUTE, -5);
+            datestringBeforeStart = dateFormat.format(cal.getTime());
+            cal.setTime(parsedStartDate);
+            cal.add(Calendar.MINUTE, duration);
+            timestringEnd = dateFormat.format(cal.getTime());
+            Date parsedEndDate = (Date) dateFormat.parse(timestringEnd);
+            timestampEnd = new java.sql.Timestamp(parsedEndDate.getTime());
+        } catch (Exception e) { //this generic but you can control another types of exception
+            // look the origin of excption 
+        }
 
         try {
             //get a connection to database
             connection = ConnectionManager.getConnection();
 
             //prepare a statement
-            preparedStatement = connection.prepareStatement("select macaddress, locationid, timestamp,DATE_SUB(?, INTERVAL 1 SECOND) "
-                    + "from demographics d, location l"
-                    + "where macaddress <> ? and timestamp between DATE_SUB(?, INTERVAL 15 MINUTE)"
-                    + "and DATE_SUB(?, INTERVAL 1 SECOND) order by timestamp");
+            preparedStatement = connection.prepareStatement("select macaddress,"
+                    + "TIMESTAMPDIFF(Minute,timestamp,?) as diff,timestamp, "
+                    + "from location l"
+                    + "where macaddress <> ? and timestamp between ? and ?"
+                    + "and l.locationid=? order by l.macaddress, diff desc");
 
             //set the parameters
-            preparedStatement.setString(1, endtimeDate);
-            preparedStatement.setString(2, macaddress);
-            preparedStatement.setString(3, endtimeDate);
-            preparedStatement.setString(3, endtimeDate);
+            preparedStatement.setString(1, timestringEnd);
+            preparedStatement.setString(2, userMacaddress);
+            preparedStatement.setString(3, datestringBeforeStart);
+            preparedStatement.setString(4, timestringEnd);
+            preparedStatement.setString(5, locationid);
 
             //execute SQL query
             resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
-                String locationid = resultSet.getString(1);
-                Timestamp timestamp = resultSet.getTimestamp(2);
-                Timestamp timestampEnd = resultSet.getTimestamp(3);
+                String macaddress = resultSet.getString(1);
+                int timeDiff = resultSet.getInt(2);
+                Timestamp timestamp = resultSet.getTimestamp(3);
                 if (resultSet.isLast()) {
-                    duration = (int) (TimeUnit.MILLISECONDS.toMinutes(timestampEnd.getTime() - timestamp.getTime()));
-                    if (duration > 5) {
-                        duration = 5;
+                    colocationTime = timeDiff;
+                    if (colocationTime > 5) {
+                        colocationTime = 5;
                     }
-                    ans += "," + locationid + "," + timestamp + "," + duration;
+                    ans += "," + macaddress + "," + locationid + "," + timestamp + "," + colocationTime;
+                    CompanionLocationTimestamps.add(ans);
                 } else {
                     while (resultSet.next()) {
-                        String locationidNext = resultSet.getString(1);
-                        Timestamp timestampNext = resultSet.getTimestamp(2);
-                        if (locationid != locationidNext) {
-                            duration = (int) (TimeUnit.MILLISECONDS.toMinutes(timestampNext.getTime() - timestamp.getTime()));
-                            if (duration > 5) {
-                                duration = 5;
+                        String macaddressNext = resultSet.getString(1);
+                        int timeDiffNext = resultSet.getInt(2);
+                        Timestamp timestampNext = resultSet.getTimestamp(3);
+                        if (macaddress.equals(macaddressNext)) {
+                            colocationTime += timeDiff - timeDiffNext;
+                            if (colocationTime > 5) {
+                                colocationTime = 5;
                             }
-                            ans += "," + locationid + "," + timestamp + "," + duration;
-                            break;
-                            //if the next update location is same as the previous one
                         } else {
-                            duration = (int) (TimeUnit.MILLISECONDS.toMinutes(timestampNext.getTime() - timestamp.getTime()));
-                            if (duration > 5) {
-                                duration = 5;
-                                ans += "," + locationid + "," + timestamp + "," + duration;
-                                break;
-                            }else{
-                                timestamp = timestampNext;
-                                duration += (int) (TimeUnit.MILLISECONDS.toMinutes(timestampNext.getTime() - timestamp.getTime()));
+                            colocationTime += timeDiffNext;
+                            if (colocationTime > 5) {
+                                colocationTime = 5;
                             }
-                            
+                            break;
                         }
+                        ans += "," + macaddress + "," + locationid + "," + timestamp + "," + colocationTime;
                         CompanionLocationTimestamps.add(ans);
                     }
                 }
