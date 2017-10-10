@@ -28,9 +28,9 @@ public class UploadServlet extends HttpServlet implements java.io.Serializable {
         UploadBean upBean = new UploadBean();
         String success = "";
         String uploadType = "";
-        ArrayList<String[]> demographicsError = new ArrayList<>();
-        //ArrayList<List<String>> locationError = new ArrayList<List<String>>();
-        //ArrayList<List<String>> lookupError = new ArrayList<List<String>>();        
+        ArrayList<String[]> demographicsError = null;
+        ArrayList<List<String>> locationError = null;
+        ArrayList<List<String>> lookupError = null;      
         try {
             ServletContext servletContext = this.getServletConfig().getServletContext();
             File directory = (File) servletContext.getAttribute("javax.servlet.context.tempdir"); //Pathname to a scratch directory to be provided by this Context for temporary read-write use by servlets within the associated web application
@@ -61,32 +61,24 @@ public class UploadServlet extends HttpServlet implements java.io.Serializable {
                                 String fileExist = UploadDAO.unzip(filePath, outputDirectory); //unzip the files in the zip and save into the directory    
 
                                 if (fileExist != null && fileExist.contains("demographics.csv")) {
-                                        UploadDAO.demographicsImport1(outputDirectory + File.separator + "demographics.csv");
-                                        UploadDAO.demographicsImport2(outputDirectory + File.separator + "demographics.csv");
-                                        UploadDAO.demographicsImport3(outputDirectory + File.separator + "demographics.csv");
-                                        UploadDAO.demographicsImport4(outputDirectory + File.separator + "demographics.csv");
-                                        UploadDAO.demographicsImport5(outputDirectory + File.separator + "demographics.csv");
+                                    UploadDAO.readDemographics(outputDirectory + File.separator + "demographics.csv");
                                     demographicsError = UploadDAO.demographicsNilChecking();
-                                } else if (fileExist != null && fileExist.contains("location.csv")) {
-                                    //locationError = UploadDAO.demographicsImport(outputDirectory + File.separator + "location.csv");
-                                } else if (fileExist != null && fileExist.contains("location-lookup.csv")) {
-                                    //lookupError = UploadDAO.demographicsImport(outputDirectory + File.separator + "location-lookup.csv");
                                 }
-
-                                success = "Uploaded file: " + fileName + " (" + file.getFileSize() + " bytes)";
-                                session.setAttribute("success", success); //send success messsage                                
+                                
+                                if (fileExist != null && fileExist.contains("location.csv")) {
+                                    //locationError = UploadDAO.demographicsImport(outputDirectory + File.separator + "location.csv");
+                                }
+                                
+                                if (fileExist != null && fileExist.contains("location-lookup.csv")) {
+                                    //lookupError = UploadDAO.demographicsImport(outputDirectory + File.separator + "location-lookup.csv");
+                                }                    
 
                             } else if (UploadDAO.checkFileName(fileName) != null && UploadDAO.checkFileName(fileName).length() > 0) { //if location.csv or location-lookup.csv or demographics.csv
                                 upBean.store(multipartRequest, "uploadfile"); //save to directory
                                 switch (fileName) {
                                     case "demographics.csv":
                                         UploadDAO.readDemographics(outputDirectory + File.separator + "demographics.csv");
-                                        //UploadDAO.demographicsImport1(outputDirectory + File.separator + "demographics.csv");
-                                        //UploadDAO.demographicsImport2(outputDirectory + File.separator + "demographics.csv");
-                                        //UploadDAO.demographicsImport3(outputDirectory + File.separator + "demographics.csv");
-                                        //UploadDAO.demographicsImport4(outputDirectory + File.separator + "demographics.csv");
-                                        //UploadDAO.demographicsImport5(outputDirectory + File.separator + "demographics.csv");
-                                        //demographicsError = UploadDAO.demographicsNilChecking();
+                                        demographicsError = UploadDAO.demographicsNilChecking();
                                         break;
                                     case "location.csv":
                                         UploadDAO.readLocation(outputDirectory + File.separator + "location.csv");                                        
@@ -97,13 +89,17 @@ public class UploadServlet extends HttpServlet implements java.io.Serializable {
                                     default:
                                         break;
                                 }
-
-                                success = "Uploaded file: " + fileName + " (" + file.getFileSize() + " bytes)";
-                                session.setAttribute("success", success); //send success messsage         
-
                             } else {
                                 session.setAttribute("error", "Wrong file name or type"); //send error messsage                                  
                             }
+                            
+                            if(demographicsError==null && locationError==null && lookupError==null){
+                                success = "Uploaded file: " + fileName + " (" + file.getFileSize() + " bytes)";
+                                session.setAttribute("success", success); //send success messsage       
+                            } else {
+                                session.setAttribute("demoError", demographicsError); //send error messsage                                      
+                            }                            
+                            
                         } else {
                             session.setAttribute("error", "No uploaded files"); //send error messsage                     
                         }

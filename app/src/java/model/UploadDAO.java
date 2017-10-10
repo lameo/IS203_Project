@@ -200,7 +200,6 @@ public class UploadDAO {
             //prepare a statement
             preparedStatement = connection.prepareStatement("select  *  from  demographics where password is null or password like '' or name is null or name like '' or macaddress is null or macaddress like '' or gender is null or gender like '' or email is null or email like ''");
             //set the parameters
-            //preparedStatement.setString(1, fileLocation);
 
             //execute SQL query
             resultSet = preparedStatement.executeQuery();
@@ -432,7 +431,7 @@ public class UploadDAO {
                     int len;
                     while ((len = zis.read(buffer)) > 0) {
                         fos.write(buffer, 0, len);
-                    }
+                    }                
                     fos.close();
                 }
                 ze = zis.getNextEntry();

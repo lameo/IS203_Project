@@ -1,3 +1,5 @@
+<%@page import="java.util.Arrays"%>
+<%@page import="java.util.ArrayList"%>
 <%@page import="model.User"%>
 <%@page import="java.sql.Timestamp"%>
 <%@page import="java.time.Instant"%>
@@ -65,8 +67,15 @@
                         out.println("<font color='red'>" + "<br/>" + error + "</font>");
                         session.removeAttribute("error");                        
                     }
-                %>
-                <%
+                    
+                    ArrayList<String[]> demoError = (ArrayList<String[]>)session.getAttribute("demoError");
+                    if(demoError!=null && demoError.size()>0){
+                        for(String[] eachDemoError : demoError){
+                            out.println("<font color='red'>" + "<br/>" + Arrays.deepToString(eachDemoError) + "</font>");
+                        }
+                        session.removeAttribute("demoError");                            
+                    }
+                    
                     String success = (String) session.getAttribute("success"); //success message retrieved from UploadServlet
                     if (success != null && success.length() >= 1) {
                         out.println("<font color='green'>" + "<br/> SUCCESS!!</font>");
