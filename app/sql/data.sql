@@ -19,7 +19,7 @@ FIELDS TERMINATED BY ',' LINES TERMINATED BY '\r' IGNORE 1 LINES (macaddress, na
 create table locationlookup
 (
 locationid varchar(12) not null,
-locationname varchar(25) not null,
+locationname varchar(40) not null,
 constraint locationlookup_pk primary key(locationid)
 );
 
