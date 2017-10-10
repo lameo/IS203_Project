@@ -167,9 +167,50 @@ public class ReportDAO {
         }
         return map;
     }
-
+    
     public static Map<Integer, String> retrieveTopKNextPlaces(String time) {
         return null;
+    } 
+    
+    //retrieve user who are in a specific place given a specific time frame in a specific location
+    public static ArrayList<String> retrieveUserBasedOnLocation(String inputTime, String locationName) {
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
+        ArrayList<String> usersInSpecificPlace = new ArrayList<>();
+        
+        try {
+            //get a connection to database
+            connection = ConnectionManager.getConnection();
+            
+            //prepare a statement
+            preparedStatement = connection.prepareStatement("SELECT distinct l.macaddress FROM location l, locationlookup llu"
+                    + "WHERE timestamp BETWEEN (SELECT DATE_SUB(? ,INTERVAL 15 MINUTE))" 
+                    + "AND (SELECT DATE_SUB(? ,INTERVAL 1 SECOND))"
+                    + "AND l.locationid = llu.locationid"
+                    + "AND llu.locationname = ?"
+                    + "GROUP BY l.macaddress");
+            
+             //set the parameters
+            preparedStatement.setString(1, inputTime);
+            preparedStatement.setString(2, inputTime);
+            preparedStatement.setString(3, locationName);
+
+            resultSet = preparedStatement.executeQuery();
+            
+            while(resultSet.next()) {
+                usersInSpecificPlace.add(resultSet.getString(1));
+            }
+            
+            //close connections
+            resultSet.close();
+            preparedStatement.close();
+            connection.close();
+            
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return usersInSpecificPlace;
     }
 
     private static int retrieveThreeBreakdown(String timeEnd, String year, String gender, String school) {
