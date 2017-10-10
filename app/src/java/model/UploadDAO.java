@@ -1,11 +1,13 @@
 package model;
 
 import au.com.bytecode.opencsv.CSVReader;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -288,8 +290,10 @@ public class UploadDAO {
 
             //prepare a statement
             preparedStatement = connection.prepareStatement("insert into demographics (macaddress,name,password,email,gender) values(?,?,?,?,?)");
+
+            BufferedReader bufferReader = new BufferedReader(new InputStreamReader(new FileInputStream(filePath)));  
             
-            CSVReader reader = new CSVReader(new FileReader(filePath));
+            CSVReader reader = new CSVReader(bufferReader);
             String[] columns;
             while ((columns = reader.readNext()) != null) {
                 //set the parameters
@@ -303,6 +307,7 @@ public class UploadDAO {
                 
                 if(++count % batchSize == 0){
                     preparedStatement.executeBatch();
+                    preparedStatement.clearParameters();                    
                 }
                           
             }
@@ -330,7 +335,9 @@ public class UploadDAO {
             //prepare a statement
             preparedStatement = connection.prepareStatement("insert into locationlookup (locationid, locationname) values(?,?)");
             
-            CSVReader reader = new CSVReader(new FileReader(filePath));
+            BufferedReader bufferReader = new BufferedReader(new InputStreamReader(new FileInputStream(filePath)));            
+            
+            CSVReader reader = new CSVReader(bufferReader);
             String[] columns;
             while ((columns = reader.readNext()) != null) {
                 //set the parameters
@@ -341,6 +348,7 @@ public class UploadDAO {
                 
                 if(++count % batchSize == 0){
                     preparedStatement.executeBatch();
+                    preparedStatement.clearParameters();
                 }
                                                  
             }
@@ -364,11 +372,14 @@ public class UploadDAO {
         try {
             //get a connection to database
             connection = ConnectionManager.getConnection();
+            connection.setAutoCommit(false);
 
             //prepare a statement
             preparedStatement = connection.prepareStatement("insert into location (timestamp, macaddress, locationid) values(?,?,?)");
             
-            CSVReader reader = new CSVReader(new FileReader(filePath));
+            BufferedReader bufferReader = new BufferedReader(new InputStreamReader(new FileInputStream(filePath)));
+            
+            CSVReader reader = new CSVReader(bufferReader);
             String[] columns;
             while ((columns = reader.readNext()) != null) {
                 //set the parameters
@@ -380,9 +391,12 @@ public class UploadDAO {
                 
                 if(++count % batchSize == 0){
                     preparedStatement.executeBatch();
+                    connection.commit();
+                    preparedStatement.clearParameters();                    
                 }          
             }
-            preparedStatement.executeBatch(); //insert remaining records                   
+            preparedStatement.executeBatch(); //insert remaining records     
+            connection.commit();            
             reader.close();
             preparedStatement.close();
             connection.close();            
