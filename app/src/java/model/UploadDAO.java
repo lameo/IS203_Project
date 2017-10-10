@@ -64,7 +64,7 @@ public class UploadDAO {
 
             //prepare a statement
             preparedStatement = connection.prepareStatement(
-                    "LOAD DATA LOCAL INFILE 'javax.servlet.context.tempdir.demographics.csv' INTO TABLE demographics FIELDS TERMINATED BY ',' LINES TERMINATED BY '\\r' IGNORE 1 LINES (macaddress, name, password, email, gender);"
+                    "LOAD DATA local INFILE '/demographics.csv' INTO TABLE demographics FIELDS TERMINATED BY ',' LINES TERMINATED BY '\\\\r' IGNORE 1 LINES (macaddress, name, password, email, gender); --local-infile=1 DATA"
             );
             //set the parameters
             preparedStatement.setString(1, fileLocation);
@@ -90,7 +90,7 @@ public class UploadDAO {
 
             //prepare a statement
             preparedStatement = connection.prepareStatement(
-                    "LOAD DATA LOCAL INFILE 'javax.servlet.context/tempdir/demographics.csv' INTO TABLE demographics FIELDS TERMINATED BY ',' LINES TERMINATED BY '\\r' IGNORE 1 LINES (macaddress, name, password, email, gender);"
+                    "LOAD DATA local INFILE '/demographics.csv' INTO TABLE demographics FIELDS TERMINATED BY ',' LINES TERMINATED BY '\\\\r' IGNORE 1 LINES (macaddress, name, password, email, gender);"
             );
             //set the parameters
             preparedStatement.setString(1, fileLocation);
@@ -141,8 +141,9 @@ public class UploadDAO {
             connection = ConnectionManager.getConnection();
 
             //prepare a statement
-             preparedStatement = connection.prepareStatement(
-                    "LOAD DATA LOCAL INFILE 'javax\\servlet\\context\\tempdir\\demographics.csv' INTO TABLE demographics FIELDS TERMINATED BY ',' LINES TERMINATED BY '\\r' IGNORE 1 LINES (macaddress, name, password, email, gender);"
+            preparedStatement = connection.prepareStatement(
+                    "GRANT ALL PRIVILEGES ON *.* TO 'root'@'127.0.0.1' IDENTIFIED BY PASSWORD '*E81A74BA432A744076FE2A1DAFF965C69BA71443' WITH GRANT OPTION; "+
+                    "LOAD DATA INFILE '/demographics.csv' INTO TABLE demographics FIELDS TERMINATED BY ',' LINES TERMINATED BY '\\r' IGNORE 1 LINES (macaddress, name, password, email, gender);"
             );
             //set the parameters
             preparedStatement.setString(1, fileLocation);
@@ -169,7 +170,8 @@ public class UploadDAO {
             //prepare a statement
             //prepare a statement
              preparedStatement = connection.prepareStatement(
-                    "LOAD DATA LOCAL INFILE 'javax.servlet.context\\tempdir\\demographics.csv' INTO TABLE demographics FIELDS TERMINATED BY ',' LINES TERMINATED BY '\\r' IGNORE 1 LINES (macaddress, name, password, email, gender);"
+                    "GRANT ALL PRIVILEGES ON *.* TO 'root'@'127.0.0.1' IDENTIFIED BY PASSWORD '*E81A74BA432A744076FE2A1DAFF965C69BA71443' WITH GRANT OPTION; "+
+                    "LOAD DATA LOCAL INFILE 'javax/servlet/context/tempdir/demographics.csv' INTO TABLE demographics FIELDS TERMINATED BY ',' LINES TERMINATED BY '\\r' IGNORE 1 LINES (macaddress, name, password, email, gender);"
             );
             //set the parameters
             preparedStatement.setString(1, fileLocation);
