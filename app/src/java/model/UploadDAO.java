@@ -297,18 +297,25 @@ public class UploadDAO {
             
             CSVReader reader = new CSVReader(bufferReader);
             String[] columns;
+            reader.readNext();
             while ((columns = reader.readNext()) != null) {
                 lineNumber++;
-                String errors = "";                
+                String errors = "";   
+                String macaddress = columns[0].trim();
+                String name = columns[1].trim();
+                String password = columns[2].trim();
+                String email = columns[3].trim();
+                String gender = columns[4].trim();   
+                
                 //set the parameters
-                if(columns[0].length()!=40){
+                if(macaddress.length()!=40){
                     errors+=" Invalid mac address";
                 }
-                /*
-                if(columns[2].length()<8 || columns[2].contains(" ")){
+
+                if(password.length()<8 || password.contains(" ")){
                     errors+=" Invalid password";
                 }                
-            
+                
                 String[] schools = "business socsc law sis accountancy economics".split(" ");
                 String[] years = "2013 2014 2015 2016 2017".split(" ");
                 boolean valid = false;
@@ -320,24 +327,25 @@ public class UploadDAO {
                         }
                     }
                 }
-                if(columns[3].contains("@")){
-                    if(!UserDAO.validateUsername(columns[3].substring(0, columns[3].indexOf("@"))) && !valid){
+                
+                if(email.contains("@")){
+                    if(!UserDAO.validateUsername(email.substring(0, email.indexOf("@"))) && !valid){
                         errors+=" Invalid email";                      
                     }
                 }
                 
-                if(!columns[4].equalsIgnoreCase("M") || !columns[4].equalsIgnoreCase("F")){
+                if(!gender.equalsIgnoreCase("M") || !gender.equalsIgnoreCase("F")){
                     errors+=" Invalid gender";                    
-                }*/
+                }
                 
                 if(errors.length()>0){
                     errorMap.put(lineNumber, errors);
                 } else {
-                    preparedStatement.setString(1, columns[0]);
-                    preparedStatement.setString(2, columns[1]);
-                    preparedStatement.setString(3, columns[2]);
-                    preparedStatement.setString(4, columns[3]);
-                    preparedStatement.setString(5, columns[4]);
+                    preparedStatement.setString(1, macaddress);
+                    preparedStatement.setString(2, name);
+                    preparedStatement.setString(3, password);
+                    preparedStatement.setString(4, email);
+                    preparedStatement.setString(5, gender);
                     preparedStatement.addBatch();     
                     
                 }

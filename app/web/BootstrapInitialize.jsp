@@ -1,3 +1,4 @@
+<%@page import="java.util.Set"%>
 <%@page import="java.util.HashMap"%>
 <%@page import="java.util.Arrays"%>
 <%@page import="java.util.ArrayList"%>
@@ -71,7 +72,8 @@
                     
                     HashMap<Integer, String> demoError = (HashMap<Integer, String>)session.getAttribute("demoError");
                     if(demoError!=null && demoError.size()>0){
-                        for(Integer key : demoError.keySet()){
+                        Set<Integer> keys = demoError.keySet();
+                        for(Integer key : keys){
                             out.println("<font color='red'>" + "<br/>Row: " + key + " ERRORS: " + demoError.get(key) + "</font>");
                         }
                         session.removeAttribute("demoError");                            
