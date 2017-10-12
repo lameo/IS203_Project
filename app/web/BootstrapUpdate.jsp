@@ -115,8 +115,8 @@
                 out.print("</tbody></table></div><br>");
 
                 if (success != null) {
-                    out.println("<font color='green'>" + "<br/> SUCCESS!!</font>");
-                    out.println("<font color='green'>" + "<br/>" + success + "</font>");
+                    out.println("<center><font color='green'>" + "<br/> SUCCESS!!</font>");
+                    out.println("<font color='green'>" + "<br/>" + success + "</font></center>");
                     session.removeAttribute("success");
                 }
             %>
