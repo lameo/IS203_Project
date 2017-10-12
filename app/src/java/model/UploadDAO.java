@@ -5,7 +5,6 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.sql.Connection;
@@ -13,7 +12,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -134,11 +132,11 @@ public class UploadDAO {
         return ans.split(" ");
     }
 
-    private static String[] retrieveMacEmail() {
+    private static ArrayList<String> retrieveMacEmail() {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
-        String ans = "";
+        ArrayList<String> ans = new ArrayList<>();
         try {
             //get a connection to database
             connection = ConnectionManager.getConnection();
@@ -151,14 +149,14 @@ public class UploadDAO {
 
             resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
-                ans += " " + resultSet.getString(1) + resultSet.getString(2);
+                ans.add(resultSet.getString(1) + resultSet.getString(2));
             }
             preparedStatement.close();
             connection.close();
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return ans.split(" ");
+        return ans;
     }
 
     private static ArrayList<String> retrieveMACDatePair() {
@@ -172,6 +170,35 @@ public class UploadDAO {
 
             //prepare a statement
             preparedStatement = connection.prepareStatement("select TIMESTAMP, macaddress from location;");
+
+            //execute SQL query
+            preparedStatement.executeQuery();
+
+            resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()) {
+                String tempo = resultSet.getString(1);
+                tempo += resultSet.getString(2);
+                ans.add(tempo);
+            }
+            preparedStatement.close();
+            connection.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return ans;
+    }
+
+    private static ArrayList<String> retrieveLocationIDName() {
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
+        ArrayList<String> ans = new ArrayList<>();
+        try {
+            //get a connection to database
+            connection = ConnectionManager.getConnection();
+
+            //prepare a statement
+            preparedStatement = connection.prepareStatement("select * from locationlookup;");
 
             //execute SQL query
             preparedStatement.executeQuery();
@@ -312,19 +339,119 @@ public class UploadDAO {
         return errorMap;
     }
 
-    public static HashMap<Integer, String> updateDemographics(String filePath) {
-        clearDemographics();
+    public static HashMap<Integer, String> updateLocationLookUp(String filePath) {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         final int batchSize = 30000;
         HashMap<Integer, String> errorMap = new HashMap<>();
-        int lineNumber = 1;
         int count = 0;
         try {
+            ArrayList<String> previousLocationIDName = retrieveLocationIDName();
             BufferedReader bufferReader = new BufferedReader(new InputStreamReader(new FileInputStream(filePath)));
             CSVReader reader = new CSVReader(bufferReader);
             ArrayList<String[]> columns = new ArrayList<>();
             reader.readNext();
+            //get a connection to database
+            connection = ConnectionManager.getConnection();
+
+            //prepare a statement
+            preparedStatement = connection.prepareStatement("insert into locationlookup (locationid, locationname) values(?,?)");
+            String[] arr;
+            while ((arr = reader.readNext()) != null) {
+                String locationID = arr[0];
+                String semanticPlace = arr[1];
+                columns.add(new String[]{locationID, semanticPlace});
+            }
+
+            for (int i = columns.size() - 1; i >= 0; i--) {
+                String errorMsg = "";
+                String[] tempo = columns.get(i);
+                String locationID = tempo[0];
+                String semanticPlace = tempo[1];
+
+                //Duplicate
+                if (previousLocationIDName.contains(locationID + semanticPlace)) {
+                    errorMsg += ", Duplicate Row";
+                } else {
+                    previousLocationIDName.add(locationID + semanticPlace);
+                }
+
+                // Checking for LocationID
+                if (locationID.equals("")) {
+                    errorMsg += ", Missing locationID";
+                } else {
+
+                    try {
+                        int xlocationID = Integer.parseInt(locationID);
+                        if (locationID.length() != 10) {
+                            errorMsg += ", Invalid locationID";
+                        } else if (xlocationID < 0) {
+                            errorMsg += ", Invalid locationID";
+                        }
+                    } catch (NumberFormatException e) {
+                        errorMsg += ", Invalid locationID";
+                    }
+                }
+
+                // Checking for semantic name
+                if (semanticPlace.equals("")) {
+                    errorMsg += ", Missing semantic place";
+                } else {
+                    boolean valid = false;
+                    for (String level : "SMUSISB1 SMUSISL1 SMUSISL2 SMUSISL3 SMUSISL4 SMUSISL5".split(" ")) {
+                        if (semanticPlace.contains(level)) {
+                            valid = true;
+                        }
+                    }
+                    if (!valid) {
+                        errorMsg += ", invalid semantic place";
+                    }
+                }
+
+                //set the parameters
+                if (!errorMsg.equals("")) {
+                    errorMap.put(2 + i, errorMsg.substring(2));
+                } else {
+                    preparedStatement.setString(1, locationID);
+                    preparedStatement.setString(2, semanticPlace);
+                    preparedStatement.addBatch();
+                }
+
+                if (++count % batchSize == 0) {
+                    preparedStatement.executeBatch();
+                    preparedStatement.clearParameters();
+                }
+
+            }
+            preparedStatement.executeBatch(); //insert remaining records
+            reader.close();
+            preparedStatement.close();
+            connection.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return errorMap;
+    }
+
+    public static HashMap<Integer, String> updateDemographics(String filePath) {
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;
+        final int batchSize = 30000;
+        HashMap<Integer, String> errorMap = new HashMap<>();
+        int count = 0;
+        try {
+            ArrayList<String> previousMacEmail = retrieveMacEmail();
+            BufferedReader bufferReader = new BufferedReader(new InputStreamReader(new FileInputStream(filePath)));
+            CSVReader reader = new CSVReader(bufferReader);
+            ArrayList<String[]> columns = new ArrayList<>();
+            reader.readNext();
+            //get a connection to database
+            connection = ConnectionManager.getConnection();
+
+            //prepare a statement
+            preparedStatement = connection.prepareStatement("insert into demographics (macaddress,name,password,email,gender) values(?,?,?,?,?)");
             String[] arr;
             while ((arr = reader.readNext()) != null) {
                 String macaddress = arr[0];
@@ -334,22 +461,231 @@ public class UploadDAO {
                 String gender = arr[4];
                 columns.add(new String[]{macaddress, name, password, email, gender});
             }
-            for (int i = columns.size()-1; i>0;i--){
+
+            for (int i = columns.size() - 1; i >= 0; i--) {
+
                 String errorMsg = "";
                 String[] tempo = columns.get(i);
-                String name = tempo[0];
-                String macAddress = tempo[1];
+                String macAddress = tempo[0];
+                String name = tempo[1];
                 String password = tempo[2];
                 String email = tempo[3];
                 String gender = tempo[4];
-                System.out.println(name + macAddress + password + email + gender);
+                System.out.println(macAddress + email);
+
+                //Duplicate
+                if (previousMacEmail.contains(macAddress + email)) {
+                    errorMsg += ", Duplicate Row";
+                } else {
+                    previousMacEmail.add(macAddress + email);
+                }
+
+                //Mac Address
+                if (!macAddress.equals("")) {
+                    //if (macaddress != null || macaddress.length()==0 || !macaddress.isEmpty()) {
+                    macAddress = macAddress.trim();
+                    if (macAddress.length() != 40) {
+                        errorMsg += ", Invalid mac address";
+                    }
+                } else {
+                    errorMsg += ", Missing MAC address";
+                }
+
+                // Name
+                if (!name.equals("")) {
+                    name = name.trim();
+                } else {
+                    errorMsg += ", Missing name";
+                }
+
+                // Password
+                if (password.equals("")) {
+                    errorMsg += ", Missing password";
+                } else {
+                    password = password.trim();
+                    if (password.length() < 8 || password.contains(" ")) {
+                        errorMsg += ", Invalid password";
+                    }
+                }
+
+                // Email
+                if (email.equals("")) {
+                    errorMsg += ", Missing email";
+                } else {
+                    email = email.trim();
+                    String[] schools = "business socsc law sis accountancy economics".split(" ");
+                    String[] years = "2013 2014 2015 2016 2017".split(" ");
+                    boolean valid = false;
+                    for (String school : schools) {
+                        for (String year : years) {
+                            String tempoo = year + "@" + school;
+                            if (email.contains(tempoo)) {
+                                valid = true;
+                            }
+                        }
+                    }
+                    if (email.contains("@")) {
+                        if (!UserDAO.validateUsername(email.substring(0, email.indexOf("@"))) && !valid || email.contains("..")) {
+                            errorMsg += ", Invalid email";
+                        }
+                    } else {
+                        errorMsg += ", Invalid email";
+                    }
+                }
+
+                // Gender
+                if (gender.equals("")) {
+                    errorMsg += ", Missing gender";
+                } else {
+                    gender = gender.trim();
+                    if (!(gender.contains("M") || gender.contains("F"))) {
+                        errorMsg += ", Invalid gender";
+                    }
+                }
+
+                //set the parameters
+                if (!errorMsg.equals("")) {
+                    errorMap.put(i + 2, errorMsg.substring(2));
+                } else {
+                    preparedStatement.setString(1, macAddress);
+                    preparedStatement.setString(2, name);
+                    preparedStatement.setString(3, password);
+                    preparedStatement.setString(4, email);
+                    preparedStatement.setString(5, gender);
+                    preparedStatement.addBatch();
+                }
+
+                if (++count % batchSize == 0) {
+                    preparedStatement.executeBatch();
+                    preparedStatement.clearParameters();
+                }
+
             }
+            preparedStatement.executeBatch(); //insert remaining records
+            reader.close();
+            preparedStatement.close();
+            connection.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return errorMap;
+    }
+
+    public static HashMap<Integer, String> updateLocation(String filePath) {
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;
+        final int batchSize = 30000;
+        HashMap<Integer, String> errorMap = new HashMap<>();
+        int count = 0;
+        String[] locationIDs = retrieveLocationID();
+        try {
+            ArrayList<String> previousMacEmail = retrieveMACDatePair();
+            BufferedReader bufferReader = new BufferedReader(new InputStreamReader(new FileInputStream(filePath)));
+            CSVReader reader = new CSVReader(bufferReader);
+            ArrayList<String[]> columns = new ArrayList<>();
+            reader.readNext();
             //get a connection to database
             connection = ConnectionManager.getConnection();
 
             //prepare a statement
-            preparedStatement = connection.prepareStatement("insert into demographics (macaddress,name,password,email,gender) values(?,?,?,?,?)");
+            preparedStatement = connection.prepareStatement("insert into location (timestamp, macaddress, locationid) values(?,?,?);");
+            String[] arr;
+            while ((arr = reader.readNext()) != null) {
+                String timeDate = arr[0];
+                String macAddress = arr[1];
+                String locationID = arr[2];
+                columns.add(new String[]{timeDate, macAddress, locationID});
+            }
 
+            for (int i = columns.size() - 1; i >= 0; i--) {
+                String errorMsg = "";
+                String[] tempo = columns.get(i);
+                String timeDate = tempo[0];
+                String macAddress = tempo[1];
+                String locationID = tempo[2];
+                System.out.println((timeDate + macAddress));
+
+                
+                //Duplicate
+                if (previousMacEmail.contains(timeDate + macAddress)) {
+                    errorMsg += ", Duplicate Row";
+                } else {
+                    previousMacEmail.add(timeDate + macAddress);
+                }
+
+                
+                // Checking for timeDate
+                if (timeDate.equals("")) {
+                    errorMsg += ", Missing date & time";
+                } else {
+                    boolean valid = true;
+                    // Length check
+                    valid = valid && timeDate.length() == 19;
+                    // Year bigger than 2013 & smaller or equal to 2017
+                    valid = valid && (Integer.parseInt(timeDate.substring(0, 4)) > 2013) && (Integer.parseInt(timeDate.substring(0, 4)) <= 2017);
+                    // Month bigger than 0 & smaller or equal to 12
+                    valid = valid && (Integer.parseInt(timeDate.substring(5, 7)) > 0) && (Integer.parseInt(timeDate.substring(5, 7)) <= 12);
+                    // Day bigger than 0 & smaller or equal to 12
+                    valid = valid && (Integer.parseInt(timeDate.substring(8, 10)) > 0) && (Integer.parseInt(timeDate.substring(8, 10)) <= 31);
+                    // Hour bigger or equal 0 & smaller or equal to 24
+                    valid = valid && (Integer.parseInt(timeDate.substring(8, 10)) >= 0) && (Integer.parseInt(timeDate.substring(11, 13)) <= 23);
+                    // Min bigger or equal 0 & smaller or equal to 59
+                    valid = valid && (Integer.parseInt(timeDate.substring(8, 10)) >= 0) && (Integer.parseInt(timeDate.substring(14, 16)) <= 59);
+                    // Second bigger or equal 0 & smaller or equal to 59
+                    valid = valid && (Integer.parseInt(timeDate.substring(8, 10)) >= 0) && (Integer.parseInt(timeDate.substring(14, 16)) <= 59);
+                    if (!valid) {
+                        errorMsg += ", Invalid date & time";
+                    }
+                }
+
+                
+                //Mac Address
+                if (macAddress.equals("")) {
+                    errorMsg += ", Missing MAC address";
+                } else {
+                    //if (macaddress != null || macaddress.length()==0 || !macaddress.isEmpty()) {
+                    macAddress = macAddress.trim();
+                    if (macAddress.length() != 40) {
+                        errorMsg += ", Invalid mac address";
+                    }
+                }
+
+                
+                // Checking for locationID
+                if (locationID.equals("")) {
+                    errorMsg += ", Missing locationID";
+                } else {
+                    locationID = locationID.trim();
+                    boolean valid = false;
+                    for (String location : locationIDs) {
+                        if (locationID.contains(location)) {
+                            valid = true;
+                        }
+                    }
+                    if (!valid) {
+                        errorMsg += ", invalid locationID";
+                    }
+                }
+
+                //set the parameters
+                if (!errorMsg.equals("")) {
+                    errorMap.put(i + 2, errorMsg.substring(2));
+                } else {
+                    preparedStatement.setString(1, timeDate);
+                    preparedStatement.setString(2, macAddress);
+                    preparedStatement.setString(3, locationID);
+                    preparedStatement.addBatch();
+                }
+
+                if (++count % batchSize == 0) {
+                    preparedStatement.executeBatch();
+                    preparedStatement.clearParameters();
+                }
+
+            }
+            preparedStatement.executeBatch(); //insert remaining records
             reader.close();
             preparedStatement.close();
             connection.close();
@@ -509,7 +845,7 @@ public class UploadDAO {
 
                 // Checking for locationID
                 if (!columns[2].isEmpty()) {
-                    locationID = columns[1];
+                    locationID = columns[2];
                     locationID = locationID.trim();
                     boolean valid = false;
                     for (String location : locationIDs) {

@@ -27,7 +27,6 @@ public class UpdateServlet extends HttpServlet implements java.io.Serializable {
         HttpSession session = request.getSession();
         UploadBean upBean = new UploadBean();
         String success = "";
-        String uploadType = "";
         HashMap<Integer, String> demographicsError = new HashMap<>();
         HashMap<Integer, String> locationLookupError = new HashMap<>();
         HashMap<Integer, String> locationError = new HashMap<>();
@@ -61,10 +60,10 @@ public class UpdateServlet extends HttpServlet implements java.io.Serializable {
                                 demographicsError = UploadDAO.updateDemographics(outputDirectory + File.separator + "demographics.csv");
                             }
                             if (fileExist != null && fileExist.contains("location.csv")) {
-                                locationError = UploadDAO.readLocation(outputDirectory + File.separator + "location.csv");
+                                locationError = UploadDAO.updateLocation(outputDirectory + File.separator + "location.csv");
                             }
                             if (fileExist != null && fileExist.contains("location-lookup.csv")) {
-                                locationLookupError = UploadDAO.readLookup(outputDirectory + File.separator + "location-lookup.csv");
+                                locationLookupError = UploadDAO.updateLocationLookUp(outputDirectory + File.separator + "location-lookup.csv");
                             }
 
                         } else if (UploadDAO.checkFileName(fileName) != null && UploadDAO.checkFileName(fileName).length() > 0) { //if location.csv or location-lookup.csv or demographics.csv
@@ -74,10 +73,10 @@ public class UpdateServlet extends HttpServlet implements java.io.Serializable {
                                     demographicsError = UploadDAO.updateDemographics(outputDirectory + File.separator + "demographics.csv");
                                     break;
                                 case "location.csv":
-                                    locationError = UploadDAO.readLocation(outputDirectory + File.separator + "location.csv");
+                                    locationError = UploadDAO.updateLocation(outputDirectory + File.separator + "location.csv");
                                     break;
                                 case "location-lookup.csv":
-                                    locationLookupError = UploadDAO.readLookup(outputDirectory + File.separator + "location-lookup.csv");
+                                    locationLookupError = UploadDAO.updateLocationLookUp(outputDirectory + File.separator + "location-lookup.csv");
                                     break;
                                 default:
                                     break;
@@ -117,7 +116,7 @@ public class UpdateServlet extends HttpServlet implements java.io.Serializable {
         } catch (UploadException e) {
             session.setAttribute("error", "Unable to upload. Please try again later"); //send error messsage
         }
-        response.sendRedirect("BootstrapInitialize.jsp");
+        response.sendRedirect("BootstrapUpdate.jsp");
     }
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
