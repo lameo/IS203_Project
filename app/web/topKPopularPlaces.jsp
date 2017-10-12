@@ -59,7 +59,7 @@
                 <!-- form input for date & time  -->
                 <div class="form-group">
                     <label class="form-control-label" for="timing">Enter date & time:</label>
-                    <input type="text" class="form-control" id="timing" name="timeDate" placeholder="Example: 2014-03-23 13:40:00" required>
+                    <input type="text" class="form-control" id="timing" name="timeDate" placeholder="Example: 2017-02-06 11:00:00" required>
                 </div>
                 <!-- select menu for top K 1-10, default is 3  -->
                 <div class="form-group">
@@ -110,7 +110,7 @@
             
             //debugging purpose
             out.print("<br><br>Copy Paste");
-            out.print("<br>2014-03-23 13:55:00");
+            out.print("<br>2017-02-06 11:00:00");
         %>
         <%="<br><br>User session: " + timestamp%>
     </center>

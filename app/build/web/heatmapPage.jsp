@@ -89,7 +89,7 @@
                 <!-- form input for date & time  -->
                 <div class="form-group">
                     <label class="form-control-label" for="timing">Enter date & time:</label>
-                    <input type="text" class="form-control" id="timing" name="endtimeDate" placeholder="Example: 2014-03-23 13:40:00" required>
+                    <input type="text" class="form-control" id="timing" name="endtimeDate" placeholder="Example: 2017-02-06 11:00:00" required>
                 </div>
                 <!-- select menu for level, default is B1  -->
                 <div class="form-group">
@@ -404,7 +404,7 @@
             session.removeAttribute("floor");
         %>
         <%="<br><br>Copy Paste"%>
-        <%="<br>2014-03-23 13:55:00"%>
+        <%="<br>2017-02-06 11:00:00"%>
         <%="<br><br>User session: " + timestamp%>           
     </center>      
 </body>

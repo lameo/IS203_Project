@@ -49,7 +49,7 @@
             <input type="hidden" name="timestamp" value="<%= new Timestamp(System.currentTimeMillis()).toString() %>">
             <div align="left"><input type="submit" value ="Admin Login"/>
         </form>
-        <h5>User:<br>zorro.fan.2010<br>zxcvbn1284</h5>
+        <h5>User:<br>zorro.fan.2013<br>zxcvbn1284</h5>
         <form method=post action="processLogin">
             <input type="hidden" name="username" value ="zorro.fan.2013" required/>
             <input type="hidden" name="password" value ="zxcvbn1284" required/>

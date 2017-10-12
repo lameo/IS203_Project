@@ -13,7 +13,7 @@ constraint demographics_pk primary key(macaddress)
 );
 
 LOAD DATA LOCAL INFILE 'D:/testt/app/web/resource/data/demographics.csv' INTO TABLE demographics
-FIELDS TERMINATED BY ',' LINES TERMINATED BY '\r' IGNORE 1 LINES (macaddress, name, password, email, gender);
+FIELDS TERMINATED BY ',' LINES TERMINATED BY '\r\n' IGNORE 1 LINES (macaddress, name, password, email, gender);
 
 
 create table locationlookup
@@ -29,7 +29,7 @@ FIELDS TERMINATED BY ',' LINES TERMINATED BY '\r\n' IGNORE 1 LINES (locationid, 
 
 create table location
 (
-timestamp varchar(20) ,
+timestamp datetime(6) ,
 macaddress varchar(40) ,
 locationid varchar(10) ,
 constraint location_pk primary key(macaddress, timestamp)

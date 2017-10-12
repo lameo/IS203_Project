@@ -61,7 +61,7 @@
                 <!-- form input for date & time  -->
                 <div class="form-group">
                     <label class="form-control-label" for="timing">Enter date & time:</label>
-                    <input type="text" class="form-control" id="timing" name="timeDate" placeholder="Example: 2014-03-23 13:40:00" required>
+                    <input type="text" class="form-control" id="timing" name="timeDate" placeholder="Example: 2017-02-06 11:00:00" required>
                 </div>
                 <!-- form input for semantic place  -->
                 <div class="form-group">
