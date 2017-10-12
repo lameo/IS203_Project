@@ -17,7 +17,7 @@ import model.ReportDAO;
 public class ReportServlet extends HttpServlet {
 
     protected void processRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        String reportType = request.getParameter("reportType");
+        String reportType = request.getParameter("reportType"); //to retrieve which basic location report the user selected
         HttpSession session = request.getSession(); 
         
         switch (reportType) {
@@ -28,6 +28,7 @@ public class ReportServlet extends HttpServlet {
                 String breakdownReport = ReportDAO.notVeryBasicBreakdown(order, endtimeDate); //retrieve HTML table from reportDAO after getting data from SQL
                 List<String> orderList = Arrays.asList(order); //changing array into list object so that it can be transferred over through session             
                 
+                //setting attributes to use to display results at basicReport.jsp
                 session.setAttribute("breakdownReport", breakdownReport);
                 session.setAttribute("orderList", orderList);                
                 response.sendRedirect("basicReport.jsp");  //send back to basicReport
@@ -37,6 +38,8 @@ public class ReportServlet extends HttpServlet {
                 int topK = Integer.parseInt(request.getParameter("topK"));
                 
                 Map<Integer, String> topKPopular = ReportDAO.retrieveTopKPopularPlaces(timeDate);
+                
+                //setting attributes to use to display results at topKPopularPlaces.jsp
                 session.setAttribute("topKPopular", topKPopular);
                 session.setAttribute("timeDate", timeDate);
                 session.setAttribute("topK", topK);                
@@ -49,6 +52,8 @@ public class ReportServlet extends HttpServlet {
                 
                 Map<ArrayList<String>, ArrayList<Integer>> topKCompanions = ReportDAO.retrieveTopKCompanions(timeDate,macaddress, topK);
                 //Map<ArrayList<String>, ArrayList<Integer>> topKCompanions = null;
+                
+                //setting attributes to use to display results at topKCompanions.jsp
                 session.setAttribute("macaddress", macaddress);
                 session.setAttribute("topK", topK); 
                 session.setAttribute("timeDate", timeDate);
@@ -56,12 +61,14 @@ public class ReportServlet extends HttpServlet {
                 response.sendRedirect("topKCompanions.jsp");  //send back to topKCompanions
                 break;
             case "topKNextPlaces":
-                timeDate = request.getParameter("timeDate");
-                String locationname = request.getParameter("locationname");
-                topK = Integer.parseInt(request.getParameter("topK"));
+                timeDate = request.getParameter("timeDate"); // retriee date and time from user input. Eg: 2017-02-06 11:00:02.000000
+                String locationname = request.getParameter("locationname"); // retrieve location name from user. Eg: SMUSISB1NearCSRAndTowardsMRT
+                topK = Integer.parseInt(request.getParameter("topK")); //retrieve which number(represents the k) user selected
                 
                 Map<Integer, ArrayList<String>> topKNextPlaces = ReportDAO.retrieveTopKNextPlaces(timeDate, locationname);
                 ArrayList<String> usersList = ReportDAO.retrieveUserBasedOnLocation(timeDate, locationname);
+                
+                //setting attributes to use to display results at topKNextPlaces.jsp
                 session.setAttribute("topKNextPlaces", topKNextPlaces);
                 session.setAttribute("timeDate", timeDate);                
                 session.setAttribute("topK", topK);           

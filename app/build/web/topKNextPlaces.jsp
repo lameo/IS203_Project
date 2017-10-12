@@ -55,7 +55,7 @@
             <br><br>
             <!-- Form for user to input date&time and top K for top K popular places report -->
             <form method=post action="report">
-                <!-- report type -->
+                <!-- report type for ReportServlet to determine which reportType is selected by user -->
                 <input type="hidden" name="reportType" value="topKNextPlaces">
                 <!-- form input for date & time  -->
                 <div class="form-group">
@@ -132,6 +132,8 @@
                     out.print("<tr><td>" + locationname + "</td><td>" + total + "</td><td>" + (total-samePlace) + "</td></tr>");                    
                     out.print("</tbody></table></div>");                     
                 }
+                
+                //removes previous shown outputs if refresh is clicked
                 session.removeAttribute("topK");
                 session.removeAttribute("timeDate");
                 session.removeAttribute("topKNextPlaces");             

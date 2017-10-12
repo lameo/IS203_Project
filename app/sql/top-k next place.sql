@@ -29,3 +29,4 @@ select llu.locationname, l.timestamp from locationlookup llu, location l
 #SELECT timestamp from location where timestamp between '2017-02-06 11:00:00' and '2017-02-06 11:15:00';
 
 #select llu.locationname, l.timestamp from locationlookup llu, location l where macaddress = '16221efe58802213454132077cd432285cad4c23'and llu.locationid = l.locationid;
+select lu.locationname, timestamp from locationlookup lu, location l where lu.locationid = l.locationid;

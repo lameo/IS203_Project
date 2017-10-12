@@ -176,7 +176,7 @@ public class ReportDAO {
     }
 
     public static Map<Integer, ArrayList<String>> retrieveTopKNextPlaces(String inputTime, String locationName) {
-        ArrayList<String> usersList = retrieveUserBasedOnLocation(inputTime, locationName);
+        ArrayList<String> usersList = retrieveUserBasedOnLocation(inputTime, locationName); //to retrieve all users who are in a specific place in given a specific time frame and location
         Map<String, Integer> nextPlacesMap = new HashMap<>();
         for (int i = 0; i < usersList.size(); i++) {
             String location = retrieveTimelineForUser(usersList.get(i), inputTime);
@@ -191,7 +191,8 @@ public class ReportDAO {
             }
         }
         
-        Map<Integer, ArrayList<String>> ranking = new TreeMap<>(Collections.reverseOrder());        
+        // TreeMap is sorted by keys
+        Map<Integer, ArrayList<String>> ranking = new TreeMap<>(Collections.reverseOrder()); //sort keys in descending order    
         Set<String> keys = nextPlacesMap.keySet();
         
         for(String key : keys){
@@ -210,7 +211,7 @@ public class ReportDAO {
         return ranking;
     }
 
-    //retrieve user who are in a specific place given a specific time frame in a specific location
+    //retrieve users who are in a specific place given a specific time frame in a specific location
     public static ArrayList<String> retrieveUserBasedOnLocation(String inputTime, String locationName) {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
@@ -221,7 +222,7 @@ public class ReportDAO {
             //get a connection to database
             connection = ConnectionManager.getConnection();
 
-            //prepare a statement
+            //prepare a statement to retrieve users who are in a specific place in a given time frame in a specific location
             preparedStatement = connection.prepareStatement("select distinct l.macaddress "
                     + "from location l, locationlookup llu "
                     + "where l.locationid = llu.locationid "
@@ -235,33 +236,35 @@ public class ReportDAO {
 
             resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
-                String result = resultSet.getString(1);
-                usersInSpecificPlace.add(result);
+                String result = resultSet.getString(1); // retrieves the user 
+                usersInSpecificPlace.add(result); // add into list to collate all users in the specific location
             }
 
             //close connections
             resultSet.close();
             preparedStatement.close();
             connection.close();
+            
         } catch (SQLException e) {
             e.printStackTrace();
         }
         return usersInSpecificPlace;
     }
-
+    
+    //retrieves the latest place user spends at least 5 mins 
     public static String retrieveTimelineForUser(String macaddress, String dateTime) {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
         ArrayList<String> locationTimestampList = new ArrayList<>();
         HashMap<String, Integer> userCurrent = new HashMap<>();
-        String currentPlace = "";
+        String currentPlace = ""; //latest place the user spends at least 5 mins
 
         try {
             //get a connection to database
             connection = ConnectionManager.getConnection();
 
-            //prepare a statement
+            //prepare a statement to get location name and time given a specfic user and time 
             preparedStatement = connection.prepareStatement("select llu.locationname, l.timestamp "
                     + "from locationlookup llu, location l "
                     + "where macaddress = ? and timestamp BETWEEN (SELECT DATE_ADD(? ,INTERVAL 0 MINUTE)) AND (SELECT DATE_ADD(DATE_ADD(? ,INTERVAL 14 MINUTE), INTERVAL 59 SECOND)) "
@@ -275,8 +278,8 @@ public class ReportDAO {
             resultSet = preparedStatement.executeQuery();
 
             while (resultSet.next()) {
-                String locationName = resultSet.getString(1);
-                String timestamp = resultSet.getString(2);
+                String locationName = resultSet.getString(1); 
+                String timestamp = resultSet.getString(2); 
                 locationTimestampList.add(locationName);
                 locationTimestampList.add(timestamp);
             }
@@ -285,7 +288,8 @@ public class ReportDAO {
             resultSet.close();
             preparedStatement.close();
             connection.close();
-
+            
+            
             int currentQuantity = 0;
 
             //arraylist locationTimestampList has locationname and timestamp in alternate order for 1 user only
@@ -307,7 +311,7 @@ public class ReportDAO {
                         currentQuantity += (int) diff; // update the latest time                           
                     } else { //not the same location
                         currentQuantity += (int) diff; // update the latest time                          
-                        if (currentQuantity > 5) {
+                        if (currentQuantity >= 5) {
                             userCurrent.put(currentPlace, currentQuantity); //put into map currentPlace and the updated currentQuantity                        
                         }
                         currentPlace = nextLocation; //set the next place as current place
