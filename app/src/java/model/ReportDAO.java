@@ -339,7 +339,7 @@ public class ReportDAO {
     public static String notVeryBasicBreakdown(String[] text, String endTimeDate) {
         // initialize array
         String[] first, second, third;  //category have name in their first value to know what does first, second or third variable contains
-        String[] year = {"Year", "2013", "2014", "2015", "2016", "2017"};                              //5
+        String[] year = {"Year", "2010", "2011", "2012", "2013", "2014"};                              //5
         String[] gender = {"Gender", "M", "F"};                                                        //2
         String[] school = {"School", "economics", "sis", "socsc", "accountancy", "business", "law"};   //6
 
@@ -650,7 +650,7 @@ public class ReportDAO {
                                 duration += 5;
                             }
                             ans += "," + locationid + "," + timestamp + "," + duration;
-                            
+                            //UserLocationTimestamps.add(ans);
                             break;
                             //if the next update location is same as the previous one
                         } else {
@@ -658,7 +658,7 @@ public class ReportDAO {
                             if (duration > 5) {
                                 duration = 5;
                                 ans += "," + locationid + "," + timestamp + "," + duration;
-                                
+                                //UserLocationTimestamps.add(ans);
                                 break;
                             } else {
                                 timestamp = timestampNext;
@@ -668,8 +668,9 @@ public class ReportDAO {
                         }
                         
                     }
+                   UserLocationTimestamps.add(ans); 
                 }
-                UserLocationTimestamps.add(ans);
+                UserLocationTimestamps.add(ans); 
             }
         } catch (SQLException e) {
             e.printStackTrace();

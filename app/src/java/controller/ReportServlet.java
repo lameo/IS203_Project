@@ -48,7 +48,8 @@ public class ReportServlet extends HttpServlet {
                 topK = Integer.parseInt(request.getParameter("topK"));
                 
                 Map<ArrayList<String>, ArrayList<Integer>> topKCompanions = ReportDAO.retrieveTopKCompanions(timeDate,macaddress, topK);
-                
+                //Map<ArrayList<String>, ArrayList<Integer>> topKCompanions = null;
+                session.setAttribute("macaddress", macaddress);
                 session.setAttribute("topK", topK); 
                 session.setAttribute("timeDate", timeDate);
                 session.setAttribute("topKCompanions", topKCompanions);
