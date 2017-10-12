@@ -58,8 +58,12 @@ public class ReportServlet extends HttpServlet {
             case "topKNextPlaces":
                 timeDate = request.getParameter("timeDate");
                 String locationname = request.getParameter("locationname");
-                Map<Integer, String> topKNextPlaces = ReportDAO.retrieveTopKNextPlaces(timeDate);
+                topK = Integer.parseInt(request.getParameter("topK"));
+                
+                Map<Integer, ArrayList<String>> topKNextPlaces = ReportDAO.retrieveTopKNextPlaces(timeDate, locationname);
                 session.setAttribute("topKNextPlaces", topKNextPlaces);
+                session.setAttribute("timeDate", timeDate);                
+                session.setAttribute("topK", topK);                
                 response.sendRedirect("topKNextPlaces.jsp");  //send back to topKNextPlaces
                 break;                
             default:

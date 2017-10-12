@@ -11,10 +11,13 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
@@ -171,9 +174,40 @@ public class ReportDAO {
         }
         return map;
     }
-    
-    public static Map<Integer, String> retrieveTopKNextPlaces(String time) {
-        return null;
+
+    public static Map<Integer, ArrayList<String>> retrieveTopKNextPlaces(String inputTime, String locationName) {
+        ArrayList<String> usersList = retrieveUserBasedOnLocation(inputTime, locationName);
+        Map<String, Integer> nextPlacesMap = new HashMap<>();
+        for (int i = 0; i < usersList.size(); i++) {
+            String location = retrieveTimelineForUser(usersList.get(i), inputTime);
+            if (location != null && location.length() > 0) {
+                if (nextPlacesMap.get(location) == null) {
+                    nextPlacesMap.put(location, 1);
+                } else {
+                    int currentQuantity = nextPlacesMap.get(location);
+                    int addOnQuantity = currentQuantity + 1;
+                    nextPlacesMap.put(location, addOnQuantity);
+                }
+            }
+        }
+        
+        Map<Integer, ArrayList<String>> ranking = new TreeMap<>(Collections.reverseOrder());        
+        Set<String> keys = nextPlacesMap.keySet();
+        
+        for(String key : keys){
+            int quantity = nextPlacesMap.get(key);
+            ArrayList<String> list = ranking.get(quantity);
+            if(list==null || list.size()<0){
+                ArrayList<String> sameLocations = new ArrayList<>();                
+                sameLocations.add(key);
+                ranking.put(quantity, sameLocations);
+            } else {
+                list.add(key);
+                ranking.put(quantity, list);
+            }
+        }
+        
+        return ranking;
     }
 
     //retrieve user who are in a specific place given a specific time frame in a specific location
@@ -181,19 +215,18 @@ public class ReportDAO {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
-        ArrayList<String> usersInSpecificPlace = new ArrayList<>();
+        ArrayList<String> usersInSpecificPlace = new ArrayList<String>();
 
         try {
             //get a connection to database
             connection = ConnectionManager.getConnection();
 
             //prepare a statement
-            preparedStatement = connection.prepareStatement("SELECT distinct l.macaddress FROM location l, locationlookup llu"
-                    + "WHERE timestamp BETWEEN (SELECT DATE_SUB(? ,INTERVAL 15 MINUTE))"
-                    + "AND (SELECT DATE_SUB(? ,INTERVAL 1 SECOND))"
-                    + "AND l.locationid = llu.locationid"
-                    + "AND llu.locationname = ?"
-                    + "GROUP BY l.macaddress");
+            preparedStatement = connection.prepareStatement("select distinct l.macaddress "
+                    + "from location l, locationlookup llu "
+                    + "where l.locationid = llu.locationid "
+                    + "and timestamp between(SELECT DATE_SUB(? ,INTERVAL 15 MINUTE)) AND (SELECT DATE_SUB(? ,INTERVAL 1 SECOND)) "
+                    + "and llu.locationname = ?");
 
             //set the parameters
             preparedStatement.setString(1, inputTime);
@@ -201,16 +234,15 @@ public class ReportDAO {
             preparedStatement.setString(3, locationName);
 
             resultSet = preparedStatement.executeQuery();
-
             while (resultSet.next()) {
-                usersInSpecificPlace.add(resultSet.getString(1));
+                String result = resultSet.getString(1);
+                usersInSpecificPlace.add(result);
             }
 
             //close connections
             resultSet.close();
             preparedStatement.close();
             connection.close();
-
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -223,18 +255,17 @@ public class ReportDAO {
         ResultSet resultSet = null;
         ArrayList<String> locationTimestampList = new ArrayList<>();
         HashMap<String, Integer> userCurrent = new HashMap<>();
-        
+        String currentPlace = "";
+
         try {
             //get a connection to database
             connection = ConnectionManager.getConnection();
 
             //prepare a statement
-            preparedStatement = connection.prepareStatement("select llu.locationname, l.timestamp from "
-                    + "locationlookup llu, location l"
-                    + "where macaddress = ?"
-                    + "and timestamp BETWEEN (SELECT DATE_ADD(? ,INTERVAL 0 MINUTE))"
-                    + "AND (SELECT DATE_ADD(DATE_ADD(? ,INTERVAL 14 MINUTE), INTERVAL 59 SECOND))"
-                    + "and llu.locationid = l.locationid;");
+            preparedStatement = connection.prepareStatement("select llu.locationname, l.timestamp "
+                    + "from locationlookup llu, location l "
+                    + "where macaddress = ? and timestamp BETWEEN (SELECT DATE_ADD(? ,INTERVAL 0 MINUTE)) AND (SELECT DATE_ADD(DATE_ADD(? ,INTERVAL 14 MINUTE), INTERVAL 59 SECOND)) "
+                    + "and llu.locationid = l.locationid");
 
             //set the parameters
             preparedStatement.setString(1, macaddress);
@@ -255,12 +286,11 @@ public class ReportDAO {
             preparedStatement.close();
             connection.close();
 
-            String currentPlace = "";
             int currentQuantity = 0;
 
             //arraylist locationTimestampList has locationname and timestamp in alternate order for 1 user only
             for (int i = 0; i < locationTimestampList.size(); i += 2) { //for-loop to loop every location name added
-                if (currentPlace.equals("")) {
+                if (currentPlace == null || currentPlace.length() <= 0) {
                     currentPlace = locationTimestampList.get(i);
                 }
                 if (i + 2 < locationTimestampList.size()) { //prevent arrayindexoutofbounds
@@ -272,22 +302,20 @@ public class ReportDAO {
                     java.util.Date firstDateAdded = df.parse(date);
                     java.util.Date nextDateAdded = df.parse(nextDate);
                     long diff = nextDateAdded.getTime() - firstDateAdded.getTime(); // to get the time the user stayed at currentPlace
-                    if (currentPlace.equals(nextLocation)) {
-                        if (diff >= 5) {
-                            currentQuantity += (int) diff; // update the latest time                           
-                            userCurrent.put(currentPlace, currentQuantity); //put into map currentPlace and the updated currentQuantity
-                        }
+
+                    if (currentPlace.equals(nextLocation)) { //if same location just add into current quantity
+                        currentQuantity += (int) diff; // update the latest time                           
                     } else { //not the same location
-                        if (diff >= 5) {
-                            currentQuantity = (int) diff;
-                            userCurrent.put(currentPlace, currentQuantity);                            
-                            currentPlace = nextLocation; //set the next place as current place
-                            currentQuantity = 0; // reset currentQuantity
+                        currentQuantity += (int) diff; // update the latest time                          
+                        if (currentQuantity > 5) {
+                            userCurrent.put(currentPlace, currentQuantity); //put into map currentPlace and the updated currentQuantity                        
                         }
+                        currentPlace = nextLocation; //set the next place as current place
+                        currentQuantity = 0; // reset currentQuantity   
                     }
                 }
             }
-            if(userCurrent.containsKey(currentPlace)) {
+            if (userCurrent.containsKey(currentPlace)) {
                 return currentPlace;
             }
 
@@ -296,7 +324,7 @@ public class ReportDAO {
         } catch (ParseException ex) {
             Logger.getLogger(ReportDAO.class.getName()).log(Level.SEVERE, null, ex);
         }
-        return "";
+        return currentPlace;
     }
 
     private static int retrieveThreeBreakdown(String timeEnd, String year, String gender, String school) {
@@ -554,7 +582,7 @@ public class ReportDAO {
         ArrayList<String> UserLocationTimestamps = retrieveUserLocationTimestamps(macaddress, endTimeDate);
         System.out.println(UserLocationTimestamps);
         Map<ArrayList<String>, ArrayList<Integer>> result = new HashMap<ArrayList<String>, ArrayList<Integer>>();
-        
+
         Map<String, Integer> CompanionColocations = new LinkedHashMap<String, Integer>();
         for (String UserLocationTimestamp : UserLocationTimestamps) {
             String[] LocationTimestamp = UserLocationTimestamp.split(",");
@@ -576,7 +604,7 @@ public class ReportDAO {
             }
             int rank = 0;
             int rankcolocationTime = 0;
-            
+
             ArrayList<String> Companions = new ArrayList<String>();
             ArrayList<Integer> Companions2 = new ArrayList<Integer>();
             while (rank <= k) {
@@ -589,14 +617,13 @@ public class ReportDAO {
                             rankcolocationTime = colocationTime3;
                         } else {
                             rank += 1;
-                            Companions2.add(rank,rankcolocationTime);
+                            Companions2.add(rank, rankcolocationTime);
                             result.put(Companions, Companions2);
                         }
                     }
 
                 }
             }
-            
 
         }
         return result;
@@ -666,11 +693,11 @@ public class ReportDAO {
                             }
 
                         }
-                        
+
                     }
-                   UserLocationTimestamps.add(ans); 
+                    UserLocationTimestamps.add(ans);
                 }
-                UserLocationTimestamps.add(ans); 
+                UserLocationTimestamps.add(ans);
             }
         } catch (SQLException e) {
             e.printStackTrace();

@@ -1,3 +1,6 @@
+<%@page import="java.util.ArrayList"%>
+<%@page import="java.util.Set"%>
+<%@page import="java.util.Map"%>
 <%@page import="model.User"%>
 <%@page import="java.sql.Timestamp"%>
 <%@page import="java.time.Instant"%>
@@ -62,7 +65,7 @@
                 <!-- form input for semantic place  -->
                 <div class="form-group">
                     <label class="form-control-label" for="locationGetter">Enter location name:</label>
-                    <input type="text" class="form-control" id="locationGetter" name="location" placeholder="Example: SMUSISL1LOBBY" required>
+                    <input type="text" class="form-control" id="locationGetter" name="locationname" placeholder="Example: SMUSISL1LOBBY" required>
                 </div>
                 <!-- select menu for top K 1-10, default is 3  -->
                 <div class="form-group">
@@ -88,22 +91,38 @@
         </div>
         <%
             //If top K report is generated
-            if (request.getAttribute("topK") != null) {
+            if (session.getAttribute("topK") != null) {
 
-                String timedate = request.getParameter("timeDate");
-                String topK = (String) request.getAttribute("topK");
-                out.print("<h3>Top-" + topK + " Popular Places at " + timedate + "</h3>");
+                String timedate = (String)session.getAttribute("timeDate");
+                Integer topK = (Integer) session.getAttribute("topK");
                 
-                
-                
-                out.print("<div class=\"container\"><table class=\"table table-bordered\"><thead>");
-                String topKPopular = (String) (request.getAttribute("topKPopular"));
-                String[] y = topKPopular.split(",");
-                out.print("<tr><th>Rank</th><th>Semantic place</th><th>No pax</th></tr></thead></tbody>");
-                for (int j = 0; j < y.length; j += 2) {
-                    out.print("<tr><td>" + (j / 2 + 1) + "</td><td>" + y[j] + "</td><td>" + y[j + 1] + "</td></tr>");
+                Map<Integer, ArrayList<String>> topKNextPlaces = (Map<Integer, ArrayList<String>>) (session.getAttribute("topKNextPlaces"));
+                if(topKNextPlaces!=null){
+                    Set<Integer> keys = topKNextPlaces.keySet();
+                    int counter = 1;
+                    out.print("<h3>Top-" + topK + " Next Places at " + timedate + "</h3>");
+
+                    out.print("<div class=\"container\"><table class=\"table table-bordered\"><thead>");
+                    out.print("<tr><th>Rank</th><th>Semantic place</th><th>No pax</th></tr></thead></tbody>");                    
+                    for(Integer key : keys){
+                        ArrayList<String> locations = topKNextPlaces.get(key);
+                        if(counter<=topK){
+                            out.print("<tr><td>" + counter + "</td><td>");
+                            for(int i=0; i<locations.size(); i++){
+                                out.print(locations.get(i));
+                                if(i+1<locations.size()){
+                                    out.print(", ");
+                                }
+                            }
+                            out.print("</td><td>" + key + "</td></tr>");  
+                            counter++;
+                        }
+                    }
+                    out.print("</tbody></table></div>");                    
                 }
-                out.print("</tbody></table></div>");
+                session.removeAttribute("topK");
+                session.removeAttribute("timeDate");
+                session.removeAttribute("topKNextPlaces");                
             }
         %>
 
