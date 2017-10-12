@@ -670,7 +670,7 @@ public class ReportDAO {
                     }
                    UserLocationTimestamps.add(ans); 
                 }
-                
+                UserLocationTimestamps.add(ans); 
             }
         } catch (SQLException e) {
             e.printStackTrace();
