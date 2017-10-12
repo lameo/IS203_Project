@@ -24,6 +24,10 @@
         <servlet-name>AutoGroupServlet</servlet-name>
         <servlet-class>controller.AutoGroupServlet</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>processUpdate</servlet-name>
+        <servlet-class>controller.UpdateServlet</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>processLogin</servlet-name>
         <url-pattern>/processLogin</url-pattern>
@@ -47,6 +51,10 @@
     <servlet-mapping>
         <servlet-name>AutoGroupServlet</servlet-name>
         <url-pattern>/AutoGroupServlet</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>processUpdate</servlet-name>
+        <url-pattern>/processUpdate</url-pattern>
     </servlet-mapping>
     <session-config>
         <session-timeout>
