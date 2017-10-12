@@ -94,35 +94,49 @@
             if (session.getAttribute("topK") != null) {
 
                 String timedate = (String)session.getAttribute("timeDate");
-                Integer topK = (Integer) session.getAttribute("topK");
+                int topK = (int) session.getAttribute("topK");
+                int total = (int) session.getAttribute("total");
+                String locationname = (String)session.getAttribute("locationname"); 
+                int samePlace = 0;
                 
                 Map<Integer, ArrayList<String>> topKNextPlaces = (Map<Integer, ArrayList<String>>) (session.getAttribute("topKNextPlaces"));
                 if(topKNextPlaces!=null){
                     Set<Integer> keys = topKNextPlaces.keySet();
                     int counter = 1;
-                    out.print("<h3>Top-" + topK + " Next Places at " + timedate + "</h3>");
-
+                    out.print("<h3>Top-" + topK + " Next Places at " + timedate + "</h3>");                       
+                    
                     out.print("<div class=\"container\"><table class=\"table table-bordered\"><thead>");
-                    out.print("<tr><th>Rank</th><th>Semantic place</th><th>No pax</th></tr></thead></tbody>");                    
-                    for(Integer key : keys){
+                    out.print("<tr><th>Rank</th><th>Semantic place</th><th>No pax</th><th>% of users visiting the semantic place</th></tr></thead></tbody>");                    
+                    for(int key : keys){
                         ArrayList<String> locations = topKNextPlaces.get(key);
                         if(counter<=topK){
                             out.print("<tr><td>" + counter + "</td><td>");
                             for(int i=0; i<locations.size(); i++){
                                 out.print(locations.get(i));
+                                if(locations.get(i).equals(locationname)){
+                                    samePlace = key;
+                                }
                                 if(i+1<locations.size()){
                                     out.print(", ");
                                 }
                             }
-                            out.print("</td><td>" + key + "</td></tr>");  
+                            out.print("</td><td>" + key + "</td>");
+                            out.print("<td>" + Math.round((double)key/total*100.0) + "%</td></tr>");                             
                             counter++;
                         }
                     }
-                    out.print("</tbody></table></div>");                    
+                    out.print("</tbody></table></div>");  
+                    
+                    out.print("<div class=\"container\"><table class=\"table table-bordered\"><thead>");
+                    out.print("<tr><th>Semantic place queried</th><th>No pax in semantic place queried</th><th>No pax who visited next semantic place</th></tr></thead></tbody>");                     
+                    out.print("<tr><td>" + locationname + "</td><td>" + total + "</td><td>" + (total-samePlace) + "</td></tr>");                    
+                    out.print("</tbody></table></div>");                     
                 }
                 session.removeAttribute("topK");
                 session.removeAttribute("timeDate");
-                session.removeAttribute("topKNextPlaces");                
+                session.removeAttribute("topKNextPlaces");             
+                session.removeAttribute("total");  
+                session.removeAttribute("locationname");                
             }
         %>
 
