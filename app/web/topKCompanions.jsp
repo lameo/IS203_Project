@@ -91,6 +91,7 @@
 
         </div>
         <%
+            out.println(session.getAttribute("topKCompanions"));
             //If top K report is generated
             if (session.getAttribute("topKCompanions") != null) {
 

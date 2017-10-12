@@ -650,7 +650,7 @@ public class ReportDAO {
                                 duration += 5;
                             }
                             ans += "," + locationid + "," + timestamp + "," + duration;
-                            
+                            //UserLocationTimestamps.add(ans);
                             break;
                             //if the next update location is same as the previous one
                         } else {
@@ -658,7 +658,7 @@ public class ReportDAO {
                             if (duration > 5) {
                                 duration = 5;
                                 ans += "," + locationid + "," + timestamp + "," + duration;
-                                
+                                //UserLocationTimestamps.add(ans);
                                 break;
                             } else {
                                 timestamp = timestampNext;
@@ -668,8 +668,9 @@ public class ReportDAO {
                         }
                         
                     }
+                   UserLocationTimestamps.add(ans); 
                 }
-                UserLocationTimestamps.add(ans);
+                
             }
         } catch (SQLException e) {
             e.printStackTrace();
