@@ -177,36 +177,36 @@ public class ReportDAO {
     public static Map<Integer, ArrayList<String>> retrieveTopKNextPlaces(String inputTime, String locationName) {
         ArrayList<String> usersList = retrieveUserBasedOnLocation(inputTime, locationName); //to retrieve all users who are in a specific place in given a specific time frame and location
         Map<String, Integer> nextPlacesMap = new HashMap<>();
-        for (int i = 0; i < usersList.size(); i++) {
-            String location = retrieveTimelineForUser(usersList.get(i), inputTime);
-            if (location != null && location.length() > 0) {
-                if (nextPlacesMap.get(location) == null) {
-                    nextPlacesMap.put(location, 1);
-                } else {
+        for (int i = 0; i < usersList.size(); i++) { // loop through all the users retrieved from retrieveUserBasedOnLocation() mtd
+            String location = retrieveTimelineForUser(usersList.get(i), inputTime); // retrieve the latest location user spends at least 5 min
+            if (location != null && location.length() > 0) { // check if there is a location
+                if (nextPlacesMap.get(location) == null) { //nextPlacesMap is empty
+                    nextPlacesMap.put(location, 1); // to initialise nextPlacesMap to set a default value as 1
+                } else { // nextPlacesMap is not empty
                     int currentQuantity = nextPlacesMap.get(location);
                     int addOnQuantity = currentQuantity + 1;
-                    nextPlacesMap.put(location, addOnQuantity);
+                    nextPlacesMap.put(location, addOnQuantity); // increment the counter if location appears for every different user from usersList
                 }
             }
         }
-        
+
         // TreeMap is sorted by keys
         Map<Integer, ArrayList<String>> ranking = new TreeMap<>(Collections.reverseOrder()); //sort keys in descending order    
-        Set<String> keys = nextPlacesMap.keySet();
-        
-        for(String key : keys){
-            int quantity = nextPlacesMap.get(key);
-            ArrayList<String> list = ranking.get(quantity);
-            if(list==null || list.size()<0){
-                ArrayList<String> sameLocations = new ArrayList<>();                
-                sameLocations.add(key);
-                ranking.put(quantity, sameLocations);
-            } else {
-                list.add(key);
-                ranking.put(quantity, list);
+        Set<String> locationKeys = nextPlacesMap.keySet(); // to retrieve all the keys(i.e location) from nextPlacesMap
+
+        for (String location : locationKeys) {
+            int totalNumOfUsers = nextPlacesMap.get(location); //for each key(i.e location) in keys, retrieve the total number of users in the location
+            ArrayList<String> allLocationList = ranking.get(totalNumOfUsers); //list is to group all the different locations with the same quantity 
+            if (allLocationList == null || allLocationList.size() < 0) { // when the ranking map is empty
+                ArrayList<String> sameLocations = new ArrayList<>();
+                sameLocations.add(location);
+                ranking.put(totalNumOfUsers, sameLocations);//to add all locations with the same quantity into map
+            } else { // ranking map contains a list of locations
+                allLocationList.add(location); // update the key(i.e location) into the list
+                ranking.put(totalNumOfUsers, allLocationList); // update map
             }
         }
-        
+
         return ranking;
     }
 
@@ -243,20 +243,20 @@ public class ReportDAO {
             resultSet.close();
             preparedStatement.close();
             connection.close();
-            
+
         } catch (SQLException e) {
             e.printStackTrace();
         }
         return usersInSpecificPlace;
     }
-    
+
     //retrieves the latest place user spends at least 5 mins 
     public static String retrieveTimelineForUser(String macaddress, String dateTime) {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
         ArrayList<String> locationTimestampList = new ArrayList<>();
-        HashMap<String, Integer> userCurrent = new HashMap<>();
+        HashMap<String, Double> userCurrent = new HashMap<>();
         String currentPlace = ""; //latest place the user spends at least 5 mins
 
         try {
@@ -277,8 +277,8 @@ public class ReportDAO {
             resultSet = preparedStatement.executeQuery();
 
             while (resultSet.next()) {
-                String locationName = resultSet.getString(1); 
-                String timestamp = resultSet.getString(2); 
+                String locationName = resultSet.getString(1);
+                String timestamp = resultSet.getString(2);
                 locationTimestampList.add(locationName);
                 locationTimestampList.add(timestamp);
             }
@@ -287,30 +287,41 @@ public class ReportDAO {
             resultSet.close();
             preparedStatement.close();
             connection.close();
-            
-            
-            int currentQuantity = 0;
+
+            //to get the total accumulated time for the given place
+            double currentQuantity = 0.0;
 
             //arraylist locationTimestampList has locationname and timestamp in alternate order for 1 user only
+            //Eg: location1, time1, location2, time2, location3, time3, .. etc
             for (int i = 0; i < locationTimestampList.size(); i += 2) { //for-loop to loop every location name added
                 if (currentPlace == null || currentPlace.length() <= 0) {
-                    currentPlace = locationTimestampList.get(i);
+                    currentPlace = locationTimestampList.get(i); // to initialise currentPlace to the one in arraylist at the start
                 }
                 if (i + 2 < locationTimestampList.size()) { //prevent arrayindexoutofbounds
-                    String nextLocation = locationTimestampList.get(i + 2);
-                    String date = locationTimestampList.get(i + 1);
-                    String nextDate = locationTimestampList.get(i + 3);
+                    String nextLocation = locationTimestampList.get(i + 2); //to retrieve the next immediate location after currentPlace
+                    String date = locationTimestampList.get(i + 1); //to retrieve the corresponding date for currentPlace
+                    String nextDate = locationTimestampList.get(i + 3); //to retrieve the date for nextLocation
 
                     DateFormat df = new SimpleDateFormat("yyyy-mm-dd HH:mm:ss.SSSSSS");
+
+                    //to convert date and nextDate to Date objects
                     java.util.Date firstDateAdded = df.parse(date);
                     java.util.Date nextDateAdded = df.parse(nextDate);
-                    long diff = nextDateAdded.getTime() - firstDateAdded.getTime(); // to get the time the user stayed at currentPlace
 
-                    if (currentPlace.equals(nextLocation)) { //if same location just add into current quantity
-                        currentQuantity += (int) diff; // update the latest time                           
+                    // to get the time the user stayed at currentPlace in seconds
+                    /*
+                    converting millis to seconds (by dividing by 1000)
+                    use / 60 to get the minutes value
+                    % 60 (remainder) to get the "seconds in minute
+                     */
+                    long diff = (nextDateAdded.getTime() - firstDateAdded.getTime());
+                    double timeDiff = diff / 1000.0;
+
+                    if (currentPlace.equals(nextLocation)) { //if same location just add into currentQuantity
+                        currentQuantity += timeDiff; // update the latest time                           
                     } else { //not the same location
-                        currentQuantity += (int) diff; // update the latest time                          
-                        if (currentQuantity >= 5) {
+                        currentQuantity += timeDiff; // update the latest time                          
+                        if (currentQuantity >= 300) {
                             userCurrent.put(currentPlace, currentQuantity); //put into map currentPlace and the updated currentQuantity                        
                         }
                         currentPlace = nextLocation; //set the next place as current place
@@ -319,7 +330,7 @@ public class ReportDAO {
                 }
             }
             if (userCurrent.containsKey(currentPlace)) {
-                return currentPlace;
+                return currentPlace; //to retrieve the sematic place for the user with the longest time (at least 5 mins)
             }
 
         } catch (SQLException e) {
@@ -327,7 +338,7 @@ public class ReportDAO {
         } catch (ParseException ex) {
             Logger.getLogger(ReportDAO.class.getName()).log(Level.SEVERE, null, ex);
         }
-        return currentPlace;
+        return ""; //if the user does not have any sematic place with more than 5 mins, return empty string
     }
 
     private static int retrieveThreeBreakdown(String timeEnd, String year, String gender, String school) {
@@ -581,7 +592,7 @@ public class ReportDAO {
         return returnThis;
     }
 
-    public static Map<ArrayList<String>, ArrayList<Integer>> retrieveTopKCompanions(String endTimeDate, String macaddress, int k) {
+    public static Map<ArrayList<String>, ArrayList<Integer>> retrieveTopKCompanions(String endTimeDate, String macaddress, int k) throws ParseException {
         ArrayList<String> UserLocationTimestamps = retrieveUserLocationTimestamps(macaddress, endTimeDate);
         System.out.println(UserLocationTimestamps);
         Map<ArrayList<String>, ArrayList<Integer>> result = new HashMap<ArrayList<String>, ArrayList<Integer>>();
@@ -632,78 +643,100 @@ public class ReportDAO {
         return result;
     }
 
-    //retreive users in hashmap form, hashmap key is macaddress and hashmap value is array of email, locationid and timestamp
-    public static ArrayList<String> retrieveUserLocationTimestamps(String macaddress, String endtimeDate) {
+    //retrieve users in hashmap form, hashmap key is macaddress and hashmap value is array of email, locationid and timestamp
+    public static ArrayList<String> retrieveUserLocationTimestamps(String macaddress, String endtimeDate) throws ParseException {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
         String ans = "";
-        int duration = 0;
+        double duration = 0;
         ArrayList<String> UserLocationTimestamps = new ArrayList<String>();
-
+        ArrayList<String> locations = new ArrayList<String>();
+        ArrayList<Timestamp> timestamps = new ArrayList<Timestamp>();
+        Timestamp timestampEnd = null;
+        String timestring = null;
+        java.util.Date timestampStart = null;
         try {
             //get a connection to database
             connection = ConnectionManager.getConnection();
 
             //prepare a statement
-            preparedStatement = connection.prepareStatement("select locationid, timestamp,DATE_SUB(?, INTERVAL 1 SECOND) "
-                    + "from demographics d, location l"
-                    + "where macaddress = ? and timestamp between DATE_SUB(?, INTERVAL 15 MINUTE)"
-                    + "and DATE_SUB(?, INTERVAL 1 SECOND) order by timestamp");
+            preparedStatement = connection.prepareStatement("select locationid, timestamp, DATE_SUB(?, INTERVAL 1 SECOND) from location where macaddress = ? and timestamp between DATE_SUB(?, INTERVAL 15 MINUTE) and DATE_SUB(?, INTERVAL 1 SECOND) order by timestamp");
 
             //set the parameters
             preparedStatement.setString(1, endtimeDate);
             preparedStatement.setString(2, macaddress);
             preparedStatement.setString(3, endtimeDate);
-            preparedStatement.setString(3, endtimeDate);
+            preparedStatement.setString(4, endtimeDate);
 
             //execute SQL query
             resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
-                duration = 0;
                 String locationid = resultSet.getString(1);
-                Timestamp timestamp = resultSet.getTimestamp(2);
-                Timestamp timestampEnd = resultSet.getTimestamp(3);
-                if (resultSet.isLast()) {
-                    duration = (int) (TimeUnit.MILLISECONDS.toMinutes(timestampEnd.getTime() - timestamp.getTime()));
-                    if (duration > 5) {
-                        duration = 5;
-                    }
-                    ans += "," + locationid + "," + timestamp + "," + duration;
-                } else {
-                    while (resultSet.next()) {
-                        String locationidNext = resultSet.getString(1);
-                        Timestamp timestampNext = resultSet.getTimestamp(2);
-                        if (locationid != locationidNext) {
-                            duration = (int) (TimeUnit.MILLISECONDS.toMinutes(timestampNext.getTime() - timestamp.getTime()));
-                            if (duration > 5) {
-                                duration += 5;
-                            }
-                            ans += "," + locationid + "," + timestamp + "," + duration;
-                            //UserLocationTimestamps.add(ans);
-                            break;
-                            //if the next update location is same as the previous one
-                        } else {
-                            duration = (int) (TimeUnit.MILLISECONDS.toMinutes(timestampNext.getTime() - timestamp.getTime()));
-                            if (duration > 5) {
-                                duration = 5;
-                                ans += "," + locationid + "," + timestamp + "," + duration;
-                                //UserLocationTimestamps.add(ans);
-                                break;
-                            } else {
-                                timestamp = timestampNext;
-                                duration += (int) (TimeUnit.MILLISECONDS.toMinutes(timestampNext.getTime() - timestamp.getTime()));
-                            }
-
-                        }
-
-                    }
-                    UserLocationTimestamps.add(ans);
-                }
-                UserLocationTimestamps.add(ans);
+                timestring = resultSet.getString(2);
+                timestampEnd = resultSet.getTimestamp(3);
+                locations.add(locationid);
+                locations.add(timestring);
             }
+
+            resultSet.close();
+            preparedStatement.close();
+            connection.close();
         } catch (SQLException e) {
             e.printStackTrace();
+        }
+        for (int i = 0; i < locations.size(); i += 2) {
+            String locationid = locations.get(i); //find first location id
+            timestring = locations.get(i + 1); //find first time string
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss.SSSSSS");
+            java.util.Date timestamp = dateFormat.parse(timestring);//convert time string to Date format
+
+            if (locations.size() <= i + 2) { //if last pair of location and time
+                duration = (timestampEnd.getTime() - timestamp.getTime()) / (1000.0);
+                if (duration > 300.0) {
+                    duration += 300.0;
+                }
+                ans += "," + locationid + "," + timestamp + "," + duration + "first if";
+                UserLocationTimestamps.add(ans);
+                ans = "";
+            } else if (locations.size() > i + 2) {
+                String locationidNext = locations.get(i + 2);
+                String timestringNext = locations.get(i + 3);
+                java.util.Date timestampNext = dateFormat.parse(timestringNext);
+
+                if (!locationid.equals(locationidNext)) {
+                    duration = (double) (timestampNext.getTime() - timestamp.getTime()) / (1000.0);
+                    if (duration > 300.0) {
+                        duration += 300.0;
+                    }
+                    if (timestampStart != null) {
+                        timestamp = timestampStart;
+                    }
+                    ans += "," + locationid + "," + timestamp + "," + timestampNext + "second if";
+                    UserLocationTimestamps.add(ans);
+                    duration = 0;
+                    ans = "";
+                    //UserLocationTimestamps.add(ans);
+                    //if the next update location is same as the previous one
+                } else if (locationid.equals(locationidNext)) {
+                    if (timestampStart == null) {
+                        timestampStart = timestamp;
+                    }
+
+                    duration = (double) (timestampNext.getTime() - timestamp.getTime()) / (1000.0);
+                    if (duration > 300.0) {
+                        duration += 300.0;
+                        ans += "," + locationidNext + "," + timestampStart + "," + timestamp + "third if";
+                        UserLocationTimestamps.add(ans);
+                        duration = 0;
+                        ans = "";
+                        //UserLocationTimestamps.add(ans);
+                    } else if (duration <= 300.0) {
+                        duration += (timestampNext.getTime() - timestamp.getTime()) / (1000.0);
+                    }
+
+                }
+            }
         }
         //UserLocationTimestamps.add("1010110032"+","+"014-03-24 09:07:27.000000"+","+"1");
         return UserLocationTimestamps;

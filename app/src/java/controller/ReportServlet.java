@@ -1,11 +1,14 @@
 package controller;
 
 import java.io.IOException;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -17,67 +20,71 @@ import model.ReportDAO;
 public class ReportServlet extends HttpServlet {
 
     protected void processRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        String reportType = request.getParameter("reportType"); //to retrieve which basic location report the user selected
-        HttpSession session = request.getSession(); 
-        
-        switch (reportType) {
-            case "basicReport":
-                String endtimeDate = request.getParameter("endtimeDate"); //retrieve time from user input
-                String[] order = request.getParameterValues("order"); //retrieve order from user input
-                
-                String breakdownReport = ReportDAO.notVeryBasicBreakdown(order, endtimeDate); //retrieve HTML table from reportDAO after getting data from SQL
-                List<String> orderList = Arrays.asList(order); //changing array into list object so that it can be transferred over through session             
-                
-                //setting attributes to use to display results at basicReport.jsp
-                session.setAttribute("breakdownReport", breakdownReport);
-                session.setAttribute("orderList", orderList);                
-                response.sendRedirect("basicReport.jsp");  //send back to basicReport
-                break;
-            case "topKPopular":
-                String timeDate = request.getParameter("timeDate"); //retrieve time from user input
-                int topK = Integer.parseInt(request.getParameter("topK"));
-                
-                Map<Integer, String> topKPopular = ReportDAO.retrieveTopKPopularPlaces(timeDate);
-                
-                //setting attributes to use to display results at topKPopularPlaces.jsp
-                session.setAttribute("topKPopular", topKPopular);
-                session.setAttribute("timeDate", timeDate);
-                session.setAttribute("topK", topK);                
-                response.sendRedirect("topKPopularPlaces.jsp");  //send back to topKPopularPlaces
-                break;
-            case "topKCompanions":
-                String macaddress = request.getParameter("macAddress");
-                timeDate = request.getParameter("timeDate");
-                topK = Integer.parseInt(request.getParameter("topK"));
-                
-                Map<ArrayList<String>, ArrayList<Integer>> topKCompanions = ReportDAO.retrieveTopKCompanions(timeDate,macaddress, topK);
-                //Map<ArrayList<String>, ArrayList<Integer>> topKCompanions = null;
-                
-                //setting attributes to use to display results at topKCompanions.jsp
-                session.setAttribute("macaddress", macaddress);
-                session.setAttribute("topK", topK); 
-                session.setAttribute("timeDate", timeDate);
-                session.setAttribute("topKCompanions", topKCompanions);
-                response.sendRedirect("topKCompanions.jsp");  //send back to topKCompanions
-                break;
-            case "topKNextPlaces":
-                timeDate = request.getParameter("timeDate"); // retriee date and time from user input. Eg: 2017-02-06 11:00:02.000000
-                String locationname = request.getParameter("locationname"); // retrieve location name from user. Eg: SMUSISB1NearCSRAndTowardsMRT
-                topK = Integer.parseInt(request.getParameter("topK")); //retrieve which number(represents the k) user selected
-                
-                Map<Integer, ArrayList<String>> topKNextPlaces = ReportDAO.retrieveTopKNextPlaces(timeDate, locationname);
-                ArrayList<String> usersList = ReportDAO.retrieveUserBasedOnLocation(timeDate, locationname);
-                
-                //setting attributes to use to display results at topKNextPlaces.jsp
-                session.setAttribute("topKNextPlaces", topKNextPlaces);
-                session.setAttribute("timeDate", timeDate);                
-                session.setAttribute("topK", topK);           
-                session.setAttribute("total", usersList.size());  
-                session.setAttribute("locationname", locationname);
-                response.sendRedirect("topKNextPlaces.jsp");  //send back to topKNextPlaces
-                break;                
-            default:
-                break;
+        try {
+            String reportType = request.getParameter("reportType"); //to retrieve which basic location report the user selected
+            HttpSession session = request.getSession();
+            
+            switch (reportType) {
+                case "basicReport":
+                    String endtimeDate = request.getParameter("endtimeDate"); //retrieve time from user input
+                    String[] order = request.getParameterValues("order"); //retrieve order from user input
+                    
+                    String breakdownReport = ReportDAO.notVeryBasicBreakdown(order, endtimeDate); //retrieve HTML table from reportDAO after getting data from SQL
+                    List<String> orderList = Arrays.asList(order); //changing array into list object so that it can be transferred over through session
+                    
+                    //setting attributes to use to display results at basicReport.jsp
+                    session.setAttribute("breakdownReport", breakdownReport);
+                    session.setAttribute("orderList", orderList);
+                    response.sendRedirect("basicReport.jsp");  //send back to basicReport
+                    break;
+                case "topKPopular":
+                    String timeDate = request.getParameter("timeDate"); //retrieve time from user input
+                    int topK = Integer.parseInt(request.getParameter("topK"));
+                    
+                    Map<Integer, String> topKPopular = ReportDAO.retrieveTopKPopularPlaces(timeDate);
+                    
+                    //setting attributes to use to display results at topKPopularPlaces.jsp
+                    session.setAttribute("topKPopular", topKPopular);
+                    session.setAttribute("timeDate", timeDate);
+                    session.setAttribute("topK", topK);
+                    response.sendRedirect("topKPopularPlaces.jsp");  //send back to topKPopularPlaces
+                    break;
+                case "topKCompanions":
+                    String macaddress = request.getParameter("macAddress");
+                    timeDate = request.getParameter("timeDate");
+                    topK = Integer.parseInt(request.getParameter("topK"));
+                    
+                    Map<ArrayList<String>, ArrayList<Integer>> topKCompanions = ReportDAO.retrieveTopKCompanions(timeDate,macaddress, topK);
+                    //Map<ArrayList<String>, ArrayList<Integer>> topKCompanions = null;
+                    
+                    //setting attributes to use to display results at topKCompanions.jsp
+                    session.setAttribute("macaddress", macaddress);
+                    session.setAttribute("topK", topK);
+                    session.setAttribute("timeDate", timeDate);
+                    session.setAttribute("topKCompanions", topKCompanions);
+                    response.sendRedirect("topKCompanions.jsp");  //send back to topKCompanions
+                    break;
+                case "topKNextPlaces":
+                    timeDate = request.getParameter("timeDate"); // retriee date and time from user input. Eg: 2017-02-06 11:00:02.000000
+                    String locationname = request.getParameter("locationname"); // retrieve location name from user. Eg: SMUSISB1NearCSRAndTowardsMRT
+                    topK = Integer.parseInt(request.getParameter("topK")); //retrieve which number(represents the k) user selected
+                    
+                    Map<Integer, ArrayList<String>> topKNextPlaces = ReportDAO.retrieveTopKNextPlaces(timeDate, locationname);
+                    ArrayList<String> usersList = ReportDAO.retrieveUserBasedOnLocation(timeDate, locationname);
+                    
+                    //setting attributes to use to display results at topKNextPlaces.jsp
+                    session.setAttribute("topKNextPlaces", topKNextPlaces);
+                    session.setAttribute("timeDate", timeDate);
+                    session.setAttribute("topK", topK);
+                    session.setAttribute("total", usersList.size());
+                    session.setAttribute("locationname", locationname);
+                    response.sendRedirect("topKNextPlaces.jsp");  //send back to topKNextPlaces
+                    break;
+                default:
+                    break;
+            }
+        } catch (ParseException ex) {
+            Logger.getLogger(ReportServlet.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
