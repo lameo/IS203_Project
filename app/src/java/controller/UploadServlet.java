@@ -32,6 +32,7 @@ public class UploadServlet extends HttpServlet implements java.io.Serializable {
         HashMap<Integer, String> locationLookupError = new HashMap<>();
         HashMap<Integer, String> locationError = new HashMap<>();
         try {
+            UploadDAO.clearDatabase();
             ServletContext servletContext = this.getServletConfig().getServletContext();
             File directory = (File) servletContext.getAttribute("javax.servlet.context.tempdir"); //Pathname to a scratch directory to be provided by this Context for temporary read-write use by servlets within the associated web application
             String outputDirectory = "" + directory; //String format of directory
@@ -39,7 +40,6 @@ public class UploadServlet extends HttpServlet implements java.io.Serializable {
             upBean.setFolderstore(outputDirectory); //set upBean output directory
             Long size = Long.parseLong("8589934592"); //the size limit of the file uploads
             upBean.setFilesizelimit(size);
-            //UploadDAO.clearDatabase();
             if (MultipartFormDataRequest.isMultipartFormData(request)) {
                 //Uses MultipartFormDataRequest to parse the HTTP request.
                 MultipartFormDataRequest multipartRequest = new MultipartFormDataRequest(request); //specialized version of request object to interpret the data
