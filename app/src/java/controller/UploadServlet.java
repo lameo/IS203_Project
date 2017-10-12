@@ -39,7 +39,7 @@ public class UploadServlet extends HttpServlet implements java.io.Serializable {
             upBean.setFolderstore(outputDirectory); //set upBean output directory
             Long size = Long.parseLong("8589934592"); //the size limit of the file uploads
             upBean.setFilesizelimit(size);
-            UploadDAO.clearDatabase();
+            //UploadDAO.clearDatabase();
             if (MultipartFormDataRequest.isMultipartFormData(request)) {
                 //Uses MultipartFormDataRequest to parse the HTTP request.
                 MultipartFormDataRequest multipartRequest = new MultipartFormDataRequest(request); //specialized version of request object to interpret the data

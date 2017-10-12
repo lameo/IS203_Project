@@ -34,13 +34,13 @@ public class UploadDAO {
                     + "create schema `data`;"
                     + "use `data`;"
                     + "create table demographics ( macaddress varchar(40) not null, name varchar(50) not null, password varchar(50) not null, email varchar(50) not null, gender char(1) not null, constraint demographics_pk primary key(macaddress) );"
-                    + "create table locationlookup ( locationid varchar(12) not null, locationname varchar(25) not null, constraint locationlookup_pk primary key(locationid) );"
-                    + "create table location ( timestamp varchar(20) not null,  macaddress varchar(40) not null,  locationid varchar(12) not null,  constraint location_pk primary key(macaddress, timestamp) );"
-                    + "create table stalkerMode ( macaddress varchar(40) not null,  locationid varchar(10) not null,  locationname varchar(25) not null, maxTimestamp datetime(6) not null, minTimestamp datetime(6) not null, minutesSpend int(4) not null, constraint location_pk primary key(macaddress, maxTimestamp);");
+                    + "create table locationlookup ( locationid varchar(40) not null, locationname varchar(25) not null, constraint locationlookup_pk primary key(locationid) );"
+                    + "create table location ( timestamp varchar(20) not null,  macaddress varchar(40) not null,  locationid varchar(40) not null,  constraint location_pk primary key(macaddress, timestamp) );"
+                    + "create table stalkerMode ( macaddress varchar(40) not null,  locationid varchar(40) not null,  locationname varchar(25) not null, maxTimestamp datetime(6) not null, minTimestamp datetime(6) not null, minutesSpend int(4) not null, constraint location_pk primary key(macaddress, maxTimestamp);");
             //set the parameters
             //nth to prepare
             //execute SQL query
-            preparedStatement.executeUpdate();
+            preparedStatement.executeQuery();
 
             //close connections
             resultSet.close();
@@ -412,7 +412,7 @@ public class UploadDAO {
             connection = ConnectionManager.getConnection();
 
             //prepare a statement
-            preparedStatement = connection.prepareStatement("insert into location (timestamp, macaddress, locationid) values(?,?,?)");
+            preparedStatement = connection.prepareStatement("insert into location (timestamp, macaddress, locationid) values(?,?,?);");
 
             BufferedReader bufferReader = new BufferedReader(new InputStreamReader(new FileInputStream(filePath)));
 
