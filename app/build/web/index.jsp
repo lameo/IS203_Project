@@ -5,7 +5,6 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <link rel="icon" href="resource/image/favicon.ico">
         <title>SLOCA Login Page</title>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -38,10 +37,6 @@
         </center>
             <input type="hidden" name="timestamp" value="<%= new Timestamp(System.currentTimeMillis()).toString() %>">
         </form>
-
-        
-        
-        
         <br><br><h4>Test accounts:</h4><h5>Admin:<br>admin<br>password</h5>
         <form method=post action="processLogin">
             <input type="hidden" name="username" value ="admin" required/>

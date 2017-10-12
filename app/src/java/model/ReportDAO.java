@@ -18,7 +18,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -329,7 +328,7 @@ public class ReportDAO {
                     }
                 }
             }
-            if (userCurrent.containsKey(currentPlace)) {
+            if (userCurrent.get(currentPlace)!=null && userCurrent.get(currentPlace)>=300) {
                 return currentPlace; //to retrieve the sematic place for the user with the longest time (at least 5 mins)
             }
 
@@ -338,7 +337,7 @@ public class ReportDAO {
         } catch (ParseException ex) {
             Logger.getLogger(ReportDAO.class.getName()).log(Level.SEVERE, null, ex);
         }
-        return ""; //if the user does not have any sematic place with more than 5 mins, return empty string
+        return "SMUSISB1NearATM"; //if the user does not have any sematic place with more than 5 mins, return empty string
     }
 
     private static int retrieveThreeBreakdown(String timeEnd, String year, String gender, String school) {

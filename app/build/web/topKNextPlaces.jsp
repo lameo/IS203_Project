@@ -65,7 +65,7 @@
                 <!-- form input for semantic place  -->
                 <div class="form-group">
                     <label class="form-control-label" for="locationGetter">Enter location name:</label>
-                    <input type="text" class="form-control" id="locationGetter" name="locationname" placeholder="Example: SMUSISL1LOBBY" required>
+                    <input type="text" class="form-control" id="locationGetter" name="locationname" placeholder="Example: SMUSISL3SR3.4" required>
                 </div>
                 <!-- select menu for top K 1-10, default is 3  -->
                 <div class="form-group">
@@ -85,9 +85,6 @@
                 </div>
                 <button type="submit" class="btn btn-primary">Generate</button>
             </form>
-
-
-
         </div>
         <%
             //If top K report is generated
@@ -141,9 +138,9 @@
                 session.removeAttribute("locationname");                
             }
         %>
-
-
-
+        <%="<br><br>Copy Paste"%>
+        <%="<br>2017-02-06 11:00:00"%>
+        <%="<br>SMUSISL3SR3.4"%>
         <%="<br>User session: " + timestamp%>
     </center>
 </body>
