@@ -39,71 +39,67 @@ public class UploadServlet extends HttpServlet implements java.io.Serializable {
             upBean.setFolderstore(outputDirectory); //set upBean output directory
             Long size = Long.parseLong("8589934592"); //the size limit of the file uploads
             upBean.setFilesizelimit(size);
-
+            UploadDAO.clearDatabase();
             if (MultipartFormDataRequest.isMultipartFormData(request)) {
                 //Uses MultipartFormDataRequest to parse the HTTP request.
                 MultipartFormDataRequest multipartRequest = new MultipartFormDataRequest(request); //specialized version of request object to interpret the data
-                uploadType = multipartRequest.getParameter("uploadType"); //either intialize or update              
-                String todo = multipartRequest.getParameter("todo");
 
-                if (todo.equalsIgnoreCase("upload")) {
-                    Hashtable files = multipartRequest.getFiles(); //get the files sent over, hastable is the older version of hashmap
-                    if ((files != null) && (!files.isEmpty())) {
-                        UploadFile file = (UploadFile) files.get("uploadfile"); //get the files from bootstrapinitialize
-                        if (file != null && file.getFileSize() > 0 && file.getFileName() != null) {
-                            String fileName = file.getFileName();
-                            String contentType = file.getContentType(); //Get the file type
-                            String filePath = outputDirectory + File.separator + fileName; //get the file path 
+                Hashtable files = multipartRequest.getFiles(); //get the files sent over, hastable is the older version of hashmap
+                if ((files != null) && (!files.isEmpty())) {
+                    UploadFile file = (UploadFile) files.get("uploadfile"); //get the files from bootstrapinitialize
+                    if (file != null && file.getFileSize() > 0 && file.getFileName() != null) {
+                        String fileName = file.getFileName();
+                        String contentType = file.getContentType(); //Get the file type
+                        String filePath = outputDirectory + File.separator + fileName; //get the file path 
 
-                            if (contentType.equals("application/x-zip-compressed")) { //if it is a zip file
-                                upBean.store(multipartRequest, "uploadfile"); //save to directory
+                        if (contentType.equals("application/x-zip-compressed")) { //if it is a zip file
+                            upBean.store(multipartRequest, "uploadfile"); //save to directory
 
-                                String fileExist = UploadDAO.unzip(filePath, outputDirectory); //unzip the files in the zip and save into the directory    
+                            String fileExist = UploadDAO.unzip(filePath, outputDirectory); //unzip the files in the zip and save into the directory    
 
-                                if (fileExist != null && fileExist.contains("demographics.csv")) {
+                            if (fileExist != null && fileExist.contains("demographics.csv")) {
+                                demographicsError = UploadDAO.readDemographics(outputDirectory + File.separator + "demographics.csv");
+                            }
+                            if (fileExist != null && fileExist.contains("location.csv")) {
+                                locationError = UploadDAO.readLocation(outputDirectory + File.separator + "location.csv");
+                            }
+                            if (fileExist != null && fileExist.contains("location-lookup.csv")) {
+                                locationLookupError = UploadDAO.readLookup(outputDirectory + File.separator + "location-lookup.csv");
+                            }
+
+                        } else if (UploadDAO.checkFileName(fileName) != null && UploadDAO.checkFileName(fileName).length() > 0) { //if location.csv or location-lookup.csv or demographics.csv
+                            upBean.store(multipartRequest, "uploadfile"); //save to directory
+                            switch (fileName) {
+                                case "demographics.csv":
                                     demographicsError = UploadDAO.readDemographics(outputDirectory + File.separator + "demographics.csv");
-                                }
-                                if (fileExist != null && fileExist.contains("location.csv")) {
+                                    break;
+                                case "location.csv":
                                     locationError = UploadDAO.readLocation(outputDirectory + File.separator + "location.csv");
-                                }
-                                if (fileExist != null && fileExist.contains("location-lookup.csv")) {
+                                    break;
+                                case "location-lookup.csv":
                                     locationLookupError = UploadDAO.readLookup(outputDirectory + File.separator + "location-lookup.csv");
-                                }
-
-                            } else if (UploadDAO.checkFileName(fileName) != null && UploadDAO.checkFileName(fileName).length() > 0) { //if location.csv or location-lookup.csv or demographics.csv
-                                upBean.store(multipartRequest, "uploadfile"); //save to directory
-                                switch (fileName) {
-                                    case "demographics.csv":
-                                        demographicsError = UploadDAO.readDemographics(outputDirectory + File.separator + "demographics.csv");
-                                        break;
-                                    case "location.csv":
-                                        locationError = UploadDAO.readLocation(outputDirectory + File.separator + "location.csv");
-                                        break;
-                                    case "location-lookup.csv":
-                                        locationLookupError = UploadDAO.readLookup(outputDirectory + File.separator + "location-lookup.csv");
-                                        break;
-                                    default:
-                                        break;
-                                }
-                            } else {
-                                session.setAttribute("error", "Wrong file name or type"); //send error messsage                                  
+                                    break;
+                                default:
+                                    break;
                             }
-
-                            if (demographicsError.isEmpty() && locationError.isEmpty() && locationLookupError.isEmpty()) {
-                                success = "Uploaded file: " + fileName + " (" + file.getFileSize() + " bytes)";
-                                session.setAttribute("success", success); //send success messsage       
-                            } else {
-                                session.setAttribute("demographicsError", demographicsError); //send error messsage       
-                                session.setAttribute("locationLookupError", locationLookupError);
-                                session.setAttribute("locationError", locationError);
-                            }
-                            file = null;
                         } else {
-                            session.setAttribute("error", "No uploaded files"); //send error messsage                     
+                            session.setAttribute("error", "Wrong file name or type"); //send error messsage                                  
                         }
+
+                        if (demographicsError.isEmpty() && locationError.isEmpty() && locationLookupError.isEmpty()) {
+                            success = "Uploaded file: " + fileName + " (" + file.getFileSize() + " bytes)";
+                            session.setAttribute("success", success); //send success messsage       
+                        } else {
+                            session.setAttribute("demographicsError", demographicsError); //send error messsage       
+                            session.setAttribute("locationLookupError", locationLookupError);
+                            session.setAttribute("locationError", locationError);
+                        }
+                        file = null;
                     } else {
-                        session.setAttribute("error", "No uploaded files"); //send error messsage                   
+                        session.setAttribute("error", "No uploaded files"); //send error messsage                     
                     }
+                } else {
+                    session.setAttribute("error", "No uploaded files"); //send error messsage                   
                 }
             }
             if (outputDirectory == null) {
