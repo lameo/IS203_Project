@@ -12,7 +12,7 @@ select distinct l.macaddress, llu.locationname from location l, locationlookup l
                     WHERE timestamp BETWEEN (SELECT DATE_SUB('2017-02-06 11:00:00' ,INTERVAL 15 MINUTE)) 
                     AND (SELECT DATE_SUB('2017-02-06 11:00:00' ,INTERVAL 1 SECOND))
  and l.locationid = llu.locationid
- and llu.locationname = 'SMUSISB1NearATM'
+ and llu.locationname = 'SMUSISL1LOBBY'
  group by l.macaddress;
 
 select lu.locationname, l.timestamp from location l, locationlookup lu where l.locationid= lu.locationid and macaddress = '16221efe58802213454132077cd432285cad4c23';

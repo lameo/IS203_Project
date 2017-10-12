@@ -178,33 +178,33 @@ public class ReportDAO {
     public static Map<Integer, ArrayList<String>> retrieveTopKNextPlaces(String inputTime, String locationName) {
         ArrayList<String> usersList = retrieveUserBasedOnLocation(inputTime, locationName); //to retrieve all users who are in a specific place in given a specific time frame and location
         Map<String, Integer> nextPlacesMap = new HashMap<>();
-        for (int i = 0; i < usersList.size(); i++) {
-            String location = retrieveTimelineForUser(usersList.get(i), inputTime);
-            if (location != null && location.length() > 0) {
-                if (nextPlacesMap.get(location) == null) {
-                    nextPlacesMap.put(location, 1);
-                } else {
+        for (int i = 0; i < usersList.size(); i++) { // loop through all the users retrieved from retrieveUserBasedOnLocation() mtd
+            String location = retrieveTimelineForUser(usersList.get(i), inputTime); // retrieve the latest location user spends at least 5 min
+            if (location != null && location.length() > 0) { // check if there is a location
+                if (nextPlacesMap.get(location) == null) { //nextPlacesMap is empty
+                    nextPlacesMap.put(location, 1); // to initialise nextPlacesMap to set a default value as 1
+                } else { // nextPlacesMap is not empty
                     int currentQuantity = nextPlacesMap.get(location);
                     int addOnQuantity = currentQuantity + 1;
-                    nextPlacesMap.put(location, addOnQuantity);
+                    nextPlacesMap.put(location, addOnQuantity); // increment the counter if location appears for every different user from usersList
                 }
             }
         }
         
         // TreeMap is sorted by keys
         Map<Integer, ArrayList<String>> ranking = new TreeMap<>(Collections.reverseOrder()); //sort keys in descending order    
-        Set<String> keys = nextPlacesMap.keySet();
+        Set<String> locationKeys = nextPlacesMap.keySet(); // to retrieve all the keys(i.e location) from nextPlacesMap
         
-        for(String key : keys){
-            int quantity = nextPlacesMap.get(key);
-            ArrayList<String> list = ranking.get(quantity);
-            if(list==null || list.size()<0){
+        for(String location : locationKeys){
+            int totalNumOfUsers = nextPlacesMap.get(location); //for each key(i.e location) in keys, retrieve the total number of users in the location
+            ArrayList<String> allLocationList = ranking.get(totalNumOfUsers); //list is to group all the different locations with the same quantity 
+            if(allLocationList==null || allLocationList.size()<0){ // when the ranking map is empty
                 ArrayList<String> sameLocations = new ArrayList<>();                
-                sameLocations.add(key);
-                ranking.put(quantity, sameLocations);
-            } else {
-                list.add(key);
-                ranking.put(quantity, list);
+                sameLocations.add(location);
+                ranking.put(totalNumOfUsers, sameLocations);//to add all locations with the same quantity into map
+            } else { // ranking map contains a list of locations
+                allLocationList.add(location); // update the key(i.e location) into the list
+                ranking.put(totalNumOfUsers, allLocationList); // update map
             }
         }
         
@@ -257,7 +257,7 @@ public class ReportDAO {
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
         ArrayList<String> locationTimestampList = new ArrayList<>();
-        HashMap<String, Integer> userCurrent = new HashMap<>();
+        HashMap<String, Double> userCurrent = new HashMap<>();
         String currentPlace = ""; //latest place the user spends at least 5 mins
 
         try {
@@ -289,29 +289,40 @@ public class ReportDAO {
             preparedStatement.close();
             connection.close();
             
-            
-            int currentQuantity = 0;
+            //to get the total accumulated time for the given place
+            double currentQuantity = 0.0;
 
             //arraylist locationTimestampList has locationname and timestamp in alternate order for 1 user only
+            //Eg: location1, time1, location2, time2, location3, time3, .. etc
             for (int i = 0; i < locationTimestampList.size(); i += 2) { //for-loop to loop every location name added
                 if (currentPlace == null || currentPlace.length() <= 0) {
-                    currentPlace = locationTimestampList.get(i);
+                    currentPlace = locationTimestampList.get(i); // to initialise currentPlace to the one in arraylist at the start
                 }
                 if (i + 2 < locationTimestampList.size()) { //prevent arrayindexoutofbounds
-                    String nextLocation = locationTimestampList.get(i + 2);
-                    String date = locationTimestampList.get(i + 1);
-                    String nextDate = locationTimestampList.get(i + 3);
+                    String nextLocation = locationTimestampList.get(i + 2); //to retrieve the next immediate location after currentPlace
+                    String date = locationTimestampList.get(i + 1); //to retrieve the corresponding date for currentPlace
+                    String nextDate = locationTimestampList.get(i + 3); //to retrieve the date for nextLocation
 
                     DateFormat df = new SimpleDateFormat("yyyy-mm-dd HH:mm:ss.SSSSSS");
+                    
+                    //to convert date and nextDate to Date objects
                     java.util.Date firstDateAdded = df.parse(date);
                     java.util.Date nextDateAdded = df.parse(nextDate);
-                    long diff = nextDateAdded.getTime() - firstDateAdded.getTime(); // to get the time the user stayed at currentPlace
-
-                    if (currentPlace.equals(nextLocation)) { //if same location just add into current quantity
-                        currentQuantity += (int) diff; // update the latest time                           
+                    
+                    // to get the time the user stayed at currentPlace in seconds
+                    /*
+                    converting millis to seconds (by dividing by 1000)
+                    use / 60 to get the minutes value
+                    % 60 (remainder) to get the "seconds in minute
+                    */
+                    long diff = (nextDateAdded.getTime() - firstDateAdded.getTime());
+                    double timeDiff = diff / 1000.0;
+                    
+                    if (currentPlace.equals(nextLocation)) { //if same location just add into currentQuantity
+                        currentQuantity += timeDiff; // update the latest time                           
                     } else { //not the same location
-                        currentQuantity += (int) diff; // update the latest time                          
-                        if (currentQuantity >= 5) {
+                        currentQuantity += timeDiff; // update the latest time                          
+                        if (currentQuantity >= 300) {
                             userCurrent.put(currentPlace, currentQuantity); //put into map currentPlace and the updated currentQuantity                        
                         }
                         currentPlace = nextLocation; //set the next place as current place
@@ -320,7 +331,7 @@ public class ReportDAO {
                 }
             }
             if (userCurrent.containsKey(currentPlace)) {
-                return currentPlace;
+                return currentPlace; //to retrieve the sematic place for the user with the longest time (at least 5 mins)
             }
 
         } catch (SQLException e) {
@@ -328,7 +339,7 @@ public class ReportDAO {
         } catch (ParseException ex) {
             Logger.getLogger(ReportDAO.class.getName()).log(Level.SEVERE, null, ex);
         }
-        return currentPlace;
+        return ""; //if the user does not have any sematic place with more than 5 mins, return empty string
     }
 
     private static int retrieveThreeBreakdown(String timeEnd, String year, String gender, String school) {

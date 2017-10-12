@@ -89,7 +89,7 @@ public class UploadDAO {
             connection = ConnectionManager.getConnection();
 
             //prepare a statement
-            preparedStatement = connection.prepareStatement("truncate demographics");
+            preparedStatement = connection.prepareStatement("truncate demographics;");
 
             //execute SQL query
             preparedStatement.executeUpdate();
@@ -109,7 +109,7 @@ public class UploadDAO {
             connection = ConnectionManager.getConnection();
 
             //prepare a statement
-            preparedStatement = connection.prepareStatement("truncate location");
+            preparedStatement = connection.prepareStatement("truncate location;");
 
             //execute SQL query
             preparedStatement.executeUpdate();
@@ -129,7 +129,7 @@ public class UploadDAO {
             connection = ConnectionManager.getConnection();
 
             //prepare a statement
-            preparedStatement = connection.prepareStatement("truncate locationlookup");
+            preparedStatement = connection.prepareStatement("truncate locationlookup;");
 
             //execute SQL query
             preparedStatement.executeUpdate();
@@ -151,10 +151,10 @@ public class UploadDAO {
             connection = ConnectionManager.getConnection();
 
             //prepare a statement
-            preparedStatement = connection.prepareStatement("select locationid from locationlookup");
+            preparedStatement = connection.prepareStatement("select locationid from locationlookup;");
 
             //execute SQL query
-            preparedStatement.executeUpdate();
+            preparedStatement.executeQuery();
 
             resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
@@ -178,10 +178,10 @@ public class UploadDAO {
             connection = ConnectionManager.getConnection();
 
             //prepare a statement
-            preparedStatement = connection.prepareStatement("select TIMESTAMP, macaddress from location");
+            preparedStatement = connection.prepareStatement("select TIMESTAMP, macaddress from location;");
 
             //execute SQL query
-            preparedStatement.executeUpdate();
+            preparedStatement.executeQuery();
 
             resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
