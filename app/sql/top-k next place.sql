@@ -8,12 +8,11 @@ SELECT max(TIMESTAMP) as TIMESTAMP, macaddress, locationid
 group by macaddress, locationid;
 
 #people who are in a specific place in a given time frame in a specific location
-select distinct l.macaddress, llu.locationname from location l, locationlookup llu 
+select distinct l.macaddress from location l, locationlookup llu 
                     WHERE timestamp BETWEEN (SELECT DATE_SUB('2017-02-06 11:00:00' ,INTERVAL 15 MINUTE)) 
                     AND (SELECT DATE_SUB('2017-02-06 11:00:00' ,INTERVAL 1 SECOND))
  and l.locationid = llu.locationid
- and llu.locationname = 'SMUSISL1LOBBY'
- group by l.macaddress;
+ and llu.locationname = 'SMUSISB1NearATM';
 
 select lu.locationname, l.timestamp from location l, locationlookup lu where l.locationid= lu.locationid and macaddress = '16221efe58802213454132077cd432285cad4c23';
 #DATE_SUB -> Substraction

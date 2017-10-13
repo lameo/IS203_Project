@@ -250,7 +250,7 @@ public class ReportDAO {
         return usersInSpecificPlace;
     }
 
-    //retrieves the latest place user spends at least 5 mins 
+    //retrieves the latest sematic place user spends at least 5 mins 
     public static String retrieveTimelineForUser(String macaddress, String dateTime) {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
@@ -294,11 +294,12 @@ public class ReportDAO {
 
             //arraylist locationTimestampList has locationname and timestamp in alternate order for 1 user only
             //Eg: location1, time1, location2, time2, location3, time3, .. etc
-            for (int i = 0; i < locationTimestampList.size(); i += 2) { //for-loop to loop every location name added              
+            for (int i = 0; i < locationTimestampList.size(); i += 2) { //loop every location name added              
                 if (currentPlace == null || currentPlace.length() <= 0) {
-                    currentPlace = locationTimestampList.get(i); // to initialise currentPlace to the one in arraylist at the start
+                    currentPlace = locationTimestampList.get(i); // to set currentPlace to first location from locationTimestampList at the start
                 }
-                if ((i + 2) < locationTimestampList.size()) { //prevent arrayindexoutofbounds
+                //prevent arrayindexoutofbounds and to get all the locations before the last location in locationTimestampList
+                if ((i + 2) < locationTimestampList.size()) { 
                     String nextLocation = locationTimestampList.get(i + 2); //to retrieve the next immediate location after currentPlace
                     String date = locationTimestampList.get(i + 1); //to retrieve the corresponding date for currentPlace
                     String nextDate = locationTimestampList.get(i + 3); //to retrieve the date for nextLocation
@@ -307,39 +308,35 @@ public class ReportDAO {
                     java.util.Date firstDateAdded = df.parse(date);
                     java.util.Date nextDateAdded = df.parse(nextDate);
 
-                    // to get the time the user stayed at currentPlace in seconds
-                    /*
-                    converting millis to seconds (by dividing by 1000)
-                    use / 60 to get the minutes value
-                    % 60 (remainder) to get the "seconds in minute
-                     */
-                    long diff = (nextDateAdded.getTime() - firstDateAdded.getTime());
-                    double timeDiff = diff / 1000.0;
+                    long diff = (nextDateAdded.getTime() - firstDateAdded.getTime()); // to get the time the user stayed at currentPlace in milliseconds
+                    double timeDiff = diff / 1000.0; // to get the time the user stayed at currentPlace in seconds
                     currentQuantity += timeDiff; // update the latest time    
-                    if (!currentPlace.equals(nextLocation)) { //if different location check currentQuantity                    
+                    if (!currentPlace.equals(nextLocation)) { //if different location check if time is more than 5 mins                    
                         if (currentQuantity >= 300) {
                             spentMoreThan5Minutes = currentPlace;
                         }
                         currentPlace = nextLocation; //set the next place as current place
-                        currentQuantity = 0; // reset currentQuantity   
+                        currentQuantity = 0; // reset time to re-count the time for nextLocation   
                     }
                 } else { //reach the end
-                    String locationEnd =  locationTimestampList.get(i);
-                    String date = locationTimestampList.get(i + 1); //to retrieve the corresponding date for currentPlace
+                    String lastDate = locationTimestampList.get(i + 1); //to retrieve the corresponding date for last location in locationTimestampList
                     
-                    java.util.Date firstDateAdded = df.parse(date);   
+                    java.util.Date lastDateTimeAdded = df.parse(lastDate);   
                     java.util.Date endDateTime = df.parse(dateTime);
-
+                    
+                    //Calendar object to add 14min 59s to dateTime given from user
+                    //Eg: time is 11:00:00; after using Calendar object time is 11:14:59
                     Calendar cal = Calendar.getInstance();
-                    cal.setTime(endDateTime);
+                    cal.setTime(endDateTime); //to use the dateTime given by input as the base
                     cal.add(Calendar.MINUTE, 14);                    
                     cal.add(Calendar.SECOND, 59);
-                    endDateTime = cal.getTime();
+                    endDateTime = cal.getTime(); //assign the added 14min 59s to endDateTime
                     
-                    long diff = (endDateTime.getTime() - firstDateAdded.getTime());
-                    double timeDiff = diff / 1000.0;  
+                    long diff = (endDateTime.getTime() - lastDateTimeAdded.getTime()); //get the time difference between the last location to the max 15min window
+                    double timeDiff = diff / 1000.0; //to get time in seconds
                     
-                    currentQuantity += timeDiff; // based on wiki, will assume user spend the rest of his/her time there, update the latest time 
+                    // based on wiki, will assume user spend the rest of his/her time there, update the latest time
+                    currentQuantity += timeDiff;  
                 }
             }
             if(currentQuantity>=300){ //if it is the same place all the way in the users time line
