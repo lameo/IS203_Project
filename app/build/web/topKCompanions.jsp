@@ -1,3 +1,8 @@
+<%@page import="java.util.Set"%>
+<%@page import="java.util.TreeMap"%>
+<%@page import="java.sql.ResultSet"%>
+<%@page import="java.sql.PreparedStatement"%>
+<%@page import="java.sql.Connection"%>
 <%@page import="java.util.Map"%>
 <%@page import="java.util.Map.Entry"%>
 <%@page import="java.util.ArrayList"%>
@@ -70,7 +75,7 @@
                 </div>
                 <!-- select menu for top K 1-10, default is 3  -->
                 <div class="form-group">
-                    <label for="kSelector">Generate for top:</label>
+<label for="kSelector">Generate for top:</label>
                     <select class="form-control" id="kSelector" name = "topK">
                         <option value="1">1</option>
                         <option value="2">2</option>
@@ -86,43 +91,46 @@
                 </div>
                 <button type="submit" class="btn btn-primary">Generate</button>
             </form>
-
-
-
         </div>
         <%
+
+            //ArrayList<String> test = (ArrayList<String>)session.getAttribute("topKCompanions");
+            //for (int i = 0; i<test.size();i++){
+            //   out.println(test.get(i)+"<br>");
+            //}
+            //ArrayList<String> users = (ArrayList<String>)request.getAttribute("users");
+            //for (int i = 0; i<users.size();i++){
+            //  out.println(users.get(i)+"<br>");
+            //}
             out.println(session.getAttribute("topKCompanions"));
+            //out.print(session.getAttribute("users"));
             //If top K report is generated
             if (session.getAttribute("topKCompanions") != null) {
 
-                String timedate = (String)session.getAttribute("timeDate");
+                String timedate = (String) session.getAttribute("timeDate");
                 int topK = (Integer) session.getAttribute("topK");
                 out.print("<h3>Top-" + topK + " Popular Places at " + timedate + "</h3>");
-                
-                
-                
+
                 out.print("<div class=\"container\"><table class=\"table table-bordered\"><thead>");
-                Map<ArrayList<String>, ArrayList<Integer>> topKCompanions = (Map<ArrayList<String>, ArrayList<Integer>>) (session.getAttribute("topKCompanions"));
-                
+                Map<Integer, ArrayList<String>> topKCompanions = (TreeMap<Integer, ArrayList<String>>) (session.getAttribute("topKCompanions"));
+                Set<Integer> Times = topKCompanions.keySet();
                 //String[] y = topKPopular.split(",");
-                out.print("<tr><th>Rank</th><th>Semantic place</th><th>No pax</th></tr></thead></tbody>");
+                out.print("<tr><th>Rank</th><th>Semantic place</th><th>Co-located Time (in seconds)</th></tr></thead></tbody>");
                 //for (int j = 0; j < y.length; j += 2) {
-                    //out.print("<tr><td>" + (j / 2 + 1) + "</td><td>" + y[j] + "</td><td>" + y[j + 1] + "</td></tr>");
+                //out.print("<tr><td>" + (j / 2 + 1) + "</td><td>" + y[j] + "</td><td>" + y[j + 1] + "</td></tr>");
                 //}
-                
-                for(Map.Entry<ArrayList<String>, ArrayList<Integer>> entry : topKCompanions.entrySet()){
-                    ArrayList<String> macaddresses = entry.getKey();
-                    ArrayList<Integer> companions = entry.getValue();
-                    int rank = companions.get(0);
-                    int colocationTime = companions.get(1);
-                    for(int i = 0; i<macaddresses.size();i++){
+                int rank = 1;
+                for(int time: Times){
+                    ArrayList<String> macaddresses = topKCompanions.get(time);
+                    for (int i = 0; i < macaddresses.size(); i++) {
                         String macaddress = macaddresses.get(i);
-                        out.print("<tr><td>" + (rank) + "</td><td>" + macaddress + "</td><td>" + colocationTime + "</td></tr>");
+                        out.print("<tr><td>" + (rank) + "</td><td>" + macaddress + "</td><td>" + time + "</td></tr>");
                     }
                 }
+
                 out.print("</tbody></table></div>");
-            }else{
-                out.print("<h3>"+ "error" + "</h3>");
+            } else {
+                out.print("<h3>" + "error" + "</h3>");
             }
         %>
 
