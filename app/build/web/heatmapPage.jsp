@@ -111,14 +111,15 @@
             String date = (String) session.getAttribute("endtimeDate");
             HashMap<String, HeatMap> heatmapList = (HashMap<String, HeatMap>) session.getAttribute("heatmapList");
             if (floor != null && date != null) {
-                out.print("<h3>Floor:" + floor + " Date:" + date + "</h3>");
+                out.print("<h3><b>Floor:</b> " + floor + " <b>Date:</b> " + date + "</h3>");
                 out.print("<div class=\"container\"><table class=\"table table-bordered\"><thead>");
-                out.print("<tr><th>Areas</th></thead><tbody>");
+                out.print("<tr><th>Semantic Place</th><th>Quantity</th><th>Heat Level</th></thead><tbody>");
 
                 if (heatmapList != null) {
                     Set<String> keys = heatmapList.keySet();
                     for (String key : keys) {
-                        out.print("<tr><td>" + heatmapList.get(key) + "<tr></td>");
+                        HeatMap heatMap = heatmapList.get(key);                        
+                        out.print("<tr><td>" + heatMap.getPlace() + "</td><td>" + heatMap.getQtyPax() + "</td><td>"  + heatMap.getHeatLevel() + "</td></tr>");
                     }
                 }
                 out.print("</tbody></table></div>");
@@ -146,16 +147,12 @@
                 var array = obj.map; //get map array from obj
                 for (i = 0; i < array.length; i++) { //change the values according to SQL data
                     var locationname = obj.map[i].locationname;
-                    if (locationname === "SMUSISB1CORRIDORTOSOE") {
-                            obj.map[i].value = <%if(heatmapList.get("SMUSISB1CORRIDORTOSOE")!=null){out.print(heatmapList.get("SMUSISB1CORRIDORTOSOE").getHeatLevel());}else{out.print("0");}%>;
-                    } else if (locationname === "SMUSISB1NEAROSL") {
-                            obj.map[i].value = <%if(heatmapList.get("SMUSISB1NEAROSL")!=null){out.print(heatmapList.get("SMUSISB1NEAROSL").getHeatLevel());}else{out.print("0");}%>;                    
-                    } else if (locationname === "SMUSISB1STUDYAREA") {
-                            obj.map[i].value = <%if(heatmapList.get("SMUSISB1STUDYAREA")!=null){out.print(heatmapList.get("SMUSISB1STUDYAREA").getHeatLevel());}else{out.print("0");}%>;                 
-                    } else if (locationname === "SMUSISB1CORRIDORTOLKS") {
-                            obj.map[i].value = <%if(heatmapList.get("SMUSISB1CORRIDORTOLKS")!=null){out.print(heatmapList.get("SMUSISB1CORRIDORTOLKS").getHeatLevel());}else{out.print("0");}%>;                
-                    } else if (locationname === "SMUSISB1LIFTLOBBY") {
-                            obj.map[i].value = <%if(heatmapList.get("SMUSISB1LIFTLOBBY")!=null){out.print(heatmapList.get("SMUSISB1LIFTLOBBY").getHeatLevel());}else{out.print("0");}%>;                   
+                    if (locationname === "SMUSISB1NearLiftLobby") {
+                            obj.map[i].value = <%if(heatmapList.get("SMUSISB1NearLiftLobby")!=null){out.print(heatmapList.get("SMUSISB1NearLiftLobby").getHeatLevel());}else{out.print("0");}%>;
+                    } else if (locationname === "SMUSISB1NearATM") {
+                            obj.map[i].value = <%if(heatmapList.get("SMUSISB1NearATM")!=null){out.print(heatmapList.get("SMUSISB1NearATM").getHeatLevel());}else{out.print("0");}%>;                    
+                    } else if (locationname === "SMUSISB1NearCSRAndTowardsMRT") {
+                            obj.map[i].value = <%if(heatmapList.get("SMUSISB1NearCSRAndTowardsMRT")!=null){out.print(heatmapList.get("SMUSISB1NearCSRAndTowardsMRT").getHeatLevel());}else{out.print("0");}%>;                
                     }
                 }
                 
@@ -190,12 +187,12 @@
                 var array = obj.map; //get map array from obj
                 for (i = 0; i < array.length; i++) { //change the values according to SQL data
                     var locationname = obj.map[i].locationname;
-                    if (locationname === "SMUSISL1NEARSUBWAY") {
-                            obj.map[i].value = <%if(heatmapList.get("SMUSISL1NEARSUBWAY")!=null){out.print(heatmapList.get("SMUSISL1NEARSUBWAY").getHeatLevel());}else{out.print("0");}%>;
-                    } else if (locationname === "SMUSISL1RECEPTIONANDLOBBY") {
-                            obj.map[i].value = <%if(heatmapList.get("SMUSISL1RECEPTIONANDLOBBY")!=null){out.print(heatmapList.get("SMUSISL1RECEPTIONANDLOBBY").getHeatLevel());}else{out.print("0");}%>;                    
-                    } else if (locationname === "SMUSISL1FILTERINGAREA") {
-                            obj.map[i].value = <%if(heatmapList.get("SMUSISL1FILTERINGAREA")!=null){out.print(heatmapList.get("SMUSISL1FILTERINGAREA").getHeatLevel());}else{out.print("0");}%>;                 
+                    if (locationname === "SMUSISL1NearSubway") {
+                            obj.map[i].value = <%if(heatmapList.get("SMUSISL1NearSubway")!=null){out.print(heatmapList.get("SMUSISL1NearSubway").getHeatLevel());}else{out.print("0");}%>;
+                    } else if (locationname === "SMUSISL1ReceptionAndLobby") {
+                            obj.map[i].value = <%if(heatmapList.get("SMUSISL1ReceptionAndLobby")!=null){out.print(heatmapList.get("SMUSISL1ReceptionAndLobby").getHeatLevel());}else{out.print("0");}%>;                    
+                    } else if (locationname === "SMUSISL1FilteringArea") {
+                            obj.map[i].value = <%if(heatmapList.get("SMUSISL1FilteringArea")!=null){out.print(heatmapList.get("SMUSISL1FilteringArea").getHeatLevel());}else{out.print("0");}%>;                 
                     } 
                 }
                 
@@ -228,12 +225,12 @@
                 var array = obj.map; //get map array from obj
                 for (i = 0; i < array.length; i++) { //change the values according to SQL data
                     var locationname = obj.map[i].locationname;
-                    if (locationname === "SMUSISL2LIFTLOBBY") {
-                            obj.map[i].value = <%if(heatmapList.get("SMUSISL2LIFTLOBBY")!=null){out.print(heatmapList.get("SMUSISL2LIFTLOBBY").getHeatLevel());}else{out.print("0");}%>;
-                    } else if (locationname === "SMUSISL2STUDYAREA1") {
-                            obj.map[i].value = <%if(heatmapList.get("SMUSISL2STUDYAREA1")!=null){out.print(heatmapList.get("SMUSISL2STUDYAREA1").getHeatLevel());}else{out.print("0");}%>;                    
-                    } else if (locationname === "SMUSISL2STUDYAREA2") {
-                            obj.map[i].value = <%if(heatmapList.get("SMUSISL2STUDYAREA2")!=null){out.print(heatmapList.get("SMUSISL2STUDYAREA2").getHeatLevel());}else{out.print("0");}%>;                 
+                    if (locationname === "SMUSISL2LiftLobby") {
+                            obj.map[i].value = <%if(heatmapList.get("SMUSISL2LiftLobby")!=null){out.print(heatmapList.get("SMUSISL2LiftLobby").getHeatLevel());}else{out.print("0");}%>;
+                    } else if (locationname === "SMUSISL2StudyArea1") {
+                            obj.map[i].value = <%if(heatmapList.get("SMUSISL2StudyArea1")!=null){out.print(heatmapList.get("SMUSISL2StudyArea1").getHeatLevel());}else{out.print("0");}%>;                    
+                    } else if (locationname === "SMUSISL2StudyArea2") {
+                            obj.map[i].value = <%if(heatmapList.get("SMUSISL2StudyArea2")!=null){out.print(heatmapList.get("SMUSISL2StudyArea2").getHeatLevel());}else{out.print("0");}%>;                 
                     } else if (locationname === "SMUSISL2SR2.4") {
                             obj.map[i].value = <%if(heatmapList.get("SMUSISL2SR2.4")!=null){out.print(heatmapList.get("SMUSISL2SR2.4").getHeatLevel());}else{out.print("0");}%>;                    
                     } else if (locationname === "SMUSISL2SR2.3") {
@@ -274,14 +271,14 @@
                 var array = obj.map; //get map array from obj
                 for (i = 0; i < array.length; i++) { //change the values according to SQL data
                     var locationname = obj.map[i].locationname;
-                    if (locationname === "SMUSISL3LIFTLOBBY") {
-                            obj.map[i].value = <%if(heatmapList.get("SMUSISL3LIFTLOBBY")!=null){out.print(heatmapList.get("SMUSISL3LIFTLOBBY").getHeatLevel());}else{out.print("0");}%>;
-                    } else if (locationname === "SMUSISL3STUDYAREA1") {
-                            obj.map[i].value = <%if(heatmapList.get("SMUSISL3STUDYAREA1")!=null){out.print(heatmapList.get("SMUSISL3STUDYAREA1").getHeatLevel());}else{out.print("0");}%>;                    
-                    } else if (locationname === "SMUSISL3STUDYAREA2") {
-                            obj.map[i].value = <%if(heatmapList.get("SMUSISL3STUDYAREA2")!=null){out.print(heatmapList.get("SMUSISL3STUDYAREA2").getHeatLevel());}else{out.print("0");}%>;                 
-                    } else if (locationname === "SMUSISL3STUDYAREA3") {
-                            obj.map[i].value = <%if(heatmapList.get("SMUSISL3STUDYAREA3")!=null){out.print(heatmapList.get("SMUSISL3STUDYAREA3").getHeatLevel());}else{out.print("0");}%>;                 
+                    if (locationname === "SMUSISL3LiftLobby") {
+                            obj.map[i].value = <%if(heatmapList.get("SMUSISL3LiftLobby")!=null){out.print(heatmapList.get("SMUSISL3LiftLobby").getHeatLevel());}else{out.print("0");}%>;
+                    } else if (locationname === "SMUSISL3StudyArea1") {
+                            obj.map[i].value = <%if(heatmapList.get("SMUSISL3StudyArea1")!=null){out.print(heatmapList.get("SMUSISL3StudyArea1").getHeatLevel());}else{out.print("0");}%>;                    
+                    } else if (locationname === "SMUSISL3StudyArea2") {
+                            obj.map[i].value = <%if(heatmapList.get("SMUSISL3StudyArea2")!=null){out.print(heatmapList.get("SMUSISL3StudyArea2").getHeatLevel());}else{out.print("0");}%>;                 
+                    } else if (locationname === "SMUSISL3StudyArea3") {
+                            obj.map[i].value = <%if(heatmapList.get("SMUSISL3StudyArea3")!=null){out.print(heatmapList.get("SMUSISL3StudyArea3").getHeatLevel());}else{out.print("0");}%>;                 
                     } else if (locationname === "SMUSISL3SR3.4") {
                             obj.map[i].value = <%if(heatmapList.get("SMUSISL3SR3.4")!=null){out.print(heatmapList.get("SMUSISL3SR3.4").getHeatLevel());}else{out.print("0");}%>;                    
                     } else if (locationname === "SMUSISL3CLSRM") {
@@ -323,14 +320,14 @@
                 var array = obj.map; //get map array from obj
                 for (i = 0; i < array.length; i++) { //change the values according to SQL data
                     var locationname = obj.map[i].locationname;
-                    if (locationname === "SMUSISL4LIFTLOBBY") {
-                            obj.map[i].value = <%if(heatmapList.get("SMUSISL4LIFTLOBBY")!=null){out.print(heatmapList.get("SMUSISL4LIFTLOBBY").getHeatLevel());}else{out.print("0");}%>;
-                    } else if (locationname === "SMUSISL4MRCORRIDOR") {
-                            obj.map[i].value = <%if(heatmapList.get("SMUSISL4MRCORRIDOR")!=null){out.print(heatmapList.get("SMUSISL4MRCORRIDOR").getHeatLevel());}else{out.print("0");}%>;                    
-                    } else if (locationname === "SMUSISL4OUTSIDEACADOFFICE1") {
-                            obj.map[i].value = <%if(heatmapList.get("SMUSISL4OUTSIDEACADOFFICE1")!=null){out.print(heatmapList.get("SMUSISL4OUTSIDEACADOFFICE1").getHeatLevel());}else{out.print("0");}%>;                 
-                    } else if (locationname === "SMUSISL4OUTSIDEACADOFFICE2") {
-                            obj.map[i].value = <%if(heatmapList.get("SMUSISL4OUTSIDEACADOFFICE2")!=null){out.print(heatmapList.get("SMUSISL4OUTSIDEACADOFFICE2").getHeatLevel());}else{out.print("0");}%>;                    
+                    if (locationname === "SMUSISL4LiftLobby") {
+                            obj.map[i].value = <%if(heatmapList.get("SMUSISL4LiftLobby")!=null){out.print(heatmapList.get("SMUSISL4LiftLobby").getHeatLevel());}else{out.print("0");}%>;
+                    } else if (locationname === "SMUSISL4MRCorridor") {
+                            obj.map[i].value = <%if(heatmapList.get("SMUSISL4MRCorridor")!=null){out.print(heatmapList.get("SMUSISL4MRCorridor").getHeatLevel());}else{out.print("0");}%>;                    
+                    } else if (locationname === "SMUSISL4OusideAcadOffice1") {
+                            obj.map[i].value = <%if(heatmapList.get("SMUSISL4OusideAcadOffice1")!=null){out.print(heatmapList.get("SMUSISL4OusideAcadOffice1").getHeatLevel());}else{out.print("0");}%>;                 
+                    } else if (locationname === "SMUSISL4OusideAcadOffice2") {
+                            obj.map[i].value = <%if(heatmapList.get("SMUSISL4OusideAcadOffice2")!=null){out.print(heatmapList.get("SMUSISL4OusideAcadOffice2").getHeatLevel());}else{out.print("0");}%>;                    
                     } 
                 }
                 
@@ -363,14 +360,14 @@
                 var array = obj.map; //get map array from obj
                 for (i = 0; i < array.length; i++) { //change the values according to SQL data
                     var locationname = obj.map[i].locationname;
-                    if (locationname === "SMUSISL5LIFTLOBBY") {
-                            obj.map[i].value = <%if(heatmapList.get("SMUSISL5LIFTLOBBY")!=null){out.print(heatmapList.get("SMUSISL5LIFTLOBBY").getHeatLevel());}else{out.print("0");}%>;
-                    } else if (locationname === "SMUSISL5STUDYAREA1") {
-                            obj.map[i].value = <%if(heatmapList.get("SMUSISL5STUDYAREA1")!=null){out.print(heatmapList.get("SMUSISL5STUDYAREA1").getHeatLevel());}else{out.print("0");}%>;                    
-                    } else if (locationname === "SMUSISL5OUTSIDEDEANSOFFICE") {
-                            obj.map[i].value = <%if(heatmapList.get("SMUSISL5OUTSIDEDEANSOFFICE")!=null){out.print(heatmapList.get("SMUSISL5OUTSIDEDEANSOFFICE").getHeatLevel());}else{out.print("0");}%>;                 
-                    } else if (locationname === "SMUSISL5ACADOFFICE") {
-                            obj.map[i].value = <%if(heatmapList.get("SMUSISL5ACADOFFICE")!=null){out.print(heatmapList.get("SMUSISL5ACADOFFICE").getHeatLevel());}else{out.print("0");}%>;                    
+                    if (locationname === "SMUSISL5LiftLobby") {
+                            obj.map[i].value = <%if(heatmapList.get("SMUSISL5LiftLobby")!=null){out.print(heatmapList.get("SMUSISL5LiftLobby").getHeatLevel());}else{out.print("0");}%>;
+                    } else if (locationname === "SMUSISL5StudyArea1") {
+                            obj.map[i].value = <%if(heatmapList.get("SMUSISL5StudyArea1")!=null){out.print(heatmapList.get("SMUSISL5StudyArea1").getHeatLevel());}else{out.print("0");}%>;                    
+                    } else if (locationname === "SMUSISL5OutsideDeansOffice") {
+                            obj.map[i].value = <%if(heatmapList.get("SMUSISL5OutsideDeansOffice")!=null){out.print(heatmapList.get("SMUSISL5OutsideDeansOffice").getHeatLevel());}else{out.print("0");}%>;                 
+                    } else if (locationname === "SMUSISL5AcadOffice") {
+                            obj.map[i].value = <%if(heatmapList.get("SMUSISL5AcadOffice")!=null){out.print(heatmapList.get("SMUSISL5AcadOffice").getHeatLevel());}else{out.print("0");}%>;                    
                     }
                 }
                 
