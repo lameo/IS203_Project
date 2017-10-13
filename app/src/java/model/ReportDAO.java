@@ -302,7 +302,7 @@ public class ReportDAO {
                     String date = locationTimestampList.get(i + 1); //to retrieve the corresponding date for currentPlace
                     String nextDate = locationTimestampList.get(i + 3); //to retrieve the date for nextLocation
 
-                    DateFormat df = new SimpleDateFormat("yyyy-mm-dd HH:mm:ss.SSSSSS");
+                    DateFormat df = new SimpleDateFormat("yyyy-mm-dd HH:mm:ss");
 
                     //to convert date and nextDate to Date objects
                     java.util.Date firstDateAdded = df.parse(date);
@@ -318,7 +318,7 @@ public class ReportDAO {
                     double timeDiff = diff / 1000.0;
                     currentQuantity += timeDiff; // update the latest time    
                     if (!currentPlace.equals(nextLocation)) { //if different location check currentQuantity                    
-                        if (currentQuantity >= 5) {
+                        if (currentQuantity >= 300) {
                             spentMoreThan5Minutes = currentPlace;
                         }
                         currentPlace = nextLocation; //set the next place as current place

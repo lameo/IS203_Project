@@ -65,7 +65,7 @@
                 <!-- form input for semantic place  -->
                 <div class="form-group">
                     <label class="form-control-label" for="locationGetter">Enter location name:</label>
-                    <input type="text" class="form-control" id="locationGetter" name="locationname" placeholder="Example: SMUSISL1LOBBY" required>
+                    <input type="text" class="form-control" id="locationGetter" name="locationname" placeholder="Example: SMUSISB1NearATM" required>
                 </div>
                 <!-- select menu for top K 1-10, default is 3  -->
                 <div class="form-group">
@@ -106,7 +106,7 @@
                     out.print("<h3>Top-" + topK + " Next Places at " + timedate + "</h3>");                       
                     
                     out.print("<div class=\"container\"><table class=\"table table-bordered\"><thead>");
-                    out.print("<tr><th>Rank</th><th>Semantic place</th><th>No pax</th><th>% of users visiting the semantic place</th></tr></thead></tbody>");                    
+                    out.print("<tr><th>Rank</th><th>Semantic Place</th><th>No. Pax</th><th>% of Users Visiting This Semantic Place</th></tr></thead></tbody>");                    
                     for(int totalNumOfUsers : totalNumOfUsersSet){
                         ArrayList<String> locations = topKNextPlaces.get(totalNumOfUsers); // gives the list of location with the same totalNumOfUsers
                         if(counter<=topK){ // to only display till topk number
@@ -128,7 +128,7 @@
                     out.print("</tbody></table></div>");  
                     
                     out.print("<div class=\"container\"><table class=\"table table-bordered\"><thead>");
-                    out.print("<tr><th>Semantic place queried</th><th>No pax in semantic place queried</th><th>No pax who visited next semantic place</th></tr></thead></tbody>");                     
+                    out.print("<tr><th>Semantic Place Queried</th><th>No. Pax in Semantic Place Queried</th><th>No. Pax Who Visited Next Semantic Place</th></tr></thead></tbody>");                     
                     out.print("<tr><td>" + locationname + "</td><td>" + total + "</td><td>" + (total-samePlace) + "</td></tr>");                    
                     out.print("</tbody></table></div>");                     
                 }
@@ -141,12 +141,10 @@
                 session.removeAttribute("locationname");                
             }
         %>
-<%="<br><br>Copy Paste"%>
-<%="<br>2017-02-06 11:00:00"%>
-<%="<br>SMUSISL1LOBBY"%>
-
-
-        <%="<br>User session: " + timestamp%>
+        <%="<br><br>Copy Paste"%>
+        <%="<br>2017-02-06 11:00:00"%>
+        <%="<br>SMUSISB1NearATM"%>
+        <%="<br><br>User session: " + timestamp%>
     </center>
 </body>
 </html>
