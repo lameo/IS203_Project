@@ -298,7 +298,7 @@ public class ReportDAO {
                 if (currentPlace == null || currentPlace.length() <= 0) {
                     currentPlace = locationTimestampList.get(i); // to initialise currentPlace to the one in arraylist at the start
                 }
-                if (i + 2 < locationTimestampList.size()) { //prevent arrayindexoutofbounds
+                if ((i + 2) < locationTimestampList.size()) { //prevent arrayindexoutofbounds
                     String nextLocation = locationTimestampList.get(i + 2); //to retrieve the next immediate location after currentPlace
                     String date = locationTimestampList.get(i + 1); //to retrieve the corresponding date for currentPlace
                     String nextDate = locationTimestampList.get(i + 3); //to retrieve the date for nextLocation
@@ -324,21 +324,27 @@ public class ReportDAO {
                         currentQuantity = 0; // reset currentQuantity   
                     }
                 } else { //reach the end
+                    String locationEnd =  locationTimestampList.get(i);
                     String date = locationTimestampList.get(i + 1); //to retrieve the corresponding date for currentPlace
                     
                     java.util.Date firstDateAdded = df.parse(date);   
                     java.util.Date endDateTime = df.parse(dateTime);
 
+                    Calendar cal = Calendar.getInstance();
+                    cal.setTime(endDateTime);
+                    cal.add(Calendar.MINUTE, 14);                    
+                    cal.add(Calendar.SECOND, 59);
+                    endDateTime = cal.getTime();
+                    
                     long diff = (endDateTime.getTime() - firstDateAdded.getTime());
                     double timeDiff = diff / 1000.0;  
                     
-                    currentQuantity += timeDiff; // based on wiki, will assume user spend the rest of his/her time there, update the latest time                      
+                    currentQuantity += timeDiff; // based on wiki, will assume user spend the rest of his/her time there, update the latest time 
                 }
             }
-            if (currentQuantity >= 300) { //if it is the same place all the way in the users time line
+            if(currentQuantity>=300){ //if it is the same place all the way in the users time line
                 spentMoreThan5Minutes = currentPlace;
-            }
-
+            }            
         } catch (SQLException e) {
             e.printStackTrace();
         } catch (ParseException ex) {
