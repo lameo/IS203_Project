@@ -355,6 +355,19 @@
         <% } else if (floor.equals("L5")) {%>  
         <div id="L5HeatMap"></div>
         <script>
+            var xscale = d3.scale.linear()
+                    .domain([0, 50])
+                    .range([0, 1005]),
+                    yscale = d3.scale.linear()
+                    .domain([0, 38])
+                    .range([0, 1006]),
+                    map = d3.floorplan().xScale(xscale).yScale(yscale), //setup a floor plan map to hold layers and manage pan/zoom functionality
+                    imagelayer = d3.floorplan.imagelayer(), //create a new image layer
+                    heatmap = d3.floorplan.heatmap(), //create a heat map layer
+                    mapdata = {};            
+            
+            var obj = new Object();          
+            
             $.getJSON("resource/L5.json", function (data) { //Jquery to get json
                 obj = data.heatmap; //set json data into variable object
                 var array = obj.map; //get map array from obj
