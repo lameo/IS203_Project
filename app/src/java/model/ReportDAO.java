@@ -24,6 +24,34 @@ import java.util.logging.Logger;
 
 public class ReportDAO {
 
+    public static ArrayList<String> getSemanticPlaces() {
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
+        ArrayList<String> list = new ArrayList<>();
+        try {
+            //get a connection to database
+            connection = ConnectionManager.getConnection();
+
+            //prepare a statement
+            preparedStatement = connection.prepareStatement("select distinct locationname from locationlookup order by locationname asc");
+
+            //execute SQL query
+            resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()) {
+                list.add(resultSet.getString(1));
+            }
+
+            //close connections
+            resultSet.close();
+            preparedStatement.close();
+            connection.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
     private static int retrieveByGender(String timeEnd, String gender) {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
@@ -258,8 +286,8 @@ public class ReportDAO {
         ArrayList<String> locationTimestampList = new ArrayList<>();
         String currentPlace = ""; //latest place the user spends at least 5 mins
         String spentMoreThan5Minutes = "";
-        DateFormat df = new SimpleDateFormat("yyyy-mm-dd HH:mm:ss");          
-        
+        DateFormat df = new SimpleDateFormat("yyyy-mm-dd HH:mm:ss");
+
         try {
             //get a connection to database
             connection = ConnectionManager.getConnection();
@@ -299,7 +327,7 @@ public class ReportDAO {
                     currentPlace = locationTimestampList.get(i); // to set currentPlace to first location from locationTimestampList at the start
                 }
                 //prevent arrayindexoutofbounds and to get all the locations before the last location in locationTimestampList
-                if ((i + 2) < locationTimestampList.size()) { 
+                if ((i + 2) < locationTimestampList.size()) {
                     String nextLocation = locationTimestampList.get(i + 2); //to retrieve the next immediate location after currentPlace
                     String date = locationTimestampList.get(i + 1); //to retrieve the corresponding date for currentPlace
                     String nextDate = locationTimestampList.get(i + 3); //to retrieve the date for nextLocation
@@ -320,28 +348,28 @@ public class ReportDAO {
                     }
                 } else { //reach the end
                     String lastDate = locationTimestampList.get(i + 1); //to retrieve the corresponding date for last location in locationTimestampList
-                    
-                    java.util.Date lastDateTimeAdded = df.parse(lastDate);   
+
+                    java.util.Date lastDateTimeAdded = df.parse(lastDate);
                     java.util.Date endDateTime = df.parse(dateTime);
-                    
+
                     //Calendar object to add 14min 59s to dateTime given from user
                     //Eg: time is 11:00:00; after using Calendar object time is 11:14:59
                     Calendar cal = Calendar.getInstance();
                     cal.setTime(endDateTime); //to use the dateTime given by input as the base
-                    cal.add(Calendar.MINUTE, 14);                    
+                    cal.add(Calendar.MINUTE, 14);
                     cal.add(Calendar.SECOND, 59);
                     endDateTime = cal.getTime(); //assign the added 14min 59s to endDateTime
-                    
+
                     long diff = (endDateTime.getTime() - lastDateTimeAdded.getTime()); //get the time difference between the last location to the max 15min window
                     double timeDiff = diff / 1000.0; //to get time in seconds
-                    
+
                     // based on wiki, will assume user spend the rest of his/her time there, update the latest time
-                    currentQuantity += timeDiff;  
+                    currentQuantity += timeDiff;
                 }
             }
-            if(currentQuantity>=300){ //if it is the same place all the way in the users time line
+            if (currentQuantity >= 300) { //if it is the same place all the way in the users time line
                 spentMoreThan5Minutes = currentPlace;
-            }            
+            }
         } catch (SQLException e) {
             e.printStackTrace();
         } catch (ParseException ex) {
@@ -781,7 +809,7 @@ public class ReportDAO {
         //UserLocationTimestamps.add("1010110032"+","+"014-03-24 09:07:27.000000"+","+"1");
         return UserLocationTimestamps;
     }
-    
+
     //retreive users in hashmap form, hashmap key is macaddress and hashmap value is array of email, locationid and timestamp
     public static ArrayList<String> retrieveCompanionLocationTimestamps(String userMacaddress, String locationid, String timestringStart, String timestringEnd) throws ParseException {
         Connection connection = null;

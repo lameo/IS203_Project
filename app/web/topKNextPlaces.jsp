@@ -1,3 +1,4 @@
+<%@page import="model.ReportDAO"%>
 <%@page import="java.util.ArrayList"%>
 <%@page import="java.util.Set"%>
 <%@page import="java.util.Map"%>
@@ -64,8 +65,15 @@
                 </div>
                 <!-- form input for semantic place  -->
                 <div class="form-group">
-                    <label class="form-control-label" for="locationGetter">Enter location name:</label>
-                    <input type="text" class="form-control" id="locationGetter" name="locationname" placeholder="Example: SMUSISB1NearATM" required>
+                    <label for="placeSelector">Enter location name:</label>
+                    <select class="form-control" id="placeSelector" name = "locationname">                    
+                    <%
+                        ArrayList<String> list = ReportDAO.getSemanticPlaces();
+                        for(String location : list){
+                            out.print("<option value=\"" + location + "\">" + location + "</option>");                            
+                        }
+                    %>
+                    </select>                        
                 </div>
                 <!-- select menu for top K 1-10, default is 3  -->
                 <div class="form-group">
@@ -97,10 +105,10 @@
                 int topK = (int) session.getAttribute("topK"); //retrieve the number given fom input
                 int total = (int) session.getAttribute("total"); //output the total number of users in the semantic place being queried
                 String locationname = (String)session.getAttribute("locationname"); //retieve the location given from input
-                int samePlace = 0; // total quantity of users in the end
+                int usersVisitingNextPlace = 0; // total quantity of users visiting next place
                 
                 Map<Integer, ArrayList<String>> topKNextPlaces = (Map<Integer, ArrayList<String>>) (session.getAttribute("topKNextPlaces"));
-                if(topKNextPlaces!=null){ // topKNextPlaces map is not empty
+                if(topKNextPlaces!=null && topKNextPlaces.size()>0){ // topKNextPlaces map is not empty
                     Set<Integer> totalNumOfUsersSet = topKNextPlaces.keySet(); // to get the different total number of users in a place in desc order
                     int counter = 1; // to match topk number after incrementation
                     out.print("<h3>Top-" + topK + " Next Places at " + timedate + "</h3>");                       
@@ -114,7 +122,7 @@
                             for(int i=0; i<locations.size(); i++){
                                 out.print(locations.get(i)); // show the current location with totalNumOfUsers
                                 if(locations.get(i).equals(locationname)){ // if the locations is the same, find the number of users who visited another place (exclude those left the place but have not visited another place) in the query window
-                                    samePlace = totalNumOfUsers;
+                                    usersVisitingNextPlace-=totalNumOfUsers;
                                 }
                                 if(i+1<locations.size()){ //fence-post method to add the comma
                                     out.print(", ");
@@ -124,12 +132,13 @@
                             out.print("<td>" + Math.round((double)totalNumOfUsers/total*100.0) + "%</td></tr>");                             
                             counter++;
                         }
+                        usersVisitingNextPlace+=totalNumOfUsers;
                     }
                     out.print("</tbody></table></div>");  
                     
                     out.print("<div class=\"container\"><table class=\"table table-bordered\"><thead>");
                     out.print("<tr><th>Semantic Place Queried</th><th>No. Pax in Semantic Place Queried</th><th>No. Pax Who Visited Next Semantic Place</th></tr></thead></tbody>");                     
-                    out.print("<tr><td>" + locationname + "</td><td>" + total + "</td><td>" + (total-samePlace) + "</td></tr>");                    
+                    out.print("<tr><td>" + locationname + "</td><td>" + total + "</td><td>" + usersVisitingNextPlace + "</td></tr>");                    
                     out.print("</tbody></table></div>");                     
                 }
                 
