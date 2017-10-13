@@ -256,9 +256,9 @@ public class ReportDAO {
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
         ArrayList<String> locationTimestampList = new ArrayList<>();
-        HashMap<String, Double> userCurrent = new HashMap<>();
         String currentPlace = ""; //latest place the user spends at least 5 mins
-
+        String spentMoreThan5Minutes = "";
+        
         try {
             //get a connection to database
             connection = ConnectionManager.getConnection();
@@ -316,21 +316,15 @@ public class ReportDAO {
                      */
                     long diff = (nextDateAdded.getTime() - firstDateAdded.getTime());
                     double timeDiff = diff / 1000.0;
-
-                    if (currentPlace.equals(nextLocation)) { //if same location just add into currentQuantity
-                        currentQuantity += timeDiff; // update the latest time                           
-                    } else { //not the same location
-                        currentQuantity += timeDiff; // update the latest time                          
-                        if (currentQuantity >= 300) {
-                            userCurrent.put(currentPlace, currentQuantity); //put into map currentPlace and the updated currentQuantity                        
+                    currentQuantity += timeDiff; // update the latest time    
+                    if (!currentPlace.equals(nextLocation)) { //if different location check currentQuantity                    
+                        if (currentQuantity >= 5) {
+                            spentMoreThan5Minutes = currentPlace;
                         }
                         currentPlace = nextLocation; //set the next place as current place
                         currentQuantity = 0; // reset currentQuantity   
                     }
                 }
-            }
-            if (userCurrent.containsKey(currentPlace)) {
-                return currentPlace; //to retrieve the sematic place for the user with the longest time (at least 5 mins)
             }
 
         } catch (SQLException e) {
@@ -338,7 +332,7 @@ public class ReportDAO {
         } catch (ParseException ex) {
             Logger.getLogger(ReportDAO.class.getName()).log(Level.SEVERE, null, ex);
         }
-        return ""; //if the user does not have any sematic place with more than 5 mins, return empty string
+        return spentMoreThan5Minutes; //return sematic place with more than 5 minutes or if the user does not have any sematic place with more than 5 mins, return empty string
     }
 
     private static int retrieveThreeBreakdown(String timeEnd, String year, String gender, String school) {
