@@ -141,7 +141,9 @@
                 session.removeAttribute("locationname");                
             }
         %>
-
+<%="<br><br>Copy Paste"%>
+<%="<br>2017-02-06 11:00:00"%>
+<%="<br>SMUSISL1LOBBY"%>
 
 
         <%="<br>User session: " + timestamp%>

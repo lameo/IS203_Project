@@ -29,18 +29,7 @@
     .RdYlBu .d6-4 {fill:#F08080;background:#F08080;color:#121212}
     .RdYlBu .d6-3 {fill:#FFA07A;background:#FFA07A;color:#121212}
     .RdYlBu .d6-2 {fill:#ffe5e5;background:#ffe5e5;color:#121212}
-    .RdYlBu .d6-1 {fill:#fffeb7;background:#fffeb7;color:#121212}    
-
-    /* overlays */
-    .polygon {stroke:white;stroke-width:2px;fill-opacity:0.2}
-    .vertex {stroke:lime;stroke-width:2px;fill:none}
-
-    /* vector field */
-    .vector {stroke-width:1px;stroke:lightsteelblue}
-
-    /* path plot */
-    .pathplot path {stroke-width:2px;stroke:steelblue}
-    .planned {stroke-dasharray:9, 5}    
+    .RdYlBu .d6-1 {fill:#fffeb7;background:#fffeb7;color:#121212}      
 </style>
 <!DOCTYPE html>
 <%@include file="clearCache.jsp"%> <%-- clear cache, don't allow user to backpage after logging out --%>
@@ -113,12 +102,13 @@
             if (floor != null && date != null) {
                 out.print("<h3>Floor:" + floor + " Date:" + date + "</h3>");
                 out.print("<div class=\"container\"><table class=\"table table-bordered\"><thead>");
-                out.print("<tr><th>Areas</th></thead><tbody>");
+                out.print("<tr><th>Semantic Place</th><th>Quantity</th><th>Heat Level</th></thead><tbody>");
 
                 if (heatmapList != null) {
                     Set<String> keys = heatmapList.keySet();
                     for (String key : keys) {
-                        out.print("<tr><td>" + heatmapList.get(key) + "<tr></td>");
+                        HeatMap heatMap = heatmapList.get(key);
+                        out.print("<tr><td>" + heatMap.getPlace() + "</td><td>" + heatMap.getQtyPax() + "</td><td>"  + heatMap.getHeatLevel() + "</td></tr>");
                     }
                 }
                 out.print("</tbody></table></div>");
