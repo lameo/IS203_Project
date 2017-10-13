@@ -258,6 +258,7 @@ public class ReportDAO {
         ArrayList<String> locationTimestampList = new ArrayList<>();
         String currentPlace = ""; //latest place the user spends at least 5 mins
         String spentMoreThan5Minutes = "";
+        DateFormat df = new SimpleDateFormat("yyyy-mm-dd HH:mm:ss");          
         
         try {
             //get a connection to database
@@ -293,7 +294,7 @@ public class ReportDAO {
 
             //arraylist locationTimestampList has locationname and timestamp in alternate order for 1 user only
             //Eg: location1, time1, location2, time2, location3, time3, .. etc
-            for (int i = 0; i < locationTimestampList.size(); i += 2) { //for-loop to loop every location name added
+            for (int i = 0; i < locationTimestampList.size(); i += 2) { //for-loop to loop every location name added              
                 if (currentPlace == null || currentPlace.length() <= 0) {
                     currentPlace = locationTimestampList.get(i); // to initialise currentPlace to the one in arraylist at the start
                 }
@@ -301,8 +302,6 @@ public class ReportDAO {
                     String nextLocation = locationTimestampList.get(i + 2); //to retrieve the next immediate location after currentPlace
                     String date = locationTimestampList.get(i + 1); //to retrieve the corresponding date for currentPlace
                     String nextDate = locationTimestampList.get(i + 3); //to retrieve the date for nextLocation
-
-                    DateFormat df = new SimpleDateFormat("yyyy-mm-dd HH:mm:ss");
 
                     //to convert date and nextDate to Date objects
                     java.util.Date firstDateAdded = df.parse(date);
@@ -324,7 +323,20 @@ public class ReportDAO {
                         currentPlace = nextLocation; //set the next place as current place
                         currentQuantity = 0; // reset currentQuantity   
                     }
+                } else { //reach the end
+                    String date = locationTimestampList.get(i + 1); //to retrieve the corresponding date for currentPlace
+                    
+                    java.util.Date firstDateAdded = df.parse(date);   
+                    java.util.Date endDateTime = df.parse(dateTime);
+
+                    long diff = (endDateTime.getTime() - firstDateAdded.getTime());
+                    double timeDiff = diff / 1000.0;  
+                    
+                    currentQuantity += timeDiff; // based on wiki, will assume user spend the rest of his/her time there, update the latest time                      
                 }
+            }
+            if (currentQuantity >= 300) { //if it is the same place all the way in the users time line
+                spentMoreThan5Minutes = currentPlace;
             }
 
         } catch (SQLException e) {
