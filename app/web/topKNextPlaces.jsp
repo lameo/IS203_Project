@@ -122,7 +122,7 @@
                             for(int i=0; i<locations.size(); i++){
                                 out.print(locations.get(i)); // show the current location with totalNumOfUsers
                                 if(locations.get(i).equals(locationname)){ // if the locations is the same, find the number of users who visited another place (exclude those left the place but have not visited another place) in the query window
-                                    usersVisitingNextPlace-=totalNumOfUsers;
+                                    usersVisitingNextPlace-=totalNumOfUsers; // minus off if the user is staying at the same place
                                 }
                                 if(i+1<locations.size()){ //fence-post method to add the comma
                                     out.print(", ");
@@ -132,7 +132,7 @@
                             out.print("<td>" + Math.round((double)totalNumOfUsers/total*100.0) + "%</td></tr>");                             
                             counter++;
                         }
-                        usersVisitingNextPlace+=totalNumOfUsers;
+                        usersVisitingNextPlace+=totalNumOfUsers*locations.size(); // add if the user is going other places but the quantity may have multiple next locations
                     }
                     out.print("</tbody></table></div>");  
                     
