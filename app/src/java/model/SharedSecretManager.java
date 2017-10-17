@@ -19,17 +19,17 @@ public class SharedSecretManager {
         return token;
     }
     
-    public static boolean verifyUser(String token, String name) {
+    public static boolean verifyUser(String token) {
         try {
             String valid = JWTUtility.verify(token, sharedSecret);
             if(valid==null){
                 return false;
             }
-            return name.equals(valid);
         } catch (JWTException ex) {
             Logger.getLogger(SharedSecretManager.class.getName()).log(Level.SEVERE, null, ex);
+            return false;
         }
-        return false;
+        return true;
     }
 
     public static boolean verifyAdmin(String token) {
