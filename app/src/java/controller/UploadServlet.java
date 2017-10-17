@@ -59,11 +59,14 @@ public class UploadServlet extends HttpServlet implements java.io.Serializable {
 
                             if (fileExist != null && fileExist.contains("demographics.csv")) {
                                 demographicsError = UploadDAO.readDemographics(outputDirectory + File.separator + "demographics.csv");
-                            } else if (fileExist != null && fileExist.contains("location-lookup.csv")) {
+                            }
+                            if (fileExist != null && fileExist.contains("location-lookup.csv")) {
                                 locationLookupError = UploadDAO.readLookup(outputDirectory + File.separator + "location-lookup.csv");
-                            } else if (fileExist != null && fileExist.contains("location.csv")) {
+                            }
+                            if (fileExist != null && fileExist.contains("location.csv")) {
                                 locationError = UploadDAO.readLocation(outputDirectory + File.separator + "location.csv");
-                            } else {
+                            }
+                            if(fileExist == null || !(fileExist.contains("demographics.csv") && fileExist.contains("location-lookup.csv") && fileExist.contains("location.csv"))){
                                 session.setAttribute("error", "Wrong file name or type"); //send error messsage        
                             }
 
