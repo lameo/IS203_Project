@@ -158,6 +158,34 @@ public class UploadDAO {
         }
         return ans;
     }
+    
+    public static boolean verifyPassword(String user, String password) {
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
+        String ans = "";
+        try {
+            //get a connection to database
+            connection = ConnectionManager.getConnection();
+
+            //prepare a statement
+            preparedStatement = connection.prepareStatement("select password from demographics where name like ?;");
+
+            //execute SQL query
+            preparedStatement.setString(1, user);
+            preparedStatement.executeQuery();
+
+            resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()) {
+                ans = resultSet.getString(1);
+            }
+            preparedStatement.close();
+            connection.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return ans.equals(password);
+    }
 
     private static ArrayList<String> retrieveMACDatePair() {
         Connection connection = null;
