@@ -969,13 +969,12 @@ public class ReportDAO {
                 } else if (!timestamp.before(timeStart)) {
                     if (macaddress.equals(macaddressNext)) {
 
-                        tmp += timeDiff - timeDiffNext;
+                        tmp = timeDiff - timeDiffNext;
                         if (tmp > 300) {
                             colocationTime += 300;
                         }else{
                             colocationTime += timeDiff - timeDiffNext;
                         }
-
                     } else if (!macaddress.equals(macaddressNext)) {
 
                         if (timeDiff > 300) {
