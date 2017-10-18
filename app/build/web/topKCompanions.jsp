@@ -56,7 +56,13 @@
             </div>
         </nav>
     <center>
-
+        <script>
+            $('#input-datetime-local').datetimepicker({
+                defaultDate: new Date(),
+                format: 'DD/MM/YYYY hh:mm:ss A',
+                sideBySide: true
+            });
+        </script>
         <div class="container">
             <br><br>
             <!-- Form for user to input date&time and top K for top K popular places report -->
@@ -66,9 +72,9 @@
                 <!-- form input for date & time  -->
                 <div class="form-group">
                     <label for="example-datetime-local-input" class="form-control-label">Enter date & time:</label>
-                    <div class="col-10">
-                        <input class="form-control" type="datetime-local" value="2011-08-19T13:45:00" id="timing" name="timeDate" placeholder="Example: 2017-02-06 11:00:00" required>
-                    </div>
+
+                    <input class="form-control" type="datetime-local" id="input-datetime-local" name="timeDate" step="1" required>
+
                 </div>
                 <!-- form input for semantic place  -->
                 <div class="form-group">
@@ -152,7 +158,7 @@
             session.removeAttribute("topKCompanions"); //remove session attribute from the session object
             session.removeAttribute("timeDate"); //remove session attribute from the session object
             session.removeAttribute("topK"); //remove session attribute from the session object
-        %>
+%>
 
 
 
