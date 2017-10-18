@@ -55,17 +55,19 @@ public class ReportServlet extends HttpServlet {
                 //ArrayList<String> users = ReportDAO.retrieveUserLocationTimestamps(macaddress,timeDate);
                 //request.setAttribute("users",users);
                 //session.setAttribute("users",users);
-                ArrayList<String> test = ReportDAO.retrieveCompanionLocationTimestamps(macaddress,"1010300046","2017-02-06 11:23:12.000000","2017-02-06 11:23:17.000000");
-                
-                Map<Integer, ArrayList<String>> topKCompanions = ReportDAO.retrieveTopKCompanions(timeDate,macaddress, topK);
+                //ArrayList<String> test = ReportDAO.retrieveCompanionLocationTimestamps(macaddress,"1010300136","2017-02-06 11:32:52.000000","2017-02-06 11:32:57.000000");
+                //ArrayList<String> test = ReportDAO.retrieveUserLocationTimestamps(macaddress,timeDate);
+                Map<String, Double> test = ReportDAO.test(timeDate, macaddress, topK);
+                Map<Double, ArrayList<String>> topKCompanions = ReportDAO.retrieveTopKCompanions(timeDate,macaddress, topK);
                 //Map<ArrayList<String>, ArrayList<Integer>> topKCompanions = null;
                 session.setAttribute("macaddress", macaddress);
                 session.setAttribute("topK", topK); 
                 session.setAttribute("timeDate", timeDate);
                 session.setAttribute("topKCompanions", topKCompanions);
-                //response.sendRedirect("topKCompanions.jsp");  //send back to topKCompanions
                 session.setAttribute("test", test);
-                request.getRequestDispatcher("/topKCompanions.jsp").forward(request,response);
+                response.sendRedirect("topKCompanions.jsp");  //send back to topKCompanions
+                
+                //request.getRequestDispatcher("/topKCompanions.jsp").forward(request,response);
                 break;
                 
                 case "topKNextPlaces":

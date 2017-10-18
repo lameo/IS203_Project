@@ -94,14 +94,15 @@
         </div>
         <%
 
-            //ArrayList<String> test = (ArrayList<String>)session.getAttribute("topKCompanions");
+            //Map<String, Double> test = (Map<String, Double>)session.getAttribute("test");
             //for (int i = 0; i<test.size();i++){
-            //   out.println(test.get(i)+"<br>");
+               //out.println(test.get(i)+"<br>");
             //}
             //ArrayList<String> users = (ArrayList<String>)request.getAttribute("users");
             //for (int i = 0; i<users.size();i++){
             //  out.println(users.get(i)+"<br>");
             //}
+            out.println(session.getAttribute("test")+"<br>");
             out.println(session.getAttribute("topKCompanions"));
             //out.print(session.getAttribute("users"));
             //If top K report is generated
@@ -112,15 +113,15 @@
                 out.print("<h3>Top-" + topK + " Popular Places at " + timedate + "</h3>");
 
                 out.print("<div class=\"container\"><table class=\"table table-bordered\"><thead>");
-                Map<Integer, ArrayList<String>> topKCompanions = (TreeMap<Integer, ArrayList<String>>) (session.getAttribute("topKCompanions"));
-                Set<Integer> Times = topKCompanions.keySet();
+                Map<Double, ArrayList<String>> topKCompanions = (TreeMap<Double, ArrayList<String>>) (session.getAttribute("topKCompanions"));
+                Set<Double> Times = topKCompanions.keySet();
                 //String[] y = topKPopular.split(",");
                 out.print("<tr><th>Rank</th><th>Semantic place</th><th>Co-located Time (in seconds)</th></tr></thead></tbody>");
                 //for (int j = 0; j < y.length; j += 2) {
                 //out.print("<tr><td>" + (j / 2 + 1) + "</td><td>" + y[j] + "</td><td>" + y[j + 1] + "</td></tr>");
                 //}
                 int rank = 1;
-                for(int time: Times){
+                for(double time: Times){
                     ArrayList<String> macaddresses = topKCompanions.get(time);
                     for (int i = 0; i < macaddresses.size(); i++) {
                         String macaddress = macaddresses.get(i);
