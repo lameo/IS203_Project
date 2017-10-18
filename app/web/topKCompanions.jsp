@@ -56,13 +56,6 @@
             </div>
         </nav>
     <center>
-        <script>
-            $('#input-datetime-local').datetimepicker({
-                defaultDate: new Date(),
-                format: 'DD/MM/YYYY hh:mm:ss A',
-                sideBySide: true
-            });
-        </script>
         <div class="container">
             <br><br>
             <!-- Form for user to input date&time and top K for top K popular places report -->

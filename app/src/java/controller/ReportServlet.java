@@ -5,6 +5,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
@@ -52,11 +53,12 @@ public class ReportServlet extends HttpServlet {
                     String macaddress = request.getParameter("macAddress");
                     timeDate = request.getParameter("timeDate");
                     topK = Integer.parseInt(request.getParameter("topK"));
-                    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss.SSSSSS");
-                    java.util.Date timestamp = null;
+                    SimpleDateFormat readFormat = new SimpleDateFormat("yyyy-MM-dd'T'hh:mm");
+                    SimpleDateFormat writeFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss.SSSSSS");
+                    Date timestamp = null;
                     try {
-                        timestamp = dateFormat.parse(timeDate);
-                        timeDate = dateFormat.format(timestamp);
+                        timestamp = (Date)readFormat.parse(timeDate);
+                        timeDate = writeFormat.format(timestamp);
                         //System.out.println("Retrieved and formatted dateTime: " + timestamp.toString());
                     } catch (ParseException e1) {
                         System.out.println("Date formatter failed to parse chosen sendTime.");
