@@ -32,7 +32,6 @@ public class ReportServlet extends HttpServlet {
                 timeDate = writeFormat.format(timestamp);
                 //System.out.println("Retrieved and formatted dateTime: " + timestamp.toString());
             } catch (ParseException e) {
-                System.out.println("Date formatter failed to parse chosen sendTime.");
                 e.printStackTrace();
             }
             switch (reportType) {

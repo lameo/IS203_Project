@@ -89,13 +89,12 @@
                 String timedate = (String) session.getAttribute("timeDate");
                 int topK = (Integer) session.getAttribute("topK");
                 Map<Integer, String> map = (Map<Integer, String>) (session.getAttribute("topKPopular"));
-                if (map.size() == 0 || map == null) {
+                if (map == null || map.size() == 0) {
                     out.print("<br/><div class=\"alert alert-danger\" role=\"alert\"><strong>" + "The data is not available within time " + timedate + "</strong></div>");
-
                 } else {
                     out.print("<h3>Top-" + topK + " Popular Places at " + timedate + "</h3>");
                     out.print("<div class=\"container\"><table class=\"table table-bordered\"><thead>");
-                    out.print("<tr><th>Rank</th><th>Semantic place</th><th>No pax</th></tr></thead><tbody>");
+                    out.print("<tr><th>Rank</th><th>Semantic Place</th><th>No. of pax</th></tr></thead><tbody>");
 
                     ArrayList<Integer> keys = new ArrayList<Integer>(map.keySet());
                     int count = 1;
@@ -105,35 +104,13 @@
                             out.print("<tr><td>" + count++ + "</td><td>" + map.get(keys.get(i)) + "</td><td>" + keys.get(i) + "</td></tr>");
                         }
                     }
-                    out.print("</tbody></table></div>");
-                    count = 1;
-                    out.print("{\"status\":\"success\",\"results\":[");
-                    for (int i = keys.size() - 1; i >= 0; i--) {
-                        if (count <= topK) {
-                            out.print("{");
-                            out.print("\"rank\":" + count++ + ",");
-                            out.print("\"semantic-place\":\"" + map.get(keys.get(i)) + "\",");
-                            out.print("\"count\":" + keys.get(i) + "");
-                            if (count > topK) {
-                                out.print("}");
-                            } else {
-                                out.print("},");
-                            }
-                        }
-                    }
-                    out.print("]");
-                    out.print("}");
                 }
             }
 
             session.removeAttribute("topKPopular"); //remove session attribute from the session object
             session.removeAttribute("timeDate"); //remove session attribute from the session object
             session.removeAttribute("topK"); //remove session attribute from the session object
-
-            //debugging purpose
-            //out.print("<br><br>Copy Paste");
-            //out.print("<br>2017-02-06 11:00:00");
-%>
+        %>
         <%="<br><br>User session: " + timestamp%>
     </center>
 </body>

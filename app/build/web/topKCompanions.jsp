@@ -112,9 +112,9 @@
                 int topK = (Integer) session.getAttribute("topK");
 
                 Map<Double, ArrayList<String>> topKCompanions = (TreeMap<Double, ArrayList<String>>) (session.getAttribute("topKCompanions"));
-                if (topKCompanions.size() == 0 || topKCompanions == null) {
+                if (topKCompanions == null || topKCompanions.size() == 0) {
                     String macaddress = (String) session.getAttribute("macaddress");
-                    out.print("<br/><div class=\"alert alert-danger\" role=\"alert\"><strong>" + "The data is not available for Macaddress " + macaddress + " within time " + timedate + "</strong></div>");
+                    out.print("<br/><div class=\"alert alert-danger\" role=\"alert\"><strong>" + "The data is not available for macaddress " + macaddress + " within time " + timedate + "</strong></div>");
 
                 } else {
                     out.print("<h3>Top-" + topK + " Popular Places at " + timedate + "</h3>");
@@ -122,7 +122,7 @@
                     out.print("<div class=\"container\"><table class=\"table table-bordered\"><thead>");
                     Set<Double> Times = topKCompanions.keySet();
                     //String[] y = topKPopular.split(",");
-                    out.print("<tr><th>Rank</th><th>Semantic place</th><th>Co-located Time (in seconds)</th></tr></thead></tbody>");
+                    out.print("<tr><th>Rank</th><th>Macaddress</th><th>Co-Located Time (in seconds)</th></tr></thead></tbody>");
                     int rank = 1;
                     for (double time : Times) {
                         if (rank <= topK) {
@@ -149,11 +149,8 @@
             session.removeAttribute("topKCompanions"); //remove session attribute from the session object
             session.removeAttribute("timeDate"); //remove session attribute from the session object
             session.removeAttribute("topK"); //remove session attribute from the session object
-%>
-
-
-
-        <%="<br>User session: " + timestamp%>
+        %>
+        <%="<br><br>User session: " + timestamp%>
     </center>
 </body>
 </html>
