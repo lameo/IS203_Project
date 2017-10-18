@@ -58,9 +58,10 @@
 
                     <!-- ending time and date field -->
                     <tr>
+                        <!-- form input for date & time  -->
                     <div class="form-group">
-                        <label class="form-control-label" for="formGroupExampleInput">Enter Date & Time:</label>
-                        <input type="text" class="form-control" id="formGroupExampleInput" name="endtimeDate" placeholder="Example: 2017-02-06 11:00:00" required>
+                        <label for="example-datetime-local-input" class="form-control-label">Enter date & time:</label>
+                        <input class="form-control" type="datetime-local" id="input-datetime-local" name="timeDate" step="1" required>
                     </div>
                     </tr>
                     </div>
@@ -105,38 +106,44 @@
             //If breakdown report is generated
             if (session.getAttribute("breakdownReport") != null) {
                 List<String> options = (List<String>) session.getAttribute("orderList");
-                String errMsg = "Duplicated option found: ";
-                boolean duplicate = false;
+                if (options.size() == 0 || options == null) {
+                    String timedate = (String) session.getAttribute("timeDate");
+                    out.print("<br/><div class=\"alert alert-danger\" role=\"alert\"><strong>" + "The data is not available for Macaddress within time " + timedate + "</strong></div>");
 
-                if (options != null) {
-                    for (int i = 0; i < options.size(); i++) {
-                        for (int j = 1; j < options.size(); j++) {
-                            if (options.get(i).equals(options.get(j)) && !options.get(i).equals("none") && i != j) {
-                                // duplicate element found
-                                duplicate = true;
-                                errMsg += options.get(j);
+                } else {
+                    String errMsg = "Duplicated option found: ";
+                    boolean duplicate = false;
+
+                    if (options != null) {
+                        for (int i = 0; i < options.size(); i++) {
+                            for (int j = 1; j < options.size(); j++) {
+                                if (options.get(i).equals(options.get(j)) && !options.get(i).equals("none") && i != j) {
+                                    // duplicate element found
+                                    duplicate = true;
+                                    errMsg += options.get(j);
+                                    break; //once a duplicate element is found, exit the loop
+                                }
+                            }
+                            if (duplicate) {
                                 break; //once a duplicate element is found, exit the loop
                             }
                         }
-                        if (duplicate) {
-                            break; //once a duplicate element is found, exit the loop
-                        }
                     }
-                }
 
-                if (duplicate) {
-                    out.print("<p style=\"color:red;\">Report Generation failed<br>" + errMsg + "</p>");
-                } else {
-                    String breakdownReport = (String) (session.getAttribute("breakdownReport"));
-                    out.print(breakdownReport);
+                    if (duplicate) {
+                        out.print("<p style=\"color:red;\">Report Generation failed<br>" + errMsg + "</p>");
+                    } else {
+                        String breakdownReport = (String) (session.getAttribute("breakdownReport"));
+                        out.print(breakdownReport);
+                    }
+                    session.removeAttribute("breakdownReport"); //remove session attribute from the session object
+                    session.removeAttribute("order"); //remove session attribute from the session object
                 }
-                session.removeAttribute("breakdownReport"); //remove session attribute from the session object
-                session.removeAttribute("order"); //remove session attribute from the session object
             }
 
             //debugging purpose
-            out.print("<br><br>Copy Paste");
-            out.print("<br>2017-02-06 11:00:00");
+            //out.print("<br><br>Copy Paste");
+            //out.print("<br>2017-02-06 11:00:00");
         %>        
         <%="<br><br>User session: " + timestamp%>
     </center>

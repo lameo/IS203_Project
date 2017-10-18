@@ -58,8 +58,8 @@
                 <input type="hidden" name="reportType" value="topKPopular">
                 <!-- form input for date & time  -->
                 <div class="form-group">
-                    <label class="form-control-label" for="timing">Enter date & time:</label>
-                    <input type="text" class="form-control" id="timing" name="timeDate" placeholder="Example: 2017-02-06 11:00:00" required>
+                    <label for="example-datetime-local-input" class="form-control-label">Enter date & time:</label>
+                    <input class="form-control" type="datetime-local" id="input-datetime-local" name="timeDate" step="1" required>
                 </div>
                 <!-- select menu for top K 1-10, default is 3  -->
                 <div class="form-group">
@@ -89,37 +89,41 @@
                 String timedate = (String) session.getAttribute("timeDate");
                 int topK = (Integer) session.getAttribute("topK");
                 Map<Integer, String> map = (Map<Integer, String>) (session.getAttribute("topKPopular"));
+                if (map.size() == 0 || map == null) {
+                    out.print("<br/><div class=\"alert alert-danger\" role=\"alert\"><strong>" + "The data is not available within time " + timedate + "</strong></div>");
 
-                out.print("<h3>Top-" + topK + " Popular Places at " + timedate + "</h3>");
-                out.print("<div class=\"container\"><table class=\"table table-bordered\"><thead>");
-                out.print("<tr><th>Rank</th><th>Semantic place</th><th>No pax</th></tr></thead><tbody>");
+                } else {
+                    out.print("<h3>Top-" + topK + " Popular Places at " + timedate + "</h3>");
+                    out.print("<div class=\"container\"><table class=\"table table-bordered\"><thead>");
+                    out.print("<tr><th>Rank</th><th>Semantic place</th><th>No pax</th></tr></thead><tbody>");
 
-                ArrayList<Integer> keys = new ArrayList<Integer>(map.keySet());
-                int count = 1;
-                for (int i = keys.size() - 1; i >= 0; i--) {
-                    if (count <= topK) {
-                        System.out.print(map.get(keys.get(i)));
-                        out.print("<tr><td>" + count++ + "</td><td>" + map.get(keys.get(i)) + "</td><td>" + keys.get(i) + "</td></tr>");
-                    }
-                }
-                out.print("</tbody></table></div>");
-                count = 1;
-                out.print("{\"status\":\"success\",\"results\":[");
-                for (int i = keys.size() - 1; i >= 0; i--) {
-                    if (count <= topK) {
-                        out.print("{");
-                        out.print("\"rank\":"+count++ + ",");
-                        out.print("\"semantic-place\":\"" + map.get(keys.get(i)) + "\",");
-                        out.print("\"count\":" + keys.get(i) + "");
-                        if (count > topK) {
-                            out.print("}");
-                        }else{
-                            out.print("},");
+                    ArrayList<Integer> keys = new ArrayList<Integer>(map.keySet());
+                    int count = 1;
+                    for (int i = keys.size() - 1; i >= 0; i--) {
+                        if (count <= topK) {
+                            System.out.print(map.get(keys.get(i)));
+                            out.print("<tr><td>" + count++ + "</td><td>" + map.get(keys.get(i)) + "</td><td>" + keys.get(i) + "</td></tr>");
                         }
                     }
+                    out.print("</tbody></table></div>");
+                    count = 1;
+                    out.print("{\"status\":\"success\",\"results\":[");
+                    for (int i = keys.size() - 1; i >= 0; i--) {
+                        if (count <= topK) {
+                            out.print("{");
+                            out.print("\"rank\":" + count++ + ",");
+                            out.print("\"semantic-place\":\"" + map.get(keys.get(i)) + "\",");
+                            out.print("\"count\":" + keys.get(i) + "");
+                            if (count > topK) {
+                                out.print("}");
+                            } else {
+                                out.print("},");
+                            }
+                        }
+                    }
+                    out.print("]");
+                    out.print("}");
                 }
-                out.print("]");
-                out.print("}");
             }
 
             session.removeAttribute("topKPopular"); //remove session attribute from the session object
@@ -127,9 +131,9 @@
             session.removeAttribute("topK"); //remove session attribute from the session object
 
             //debugging purpose
-            out.print("<br><br>Copy Paste");
-            out.print("<br>2017-02-06 11:00:00");
-        %>
+            //out.print("<br><br>Copy Paste");
+            //out.print("<br>2017-02-06 11:00:00");
+%>
         <%="<br><br>User session: " + timestamp%>
     </center>
 </body>

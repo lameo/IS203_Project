@@ -23,22 +23,33 @@ public class ReportServlet extends HttpServlet {
         try {
             String reportType = request.getParameter("reportType"); //to retrieve which basic location report the user selected
             HttpSession session = request.getSession();
-
+            String timeDate = request.getParameter("timeDate"); //retrieve time from user input
+            SimpleDateFormat readFormat = new SimpleDateFormat("yyyy-MM-dd'T'hh:mm");
+            SimpleDateFormat writeFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss.SSSSSS");
+            Date timestamp = null;
+            try {
+                timestamp = (Date) readFormat.parse(timeDate);
+                timeDate = writeFormat.format(timestamp);
+                //System.out.println("Retrieved and formatted dateTime: " + timestamp.toString());
+            } catch (ParseException e) {
+                System.out.println("Date formatter failed to parse chosen sendTime.");
+                e.printStackTrace();
+            }
             switch (reportType) {
                 case "basicReport":
-                    String endtimeDate = request.getParameter("endtimeDate"); //retrieve time from user input
+                    
                     String[] order = request.getParameterValues("order"); //retrieve order from user input
 
-                    String breakdownReport = ReportDAO.notVeryBasicBreakdown(order, endtimeDate); //retrieve HTML table from reportDAO after getting data from SQL
+                    String breakdownReport = ReportDAO.notVeryBasicBreakdown(order, timeDate); //retrieve HTML table from reportDAO after getting data from SQL
                     List<String> orderList = Arrays.asList(order); //changing array into list object so that it can be transferred over through session
 
                     //setting attributes to use to display results at basicReport.jsp
                     session.setAttribute("breakdownReport", breakdownReport);
                     session.setAttribute("orderList", orderList);
                     response.sendRedirect("basicReport.jsp");  //send back to basicReport
+                    session.setAttribute("timeDate",timeDate);
                     break;
                 case "topKPopular":
-                    String timeDate = request.getParameter("timeDate"); //retrieve time from user input
                     int topK = Integer.parseInt(request.getParameter("topK"));
 
                     Map<Integer, String> topKPopular = ReportDAO.retrieveTopKPopularPlaces(timeDate);
@@ -51,19 +62,8 @@ public class ReportServlet extends HttpServlet {
                     break;
                 case "topKCompanions":
                     String macaddress = request.getParameter("macAddress");
-                    timeDate = request.getParameter("timeDate");
                     topK = Integer.parseInt(request.getParameter("topK"));
-                    SimpleDateFormat readFormat = new SimpleDateFormat("yyyy-MM-dd'T'hh:mm");
-                    SimpleDateFormat writeFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss.SSSSSS");
-                    Date timestamp = null;
-                    try {
-                        timestamp = (Date)readFormat.parse(timeDate);
-                        timeDate = writeFormat.format(timestamp);
-                        //System.out.println("Retrieved and formatted dateTime: " + timestamp.toString());
-                    } catch (ParseException e1) {
-                        System.out.println("Date formatter failed to parse chosen sendTime.");
-                        e1.printStackTrace();
-                    }
+
                     //ArrayList<String> users = ReportDAO.retrieveUserLocationTimestamps(macaddress,timeDate);
                     //request.setAttribute("users",users);
                     //session.setAttribute("users",users);
@@ -83,7 +83,6 @@ public class ReportServlet extends HttpServlet {
                     break;
 
                 case "topKNextPlaces":
-                    timeDate = request.getParameter("timeDate"); // retriee date and time from user input. Eg: 2017-02-06 11:00:02.000000
                     String locationname = request.getParameter("locationname"); // retrieve location name from user. Eg: SMUSISB1NearCSRAndTowardsMRT
                     topK = Integer.parseInt(request.getParameter("topK")); //retrieve which number(represents the k) user selected
 
