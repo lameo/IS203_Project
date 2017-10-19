@@ -103,13 +103,18 @@
         </div>
 
         <%
-            //If breakdown report is generated
-            if (session.getAttribute("breakdownReport") != null) {
-                List<String> options = (List<String>) session.getAttribute("orderList");
-                String errMsg = "duplicated option found: ";
-                boolean duplicate = false;
+            List<String> options = (List<String>) session.getAttribute("orderList");
+            if (options != null) {
+                String timeDate = (String) session.getAttribute("timeDate");
+                //If breakdown report is generated
+                String breakdownReport = (String) session.getAttribute("breakdownReport");
+                if (breakdownReport != null && breakdownReport.length() > 0) {
+                    out.print("<h3>Breakdown Report at " + timeDate + "</h3>");
+                    out.print(breakdownReport);
+                } else {
+                    String errMsg = "duplicated option found: ";
+                    boolean duplicate = false;
 
-                if (options != null) {
                     for (int i = 0; i < options.size(); i++) {
                         for (int j = 1; j < options.size(); j++) {
                             if (options.get(i).equals(options.get(j)) && !options.get(i).equals("none") && i != j) {
@@ -123,17 +128,17 @@
                             break; //once a duplicate element is found, exit the loop
                         }
                     }
-                }
 
-                if (duplicate) {
-                    out.print("<br/><div class=\"alert alert-danger\" role=\"alert\"><strong>" + "The data is not available because " + errMsg + "</strong></div>");
-                } else {
-                    String breakdownReport = (String) (session.getAttribute("breakdownReport"));
-                    out.print(breakdownReport);
+                    if (duplicate) {
+                        out.print("<br/><div class=\"alert alert-danger\" role=\"alert\"><strong>" + "The data is not available within time " + timeDate + " because " + errMsg + "</strong></div>");
+                    } else {
+                        out.print("<br/><div class=\"alert alert-danger\" role=\"alert\"><strong>" + "The data is not available within time " + timeDate + "</strong></div>");
+                    }
                 }
-                session.removeAttribute("breakdownReport"); //remove session attribute from the session object
-                session.removeAttribute("order"); //remove session attribute from the session object
             }
+            session.removeAttribute("breakdownReport"); //remove session attribute from the session object
+            session.removeAttribute("orderList"); //remove session attribute from the session object            
+            session.removeAttribute("timeDate"); //remove session attribute from the session object 
         %>        
         <%="<br><br>User session: " + timestamp%>
     </center>

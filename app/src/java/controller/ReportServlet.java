@@ -47,8 +47,8 @@ public class ReportServlet extends HttpServlet {
                     //setting attributes to use to display results at basicReport.jsp
                     session.setAttribute("breakdownReport", breakdownReport);
                     session.setAttribute("orderList", orderList);
+                    session.setAttribute("timeDate", timeDate);                    
                     response.sendRedirect("basicReport.jsp");  //send back to basicReport
-                    session.setAttribute("timeDate",timeDate);
                     break;
                 case "topKPopular":
                     int topK = Integer.parseInt(request.getParameter("topK"));
