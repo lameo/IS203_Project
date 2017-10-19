@@ -59,7 +59,7 @@
                 <!-- form input for date & time  -->
                 <div class="form-group">
                     <label for="example-datetime-local-input" class="form-control-label">Enter date & time:</label>
-                    <input class="form-control" type="datetime-local" id="input-datetime-local" name="timeDate" step="1" required>
+                    <input class="form-control" type="datetime-local" id="input-datetime-local" name="timeDate" required>
                 </div>
                 <!-- select menu for top K 1-10, default is 3  -->
                 <div class="form-group">

@@ -32,7 +32,7 @@ public class AutoGroupDAO {
         HashMap<String, ArrayList<String>> AutoUsers = retrieveAutoUsers(endtimeDate);
         ArrayList<Group> groups = new ArrayList<Group>();
         HashMap<String, TreeMap<Timestamp, ArrayList<Long>>> AutoUsersbyTimestampStart = retreiveAutoUsersByTimestampStart(AutoUsers, endtimeDate);
-        ArrayList<Group> Groups = retreiveGroups(AutoUsersbyTimestampStart);
+        //ArrayList<Group> Groups = retreiveGroups(AutoUsersbyTimestampStart);
         return groups;
     }
 

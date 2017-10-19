@@ -33,7 +33,8 @@ public class HeatMapServlet extends HttpServlet {
         HttpSession session = request.getSession();
 
         String timeDate = request.getParameter("timeDate"); //retrieve time from user input
-        SimpleDateFormat readFormat = new SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ss");
+        timeDate = timeDate.replace("T", " ");
+        SimpleDateFormat readFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm");
         SimpleDateFormat writeFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSSSSS");
         Date timestamp = null;
         try {

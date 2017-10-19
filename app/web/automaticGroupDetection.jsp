@@ -58,7 +58,7 @@
                 <!-- form input for date & time  -->
                 <div class="form-group">
                     <label for="example-datetime-local-input" class="form-control-label">Enter date & time:</label>
-                    <input class="form-control" type="datetime-local" id="input-datetime-local" name="timeDate" step="1" required>
+                    <input class="form-control" type="datetime-local" id="input-datetime-local" name="timeDate" required>
                 </div>
                 <button type="submit" class="btn btn-primary">Generate</button>
             </form>
