@@ -24,7 +24,7 @@ public class ReportServlet extends HttpServlet {
             String reportType = request.getParameter("reportType"); //to retrieve which basic location report the user selected
             HttpSession session = request.getSession();
             String timeDate = request.getParameter("timeDate"); //retrieve time from user input
-            SimpleDateFormat readFormat = new SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ss");
+            SimpleDateFormat readFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm");
             SimpleDateFormat writeFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSSSSS");
             Date timestamp = null;
             try {
