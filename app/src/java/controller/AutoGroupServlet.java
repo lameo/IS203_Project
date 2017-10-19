@@ -7,7 +7,10 @@ package controller;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -33,19 +36,31 @@ public class AutoGroupServlet extends HttpServlet {
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        
+
         try (PrintWriter out = response.getWriter()) {
             HttpSession session = request.getSession();
-        
-            String endtimeDate = request.getParameter("endtimeDate"); //retrieve time from user input
+
+            String timeDate = request.getParameter("timeDate"); //retrieve time from user input
+            timeDate = timeDate.replace("T"," ");
+            SimpleDateFormat readFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm");
+            SimpleDateFormat writeFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSSSSS");
+            Date timestamp = null;
+            try {
+                timestamp = (Date) readFormat.parse(timeDate);
+                timeDate = writeFormat.format(timestamp);
+                //System.out.println("Retrieved and formatted dateTime: " + timestamp.toString());
+            } catch (ParseException e) {
+                System.out.println("Date formatter failed to parse chosen sendTime.");
+                e.printStackTrace();
+            }
 
             //retrieve group of users whom stay at SIS in processing window
-            ArrayList<Group> AutoGroups = retrieveAutoGroups(endtimeDate); 
+            ArrayList<Group> AutoGroups = retrieveAutoGroups(timeDate);
 
-            request.setAttribute("endtimeDate",endtimeDate);
-            request.setAttribute("AutoGroups",AutoGroups);
-            
-            response.sendRedirect("AutomaticGroupIdentification.jsp");
+            session.setAttribute("timeDate", timeDate);
+            session.setAttribute("AutoGroups", AutoGroups);
+
+            response.sendRedirect("automaticGroupDetection.jsp");
         }
     }
 

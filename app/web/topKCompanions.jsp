@@ -56,7 +56,6 @@
             </div>
         </nav>
     <center>
-
         <div class="container">
             <br><br>
             <!-- Form for user to input date&time and top K for top K popular places report -->
@@ -65,8 +64,8 @@
                 <input type="hidden" name="reportType" value="topKCompanions">
                 <!-- form input for date & time  -->
                 <div class="form-group">
-                    <label class="form-control-label" for="timing">Enter date & time:</label>
-                    <input type="text" class="form-control" id="timing" name="timeDate" placeholder="Example: 2017-02-06 11:00:00" required>
+                    <label for="example-datetime-local-input" class="form-control-label">Enter date & time:</label>
+                    <input class="form-control" type="datetime-local" id="input-datetime-local" name="timeDate" required>
                 </div>
                 <!-- form input for semantic place  -->
                 <div class="form-group">
@@ -75,7 +74,7 @@
                 </div>
                 <!-- select menu for top K 1-10, default is 3  -->
                 <div class="form-group">
-<label for="kSelector">Generate for top:</label>
+                    <label for="kSelector">Generate for top:</label>
                     <select class="form-control" id="kSelector" name = "topK">
                         <option value="1">1</option>
                         <option value="2">2</option>
@@ -94,49 +93,64 @@
         </div>
         <%
 
-            //ArrayList<String> test = (ArrayList<String>)session.getAttribute("topKCompanions");
+            //ArrayList<String> test = (ArrayList<String>)session.getAttribute("test");
             //for (int i = 0; i<test.size();i++){
-            //   out.println(test.get(i)+"<br>");
+            //out.println(test.get(i)+"<br>");
             //}
             //ArrayList<String> users = (ArrayList<String>)request.getAttribute("users");
             //for (int i = 0; i<users.size();i++){
             //  out.println(users.get(i)+"<br>");
             //}
-            out.println(session.getAttribute("topKCompanions"));
+            //out.println(session.getAttribute("test")+"<br>");
+            //out.println(session.getAttribute("topKCompanions"));
             //out.print(session.getAttribute("users"));
             //If top K report is generated
+            //session.setAttribute("topKCompanions",null);
             if (session.getAttribute("topKCompanions") != null) {
 
                 String timedate = (String) session.getAttribute("timeDate");
                 int topK = (Integer) session.getAttribute("topK");
-                out.print("<h3>Top-" + topK + " Popular Places at " + timedate + "</h3>");
 
-                out.print("<div class=\"container\"><table class=\"table table-bordered\"><thead>");
-                Map<Integer, ArrayList<String>> topKCompanions = (TreeMap<Integer, ArrayList<String>>) (session.getAttribute("topKCompanions"));
-                Set<Integer> Times = topKCompanions.keySet();
-                //String[] y = topKPopular.split(",");
-                out.print("<tr><th>Rank</th><th>Semantic place</th><th>Co-located Time (in seconds)</th></tr></thead></tbody>");
-                //for (int j = 0; j < y.length; j += 2) {
-                //out.print("<tr><td>" + (j / 2 + 1) + "</td><td>" + y[j] + "</td><td>" + y[j + 1] + "</td></tr>");
-                //}
-                int rank = 1;
-                for(int time: Times){
-                    ArrayList<String> macaddresses = topKCompanions.get(time);
-                    for (int i = 0; i < macaddresses.size(); i++) {
-                        String macaddress = macaddresses.get(i);
-                        out.print("<tr><td>" + (rank) + "</td><td>" + macaddress + "</td><td>" + time + "</td></tr>");
+                Map<Double, ArrayList<String>> topKCompanions = (TreeMap<Double, ArrayList<String>>) (session.getAttribute("topKCompanions"));
+                if (topKCompanions == null || topKCompanions.size() == 0) {
+                    String macaddress = (String) session.getAttribute("macaddress");
+                    out.print("<br/><div class=\"alert alert-danger\" role=\"alert\"><strong>" + "The data is not available for macaddress " + macaddress + " within time " + timedate + "</strong></div>");
+
+                } else {
+                    out.print("<h3>Top-" + topK + " Popular Places at " + timedate + "</h3>");
+
+                    out.print("<div class=\"container\"><table class=\"table table-bordered\"><thead>");
+                    Set<Double> Times = topKCompanions.keySet();
+                    //String[] y = topKPopular.split(",");
+                    out.print("<tr><th>Rank</th><th>Macaddress</th><th>Co-Located Time (in seconds)</th></tr></thead></tbody>");
+                    int rank = 1;
+                    for (double time : Times) {
+                        if (rank <= topK) {
+                            ArrayList<String> macaddresses = topKCompanions.get(time);
+                            out.print("<tr><td rowspan=" + macaddresses.size() + ">" + (rank) + "</td>");
+                            for (int i = 0; i < macaddresses.size(); i++) {
+                                String macaddress = macaddresses.get(i);
+                                if (i == 0) {
+                                    out.print("<td>" + macaddress + "</td>");
+                                    out.print("<td rowspan=" + macaddresses.size() + ">" + time + "</td>");
+                                } else {
+                                    out.print("<tr><td>" + macaddress + "</td></tr>");
+                                }
+                            }
+                            out.print("</tr>");
+                            rank += 1;
+                        }
                     }
+
+                    out.print("</tbody></table></div>");
                 }
-
-                out.print("</tbody></table></div>");
-            } else {
-                out.print("<h3>" + "error" + "</h3>");
             }
+            session.removeAttribute("macaddress");
+            session.removeAttribute("topKCompanions"); //remove session attribute from the session object
+            session.removeAttribute("timeDate"); //remove session attribute from the session object
+            session.removeAttribute("topK"); //remove session attribute from the session object
         %>
-
-
-
-        <%="<br>User session: " + timestamp%>
+        <%="<br><br>User session: " + timestamp%>
     </center>
 </body>
 </html>

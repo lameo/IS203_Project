@@ -58,9 +58,10 @@
 
                     <!-- ending time and date field -->
                     <tr>
+                        <!-- form input for date & time  -->
                     <div class="form-group">
-                        <label class="form-control-label" for="formGroupExampleInput">Enter Date & Time:</label>
-                        <input type="text" class="form-control" id="formGroupExampleInput" name="endtimeDate" placeholder="Example: 2017-02-06 11:00:00" required>
+                        <label for="example-datetime-local-input" class="form-control-label">Enter date & time:</label>
+                        <input class="form-control" type="datetime-local" id="input-datetime-local" name="timeDate" required>
                     </div>
                     </tr>
                     </div>
@@ -105,7 +106,7 @@
             //If breakdown report is generated
             if (session.getAttribute("breakdownReport") != null) {
                 List<String> options = (List<String>) session.getAttribute("orderList");
-                String errMsg = "Duplicated option found: ";
+                String errMsg = "duplicated option found: ";
                 boolean duplicate = false;
 
                 if (options != null) {
@@ -125,7 +126,7 @@
                 }
 
                 if (duplicate) {
-                    out.print("<p style=\"color:red;\">Report Generation failed<br>" + errMsg + "</p>");
+                    out.print("<br/><div class=\"alert alert-danger\" role=\"alert\"><strong>" + "The data is not available because " + errMsg + "</strong></div>");
                 } else {
                     String breakdownReport = (String) (session.getAttribute("breakdownReport"));
                     out.print(breakdownReport);
@@ -133,10 +134,6 @@
                 session.removeAttribute("breakdownReport"); //remove session attribute from the session object
                 session.removeAttribute("order"); //remove session attribute from the session object
             }
-
-            //debugging purpose
-            out.print("<br><br>Copy Paste");
-            out.print("<br>2017-02-06 11:00:00");
         %>        
         <%="<br><br>User session: " + timestamp%>
     </center>
