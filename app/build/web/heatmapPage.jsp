@@ -124,7 +124,7 @@
 
                     out.print("</tbody></table></div>");
                 } else {
-                    out.print("<br/><div class=\"alert alert-danger\" role=\"alert\"><strong>" + "The data is not available within time " + timeDate + "</strong></div>");
+                    out.print("<br/><div class=\"alert alert-danger\" role=\"alert\"><strong>" + "The data is not available for floor " + floor + "in SIS Building" + " within time " + timeDate + "</strong></div>");
                 }
 
         %>
