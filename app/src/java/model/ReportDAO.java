@@ -174,7 +174,7 @@ public class ReportDAO {
                     + "WHERE timestamp BETWEEN (SELECT DATE_SUB(?,INTERVAL 15 MINUTE)) AND (SELECT DATE_SUB(?,INTERVAL 1 SECOND)) "
                     + "group by macaddress) l, location m, locationlookup n "
                     + "where l.macaddress = m.macaddress and m.timestamp = l.timestamp and m.locationid = n.locationid "
-                    + "group by n.locationname ");
+                    + "group by n.locationname");
 
             //set the parameters
             preparedStatement.setString(1, time);
