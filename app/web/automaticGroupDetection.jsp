@@ -60,11 +60,6 @@
                     <label for="example-datetime-local-input" class="form-control-label">Enter date & time:</label>
                     <input class="form-control" type="datetime-local" id="input-datetime-local" name="timeDate" step="1" required>
                 </div>
-                <!-- form input for mac-address  -->
-                <div class="form-group">
-                    <label class="form-control-label" for="locationGetter">Enter MAC Addresse:</label>
-                    <input type="text" class="form-control" id="locationGetter" name="location" placeholder="Example: 009562b08360d78848a977dc26368b53cc0f1d44" required>
-                </div>
                 <button type="submit" class="btn btn-primary">Generate</button>
             </form>
 
@@ -92,7 +87,7 @@
             }
         %>
 
-        <%="<br>Example: 2014-03-23 13:40:00"%>
+        <%="<br>Example: 2017-02-06 11:34:43.000000"%>
         <%="<br>Mac address: 009562b08360d78848a977dc26368b53cc0f1d44"%>
         <%="<br><br>User session: " + timestamp%>
     </center>
