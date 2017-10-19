@@ -24,14 +24,15 @@ public class ReportServlet extends HttpServlet {
             String reportType = request.getParameter("reportType"); //to retrieve which basic location report the user selected
             HttpSession session = request.getSession();
             String timeDate = request.getParameter("timeDate"); //retrieve time from user input
-            SimpleDateFormat readFormat = new SimpleDateFormat("yyyy-MM-dd'T'hh:mm");
-            SimpleDateFormat writeFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss.SSSSSS");
+            SimpleDateFormat readFormat = new SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ss");
+            SimpleDateFormat writeFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSSSSS");
             Date timestamp = null;
             try {
                 timestamp = (Date) readFormat.parse(timeDate);
                 timeDate = writeFormat.format(timestamp);
                 //System.out.println("Retrieved and formatted dateTime: " + timestamp.toString());
             } catch (ParseException e) {
+                System.out.println("Date formatter failed to parse chosen sendTime.");
                 e.printStackTrace();
             }
             switch (reportType) {
