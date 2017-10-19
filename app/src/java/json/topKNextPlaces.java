@@ -12,7 +12,6 @@ import com.google.gson.JsonObject;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 import javax.servlet.ServletException;
@@ -28,11 +27,12 @@ import model.SharedSecretManager;
  *
  * @author HongYuan
  */
-@WebServlet(urlPatterns = {"/json/top-k-popular-places"})
-public class topKPopularPlace extends HttpServlet {
+@WebServlet(urlPatterns = {"/json/top-k-next-places"})
+public class topKNextPlaces extends HttpServlet {
 
     /**
-     * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
+     * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
+     * methods.
      *
      * @param request servlet request
      * @param response servlet response
@@ -58,9 +58,10 @@ public class topKPopularPlace extends HttpServlet {
         String tokenEntered = request.getParameter("token"); //get token from url
         String topKEntered = request.getParameter("k"); //get topK from url
         String dateEntered = request.getParameter("date"); //get date from url
+        String semanticPlace = request.getParameter("origin"); //get the semantic place from url
 
-        //print out all the error with null or empty string that is required but the user did not enter 
-        if (!SharedSecretManager.verifyUser(tokenEntered)) { //verify the user - if the user is not verified
+        //check if token is invalid
+        if (!SharedSecretManager.verifyUser(tokenEntered)) { //if the user is not verified
             errMsg.add("invalid token");
             jsonOutput.addProperty("status", "error");
             jsonOutput.add("messages", errMsg);
@@ -68,7 +69,8 @@ public class topKPopularPlace extends HttpServlet {
             return;
         }
 
-        if (dateEntered == null || dateEntered.equals("")) { //if the dateEntered not the right format
+        //check if dateEntered is entered by user from url
+        if (dateEntered == null || dateEntered.equals("")) {
             errMsg.add("blank date");
             jsonOutput.addProperty("status", "error");
             jsonOutput.add("messages", errMsg);
@@ -76,14 +78,29 @@ public class topKPopularPlace extends HttpServlet {
             return;
         }
 
-        if (topKEntered == null || topKEntered.equals("")) {
+        //check if semantic place comes from location-lookup.csv
+        ArrayList<String> validSemanticPlacesList = ReportDAO.getSemanticPlaces();
+        if (!validSemanticPlacesList.contains(semanticPlace)) { //if semanticPlace is not inside the locationloopup table
+            errMsg.add("invalid origin");
+            jsonOutput.addProperty("status", "error");
+            jsonOutput.add("messages", errMsg);
+            out.println(gson.toJson(jsonOutput));
+            return;
+        }
+
+        //check top k added is correct
+        if (topKEntered == null || topKEntered.equals("")) { // if not specified, set default value to 3
             topKEntered = "3";
         }
-        int topK = Integer.parseInt(topKEntered); //get the number user entered in url in int
+        int topK = Integer.parseInt(topKEntered); //get the number user entered in url as an int
         if (topK < 1 || topK > 10) {
             errMsg.add("invalid k"); //add error msg into JsonArray
-        } else { //only run with valid k
-            //check for valid date entered
+        } else {
+            //from here on, user is verified
+            //topk number is between 1 - 10 inclusive with default as 3 if no k is entered
+            //semantic place is valid
+
+            //check for valid date entered by user
             boolean valid = true;
             // Length check
             valid = valid && dateEntered.length() == 19;
@@ -102,37 +119,48 @@ public class topKPopularPlace extends HttpServlet {
             if (!valid) {
                 errMsg.add("invalid date");
             } else {
-                //at this point, dateEntered is valid and is in the right format
+                //at this point, dateEntered is valid and is in the right format 
                 dateEntered = dateEntered.replaceAll("T", " ");
                 
-                Map<Integer, String> topKPopularMap = ReportDAO.retrieveTopKPopularPlaces(dateEntered);
-
                 //create a json array to store errors
                 JsonArray resultsArr = new JsonArray();
-                ArrayList<Integer> keys = new ArrayList<Integer>(topKPopularMap.keySet());
-               
-                int count = 1;
-                for (int i = 0; i < keys.size(); i++) { 
-                    if (count <= topK) {
-                        //System.out.print(topKPopularMap.get(keys.get(i)));
-                        JsonObject topKPopPlaces = new JsonObject();
-                        topKPopPlaces.addProperty("rank", count);
+                
+                int usersVisitingNextPlace = 0; // total quantity of users visiting next place
+                Map<Integer, ArrayList<String>> topKNextPlaces = ReportDAO.retrieveTopKNextPlaces(dateEntered, semanticPlace);
+                
+                //retrieve users who are in a specific place given a specific time frame in a specific location
+                ArrayList<String> usersList = ReportDAO.retrieveUserBasedOnLocation(dateEntered, semanticPlace); 
+                   
+                Set<Integer> totalNumOfUsersSet = topKNextPlaces.keySet(); // to get the different total number of users in a next place in desc order
+                int counter = 1; // to match topk number after incrementation
+                for (int totalNumOfUsers : totalNumOfUsersSet) {
+                    ArrayList<String> locations = topKNextPlaces.get(totalNumOfUsers); // gives the list of location with the same totalNumOfUsers
+                    if (counter <= topK) { // to only display till topk number
+                        JsonObject topKNextPlace = new JsonObject();
                         
-                        //To add popular places into an array for output
-                        JsonArray popularSemanticPlaces = new JsonArray();
+                        //to add all locations with the same count inside to output results as an array
+                        JsonArray chainAllSemanticPlaces = new JsonArray(); 
+                        topKNextPlace.addProperty("rank", counter);
                         
-                        //add every popular place in accordance to every key(integer) found in topKPopularMap
-                        popularSemanticPlaces.add(topKPopularMap.get(keys.get(i)));
-                        
-                        //add back JsonArray object popularSemanticPlaces into JsonObject topKPopPlaces for viewing
-                        topKPopPlaces.add("semantic-places", popularSemanticPlaces);
-                        
-                        topKPopPlaces.addProperty("count", keys.get(i));
-                        resultsArr.add(topKPopPlaces);
+                        for (int i = 0; i < locations.size(); i++) {
+                            if (locations.get(i).equals(semanticPlace)) { // if the locations is the same, find the number of users who visited another place (exclude those left the place but have not visited another place) in the query window
+                                usersVisitingNextPlace -= totalNumOfUsers; // minus off if the user is staying at the same place
+                            }
+                            chainAllSemanticPlaces.add(locations.get(i));
+                            //if (i + 1 < locations.size()) { //fence-post method to add the comma
+                            //    chainAllSemanticPlaces+=", ";
+                            //}
+                        }
+                        topKNextPlace.add("semantic-place", chainAllSemanticPlaces); //add the JsonArray of locations into the JsonObject
+                        topKNextPlace.addProperty("count", totalNumOfUsers);
+                        resultsArr.add(topKNextPlace);
+                        counter++;
                     }
-                    count++;
+                    usersVisitingNextPlace += totalNumOfUsers * locations.size(); // add if the user is going other places but the quantity may have multiple next locations
                 }
                 jsonOutput.addProperty("status", "success");
+                jsonOutput.addProperty("total-users", usersList.size());
+                jsonOutput.addProperty("total-next-place-users", usersVisitingNextPlace);
                 jsonOutput.add("results", resultsArr);
                 out.println(gson.toJson(jsonOutput));
                 return;
@@ -144,8 +172,8 @@ public class topKPopularPlace extends HttpServlet {
         }
         out.println(gson.toJson(jsonOutput));
     }
-
 // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
+
     /**
      * Handles the HTTP <code>GET</code> method.
      *

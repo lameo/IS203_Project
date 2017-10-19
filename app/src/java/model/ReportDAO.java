@@ -163,7 +163,7 @@ public class ReportDAO {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
-        Map<Integer, String> map = new HashMap<>();
+        Map<Integer, String> map = new TreeMap<>(Collections.reverseOrder());
         try {
             //get a connection to database
             connection = ConnectionManager.getConnection();
