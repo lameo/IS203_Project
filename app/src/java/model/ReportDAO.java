@@ -184,7 +184,7 @@ public class ReportDAO {
             resultSet = preparedStatement.executeQuery();
 
             while (resultSet.next()) {
-                if (map.containsKey(resultSet.getInt(2))) {
+                if (map.containsKey(resultSet.getInt(2))) { 
                     map.put(resultSet.getInt(2), map.get(resultSet.getInt(2)) + ", " + resultSet.getString(1));
                 } else {
                     map.put(resultSet.getInt(2), resultSet.getString(1));

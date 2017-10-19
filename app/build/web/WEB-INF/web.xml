@@ -36,6 +36,10 @@
         <servlet-name>heatmap</servlet-name>
         <servlet-class>json.heatmap</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>topKNextPlaces</servlet-name>
+        <servlet-class>json.topKNextPlaces</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>processLogin</servlet-name>
         <url-pattern>/processLogin</url-pattern>
@@ -71,6 +75,10 @@
     <servlet-mapping>
         <servlet-name>heatmap</servlet-name>
         <url-pattern>/heatmap</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>topKNextPlaces</servlet-name>
+        <url-pattern>/topKNextPlaces</url-pattern>
     </servlet-mapping>
     <session-config>
         <session-timeout>

@@ -12,6 +12,7 @@ import com.google.gson.JsonObject;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 import javax.servlet.ServletException;
@@ -101,21 +102,33 @@ public class topKPopularPlace extends HttpServlet {
             if (!valid) {
                 errMsg.add("invalid date");
             } else {
+                //at this point, dateEntered is valid and is in the right format
+                dateEntered = dateEntered.replaceAll("T", " ");
+                
                 Map<Integer, String> topKPopularMap = ReportDAO.retrieveTopKPopularPlaces(dateEntered);
 
                 //create a json array to store errors
                 JsonArray resultsArr = new JsonArray();
                 ArrayList<Integer> keys = new ArrayList<Integer>(topKPopularMap.keySet());
+                //Collections.sort(keys, Collections.reverseOrder());
                 int count = 1;
-                for (int i = keys.size() - 1; i >= 0; i--) {
+                for (int i = keys.size() - 1; i >= 0; i--) { //get the max value which is at the bottom
                     if (count <= topK) {
                         //System.out.print(topKPopularMap.get(keys.get(i)));
                         JsonObject topKPopPlaces = new JsonObject();
                         topKPopPlaces.addProperty("rank", count);
-                        topKPopPlaces.addProperty("sematic-place", topKPopularMap.get(keys.get(i)));
+                        
+                        //To add popular places into an array for output
+                        JsonArray popularSemanticPlaces = new JsonArray();
+                        
+                        //add every popular place in accordance to every key(integer) found in topKPopularMap
+                        popularSemanticPlaces.add(topKPopularMap.get(keys.get(i)));
+                        
+                        //add back JsonArray object popularSemanticPlaces into JsonObject topKPopPlaces for viewing
+                        topKPopPlaces.add("semantic-places", popularSemanticPlaces);
+                        
                         topKPopPlaces.addProperty("count", keys.get(i));
                         resultsArr.add(topKPopPlaces);
-                        //out.print("<tr><td>" + count++ + "</td><td>" + topKPopularMap.get(keys.get(i)) + "</td><td>" + keys.get(i) + "</td></tr>");
                     }
                     count++;
                 }
