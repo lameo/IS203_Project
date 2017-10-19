@@ -49,10 +49,7 @@ public class AutoGroupDAO {
             connection = ConnectionManager.getConnection();
 
             //prepare a statement
-            preparedStatement = connection.prepareStatement("select macaddress, locationid, timestamp"
-                    + "from demographics d, location l"
-                    + "where d.macaddress = l.macaddress and timestamp between DATE_SUB(?, INTERVAL 15 MINUTE)"
-                    + "and DATE_SUB(?, INTERVAL 1 SECOND) order by timestamp");
+            preparedStatement = connection.prepareStatement("select macaddress, locationid, timestamp from location where timestamp between DATE_SUB(?, INTERVAL 15 MINUTE) and DATE_SUB(?, INTERVAL 1 SECOND) order by timestamp");
 
             //set the parameters
             preparedStatement.setString(1, endtimeDate);
