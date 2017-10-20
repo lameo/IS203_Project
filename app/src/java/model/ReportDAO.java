@@ -1,7 +1,6 @@
 package model;
 
 import java.sql.Connection;
-import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -13,12 +12,9 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -218,12 +214,12 @@ public class ReportDAO {
         }
 
         // TreeMap is sorted by keys
-        Map<Integer, ArrayList<String>> ranking = new TreeMap<>(Collections.reverseOrder()); //sort keys in descending order    
+        Map<Integer, ArrayList<String>> ranking = new TreeMap<>(Collections.reverseOrder()); //sort keys in descending order
         Set<String> locationKeys = nextPlacesMap.keySet(); // to retrieve all the keys(i.e location) from nextPlacesMap
 
         for (String location : locationKeys) {
             int totalNumOfUsers = nextPlacesMap.get(location); //for each key(i.e location) in keys, retrieve the total number of users in the location
-            ArrayList<String> allLocationList = ranking.get(totalNumOfUsers); //list is to group all the different locations with the same quantity 
+            ArrayList<String> allLocationList = ranking.get(totalNumOfUsers); //list is to group all the different locations with the same quantity
             if (allLocationList == null || allLocationList.size() < 0) { // when the ranking map is empty
                 ArrayList<String> sameLocations = new ArrayList<>();
                 sameLocations.add(location);
@@ -262,7 +258,7 @@ public class ReportDAO {
 
             resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
-                String result = resultSet.getString(1); // retrieves the user 
+                String result = resultSet.getString(1); // retrieves the user
                 usersInSpecificPlace.add(result); // add into list to collate all users in the specific location
             }
 
@@ -277,7 +273,7 @@ public class ReportDAO {
         return usersInSpecificPlace;
     }
 
-    //retrieves the latest sematic place user spends at least 5 mins 
+    //retrieves the latest sematic place user spends at least 5 mins
     public static String retrieveTimelineForUser(String macaddress, String dateTime) {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
@@ -291,7 +287,7 @@ public class ReportDAO {
             //get a connection to database
             connection = ConnectionManager.getConnection();
 
-            //prepare a statement to get location name and time given a specfic user and time 
+            //prepare a statement to get location name and time given a specfic user and time
             preparedStatement = connection.prepareStatement("select llu.locationname, l.timestamp "
                     + "from locationlookup llu, location l "
                     + "where macaddress = ? and timestamp BETWEEN (SELECT DATE_ADD(? ,INTERVAL 0 MINUTE)) AND (SELECT DATE_ADD(DATE_ADD(? ,INTERVAL 14 MINUTE), INTERVAL 59 SECOND)) "
@@ -321,7 +317,7 @@ public class ReportDAO {
 
             //arraylist locationTimestampList has locationname and timestamp in alternate order for 1 user only
             //Eg: location1, time1, location2, time2, location3, time3, .. etc
-            for (int i = 0; i < locationTimestampList.size(); i += 2) { //loop every location name added              
+            for (int i = 0; i < locationTimestampList.size(); i += 2) { //loop every location name added
                 if (currentPlace == null || currentPlace.length() <= 0) {
                     currentPlace = locationTimestampList.get(i); // to set currentPlace to first location from locationTimestampList at the start
                 }
@@ -337,13 +333,13 @@ public class ReportDAO {
 
                     long diff = (nextDateAdded.getTime() - firstDateAdded.getTime()); // to get the time the user stayed at currentPlace in milliseconds
                     double timeDiff = diff / 1000.0; // to get the time the user stayed at currentPlace in seconds
-                    currentQuantity += timeDiff; // update the latest time    
-                    if (!currentPlace.equals(nextLocation)) { //if different location check if time is more than 5 mins                    
+                    currentQuantity += timeDiff; // update the latest time
+                    if (!currentPlace.equals(nextLocation)) { //if different location check if time is more than 5 mins
                         if (currentQuantity >= 300) {
                             spentMoreThan5Minutes = currentPlace;
                         }
                         currentPlace = nextLocation; //set the next place as current place
-                        currentQuantity = 0; // reset time to re-count the time for nextLocation   
+                        currentQuantity = 0; // reset time to re-count the time for nextLocation
                     }
                 } else { //reach the end
                     String lastDate = locationTimestampList.get(i + 1); //to retrieve the corresponding date for last location in locationTimestampList
@@ -419,7 +415,7 @@ public class ReportDAO {
         String[] first, second, third;  //category have name in their first value to know what does first, second or third variable contains
         String[] year = {"Year", "2013", "2014", "2015", "2016", "2017"};                              //5
         String[] gender = {"Gender", "M", "F"};                                                        //2
-        String[] school = {"School", "economics", "sis", "socsc", "accountancy", "business", "law"};   //6
+        String[] school = {"School", "accountancy", "business", "economics", "law", "sis", "socsc"};   //6
 
         int checking = -1;
         String userInput = "";
@@ -624,7 +620,7 @@ public class ReportDAO {
             //Ending
             currentLine += "</tr>";
             returnThis += currentLine;
-            
+
             checking+=value; //if value is always 0 or -1, meaning no value, means that checking will always be less than or equals to -1
         }
         returnThis += "</tbody></table></div>";
@@ -709,7 +705,7 @@ public class ReportDAO {
         } catch (ArrayIndexOutOfBoundsException e) {
 
         } catch (NullPointerException e1){
-            
+
         }
 
         String[] userInputArray = userInput.split(" "); //change from string into string array
@@ -759,7 +755,7 @@ public class ReportDAO {
                         + " "
                         + second[(int) (i / (0.001 + thirdL) % (secondL)) + 1];
             }
-            
+
             if (third != null) {
                 temp += " "
                         + third[0]
@@ -1042,7 +1038,7 @@ public class ReportDAO {
             timestringBeforeStart = dateFormat.format(cal.getTime());
             duration = (timeEnd.getTime() - timeStart.getTime()) / 1000.0;
         } catch (Exception e) { //this generic but you can control another types of exception
-            // look the origin of excption 
+            // look the origin of excption
         }
 
         try {

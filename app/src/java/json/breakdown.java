@@ -32,7 +32,6 @@ public class breakdown extends HttpServlet {
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        HttpSession session = request.getSession();
         PrintWriter out = response.getWriter();
         //creates a new gson object
         //by instantiating a new factory object, set pretty printing, then calling the create method
@@ -227,8 +226,7 @@ public class breakdown extends HttpServlet {
             finalAns.addProperty("status", "error");
             finalAns.addProperty("messages", errors.toString());
         }
-        out.print(finalAns);
-
+        out.println(gson.toJson(finalAns));
     }
 
 // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
