@@ -1,7 +1,6 @@
 package model;
 
 import java.sql.Connection;
-import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -13,12 +12,9 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -163,7 +159,7 @@ public class ReportDAO {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
-        Map<Integer, String> map = new HashMap<>();
+        Map<Integer, String> map = new TreeMap<>(Collections.reverseOrder());
         try {
             //get a connection to database
             connection = ConnectionManager.getConnection();
@@ -174,8 +170,7 @@ public class ReportDAO {
                     + "WHERE timestamp BETWEEN (SELECT DATE_SUB(?,INTERVAL 15 MINUTE)) AND (SELECT DATE_SUB(?,INTERVAL 1 SECOND)) "
                     + "group by macaddress) l, location m, locationlookup n "
                     + "where l.macaddress = m.macaddress and m.timestamp = l.timestamp and m.locationid = n.locationid "
-                    + "group by n.locationname "
-                    + "order by count(n.locationname) desc limit 30 ");
+                    + "group by n.locationname");
 
             //set the parameters
             preparedStatement.setString(1, time);
@@ -219,12 +214,12 @@ public class ReportDAO {
         }
 
         // TreeMap is sorted by keys
-        Map<Integer, ArrayList<String>> ranking = new TreeMap<>(Collections.reverseOrder()); //sort keys in descending order    
+        Map<Integer, ArrayList<String>> ranking = new TreeMap<>(Collections.reverseOrder()); //sort keys in descending order
         Set<String> locationKeys = nextPlacesMap.keySet(); // to retrieve all the keys(i.e location) from nextPlacesMap
 
         for (String location : locationKeys) {
             int totalNumOfUsers = nextPlacesMap.get(location); //for each key(i.e location) in keys, retrieve the total number of users in the location
-            ArrayList<String> allLocationList = ranking.get(totalNumOfUsers); //list is to group all the different locations with the same quantity 
+            ArrayList<String> allLocationList = ranking.get(totalNumOfUsers); //list is to group all the different locations with the same quantity
             if (allLocationList == null || allLocationList.size() < 0) { // when the ranking map is empty
                 ArrayList<String> sameLocations = new ArrayList<>();
                 sameLocations.add(location);
@@ -263,7 +258,7 @@ public class ReportDAO {
 
             resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
-                String result = resultSet.getString(1); // retrieves the user 
+                String result = resultSet.getString(1); // retrieves the user
                 usersInSpecificPlace.add(result); // add into list to collate all users in the specific location
             }
 
@@ -278,7 +273,7 @@ public class ReportDAO {
         return usersInSpecificPlace;
     }
 
-    //retrieves the latest sematic place user spends at least 5 mins 
+    //retrieves the latest sematic place user spends at least 5 mins
     public static String retrieveTimelineForUser(String macaddress, String dateTime) {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
@@ -292,7 +287,7 @@ public class ReportDAO {
             //get a connection to database
             connection = ConnectionManager.getConnection();
 
-            //prepare a statement to get location name and time given a specfic user and time 
+            //prepare a statement to get location name and time given a specfic user and time
             preparedStatement = connection.prepareStatement("select llu.locationname, l.timestamp "
                     + "from locationlookup llu, location l "
                     + "where macaddress = ? and timestamp BETWEEN (SELECT DATE_ADD(? ,INTERVAL 0 MINUTE)) AND (SELECT DATE_ADD(DATE_ADD(? ,INTERVAL 14 MINUTE), INTERVAL 59 SECOND)) "
@@ -322,7 +317,7 @@ public class ReportDAO {
 
             //arraylist locationTimestampList has locationname and timestamp in alternate order for 1 user only
             //Eg: location1, time1, location2, time2, location3, time3, .. etc
-            for (int i = 0; i < locationTimestampList.size(); i += 2) { //loop every location name added              
+            for (int i = 0; i < locationTimestampList.size(); i += 2) { //loop every location name added
                 if (currentPlace == null || currentPlace.length() <= 0) {
                     currentPlace = locationTimestampList.get(i); // to set currentPlace to first location from locationTimestampList at the start
                 }
@@ -338,13 +333,13 @@ public class ReportDAO {
 
                     long diff = (nextDateAdded.getTime() - firstDateAdded.getTime()); // to get the time the user stayed at currentPlace in milliseconds
                     double timeDiff = diff / 1000.0; // to get the time the user stayed at currentPlace in seconds
-                    currentQuantity += timeDiff; // update the latest time    
-                    if (!currentPlace.equals(nextLocation)) { //if different location check if time is more than 5 mins                    
+                    currentQuantity += timeDiff; // update the latest time
+                    if (!currentPlace.equals(nextLocation)) { //if different location check if time is more than 5 mins
                         if (currentQuantity >= 300) {
                             spentMoreThan5Minutes = currentPlace;
                         }
                         currentPlace = nextLocation; //set the next place as current place
-                        currentQuantity = 0; // reset time to re-count the time for nextLocation   
+                        currentQuantity = 0; // reset time to re-count the time for nextLocation
                     }
                 } else { //reach the end
                     String lastDate = locationTimestampList.get(i + 1); //to retrieve the corresponding date for last location in locationTimestampList
@@ -420,8 +415,9 @@ public class ReportDAO {
         String[] first, second, third;  //category have name in their first value to know what does first, second or third variable contains
         String[] year = {"Year", "2013", "2014", "2015", "2016", "2017"};                              //5
         String[] gender = {"Gender", "M", "F"};                                                        //2
-        String[] school = {"School", "economics", "sis", "socsc", "accountancy", "business", "law"};   //6
+        String[] school = {"School", "accountancy", "business", "economics", "law", "sis", "socsc"};   //6
 
+        int checking = -1;
         String userInput = "";
 
         switch (text[0]) { //get from basicReport.jsp, can be year/gender/school
@@ -624,27 +620,234 @@ public class ReportDAO {
             //Ending
             currentLine += "</tr>";
             returnThis += currentLine;
+
+            checking+=value; //if value is always 0 or -1, meaning no value, means that checking will always be less than or equals to -1
         }
         returnThis += "</tbody></table></div>";
+        if (checking <= -1) {
+            return null;
+        }
         return returnThis;
+    }
+
+    public static ArrayList<Integer> notVeryBasicBreakdownJson(String[] text, String endTimeDate) {
+        // initialize array
+        String[] first = null;  //category have name in their first value to know what does first, second or third variable contains
+        String[] second = null;  //category have name in their first value to know what does first, second or third variable contains
+        String[] third = null;  //category have name in their first value to know what does first, second or third variable contains
+        String[] year = {"Year", "2013", "2014", "2015", "2016", "2017"};                              //5
+        String[] gender = {"Gender", "M", "F"};                                                        //2
+        String[] school = {"School", "accountancy", "business", "economics", "law", "sis", "socsc"};   //6
+
+        String userInput = "";
+
+        switch (text[0]) { //get from basicReport.jsp, can be year/gender/school
+            case "year":
+                first = year; //add year array into first
+                userInput += "year "; //user chose year
+                break;
+
+            case "gender":
+                first = gender; //add gender array into first
+                userInput += "gender "; //user chose gender
+                break;
+
+            case "school":
+                first = school; //add school array into first
+                userInput += "school "; //user chose school
+                break;
+
+            default:
+                first = null;
+        }
+
+        try {
+            switch (text[1]) { //get from basicReport.jsp, can be year/gender/school/optional
+                case "year":
+                    second = year; //add year array into second
+                    userInput += "year "; //user chose year
+                    break;
+
+                case "gender":
+                    second = gender; //add gender array into second
+                    userInput += "gender "; //user chose gender
+                    break;
+
+                case "school":
+                    second = school; //add school array into second
+                    userInput += "school "; //user chose school
+                    break;
+
+                default:
+                    second = null; //user chose optional
+            }
+
+            switch (text[2]) { //get from basicReport.jsp, can be year/gender/school/optional
+                case "year":
+                    third = year; //add year array into third
+                    userInput += "year "; //user chose year
+                    break;
+
+                case "gender":
+                    third = gender; //add gender array into third
+                    userInput += "gender "; //user chose gender
+                    break;
+
+                case "school":
+                    third = school; //add school array into third
+                    userInput += "school "; //user chose school
+                    break;
+
+                default:
+                    third = null; //user chose optional
+            }
+
+        } catch (ArrayIndexOutOfBoundsException e) {
+
+        } catch (NullPointerException e1){
+
+        }
+
+        String[] userInputArray = userInput.split(" "); //change from string into string array
+        int totalOptions = userInputArray.length; //check how many options has the user selected, can be 1 2 or 3
+
+        int firstL = (first.length - 1); //to make sure the array doesn't have ArrayOutOfBoundException
+        int secondL = 1;
+        int thirdL = 1;
+        if (second != null) { //if user chose a second option
+            secondL = (second.length - 1); //to make sure the array doesn't have ArrayOutOfBoundException
+        }
+        if (third != null) { //if user chose a third option
+            thirdL = (third.length - 1); //to make sure the array doesn't have ArrayOutOfBoundException
+        }
+
+        //Number of rows to print
+        int numberOfRows = firstL;
+        if (second != null) {
+            numberOfRows *= secondL;
+        }
+        if (third != null) {
+            numberOfRows *= thirdL;
+        }
+
+        //string to return to ReportServlet.java
+        ArrayList<Integer> ans = new ArrayList<>();
+
+        for (int i = 1; i <= numberOfRows; i++) {
+            String temp = "";
+
+            //first var to split by
+            //if 1 trigger = 0
+            //if 2/3 trigger = 1
+            if (i % (secondL * thirdL) == totalOptions / 2) {
+                temp = first[0]
+                        + " "
+                        + first[i / (secondL * thirdL) + totalOptions / 2];
+            }
+
+            //if 2 trigger = 0
+            //if 3 trigger = 1
+            int trigger = totalOptions - 2;
+            //Second var to split by
+            if (second != null && i % (thirdL) == trigger) {
+                temp += " "
+                        + second[0]
+                        + " "
+                        + second[(int) (i / (0.001 + thirdL) % (secondL)) + 1];
+            }
+
+            if (third != null) {
+                temp += " "
+                        + third[0]
+                        + " "
+                        + third[(int) Math.ceil(i % (0.001 + thirdL))];
+            }
+
+            //Third var to split by
+            //run all the time
+            int value = -1;
+            switch (totalOptions) {
+                case 1: //user only choose 1 option
+                    switch (userInput) { //check which option did the user choose
+                        case "gender ":
+                            value = retrieveByGender(endTimeDate, gender[i]);
+                            break;
+                        case "school ":
+                            value = retrieveByEmail(endTimeDate, school[i]);
+                            break;
+                        case "year ":
+                            value = retrieveByEmail(endTimeDate, year[i]);
+                            break;
+                        default:
+                            value = -2;
+                            break;
+                    }
+                    break;
+                case 2: //user only choose 2 options
+                    //Checking which variable is not selected
+                    int totalSum = 0;
+                    if (userInputArray[0].equals("year") && userInputArray[1].equals("gender")) {
+                        for (int j = 1; j < school.length; j++) { //sum every school according to that year and gender, magic number is 2 (length of second input eg gender)
+                            totalSum += retrieveThreeBreakdown(endTimeDate, year[(int) Math.ceil(i / 2.0)], gender[(i - 1) % 2 + 1], school[j]);
+                        }
+                    } else if (userInputArray[0].equals("year") && userInputArray[1].equals("school")) {
+                        for (int j = 1; j < gender.length; j++) { //sum every gender according to that year and school, magic number is 6 (length of second input eg school)
+                            totalSum += retrieveThreeBreakdown(endTimeDate, year[(int) Math.ceil((i / 6.0))], gender[j], school[(i - 1) % 6 + 1]);
+                        }
+                    } else if (userInputArray[0].equals("school") && userInputArray[1].equals("gender")) {
+                        for (int j = 1; j < year.length; j++) { //sum every year according to that school and gender, magic number is 2 (length of second input eg gender)
+                            totalSum += retrieveThreeBreakdown(endTimeDate, year[j], gender[(i - 1) % 2 + 1], school[(int) Math.ceil(i / 2.0)]);
+                        }
+                    } else if (userInputArray[0].equals("school") && userInputArray[1].equals("year")) {
+                        for (int j = 1; j < gender.length; j++) { //sum every gender according to that school and year, magic number is 5 (length of second input eg year)
+                            totalSum += retrieveThreeBreakdown(endTimeDate, year[(i - 1) % 5 + 1], gender[j], school[(int) Math.ceil(i / 5.0)]);
+                        }
+                    } else if (userInputArray[0].equals("gender") && userInputArray[1].equals("school")) {
+                        for (int j = 1; j < year.length; j++) { //sum every year according to that gender and school, magic number is 6 (length of second input eg school)
+                            totalSum += retrieveThreeBreakdown(endTimeDate, year[j], gender[(int) Math.ceil(i / 6.0)], school[(i - 1) % 6 + 1]);
+                        }
+                    } else if (userInputArray[0].equals("gender") && userInputArray[1].equals("year")) {
+                        for (int j = 1; j < school.length; j++) { //sum every school according to that gender and year, magic number is 5 (length of second input eg year)
+                            totalSum += retrieveThreeBreakdown(endTimeDate, year[(i - 1) % 5 + 1], gender[(int) Math.ceil(i / 5.0)], school[j]);
+                        }
+                    }
+                    value = totalSum;
+                    break;
+                default: //user only choose 3 options
+                    if (userInputArray[0].equals("year") && userInputArray[1].equals("gender") && userInputArray[2].equals("school")) { //same year 12 times, same gender 6 times, 6 different schools
+                        value = retrieveThreeBreakdown(endTimeDate, year[(int) Math.ceil(i / 12.0)], gender[((int) Math.ceil((i - 1) / 6)) % 2 + 1], school[(i - 1) % 6 + 1]);
+                    } else if (userInputArray[0].equals("year") && userInputArray[1].equals("school") && userInputArray[2].equals("gender")) { //same year 12 times, same school 2 times, 2 different gender
+                        value = retrieveThreeBreakdown(endTimeDate, year[(int) Math.ceil(i / 12.0)], gender[(i - 1) % 2 + 1], school[((int) Math.ceil((i - 1) / 2)) % 6 + 1]);
+                    } else if (userInputArray[0].equals("gender") && userInputArray[1].equals("year") && userInputArray[2].equals("school")) { //same gender 30 times, same year 6 times, 6 different school
+                        value = retrieveThreeBreakdown(endTimeDate, year[((int) Math.ceil((i - 1) / 6)) % 5 + 1], gender[((int) Math.ceil(i / 30.0))], school[(i - 1) % 6 + 1]);
+                    } else if (userInputArray[0].equals("gender") && userInputArray[1].equals("school") && userInputArray[2].equals("year")) { //same gender 30 times, same school 5 times, 5 different year
+                        value = retrieveThreeBreakdown(endTimeDate, year[(i - 1) % 5 + 1], gender[(int) Math.ceil(i / 30.0)], school[((int) Math.ceil((i - 1) / 5)) % 6 + 1]);
+                    } else if (userInputArray[0].equals("school") && userInputArray[1].equals("year") && userInputArray[2].equals("gender")) { //same school 10 times, same year 2 times, 2 different gender
+                        value = retrieveThreeBreakdown(endTimeDate, year[((int) Math.ceil((i - 1) / 2)) % 5 + 1], gender[(i - 1) % 2 + 1], school[(int) Math.ceil(i / 10.0)]);
+                    } else if (userInputArray[0].equals("school") && userInputArray[1].equals("gender") && userInputArray[2].equals("year")) { //same school 10 times, same gender 5 times, 5 different year
+                        value = retrieveThreeBreakdown(endTimeDate, year[(i - 1) % 5 + 1], gender[((int) Math.ceil((i - 1) / 5)) % 2 + 1], school[(int) Math.ceil(i / 10.0)]);
+                    }
+                    break;
+            }
+            ans.add(value);
+        }
+        return ans;
     }
 
     public static Map<Double, ArrayList<String>> retrieveTopKCompanions(String endTimeDate, String macaddress, int k) throws ParseException {
         ArrayList<String> UserLocationTimestamps = retrieveUserLocationTimestamps(macaddress, endTimeDate);
-        ArrayList<String> Companions = new ArrayList<String>();
+
         ArrayList<String> CompanionLocationTimestamps = null;
         Map<String, Double> CompanionColocations = new HashMap<String, Double>();
         Map<Double, ArrayList<String>> SortedList = new TreeMap<Double, ArrayList<String>>(Collections.reverseOrder());
         Map<ArrayList<String>, Integer> result = new HashMap<ArrayList<String>, Integer>();
-
         for (int i = 0; i < UserLocationTimestamps.size(); i += 1) {
             String UserLocationTimestamp = UserLocationTimestamps.get(i);
             String[] LocationTimestamp = UserLocationTimestamp.split(",");
             String locationid = LocationTimestamp[0];
             String timestringStart = LocationTimestamp[1];
             String timestringEnd = LocationTimestamp[2];
-            Companions = retreiveCompanionMacaddresses(macaddress, locationid, timestringStart, timestringEnd);
-            CompanionLocationTimestamps = retrieveCompanionLocationTimestamps(Companions, locationid, timestringStart, timestringEnd);
+            CompanionLocationTimestamps = retrieveCompanionLocationTimestamps(macaddress, locationid, timestringStart, timestringEnd);
             if (CompanionLocationTimestamps != null) {
                 for (int j = 0; j < CompanionLocationTimestamps.size(); j += 1) {
                     String CompanionLocationTimestamp = CompanionLocationTimestamps.get(j);
@@ -657,7 +860,6 @@ public class ReportDAO {
                         colocationTime += colocationTime2;
                         CompanionColocations.remove(macaddressc);
                         CompanionColocations.put(macaddressc, colocationTime);
-
                     } else {
                         CompanionColocations.put(macaddressc, colocationTime);
                     }
@@ -812,103 +1014,8 @@ public class ReportDAO {
         return UserLocationTimestamps;
     }
 
-    public static ArrayList<String> retreiveCompanionMacaddresses(String userMacaddress, String locationid, String timestringStart, String timestringEnd) {
-        Connection connection = null;
-        PreparedStatement preparedStatement = null;
-        ResultSet resultSet = null;
-        String ans = "";
-        double colocationTime = 0;
-        java.util.Date timeEnd = null;
-        java.util.Date timeStart = null;
-        String timestringBeforeStart = null;
-        ArrayList<String> CompanionLocationTimestamps = new ArrayList<String>();
-        ArrayList<String> Companions = new ArrayList<String>();
-        double tmp = 0;
-        double duration = 0;
-        try {
-            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss.SSS");
-            timeStart = dateFormat.parse(timestringStart);
-            timeEnd = dateFormat.parse(timestringEnd);
-            Calendar cal = Calendar.getInstance();
-            cal.setTime(timeStart);
-            cal.add(Calendar.MINUTE, -5);
-            timestringBeforeStart = dateFormat.format(cal.getTime());
-            duration = (timeEnd.getTime() - timeStart.getTime()) / 1000.0;
-        } catch (Exception e) { //this generic but you can control another types of exception
-            // look the origin of excption 
-        }
-        try {
-            //get a connection to database
-            connection = ConnectionManager.getConnection();
-
-            //prepare a statement
-            preparedStatement = connection.prepareStatement("select distinct macaddress from location where macaddress <> ? and locationid= ? and timestamp between ? and ?");
-
-            //set the parameters
-            preparedStatement.setString(1, userMacaddress);
-            preparedStatement.setString(2, locationid);
-            preparedStatement.setString(3, timestringBeforeStart);
-            preparedStatement.setString(4, timestringEnd);
-
-            //execute SQL query
-            resultSet = preparedStatement.executeQuery();
-            while (resultSet.next()) {
-                Companions.add(resultSet.getString(1));
-            }
-
-            resultSet.close();
-            preparedStatement.close();
-            connection.close();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        //UserLocationTimestamps.add("1010110032"+","+"014-03-24 09:07:27.000000"+","+"1");
-        return Companions;
-    }
-
-    public static Map<ArrayList<String>, Integer> test(String endTimeDate, String macaddress, int k) throws ParseException {
-        ArrayList<String> UserLocationTimestamps = retrieveUserLocationTimestamps(macaddress, endTimeDate);
-        ArrayList<String> Companions = new ArrayList<String>();
-        ArrayList<String> CompanionLocationTimestamps = null;
-        Map<String, Double> CompanionColocations = new HashMap<String, Double>();
-        Map<Double, ArrayList<String>> SortedList = new TreeMap<Double, ArrayList<String>>(Collections.reverseOrder());
-        Map<ArrayList<String>, Integer> result = new HashMap<ArrayList<String>, Integer>();
-
-        for (int i = 0; i < UserLocationTimestamps.size(); i += 1) {
-            String UserLocationTimestamp = UserLocationTimestamps.get(i);
-            String[] LocationTimestamp = UserLocationTimestamp.split(",");
-            String locationid = LocationTimestamp[0];
-            String timestringStart = LocationTimestamp[1];
-            String timestringEnd = LocationTimestamp[2];
-            Companions = retreiveCompanionMacaddresses(macaddress, locationid, timestringStart, timestringEnd);
-            CompanionLocationTimestamps = retrieveCompanionLocationTimestamps(Companions, locationid, timestringStart, timestringEnd);
-            result.put(CompanionLocationTimestamps, i);
-            if (CompanionLocationTimestamps != null) {
-                for (int j = 0; j < CompanionLocationTimestamps.size(); j += 1) {
-                    String CompanionLocationTimestamp = CompanionLocationTimestamps.get(j);
-                    String[] LocationTimestampc = CompanionLocationTimestamp.split(",");
-                    String macaddressc = LocationTimestampc[0];
-                    double colocationTime = Double.parseDouble(LocationTimestampc[3]);
-
-                    if (CompanionColocations.containsKey(macaddressc)) {
-                        double colocationTime2 = CompanionColocations.get(macaddressc);
-                        colocationTime += colocationTime2;
-                        CompanionColocations.remove(macaddressc);
-                        CompanionColocations.put(macaddressc, colocationTime);
-
-                    } else {
-                        CompanionColocations.put(macaddressc, colocationTime);
-                    }
-
-                }
-            }
-        }
-
-        return result;
-    }
-
     //retreive users in hashmap form, hashmap key is macaddress and hashmap value is array of email, locationid and timestamp
-    public static ArrayList<String> retrieveCompanionLocationTimestamps(ArrayList<String> Companions, String locationid, String timestringStart, String timestringEnd) throws ParseException {
+    public static ArrayList<String> retrieveCompanionLocationTimestamps(String userMacaddress, String locationid, String timestringStart, String timestringEnd) throws ParseException {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
@@ -931,177 +1038,118 @@ public class ReportDAO {
             timestringBeforeStart = dateFormat.format(cal.getTime());
             duration = (timeEnd.getTime() - timeStart.getTime()) / 1000.0;
         } catch (Exception e) { //this generic but you can control another types of exception
-            // look the origin of excption 
+            // look the origin of excption
         }
 
-        for (int j = 0; j < Companions.size(); j += 1) {
-            String macaddress = Companions.get(j);
-            colocationTime = 0;
-            ans = "";
+        try {
+            //get a connection to database
+            connection = ConnectionManager.getConnection();
 
-            //CompanionLocationTimestamps.add(macaddress + "," + j);
-            try {
-                //get a connection to database
-                connection = ConnectionManager.getConnection();
+            //prepare a statement
+            preparedStatement = connection.prepareStatement("select macaddress, TIMESTAMPDIFF(second,timestamp,?) as diff,timestamp from location where macaddress <> ? and timestamp between ? and ? and locationid=? order by macaddress, diff desc");
 
-                //prepare a statement
-                preparedStatement = connection.prepareStatement("select timestamp, locationid, TIMESTAMPDIFF(second,timestamp,?) as diff from location where macaddress = ? and timestamp between ? and ? order by timestamp,diff desc");
+            //set the parameters
+            preparedStatement.setString(1, timestringEnd);
+            preparedStatement.setString(2, userMacaddress);
+            preparedStatement.setString(3, timestringBeforeStart);
+            preparedStatement.setString(4, timestringEnd);
+            preparedStatement.setString(5, locationid);
 
-                //set the parameters
-                preparedStatement.setString(1, timestringEnd);
-                preparedStatement.setString(2, macaddress);
-                preparedStatement.setString(3, timestringBeforeStart);
-                preparedStatement.setString(4, timestringEnd);
+            //execute SQL query
+            resultSet = preparedStatement.executeQuery();
 
-                //execute SQL query
-                resultSet = preparedStatement.executeQuery();
-
-                while (resultSet.next()) {
-                    String timestring = resultSet.getString(1);
-                    String location = resultSet.getString(2);
-                    int timeDiff = resultSet.getInt(3);
-                    //CompanionLocationTimestamps.add("test sql " + macaddress + "" + timestring + "" + location + "" + timeDiff);
-                    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss.SSSSSS");
-                    java.util.Date timestamp = dateFormat.parse(timestring);//convert time string to Date format
-                    double gap = (double) (timeDiff - duration);
-                    boolean CorrectTimestring = false;
-                    if (resultSet.isLast()) {
-                        if (location.equals(locationid)) {
-                            if (timestamp.before(timeStart)) {
-                                if (timeDiff > 300) {
-                                    colocationTime = colocationTime + (300 - gap);
-                                } else if (timeDiff <= 300) {
-                                    colocationTime = colocationTime + timeDiff - gap;
-                                }
-                                //CompanionLocationTimestamps.add(macaddress + "last location time before start " + colocationTime + "," + timeDiff);
-
-                            } else if (!timestamp.before(timeStart)) {
-                                if (timeDiff > 300) {
-                                    colocationTime += 300;
-                                } else if (timeDiff <= 300) {
-                                    colocationTime += timeDiff;
-                                }
-                                //CompanionLocationTimestamps.add(macaddress + "last location time " + colocationTime + "," + timeDiff);
-
-                            }
-
-                            ans = macaddress + "," + locationid + "," + timestamp + "," + colocationTime + ",";
-                            CompanionLocationTimestamps.add(ans);
-                            ans = "";
-                            colocationTime = 0;
-                            CorrectTimestring = false;
-                        }
+            while (resultSet.next()) {
+                String macaddress = resultSet.getString(1);
+                String timediff = resultSet.getString(2);
+                String timestamp = resultSet.getString(3);
+                locations.add(macaddress);
+                locations.add(timediff);
+                locations.add(timestamp);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        for (int i = 0; i < locations.size(); i += 3) {
+            String macaddress = locations.get(i);
+            int timeDiff = Integer.parseInt(locations.get(i + 1));
+            String timestring = locations.get(i + 2);
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss.SSSSSS");
+            java.util.Date timestamp = dateFormat.parse(timestring);//convert time string to Date format
+            double gap = (double) (timeDiff - duration);
+            if (locations.size() <= i + 3) { //if last pair of location and time
+                if (timestamp.before(timeStart)) {
+                    if (timeDiff > 300) {
+                        colocationTime = colocationTime + (300 - gap);
+                    } else if (timeDiff <= 300) {
+                        colocationTime = colocationTime + timeDiff - gap;
                     }
-                    while (resultSet.next()) {
-                        String locationNext = resultSet.getString(2);
-                        int timeDiffNext = resultSet.getInt(3);
-                        String timestringNext = resultSet.getString(1);
-                        timestamp = dateFormat.parse(timestring);//convert time string to Date format
-                        gap = (double) (timeDiff - duration);
-                        CorrectTimestring = false;
-                        //check if the previous location is correct or current location is correct
-                        if (resultSet.isLast()) {
-                            if (location.equals(locationid)) {
-                                if (timestamp.before(timeStart)) {
-                                    if (timeDiff > 300) {
-                                        colocationTime = colocationTime + (300 - gap);
-                                    } else if (timeDiff <= 300) {
-                                        colocationTime = colocationTime + timeDiff - gap;
-                                    }
-                                    //CompanionLocationTimestamps.add(macaddress + "last location time before start " + colocationTime + "," + timeDiff);
 
-                                } else if (!timestamp.before(timeStart)) {
-                                    if (timeDiff > 300) {
-                                        colocationTime += 300;
-                                    } else if (timeDiff <= 300) {
-                                        colocationTime += timeDiff;
-                                    }
-                                    //CompanionLocationTimestamps.add(macaddress + "last location time " + colocationTime + "," + timeDiff);
-
-                                }
-
-                                ans = macaddress + "," + locationid + "," + timestamp + "," + colocationTime + ",";
-                                CompanionLocationTimestamps.add(ans);
-                                ans = "";
-                                colocationTime = 0;
-                                CorrectTimestring = false;
-                            }
-                        } else {
-                            if (location.equals(locationid) || CorrectTimestring) {
-                                java.util.Date timestampNext = dateFormat.parse(timestringNext);//convert time string to Date format
-                                //if time stamp before time start
-                                if (timestamp.before(timeStart)) {
-                                    //CompanionLocationTimestamps.add(macaddress + "before start " +timeDiff+","+timeDiffNext+ ","+timestring);
-                                    //if timestamp is the last one before time start and location is correct
-                                    if (timestampNext.after(timeStart) && location.equals(locationid)) {
-                                        //if current and next location is the same
-                                        if (location.equals(locationNext)) {
-                                            tmp = timeDiff - timeDiffNext;
-                                            if (tmp > 300) {
-                                                colocationTime += (300 - gap);
-                                            } else {
-                                                colocationTime += duration - timeDiffNext;
-                                            }
-                                            //CompanionLocationTimestamps.add(macaddress + "same location time before start " + colocationTime + "," + tmp+","+duration+","+gap);
-                                            CorrectTimestring = true;
-                                        } else if (!location.equals(locationNext)) {
-                                            tmp = timeDiff - timeDiffNext;
-                                            if (tmp > 300) {
-                                                colocationTime += (300 - gap);
-                                            } else {
-                                                colocationTime += duration - timeDiffNext;
-                                            }
-                                            //CompanionLocationTimestamps.add(macaddress + "diff location time before start " + colocationTime + "," + tmp);
-                                            ans = macaddress + "," + locationid + "," + timestamp + "," + colocationTime + ",";
-                                            //CompanionLocationTimestamps.add(ans);
-                                            ans = "";
-                                            colocationTime = 0;
-                                            CorrectTimestring = false;
-                                        }
-                                    }
-                                    //if timestamp is after time start
-                                } else if (!timestamp.before(timeStart)) {
-                                    //CompanionLocationTimestamps.add(macaddress + "timestamp after time start" + timestring);
-                                    //if current and next location is the same
-                                    if (location.equals(locationNext) && location.equals(locationid)) {
-
-                                        tmp = timeDiff - timeDiffNext;
-                                        if (tmp > 300) {
-                                            colocationTime += 300;
-                                        } else {
-                                            colocationTime += tmp;
-                                        }
-                                        CorrectTimestring = true;
-                                        //CompanionLocationTimestamps.add(macaddress + "same location " + colocationTime + "," + tmp + "," + timeDiff + "," + timeDiffNext + "," + timestring + ",");
-                                        //if current location is different from next one and is correct location
-                                    } else if (!location.equals(locationNext) && location.equals(locationid)) {
-                                        tmp = timeDiff - timeDiffNext;
-                                        if (tmp > 300) {
-                                            colocationTime += 300;
-                                        } else {
-                                            colocationTime += tmp;
-                                        }
-                                        //CompanionLocationTimestamps.add(macaddress + "diff location " + colocationTime + "," + tmp + "," + timeDiff + "," + timeDiffNext + "," + timestring + ",");
-                                        ans = macaddress + "," + locationid + "," + timestamp + "," + colocationTime + ",";
-                                        CompanionLocationTimestamps.add(ans);
-                                        ans = "";
-                                        colocationTime = 0;
-                                        CorrectTimestring = false;
-                                        //if previous location is correct and is not correct location
-                                    }
-                                }
-                            }
-                            timestring = timestringNext;
-                            location = locationNext;
-                            timeDiff = timeDiffNext;
-                        }
+                } else {
+                    if (timeDiff > 300) {
+                        colocationTime += 300;
+                    } else if (timeDiff <= 300) {
+                        colocationTime += timeDiff;
                     }
                 }
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
 
+                ans = macaddress + "," + locationid + "," + timestamp + "," + colocationTime + ",";
+                CompanionLocationTimestamps.add(ans);
+                ans = "";
+                colocationTime = 0;
+            } else if (locations.size() > i + 3) {
+                String macaddressNext = locations.get(i + 3);
+                int timeDiffNext = Integer.parseInt(locations.get(i + 4));
+                String timestringNext = locations.get(i + 5);
+                java.util.Date timestampNext = dateFormat.parse(timestringNext);//convert time string to Date format
+
+                if (timestamp.before(timeStart)) {
+                    if (macaddress.equals(macaddressNext) && !timestampNext.before(timeStart)) {
+                        tmp = colocationTime + (timeDiff - timeDiffNext) - gap;
+                        if (tmp > 300) {
+                            colocationTime += (300 - gap);
+                        } else {
+                            colocationTime = colocationTime + (timeDiff - timeDiffNext) - gap;
+                        }
+                    } else if (!macaddress.equals(macaddressNext)) {
+                        tmp = colocationTime + (timeDiff) - gap;
+                        if (tmp > 300) {
+                            colocationTime += (300 - gap);
+                        } else {
+                            colocationTime = colocationTime + (timeDiff) - gap;
+                        }
+                        ans = macaddress + "," + locationid + "," + timestamp + "," + colocationTime + ",";
+                        CompanionLocationTimestamps.add(ans);
+                        ans = "";
+                        colocationTime = 0;
+                    }
+                } else if (!timestamp.before(timeStart)) {
+                    if (macaddress.equals(macaddressNext)) {
+
+                        tmp = timeDiff - timeDiffNext;
+                        if (tmp > 300) {
+                            colocationTime += 300;
+                        } else {
+                            colocationTime += timeDiff - timeDiffNext;
+                        }
+                    } else if (!macaddress.equals(macaddressNext)) {
+
+                        if (timeDiff > 300) {
+                            colocationTime += 300;
+                        } else if (timeDiff <= 300) {
+                            colocationTime += timeDiff;
+                        }
+
+                        ans = macaddress + "," + locationid + "," + timestamp + "," + colocationTime + ",";
+                        CompanionLocationTimestamps.add(ans);
+                        ans = "";
+                        colocationTime = 0;
+                    }
+                }
+
+            }
         }
+
         return CompanionLocationTimestamps;
     }
+
 }

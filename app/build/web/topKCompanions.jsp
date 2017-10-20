@@ -92,12 +92,11 @@
             </form>
         </div>
         <%
-            /*
-            ArrayList<String> test = (ArrayList<String>)session.getAttribute("test");
-                for (int i = 0; i<test.size();i++){
-                out.println(test.get(i)+"<br>");
-            }
-            */
+
+            //ArrayList<String> test = (ArrayList<String>)session.getAttribute("test");
+            //for (int i = 0; i<test.size();i++){
+            //out.println(test.get(i)+"<br>");
+            //}
             //ArrayList<String> users = (ArrayList<String>)request.getAttribute("users");
             //for (int i = 0; i<users.size();i++){
             //  out.println(users.get(i)+"<br>");

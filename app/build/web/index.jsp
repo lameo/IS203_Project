@@ -1,3 +1,4 @@
+<%@page import="is203.JWTUtility"%>
 <%@page import="java.sql.Timestamp"%>
 <%@page import="java.time.Instant"%>
 <%@page import="java.awt.SystemColor.*"%>
@@ -50,6 +51,8 @@
             <input type="hidden" name="password" value ="zxcvbn1284" required/>
             <input type="hidden" name="timestamp" value="<%= new Timestamp(System.currentTimeMillis()).toString() %>">
             <div align="left"><input type="submit" value ="Zorro fan Login"/>
+        </form>
+        <form method=post action="processLogin">
         </form>
     </body>
 </html>
