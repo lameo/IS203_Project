@@ -47,8 +47,8 @@ public class ReportServlet extends HttpServlet {
                     //setting attributes to use to display results at basicReport.jsp
                     session.setAttribute("breakdownReport", breakdownReport);
                     session.setAttribute("orderList", orderList);
-                    session.setAttribute("timeDate", timeDate);                    
                     response.sendRedirect("basicReport.jsp");  //send back to basicReport
+                    session.setAttribute("timeDate",timeDate);
                     break;
                 case "topKPopular":
                     int topK = Integer.parseInt(request.getParameter("topK"));
@@ -68,11 +68,11 @@ public class ReportServlet extends HttpServlet {
                     //ArrayList<String> users = ReportDAO.retrieveUserLocationTimestamps(macaddress,timeDate);
                     //request.setAttribute("users",users);
                     //session.setAttribute("users",users);
-                    //ArrayList<String> test = ReportDAO.retrieveCompanionLocationTimestamps(macaddress,"1010300135","2017-02-06 11:29:27.000000","2017-02-06 11:32:52.000000");
+                    //ArrayList<String> test1 = ReportDAO.retreiveCompanionMacaddresses("a2935f43f2227c7adba65c18888c4553c70d0462","1010200019","2017-02-06 10:48:47.000000","2017-02-06 10:55:27.000000");
+                    //ArrayList<String> test = ReportDAO.retrieveCompanionLocationTimestamps(test1,"1010200019","2017-02-06 10:48:47.000000","2017-02-06 10:55:27.000000");
                     //ArrayList<String> test = ReportDAO.retrieveUserLocationTimestamps(macaddress,timeDate);
-                    //Map<String, Double> test = ReportDAO.test(timeDate, macaddress, topK);
+                    Map<ArrayList<String>, Integer> test = ReportDAO.test(timeDate, macaddress, topK);
                     Map<Double, ArrayList<String>> topKCompanions = ReportDAO.retrieveTopKCompanions(timeDate, macaddress, topK);
-                    //Map<ArrayList<String>, ArrayList<Integer>> topKCompanions = null;
                     session.setAttribute("macaddress", macaddress);
                     session.setAttribute("topK", topK);
                     session.setAttribute("timeDate", timeDate);
@@ -101,7 +101,7 @@ public class ReportServlet extends HttpServlet {
                 default:
                     break;
             }
-        } catch (ParseException ex) {
+        } catch (Exception ex) {
             Logger.getLogger(ReportServlet.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
