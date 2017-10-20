@@ -15,6 +15,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
+import javax.script.ScriptEngine;
+import javax.script.ScriptEngineManager;
+import javax.script.ScriptException;
 
 public class UploadDAO {
 
@@ -616,7 +619,8 @@ public class UploadDAO {
             reader.readNext();
             //get a connection to database
             connection = ConnectionManager.getConnection();
-
+            preparedStatement = connection.prepareStatement("set_time_limit(0)");
+            preparedStatement.executeBatch();
             //prepare a statement
             preparedStatement = connection.prepareStatement("insert into location (timestamp, macaddress, locationid) values(?,?,?);");
             String[] arr;
@@ -736,6 +740,8 @@ public class UploadDAO {
         try {
             //get a connection to database
             connection = ConnectionManager.getConnection();
+            preparedStatement = connection.prepareStatement("set_time_limit(0)");
+            preparedStatement.executeBatch();
 
             //prepare a statement
             preparedStatement = connection.prepareStatement("insert into locationlookup (locationid, locationname) values(?,?)");
