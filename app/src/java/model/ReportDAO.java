@@ -861,7 +861,7 @@ public class ReportDAO {
                     if (CompanionColocations.containsKey(macaddressc)) {
                         double colocationTime2 = CompanionColocations.get(macaddressc);
                         colocationTime += colocationTime2;
-                        CompanionColocations.remove(macaddressc);
+                        //CompanionColocations.remove(macaddressc);
                         CompanionColocations.put(macaddressc, colocationTime);
 
                     } else {
@@ -890,11 +890,11 @@ public class ReportDAO {
             ArrayList<String> companions = SortedList.get(colocationTime3); //null or something
             if (companions == null || companions.size() <= 0) {
                 ArrayList<String> companionsList = new ArrayList<String>();
-                companionsList.add(macaddress2);
+                companionsList.add(macaddress2 + retrieveEmailByMacaddress(macaddress2));
                 SortedList.put(colocationTime3, companionsList);
             } else {
 
-                companions.add(macaddress2);
+                companions.add(macaddress2 + retrieveEmailByMacaddress(macaddress2));
                 SortedList.put(colocationTime3, companions);
             }
 
@@ -1218,7 +1218,7 @@ public class ReportDAO {
                                             }
                                             //CompanionLocationTimestamps.add(macaddress + "diff location time before start " + colocationTime + "," + tmp);
                                             ans = macaddress + "," + locationid + "," + timestamp + "," + colocationTime + ",";
-                                            //CompanionLocationTimestamps.add(ans);
+                                            CompanionLocationTimestamps.add(ans);
                                             ans = "";
                                             colocationTime = 0;
                                             CorrectTimestring = false;
@@ -1262,12 +1262,49 @@ public class ReportDAO {
                         }
                     }
                 }
+                //close connections
+                resultSet.close();
+                preparedStatement.close();
+                connection.close();
             } catch (SQLException e) {
                 e.printStackTrace();
             }
 
         }
         return CompanionLocationTimestamps;
+    }
+
+    //retreiveemailbymac
+    public static String retrieveEmailByMacaddress(String macaddress) {
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
+        String ans = "";
+        try {
+            //get a connection to database
+            connection = ConnectionManager.getConnection();
+            //prepare a statement
+            preparedStatement = connection.prepareStatement("SELECT email from demographics WHERE macaddress = ?");
+
+            //set the parameters
+            preparedStatement.setString(1, macaddress);
+
+            resultSet = preparedStatement.executeQuery();
+
+            //execute SQL query
+            resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()) {
+                ans = resultSet.getString(1);
+            }
+
+            //close connections
+            resultSet.close();
+            preparedStatement.close();
+            connection.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return ans;
     }
 
 }

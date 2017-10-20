@@ -92,6 +92,21 @@
             </form>
         </div>
         <%
+            /*
+            ArrayList<String> test = (ArrayList<String>)session.getAttribute("test");
+                for (int i = 0; i<test.size();i++){
+                out.println(test.get(i)+"<br>");
+            }
+            */
+            //ArrayList<String> users = (ArrayList<String>)request.getAttribute("users");
+            //for (int i = 0; i<users.size();i++){
+            //  out.println(users.get(i)+"<br>");
+            //}
+            //out.println(session.getAttribute("test")+"<br>");
+            //out.println(session.getAttribute("topKCompanions"));
+            //out.print(session.getAttribute("users"));
+            //If top K report is generated
+            //session.setAttribute("topKCompanions",null);
             if (session.getAttribute("topKCompanions") != null) {
 
                 String timedate = (String) session.getAttribute("timeDate");
@@ -103,7 +118,7 @@
                     out.print("<br/><div class=\"alert alert-danger\" role=\"alert\"><strong>" + "The data is not available for macaddress " + macaddress + " within time " + timedate + "</strong></div>");
 
                 } else {
-                    out.print("<h3>Top-" + topK + " Popular Places at " + timedate + "</h3>");
+                    out.print("<h3>Top-" + topK + " Companions at " + timedate + "</h3>");
 
                     out.print("<div class=\"container\"><table class=\"table table-bordered\"><thead>");
                     Set<Double> Times = topKCompanions.keySet();
@@ -114,7 +129,7 @@
                         if (rank <= topK) {
                             ArrayList<String> macaddresses = topKCompanions.get(time);
                             out.print("<tr><td rowspan=" + macaddresses.size() + ">" + (rank) + "</td>");
-                            for (int i = 0; i < macaddresses.size(); i++) {
+                            for (int i = 0; i < macaddresses.size(); i+=1) {
                                 String macaddress = macaddresses.get(i);
                                 if (i == 0) {
                                     out.print("<td>" + macaddress + "</td>");

@@ -68,6 +68,8 @@ public class ReportServlet extends HttpServlet {
                     //ArrayList<String> users = ReportDAO.retrieveUserLocationTimestamps(macaddress,timeDate);
                     //request.setAttribute("users",users);
                     //session.setAttribute("users",users);
+                    //ArrayList<String> test1 = ReportDAO.retreiveCompanionMacaddresses("a2935f43f2227c7adba65c18888c4553c70d0462","1010200019","2017-02-06 10:58:22.000000","2017-02-06 10:58:27.000000");
+                    //ArrayList<String> test = ReportDAO.retrieveCompanionLocationTimestamps(test1,"1010200019","2017-02-06 10:58:22.000000","2017-02-06 10:58:27.000000");
                     //ArrayList<String> test = ReportDAO.retrieveCompanionLocationTimestamps(macaddress,"1010300135","2017-02-06 11:29:27.000000","2017-02-06 11:32:52.000000");
                     //ArrayList<String> test = ReportDAO.retrieveUserLocationTimestamps(macaddress,timeDate);
                     //Map<String, Double> test = ReportDAO.test(timeDate, macaddress, topK);
