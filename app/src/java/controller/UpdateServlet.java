@@ -31,7 +31,6 @@ public class UpdateServlet extends HttpServlet implements java.io.Serializable {
         HashMap<Integer, String> locationLookupError = new HashMap<>();
         HashMap<Integer, String> locationError = new HashMap<>();
         try {
-            UploadDAO.clearDatabase();
             ServletContext servletContext = this.getServletConfig().getServletContext();
             File directory = (File) servletContext.getAttribute("javax.servlet.context.tempdir"); //Pathname to a scratch directory to be provided by this Context for temporary read-write use by servlets within the associated web application
             String outputDirectory = "" + directory; //String format of directory

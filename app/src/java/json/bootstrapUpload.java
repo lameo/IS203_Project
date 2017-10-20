@@ -1,18 +1,32 @@
-package controller;
+package json;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Hashtable;
+import java.util.Map;
+import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javazoom.upload.*;
-import java.util.*;
-import javax.servlet.ServletContext;
 import javax.servlet.http.HttpSession;
+import javazoom.upload.MultipartFormDataRequest;
+import javazoom.upload.UploadBean;
+import javazoom.upload.UploadException;
+import javazoom.upload.UploadFile;
 import model.UploadDAO;
 
-public class UploadServlet extends HttpServlet implements java.io.Serializable {
+@WebServlet(urlPatterns = {"/json/bootstrap"})
+public class bootstrapUpload extends HttpServlet {
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -23,7 +37,27 @@ public class UploadServlet extends HttpServlet implements java.io.Serializable {
      * @throws ServletException if a servlet-specific error occurs
      * @throws IOException if an I/O error occurs
      */
-    protected void processRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    protected void processRequest(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+
+        PrintWriter out = response.getWriter();
+        //creates a new gson object
+        //by instantiating a new factory object, set pretty printing, then calling the create method
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        //creats a new json object for printing the desired json output
+        ArrayList<String> errors = new ArrayList<>();
+        /*
+        //get token from request
+        String token = request.getParameter("token"); 
+        // Token checking
+        if(token==null){
+            errors.add("missing token");
+        }else if(token.equals("")){
+            errors.add("blank token");
+        }else if(SharedSecretManager.verifyUser(token)){
+            errors.add("invalid token");
+        }*/
+
         HttpSession session = request.getSession();
         UploadBean upBean = new UploadBean();
         String success = "";
@@ -31,6 +65,9 @@ public class UploadServlet extends HttpServlet implements java.io.Serializable {
         HashMap<Integer, String> demographicsError = new HashMap<>();
         HashMap<Integer, String> locationLookupError = new HashMap<>();
         HashMap<Integer, String> locationError = new HashMap<>();
+
+        JsonObject fileUpload = new JsonObject();
+
         try {
             ServletContext servletContext = this.getServletConfig().getServletContext();
             File directory = (File) servletContext.getAttribute("javax.servlet.context.tempdir"); //Pathname to a scratch directory to be provided by this Context for temporary read-write use by servlets within the associated web application
@@ -58,33 +95,39 @@ public class UploadServlet extends HttpServlet implements java.io.Serializable {
 
                             if (fileExist != null && fileExist.contains("demographics.csv")) {
                                 demographicsError = UploadDAO.readDemographics(outputDirectory + File.separator + "demographics.csv");
+                                fileUpload.addProperty("demographics.csv", demographicsError.get(Integer.MAX_VALUE));
                                 demographicsError.remove(Integer.MAX_VALUE);
                             }
                             if (fileExist != null && fileExist.contains("location-lookup.csv")) {
                                 locationLookupError = UploadDAO.readLookup(outputDirectory + File.separator + "location-lookup.csv");
+                                fileUpload.addProperty("location-lookup.csv", locationLookupError.get(Integer.MAX_VALUE));
                                 locationLookupError.remove(Integer.MAX_VALUE);
                             }
                             if (fileExist != null && fileExist.contains("location.csv")) {
                                 locationError = UploadDAO.readLocation(outputDirectory + File.separator + "location.csv");
+                                fileUpload.addProperty("location.csv", locationError.get(Integer.MAX_VALUE));
                                 locationError.remove(Integer.MAX_VALUE);
                             }
-                            if(fileExist == null || !(fileExist.contains("demographics.csv") && fileExist.contains("location-lookup.csv") && fileExist.contains("location.csv"))){
+                            if (fileExist == null || !(fileExist.contains("demographics.csv") && fileExist.contains("location-lookup.csv") && fileExist.contains("location.csv"))) {
                                 session.setAttribute("error", "Wrong file name or type"); //send error messsage        
                             }
 
                         } else if (UploadDAO.checkFileName(fileName) != null && UploadDAO.checkFileName(fileName).length() > 0) { //if location.csv or location-lookup.csv or demographics.csv
                             upBean.store(multipartRequest, "uploadfile"); //save to directory
                             switch (fileName) {
-                                case "location-lookup.csv":
-                                    locationLookupError = UploadDAO.readLookup(outputDirectory + File.separator + "location-lookup.csv");
-                                    locationLookupError.remove(Integer.MAX_VALUE);
-                                    break;
                                 case "demographics.csv":
                                     demographicsError = UploadDAO.readDemographics(outputDirectory + File.separator + "demographics.csv");
+                                    fileUpload.addProperty("demographics.csv", demographicsError.get(Integer.MAX_VALUE));
                                     demographicsError.remove(Integer.MAX_VALUE);
+                                    break;
+                                case "location-lookup.csv":
+                                    locationLookupError = UploadDAO.readLookup(outputDirectory + File.separator + "location-lookup.csv");
+                                    fileUpload.addProperty("location-lookup.csv", locationLookupError.get(Integer.MAX_VALUE));
+                                    locationLookupError.remove(Integer.MAX_VALUE);
                                     break;
                                 case "location.csv":
                                     locationError = UploadDAO.readLocation(outputDirectory + File.separator + "location.csv");
+                                    fileUpload.addProperty("location.csv", locationError.get(Integer.MAX_VALUE));
                                     locationError.remove(Integer.MAX_VALUE);
                                     break;
                                 default:
@@ -95,19 +138,67 @@ public class UploadServlet extends HttpServlet implements java.io.Serializable {
                         }
 
                         if (demographicsError.isEmpty() && locationError.isEmpty() && locationLookupError.isEmpty()) {
-                            success = "Uploaded file: " + fileName + " (" + file.getFileSize() + " bytes)";
-                            session.setAttribute("success", success); //send success messsage       
+                            // if successful
+                            JsonObject ans = new JsonObject();
+                            ans.addProperty("status", "success");
+                            ans.add("num-record-loaded", fileUpload);
+                            out.println(gson.toJson(ans));
                         } else {
-                            session.setAttribute("demographicsError", demographicsError); //send error messsage       
-                            session.setAttribute("locationLookupError", locationLookupError);
-                            session.setAttribute("locationError", locationError);
+                            // if contains error message
+                            JsonObject ans = new JsonObject();
+                            ans.addProperty("status", "error");
+                            ans.add("num-record-loaded", fileUpload);
+                            JsonArray error = new JsonArray();
+                            for (Map.Entry<Integer, String> temp : demographicsError.entrySet()) {
+                                int key = temp.getKey();
+                                String value = temp.getValue();
+                                JsonObject tempJson = new JsonObject();
+                                tempJson.addProperty("file", "demographics.csv");
+                                tempJson.addProperty("line",key);
+                                String[] messages = value.split(",");
+                                ArrayList<String> err = new ArrayList<>();
+                                for(String msg : messages){
+                                    err.add(msg);
+                                }
+                                Collections.sort(err);
+                                tempJson.addProperty("message", err.toString());
+                                error.add(tempJson);
+                            }
+                            for (Map.Entry<Integer, String> temp : locationLookupError.entrySet()) {
+                                int key = temp.getKey();
+                                String value = temp.getValue();
+                                JsonObject tempJson = new JsonObject();
+                                tempJson.addProperty("file", "locationLookupError.csv");
+                                tempJson.addProperty("line",key);
+                                String[] messages = value.split(",");
+                                ArrayList<String> err = new ArrayList<>();
+                                for(String msg : messages){
+                                    err.add(msg);
+                                }
+                                Collections.sort(err);
+                                tempJson.addProperty("message", err.toString());
+                                error.add(tempJson);
+                            }
+                            for (Map.Entry<Integer, String> temp : locationError.entrySet()) {
+                                int key = temp.getKey();
+                                String value = temp.getValue();
+                                JsonObject tempJson = new JsonObject();
+                                tempJson.addProperty("file", "locationError.csv");
+                                tempJson.addProperty("line",key);
+                                String[] messages = value.split(",");
+                                ArrayList<String> err = new ArrayList<>();
+                                for(String msg : messages){
+                                    err.add(msg);
+                                }
+                                Collections.sort(err);
+                                tempJson.addProperty("message", err.toString());
+                                error.add(tempJson);
+                            }
+                            ans.add("error", error);
+                            out.println(gson.toJson(ans));
                         }
                         file = null;
-                    } else {
-                        session.setAttribute("error", "No uploaded files"); //send error messsage                     
                     }
-                } else {
-                    session.setAttribute("error", "No uploaded files"); //send error messsage                   
                 }
             }
             if (outputDirectory == null) {
@@ -125,10 +216,9 @@ public class UploadServlet extends HttpServlet implements java.io.Serializable {
         } catch (UploadException e) {
             session.setAttribute("error", "Unable to upload. Please try again later"); //send error messsage
         }
-        response.sendRedirect("BootstrapInitialize.jsp");
     }
 
-    // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
+// <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
     /**
      * Handles the HTTP <code>GET</code> method.
      *
@@ -164,7 +254,7 @@ public class UploadServlet extends HttpServlet implements java.io.Serializable {
      */
     @Override
     public String getServletInfo() {
-        return "This is a Upload Servlet that processes uploading of data by admin";
+        return "Short description";
     }// </editor-fold>
 
 }

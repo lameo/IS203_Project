@@ -253,6 +253,7 @@ public class UploadDAO {
         HashMap<Integer, String> errorMap = new HashMap<>();
         int lineNumber = 1;
         int count = 0;
+        int successful = 0;
         try {
             //get a connection to database
             connection = ConnectionManager.getConnection();
@@ -346,6 +347,7 @@ public class UploadDAO {
                     preparedStatement.setString(3, password);
                     preparedStatement.setString(4, email);
                     preparedStatement.setString(5, gender);
+                    successful++;
                     preparedStatement.addBatch();
                 }
 
@@ -364,6 +366,8 @@ public class UploadDAO {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        errorMap.put(Integer.MAX_VALUE, "" + successful);
+    
         return errorMap;
     }
 
@@ -734,6 +738,7 @@ public class UploadDAO {
         HashMap<Integer, String> errorMap = new HashMap<>();
         int count = 0;
         int lineNumber = 1;
+        int successful = 0;
         try {
             //get a connection to database
             connection = ConnectionManager.getConnection();
@@ -791,6 +796,7 @@ public class UploadDAO {
                     preparedStatement.setInt(1, locationID);
                     preparedStatement.setString(2, locationName);
                     preparedStatement.addBatch();
+                    successful++;
                 }
 
                 if (++count % batchSize == 0) {
@@ -807,6 +813,7 @@ public class UploadDAO {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        errorMap.put(Integer.MAX_VALUE, "" + successful);
         return errorMap;
     }
 
@@ -817,6 +824,7 @@ public class UploadDAO {
         final int batchSize = 30000;
         HashMap<Integer, String> errorMap = new HashMap<>();
         int count = 0;
+        int successful = 0;
         int lineNumber = 1;
         String[] locationIDs = retrieveLocationID();
         ArrayList<String> macDatePair = retrieveMACDatePair();
@@ -905,6 +913,7 @@ public class UploadDAO {
                     preparedStatement.setString(1, timeDate);
                     preparedStatement.setString(2, macAddress);
                     preparedStatement.setString(3, locationID);
+                    successful++;
                     preparedStatement.addBatch();
                 }
 
@@ -922,6 +931,7 @@ public class UploadDAO {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        errorMap.put(Integer.MAX_VALUE, "" + successful);
         return errorMap;
     }
 
