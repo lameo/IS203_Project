@@ -57,13 +57,8 @@
                 <input type="hidden" name="andHere" value="xyChangeHereTooooooo">
                 <!-- form input for date & time  -->
                 <div class="form-group">
-                    <label class="form-control-label" for="timing">Enter date & time:</label>
-                    <input type="text" class="form-control" id="timing" name="timeDate" placeholder="Example: 2014-03-23 13:40:00" required>
-                </div>
-                <!-- form input for mac-address  -->
-                <div class="form-group">
-                    <label class="form-control-label" for="locationGetter">Enter MAC Addresse:</label>
-                    <input type="text" class="form-control" id="locationGetter" name="location" placeholder="Example: 009562b08360d78848a977dc26368b53cc0f1d44" required>
+                    <label for="example-datetime-local-input" class="form-control-label">Enter date & time:</label>
+                    <input class="form-control" type="datetime-local" id="input-datetime-local" name="timeDate" required>
                 </div>
                 <button type="submit" class="btn btn-primary">Generate</button>
             </form>
@@ -73,16 +68,16 @@
         </div>
         <%
             //If top K report is generated
-            if (request.getAttribute("topK") != null) {
+            if (session.getAttribute("topK") != null) {
 
-                String timedate = request.getParameter("timeDate");
-                String topK = (String) request.getAttribute("topK");
+                String timedate = (String)session.getAttribute("timeDate");
+                String topK = (String) session.getAttribute("topK");
                 out.print("<h3>Top-" + topK + " Popular Places at " + timedate + "</h3>");
                 
                 
                 
                 out.print("<div class=\"container\"><table class=\"table table-bordered\"><thead>");
-                String topKPopular = (String) (request.getAttribute("topKPopular"));
+                String topKPopular = (String) (session.getAttribute("topKPopular"));
                 String[] y = topKPopular.split(",");
                 out.print("<tr><th>Rank</th><th>Semantic place</th><th>No pax</th></tr></thead></tbody>");
                 for (int j = 0; j < y.length; j += 2) {
@@ -92,9 +87,9 @@
             }
         %>
 
-        <%="<br>Example: 2014-03-23 13:40:00"%>
+        <%="<br>Example: 2017-02-06 11:34:43.000000"%>
         <%="<br>Mac address: 009562b08360d78848a977dc26368b53cc0f1d44"%>
-        <%="<br>User session: " + timestamp%>
+        <%="<br><br>User session: " + timestamp%>
     </center>
 </body>
 </html>

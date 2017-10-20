@@ -25,11 +25,11 @@ public class SharedSecretManager {
             if(valid==null){
                 return false;
             }
-            return true;
         } catch (JWTException ex) {
             Logger.getLogger(SharedSecretManager.class.getName()).log(Level.SEVERE, null, ex);
+            return false;
         }
-        return false;
+        return true;
     }
 
     public static boolean verifyAdmin(String token) {

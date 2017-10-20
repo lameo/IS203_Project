@@ -12,7 +12,6 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 import model.User;
 import model.UserDAO;
 import model.SharedSecretManager;
@@ -31,45 +30,61 @@ public class authenticate extends HttpServlet {
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        
-        HttpSession session = request.getSession();
+
         PrintWriter out = response.getWriter();
-        //creates a new gson object
-        //by instantiating a new factory object, set pretty printing, then calling the create method
+
+        //creates a new gson object by instantiating a new factory object, set pretty printing, then calling the create method
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
-        //creats a new json object for printing the desired json output
+
+        //creates a new json object for printing the desired json output
         JsonObject jsonOutput = new JsonObject();
-        //create a json array to store errors
+
         JsonArray errMsg = new JsonArray();
 
         String username = request.getParameter("username"); //get username from request
-        String password = request.getParameter("password"); //get password from request        
+        String password = request.getParameter("password"); //get password from request   
+
+        if (username == null || username.isEmpty()) { //check if username is null or empty
+            errMsg.add("blank username");
+            jsonOutput.addProperty("status", "error");
+            jsonOutput.add("messages", errMsg);
+            out.println(gson.toJson(jsonOutput));
+            return;
+        }
+        if (password == null || password.isEmpty()) { //check if password is null or empty
+            errMsg.add("blank password");            
+            jsonOutput.addProperty("status", "error");
+            jsonOutput.add("messages", errMsg);
+            out.println(gson.toJson(jsonOutput));
+            return;
+        }
 
         try {
             if (username.equals("admin") && password.equals("password")) { //admin
                 String token = SharedSecretManager.authenticateAdmin();
-                session.setAttribute("token", token);
-                jsonOutput.addProperty("Status", "Success"); 
-                jsonOutput.addProperty("token", token);                 
-            }                        
-            if(UserDAO.validateUsername(username)){ //if username is valid e.g. john.doe.2016
-                User user = UserDAO.retrieveUserByName(username, password);
-            
-                if (user instanceof User){ //if user in database
-                    String token = SharedSecretManager.authenticateUser(user.getName());
-                    session.setAttribute("token", token); 
-                    jsonOutput.addProperty("Status", "Success"); 
-                    jsonOutput.addProperty("token", token);                      
-                } 
-            } else {
-                jsonOutput.addProperty("Status", "Error"); 
-                jsonOutput.addProperty("Messages", "invalid username/password");                    
+                jsonOutput.addProperty("status", "success");
+                jsonOutput.addProperty("token", token);
             }
-            
-        } catch (SQLException e){
-                jsonOutput.addProperty("Status", "Error"); 
-                jsonOutput.addProperty("Messages", "Server is currently unavailable, please try again later. Thank you."); 
-        }        
+            if (UserDAO.validateUsername(username)) { //if username is valid e.g. john.doe.2016
+                User user = UserDAO.retrieveUserByName(username, password);
+
+                if (user instanceof User) { //if user in database
+                    String token = SharedSecretManager.authenticateUser(user.getName());
+                    jsonOutput.addProperty("status", "success");
+                    jsonOutput.addProperty("token", token);
+                }
+            } else {
+                errMsg.add("invalid username/password");
+            }
+
+        } catch (SQLException e) {
+            errMsg.add("server is currently unavailable, please try again later. Thank you.");
+        }
+
+        if (errMsg.size() > 0) {
+            jsonOutput.addProperty("status", "error");
+            jsonOutput.add("messages", errMsg);
+        }
         out.println(gson.toJson(jsonOutput));
     }
 

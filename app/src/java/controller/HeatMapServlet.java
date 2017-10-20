@@ -3,6 +3,9 @@ package controller;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -27,24 +30,37 @@ public class HeatMapServlet extends HttpServlet {
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        HttpSession session = request.getSession();         
+        HttpSession session = request.getSession();
 
-        String endtimeDate = request.getParameter("endtimeDate"); //retrieve time from user input
+        String timeDate = request.getParameter("timeDate"); //retrieve time from user input
+        timeDate = timeDate.replace("T", " ");
+        SimpleDateFormat readFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm");
+        SimpleDateFormat writeFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSSSSS");
+        Date timestamp = null;
+        try {
+            timestamp = (Date) readFormat.parse(timeDate);
+            timeDate = writeFormat.format(timestamp);
+            //System.out.println("Retrieved and formatted dateTime: " + timestamp.toString());
+        } catch (ParseException e) {
+            System.out.println("Date formatter failed to parse chosen sendTime.");
+            e.printStackTrace();
+        }
+
         int floor = Integer.parseInt(request.getParameter("floor")); //retrieve floor from user input
         String floorName = "B1";
 
-        if(floor>0){
+        if (floor > 0) {
             floorName = "L" + floor;
         }
 
-        HashMap<String, HeatMap> heatmapList = HeatMapDAO.retrieveHeatMap(endtimeDate, floorName);
+        HashMap<String, HeatMap> heatmapList = HeatMapDAO.retrieveHeatMap(timeDate, floorName);
 
         session.setAttribute("floorName", floorName);
-        session.setAttribute("endtimeDate", endtimeDate);
+        session.setAttribute("timeDate", timeDate);
         session.setAttribute("heatmapList", heatmapList);
 
         response.sendRedirect("heatmapPage.jsp"); //send back to heatmapPage
-        
+
     }
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
@@ -57,9 +73,9 @@ public class HeatMapServlet extends HttpServlet {
      * @throws IOException if an I/O error occurs
      */
     @Override
-        protected void doGet(HttpServletRequest request, HttpServletResponse response)
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-            processRequest(request, response);
+        processRequest(request, response);
     }
 
     /**
@@ -71,7 +87,7 @@ public class HeatMapServlet extends HttpServlet {
      * @throws IOException if an I/O error occurs
      */
     @Override
-        protected void doPost(HttpServletRequest request, HttpServletResponse response)
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         processRequest(request, response);
     }
@@ -82,7 +98,7 @@ public class HeatMapServlet extends HttpServlet {
      * @return a String containing servlet description
      */
     @Override
-        public String getServletInfo() {
+    public String getServletInfo() {
         return "This is a Heatmap Servlet to process heatmap";
     }// </editor-fold>
 
