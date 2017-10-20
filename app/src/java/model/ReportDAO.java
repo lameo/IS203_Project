@@ -226,6 +226,7 @@ public class ReportDAO {
                 ranking.put(totalNumOfUsers, sameLocations);//to add all locations with the same quantity into map
             } else { // ranking map contains a list of locations
                 allLocationList.add(location); // update the key(i.e location) into the list
+                Collections.sort(allLocationList);
                 ranking.put(totalNumOfUsers, allLocationList); // update map
             }
         }
