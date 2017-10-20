@@ -48,6 +48,34 @@ public class ReportDAO {
         return list;
     }
 
+    public static ArrayList<String> getAllMacaddress() {
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
+        ArrayList<String> list = new ArrayList<>();
+        try {
+            //get a connection to database
+            connection = ConnectionManager.getConnection();
+
+            //prepare a statement
+            preparedStatement = connection.prepareStatement("select distinct macaddress from demographics");
+
+            //execute SQL query
+            resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()) {
+                list.add(resultSet.getString(1));
+            }
+
+            //close connections
+            resultSet.close();
+            preparedStatement.close();
+            connection.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
     private static int retrieveByGender(String timeEnd, String gender) {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
