@@ -12,6 +12,7 @@ import com.google.gson.JsonObject;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 import javax.servlet.ServletException;
@@ -135,6 +136,7 @@ public class topKNextPlaces extends HttpServlet {
                 int counter = 1; // to match topk number after incrementation
                 for (int totalNumOfUsers : totalNumOfUsersSet) {
                     ArrayList<String> locations = topKNextPlaces.get(totalNumOfUsers); // gives the list of location with the same totalNumOfUsers
+                    Collections.sort(locations); // sort the locations list in ascending order first
                     if (counter <= topK) { // to only display till topk number
                         JsonObject topKNextPlace = new JsonObject();
                         
