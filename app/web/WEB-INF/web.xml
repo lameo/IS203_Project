@@ -21,7 +21,7 @@
         <servlet-class>controller.HeatMapServlet</servlet-class>
     </servlet>
     <servlet>
-        <servlet-name>AutoGroupServlet</servlet-name>
+        <servlet-name>AutoGroup</servlet-name>
         <servlet-class>controller.AutoGroupServlet</servlet-class>
     </servlet>
     <servlet>
@@ -61,8 +61,8 @@
         <url-pattern>/processHeatMap</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
-        <servlet-name>AutoGroupServlet</servlet-name>
-        <url-pattern>/AutoGroupServlet</url-pattern>
+        <servlet-name>AutoGroup</servlet-name>
+        <url-pattern>/AutoGroup</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
         <servlet-name>processUpdate</servlet-name>

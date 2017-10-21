@@ -11,6 +11,10 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -19,6 +23,7 @@ import javax.servlet.http.HttpSession;
 import model.AutoGroupDAO;
 import static model.AutoGroupDAO.retrieveAutoGroups;
 import model.Group;
+import model.ReportDAO;
 
 /**
  *
@@ -36,13 +41,13 @@ public class AutoGroupServlet extends HttpServlet {
      * @throws IOException if an I/O error occurs
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
+            throws ServletException, IOException, ParseException {
 
         try (PrintWriter out = response.getWriter()) {
             HttpSession session = request.getSession();
 
             String timeDate = request.getParameter("timeDate"); //retrieve time from user input
-            timeDate = timeDate.replace("T"," ");
+            timeDate = timeDate.replace("T", " ");
             SimpleDateFormat readFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm");
             SimpleDateFormat writeFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSSSSS");
             Date timestamp = null;
@@ -56,12 +61,21 @@ public class AutoGroupServlet extends HttpServlet {
             }
             //retreive all the users whom stay at SIS building in specified time window
             ArrayList<String> AutoUsers = AutoGroupDAO.retreiveAutoUserMacaddresses(timeDate);
-            
+            Map<String,ArrayList<String>> ValidAutoUsers = new HashMap<String,ArrayList<String>>();
             //retrieve group of users whom stay at SIS in processing window
+            for (int i = 0; i < AutoUsers.size(); i += 1) {
+                String AutoUserMac = AutoUsers.get(i);
+                //retreive location traces of each user 
+                ArrayList<String> AutoUserLocationTimestamps = ReportDAO.retrieveUserLocationTimestamps(AutoUserMac,timeDate);
+                //check if user stays at SIS building for at least 12 minutes
+                if(AutoGroupDAO.AutoUser12Mins(AutoUserLocationTimestamps)){
+                    ValidAutoUsers.put(AutoUserMac, AutoUserLocationTimestamps);
+                }
+            }
             ArrayList<Group> AutoGroups = retrieveAutoGroups(timeDate);
 
             session.setAttribute("timeDate", timeDate);
-            session.setAttribute("AutoGroups", AutoGroups);
+            session.setAttribute("test", ValidAutoUsers);
 
             response.sendRedirect("automaticGroupDetection.jsp");
         }
@@ -79,7 +93,11 @@ public class AutoGroupServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        processRequest(request, response);
+        try {
+            processRequest(request, response);
+        } catch (ParseException ex) {
+            Logger.getLogger(AutoGroupServlet.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     /**
@@ -93,7 +111,11 @@ public class AutoGroupServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        processRequest(request, response);
+        try {
+            processRequest(request, response);
+        } catch (ParseException ex) {
+            Logger.getLogger(AutoGroupServlet.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     /**

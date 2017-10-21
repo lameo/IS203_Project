@@ -1,3 +1,6 @@
+<%@page import="java.util.Set"%>
+<%@page import="java.util.HashMap"%>
+<%@page import="java.util.ArrayList"%>
 <%@page import="java.util.Arrays"%>
 <%@page import="model.User"%>
 <%@page import="java.sql.Timestamp"%>
@@ -52,7 +55,7 @@
         <div class="container">
             <br><br>
             <!-- Form for user to input date&time and top K for top K popular places report -->
-            <form method=post action="xyChangeHere">
+            <form method=post action="AutoGroup">
                 <!-- report type -->
                 <input type="hidden" name="andHere" value="xyChangeHereTooooooo">
                 <!-- form input for date & time  -->
@@ -68,23 +71,40 @@
         </div>
         <%
             //If top K report is generated
-            if (session.getAttribute("topK") != null) {
+            if (session.getAttribute("test") != null) {
 
                 String timedate = (String)session.getAttribute("timeDate");
-                String topK = (String) session.getAttribute("topK");
-                out.print("<h3>Top-" + topK + " Popular Places at " + timedate + "</h3>");
+                out.print("<h3> Potential groups in the SIS builind at " + timedate + "</h3>");
                 
                 
                 
                 out.print("<div class=\"container\"><table class=\"table table-bordered\"><thead>");
-                String topKPopular = (String) (session.getAttribute("topKPopular"));
-                String[] y = topKPopular.split(",");
-                out.print("<tr><th>Rank</th><th>Semantic place</th><th>No pax</th></tr></thead></tbody>");
-                for (int j = 0; j < y.length; j += 2) {
-                    out.print("<tr><td>" + (j / 2 + 1) + "</td><td>" + y[j] + "</td><td>" + y[j + 1] + "</td></tr>");
-                }
-                out.print("</tbody></table></div>");
+                HashMap<String, ArrayList<String>> AutoGroups = (HashMap<String, ArrayList<String>>) (session.getAttribute("test")); 
+                out.print("<tr><th>Group No.</th><th>Macaddress</th><th>Email</th><th>Location id</th><th>Time spent</th></tr></thead></tbody>");
+                Set<String> AutoGroup = AutoGroups.keySet();
+                int GroupNo = 1;
+                for (String group : AutoGroup) {
+                            ArrayList<String> LocationTimestamps = AutoGroups.get(group);
+                            out.print("<tr><td rowspan=" + LocationTimestamps.size() + ">" + (GroupNo) + "</td>");
+                            for (int i = 0; i < LocationTimestamps.size(); i += 1) {
+                                String[] LocationTimestamp = LocationTimestamps.get(i).split(","); 
+                                if (i == 0) {
+                                    out.print("<td>" + LocationTimestamp[0] + "</td>");
+                                    out.print("<td>" + LocationTimestamp[1] + "</td>");
+                                    //add rowspan for first row of companion user
+                                    out.print("<td rowspan=" + LocationTimestamps.size() + ">" + LocationTimestamp[2] + "</td>");
+                                } else {
+                                    out.print("<tr><td>" + LocationTimestamp[0] + "</td>");
+                                    out.print("<td>" + LocationTimestamp[1] + "</td></tr>");
+                                }
+                            }
+                            out.print("</tr>");
+                            GroupNo++;
+                    }
+                    out.print("</tbody></table></div>");
             }
+            session.removeAttribute("timeDate");
+            session.removeAttribute("test");
         %>
 
         <%="<br>Example: 2017-02-06 11:34:43.000000"%>

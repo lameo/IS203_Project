@@ -11,6 +11,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -31,7 +32,7 @@ public class AutoGroupDAO {
     public static ArrayList<Group> retrieveAutoGroups(String endtimeDate) {
         HashMap<String, ArrayList<String>> AutoUsers = retrieveAutoUsers(endtimeDate);
         ArrayList<Group> groups = new ArrayList<Group>();
-        HashMap<String, TreeMap<Timestamp, ArrayList<Long>>> AutoUsersbyTimestampStart = retreiveAutoUsersByTimestampStart(AutoUsers, endtimeDate);
+        //HashMap<String, TreeMap<Timestamp, ArrayList<Long>>> AutoUsersbyTimestampStart = retreiveAutoUsersByTimestampStart(AutoUsers, endtimeDate);
         //ArrayList<Group> Groups = retreiveGroups(AutoUsersbyTimestampStart);
         return groups;
     }
@@ -87,6 +88,27 @@ public class AutoGroupDAO {
             }
         }
         return AutoUsers;
+    }
+    
+    //Valify if user has stayed at least 12 minutes at SIS building in specified time window
+    public static boolean AutoUser12Mins(ArrayList<String> AutoUserLocationTimestamps) throws ParseException{
+        double timeDuration = 0;
+        for (int i=0;i<AutoUserLocationTimestamps.size();i++){
+            String[] LocationTimestamp = AutoUserLocationTimestamps.get(i).split(",");
+            String timeStart = LocationTimestamp[1];
+            String timeEnd = LocationTimestamp[2];
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss.SSSSSS");
+            java.util.Date timestampStart = dateFormat.parse(timeStart);//convert time string to Date format
+            java.util.Date timestampEnd = dateFormat.parse(timeEnd);
+            //calculate the time duration for each user location trace in seconds
+            timeDuration += (timestampEnd.getTime() - timestampStart.getTime()) / (1000.0);
+        }
+        //check if total time duration is at least 12 minutes
+        if(timeDuration>=720){
+            return true;
+        }else{
+            return false;
+        }
     }
     
     //retreive all the users whom stay at SIS building in specified time window
