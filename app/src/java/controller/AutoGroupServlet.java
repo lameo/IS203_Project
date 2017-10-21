@@ -72,6 +72,7 @@ public class AutoGroupServlet extends HttpServlet {
                     ValidAutoUsers.put(AutoUserMac, AutoUserLocationTimestamps);
                 }
             }
+            //check for each user if they spend at least 12 minutes together
             ArrayList<Group> AutoGroups = retrieveAutoGroups(timeDate);
 
             session.setAttribute("timeDate", timeDate);

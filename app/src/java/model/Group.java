@@ -13,7 +13,25 @@ import java.util.HashMap;
  * @author xuying
  */
 public class Group {
-    HashMap<String,ArrayList<String>> users;
-    ArrayList<String> locations;
+    ArrayList<String> AutoUsers;
+    ArrayList<String> locationTimestamps;
+
+    public Group(ArrayList<String> AutoUsers, ArrayList<String> locationTimestamps) {
+        this.AutoUsers = AutoUsers;
+        this.locationTimestamps = locationTimestamps;
+    }
+
+    public ArrayList<String> getAutoUsers() {
+        return AutoUsers;
+    }
+
+    public ArrayList<String> getLocationTimestamps() {
+        return locationTimestamps;
+    }
+
+    
+    
+    
+    
     
 }

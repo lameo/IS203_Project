@@ -29,71 +29,122 @@ import java.util.concurrent.TimeUnit;
 //retreive groups of users,
 public class AutoGroupDAO {
 
-    public static ArrayList<Group> retrieveAutoGroups(String endtimeDate) {
-        HashMap<String, ArrayList<String>> AutoUsers = retrieveAutoUsers(endtimeDate);
-        ArrayList<Group> groups = new ArrayList<Group>();
-        //HashMap<String, TreeMap<Timestamp, ArrayList<Long>>> AutoUsersbyTimestampStart = retreiveAutoUsersByTimestampStart(AutoUsers, endtimeDate);
-        //ArrayList<Group> Groups = retreiveGroups(AutoUsersbyTimestampStart);
-        return groups;
-    }
+    public static boolean CommonLocationTimestamps(ArrayList<String> LocationTimestamps1, ArrayList<String> LocationTimestamps2) throws ParseException {
 
-    //retreive users' location traces including location, timestart, timeend at SIS building in specified time window
-    public static HashMap<String, ArrayList<String>> retrieveAutoUsers(String endtimeDate) {
-        Connection connection = null;
-        PreparedStatement preparedStatement = null;
-        ResultSet resultSet = null;
-
-        ArrayList<String> UsersInfo = new ArrayList<String>();
-
-        try {
-            //get a connection to database
-            connection = ConnectionManager.getConnection();
-
-            //prepare a statement
-            preparedStatement = connection.prepareStatement("select macaddress, locationid, timestamp from location where timestamp between DATE_SUB(?, INTERVAL 20 MINUTE) and DATE_SUB(?, INTERVAL 1 SECOND) order by timestamp");
-
-            //set the parameters
-            preparedStatement.setString(1, endtimeDate);
-            preparedStatement.setString(2, endtimeDate);
-
-            //execute SQL query
-            resultSet = preparedStatement.executeQuery();
-            while (resultSet.next()) {
-                String macaddress = resultSet.getString(1);
-                String locationid = resultSet.getString(2);
-                String timestring = resultSet.getString(3);
-                //create UserInfo arraylist contains all user timelines
-                UsersInfo.add(macaddress + "," + locationid + "," + timestring);
-            }
-            resultSet.close();
-            preparedStatement.close();
-            connection.close();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        HashMap<String, ArrayList<String>> AutoUsers = new HashMap<String, ArrayList<String>>();
-        for (int i = 0; i < UsersInfo.size(); i += 1) {
-            String[] UserInfo = UsersInfo.get(i).split(",");
-            String macaddress = UserInfo[0];
-            String locationid = UserInfo[1];
-            String timestring = UserInfo[2];
-            if (AutoUsers.containsKey(macaddress)) {
-                ArrayList<String> timeline = AutoUsers.get(macaddress);
-                timeline.add(locationid + "," + timestring);
-                AutoUsers.put(macaddress, timeline);
-            } else {
-                ArrayList<String> timeline = new ArrayList<String>();
-                timeline.add(locationid + "," + timestring);
-                AutoUsers.put(macaddress, timeline);
+        boolean CommonLocationTimestamps12Mins = false;
+        int count = 0;
+        //if one common location found from user1 and user2, or no common locations found, exit the while loop
+        while (CommonLocationTimestamps12Mins = true || count >= LocationTimestamps1.size() - 1) {
+            //check if they have common locations
+            for (int i = 0; i < LocationTimestamps1.size(); i++) {
+                count++;
+                String[] LocationTimestamp1 = LocationTimestamps1.get(i).split(",");
+                String location1 = LocationTimestamp1[0];
+                for (int j = 0; j < LocationTimestamps2.size(); j++) {
+                    String[] LocationTimestamp2 = LocationTimestamps1.get(i).split(",");
+                    String location2 = LocationTimestamp2[0];
+                    //if common location found from user1 and user2
+                    if (location1.equals(location2)) {
+                        return true;
+                    }
+                }
             }
         }
-        return AutoUsers;
+        //if no common locations found from user1 and user2, it means no commonlocationtimestamps and returns false
+        if (CommonLocationTimestamps12Mins = false) {
+            return false;
+        } else {
+            return true;
+        }
     }
-    
+
+    public static ArrayList<String> CommonLocationTimestamps12Mins(ArrayList<String> LocationTimestamps1, ArrayList<String> LocationTimestamps2) throws ParseException {
+
+        ArrayList<String> CommonLocationTimestamps = new ArrayList<String>();
+        double totalDuration = 0;
+        //check common location timestamps from user1 and user2
+        for (int i = 0; i < LocationTimestamps1.size(); i++) {
+            String[] LocationTimestamp1 = LocationTimestamps1.get(i).split(",");
+            String location1 = LocationTimestamp1[0];
+            String timestringStart1 = LocationTimestamp1[1];
+            String timestringEnd1 = LocationTimestamp1[2];
+            for (int j = 0; j < LocationTimestamps2.size(); j++) {
+                String[] LocationTimestamp2 = LocationTimestamps1.get(i).split(",");
+                String location2 = LocationTimestamp2[0];
+                String timestringStart2 = LocationTimestamp1[1];
+                String timestringEnd2 = LocationTimestamp1[2];
+                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss.SSSSSS");
+                java.util.Date timestampStart1 = dateFormat.parse(timestringStart1);//convert time string to Date format
+                java.util.Date timestampEnd1 = dateFormat.parse(timestringEnd1);
+                java.util.Date timestampStart2 = dateFormat.parse(timestringStart2);//convert time string to Date format
+                java.util.Date timestampEnd2 = dateFormat.parse(timestringEnd2);
+                if (location1.equals(location2)) {
+                    //if common location found from user1 and user2
+                    //if timestart of user 1 is before or equal to user 2 and timeend of user 1 equal or after user 2,
+                    //common timestamps are from time start to time end of user 2
+                    if (!timestampStart1.after(timestampStart2) && !timestampEnd1.before(timestampEnd2)) {
+                        CommonLocationTimestamps.add(location2 + "," + timestringStart2 + "," + timestringEnd2);
+                        totalDuration += (timestampEnd2.getTime() - timestampStart2.getTime()) / (1000.0);
+                        //if timestart of user 2 is before or equal to user 1 and timeend of user 2 equal or after user 1,
+                        //common timestamps are from time start to time end of user 1
+                    } else if (!timestampStart2.after(timestampStart1) && timestampEnd2.before(timestampEnd1)) {
+                        CommonLocationTimestamps.add(location1 + "," + timestringStart1 + "," + timestringEnd1);
+                        totalDuration += (timestampEnd1.getTime() - timestampStart1.getTime()) / (1000.0);
+                        //if timestart of user 1 is before or equal to user 2 and timeend of user 1 before user 2,
+                        //common timestamps are from time start of user 2 to time end of user 1
+                    } else if (!timestampStart1.after(timestampStart2) && timestampEnd1.before(timestampEnd2)) {
+                        CommonLocationTimestamps.add(location1 + "," + timestringStart2 + "," + timestringEnd1);
+                        totalDuration += (timestampEnd1.getTime() - timestampStart2.getTime()) / (1000.0);
+                        //if timestart of user 1 is before or equal to user 2 and timeend of user 1 before user 2,
+                        //common timestamps are from time start of user 2 to time end of user 1
+                    } else if (!timestampStart2.after(timestampStart2) && timestampEnd2.before(timestampEnd1)) {
+                        CommonLocationTimestamps.add(location1 + "," + timestringStart1 + "," + timestringEnd2);
+                        totalDuration += (timestampEnd2.getTime() - timestampStart1.getTime()) / (1000.0);
+                    }
+                }
+            }
+
+        }
+        //check if total time duration is at least 12 minutes
+        if(totalDuration>=720){
+            return CommonLocationTimestamps;
+        }
+
+        return CommonLocationTimestamps;
+    }
+
+    //check for each user if they spend at least 12 minutes together
+    public static Group retrieveAutoGroups(Map<String, ArrayList<String>> ValidAutoUsers) throws ParseException {
+        Group group = null;
+        Set<String> macaddresses = ValidAutoUsers.keySet();
+        for (String macaddress1 : macaddresses) {
+            ArrayList<String> LocationTimestamps1 = ValidAutoUsers.get(macaddress1);
+            for (String macaddress2 : macaddresses) {
+                ArrayList<String> LocationTimestamps2 = ValidAutoUsers.get(macaddress2);
+                if (!macaddress2.equals(macaddress1)) {
+                    //check if they have common locations
+                    if (CommonLocationTimestamps(LocationTimestamps1, LocationTimestamps2)) {
+                        //if two users have stayed for at least 12 minutes, record their common timestamps and durations
+                        //check if they have stayed together for at least 12 minutes
+                        ArrayList<String> LocationTimestamps = CommonLocationTimestamps12Mins(LocationTimestamps1, LocationTimestamps2);
+                        if (LocationTimestamps!=null||LocationTimestamps.size()>=1) {
+                            //if two users have stayed for at least 12 minutes, record their common timestamps and durations
+                            ArrayList<String> Users = new ArrayList<String>();
+                            Users.add(macaddress1);
+                            Users.add(macaddress2);
+                            group = new Group(Users,LocationTimestamps);
+                        }
+                    }
+                }
+            }
+        }
+        return group;
+    }
+
     //Valify if user has stayed at least 12 minutes at SIS building in specified time window
-    public static boolean AutoUser12Mins(ArrayList<String> AutoUserLocationTimestamps) throws ParseException{
+    public static boolean AutoUser12Mins(ArrayList<String> AutoUserLocationTimestamps) throws ParseException {
         double timeDuration = 0;
-        for (int i=0;i<AutoUserLocationTimestamps.size();i++){
+        for (int i = 0; i < AutoUserLocationTimestamps.size(); i++) {
             String[] LocationTimestamp = AutoUserLocationTimestamps.get(i).split(",");
             String timeStart = LocationTimestamp[1];
             String timeEnd = LocationTimestamp[2];
@@ -104,13 +155,13 @@ public class AutoGroupDAO {
             timeDuration += (timestampEnd.getTime() - timestampStart.getTime()) / (1000.0);
         }
         //check if total time duration is at least 12 minutes
-        if(timeDuration>=720){
+        if (timeDuration >= 720) {
             return true;
-        }else{
+        } else {
             return false;
         }
     }
-    
+
     //retreive all the users whom stay at SIS building in specified time window
     public static ArrayList<String> retreiveAutoUserMacaddresses(String timestringEnd) {
         Connection connection = null;
