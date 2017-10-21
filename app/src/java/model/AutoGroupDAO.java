@@ -36,7 +36,7 @@ public class AutoGroupDAO {
         return groups;
     }
 
-    //retreive users with timeline in hashmap form, hashmap key is macaddress and hashmap value is array of locationid and timestamp
+    //retreive users' location traces including location, timestart, timeend at SIS building in specified time window
     public static HashMap<String, ArrayList<String>> retrieveAutoUsers(String endtimeDate) {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
@@ -88,27 +88,39 @@ public class AutoGroupDAO {
         }
         return AutoUsers;
     }
+    
+    //retreive all the users whom stay at SIS building in specified time window
+    public static ArrayList<String> retreiveAutoUserMacaddresses(String timestringEnd) {
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
+        String ans = "";
+        ArrayList<String> AutoUsers = new ArrayList<String>();
+        try {
+            //get a connection to database
+            connection = ConnectionManager.getConnection();
 
-    //retreive auto users in hashmap form, key is macaddress, value is a hashmap, key is location, value is time start and time end
-    /**
-     *
-     * @param AutoUsers
-     * @param endtimeDate
-     * @return
-     */
-    public static HashMap<String, TreeMap<Timestamp, ArrayList<Long>>> retreiveAutoUsersByTimestampStart(HashMap<String, ArrayList<String>> AutoUsers, String endtimeDate) {
-        //loop for each Automatic user identification
-        String timeDateStart = null;
-        Date timeDateEnd = null;
-        String[] locationtimestamp = null;
-        Timestamp timestampStart = null;
-        Timestamp timestampEnd = null;
-        long duration = 0L;
-        boolean update = true;
-        HashMap<String, TreeMap<Timestamp, ArrayList<Long>>> AutoUsersByTimestampStart = new HashMap<String, TreeMap<Timestamp, ArrayList<Long>>>();
-        TreeMap<Timestamp, ArrayList<Long>> TimestampStarts = new TreeMap<Timestamp, ArrayList<Long>>();
-        ArrayList<Long> LocationTime = new ArrayList<Long>();
-        return null;
+            //prepare a statement
+            preparedStatement = connection.prepareStatement("select distinct macaddress from location where timestamp between DATE_SUB(?, INTERVAL 15 minute) and DATE_SUB(?,INTERVAL 1 second)");
+
+            //set the parameters
+            preparedStatement.setString(1, timestringEnd);
+            preparedStatement.setString(2, timestringEnd);
+
+            //execute SQL query
+            resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()) {
+                AutoUsers.add(resultSet.getString(1));
+            }
+
+            resultSet.close();
+            preparedStatement.close();
+            connection.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        //UserLocationTimestamps.add("1010110032"+","+"014-03-24 09:07:27.000000"+","+"1");
+        return AutoUsers;
     }
 
 }

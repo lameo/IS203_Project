@@ -16,6 +16,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import model.AutoGroupDAO;
 import static model.AutoGroupDAO.retrieveAutoGroups;
 import model.Group;
 
@@ -53,7 +54,9 @@ public class AutoGroupServlet extends HttpServlet {
                 System.out.println("Date formatter failed to parse chosen sendTime.");
                 e.printStackTrace();
             }
-
+            //retreive all the users whom stay at SIS building in specified time window
+            ArrayList<String> AutoUsers = AutoGroupDAO.retreiveAutoUserMacaddresses(timeDate);
+            
             //retrieve group of users whom stay at SIS in processing window
             ArrayList<Group> AutoGroups = retrieveAutoGroups(timeDate);
 
