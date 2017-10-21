@@ -727,8 +727,6 @@ public class UploadDAO {
                 //Duplicate
                 if (previousMacEmail.contains(macaddress + email)) {
                     errorMsg += ", Duplicate Row";
-                } else {
-                    previousMacEmail.add(macaddress + email);
                 }
 
                 //Mac Address
@@ -782,6 +780,7 @@ public class UploadDAO {
                     preparedStatement.setString(3, password);
                     preparedStatement.setString(4, email);
                     preparedStatement.setString(5, gender);
+                    previousMacEmail.add(macaddress + email);
                     preparedStatement.addBatch();
                 }
 
@@ -820,7 +819,8 @@ public class UploadDAO {
         try {
             //get a connection to database
             connection = ConnectionManager.getConnection();
-
+            connection.setAutoCommit(false);
+            
             //prepare a statement
             preparedStatement = connection.prepareStatement("insert into location (timestamp, macaddress, locationid) values(?,?,?)");
             
@@ -857,9 +857,7 @@ public class UploadDAO {
                 //Duplicate
                 if (previousMacEmail.contains(timeDate + macAddress)) {
                     errorMsg += ", Duplicate Row";
-                } else {
-                    previousMacEmail.add(timeDate + macAddress);
-                }                  
+                }              
                 
                 // Checking for timeDate
                 timeDate = timeDate.trim();
@@ -901,6 +899,7 @@ public class UploadDAO {
                     preparedStatement.setString(1, timeDate);
                     preparedStatement.setString(2, macAddress);
                     preparedStatement.setString(3, locationID);
+                    previousMacEmail.add(timeDate + macAddress);
                     preparedStatement.addBatch();
                 }
 
