@@ -55,17 +55,19 @@ public class UploadServlet extends HttpServlet implements java.io.Serializable {
                             upBean.store(multipartRequest, "uploadfile"); //save to directory
 
                             String fileExist = UploadDAO.unzip(filePath, outputDirectory); //unzip the files in the zip and save into the directory
-                            if (fileExist != null && fileExist.contains("demographics.csv")) {
-                                demographicsError = UploadDAO.readDemographics(outputDirectory + File.separator + "demographics.csv");
-                            }
-                            if (fileExist != null && fileExist.contains("location-lookup.csv")) {
-                                locationLookupError = UploadDAO.readLookup(outputDirectory + File.separator + "location-lookup.csv");
-                            }
-                            if (fileExist != null && fileExist.contains("location.csv")) {
-                                locationError = UploadDAO.readLocation(outputDirectory + File.separator + "location.csv");
-                            }
-                            if(fileExist == null || !(fileExist.contains("demographics.csv") && fileExist.contains("location-lookup.csv") && fileExist.contains("location.csv"))){
+                            if (fileExist == null || fileExist.length()<=0 || !(fileExist.contains("demographics.csv") || !fileExist.contains("location-lookup.csv") || !fileExist.contains("location.csv"))) {
                                 session.setAttribute("error", "Wrong file name or type"); //send error messsage        
+                            } else {
+
+                                if (fileExist.contains("demographics.csv")) {
+                                    demographicsError = UploadDAO.readDemographics(outputDirectory + File.separator + "demographics.csv");
+                                }
+                                if (fileExist.contains("location-lookup.csv")) {
+                                    locationLookupError = UploadDAO.readLookup(outputDirectory + File.separator + "location-lookup.csv");
+                                }
+                                if (fileExist.contains("location.csv")) {
+                                    locationError = UploadDAO.readLocation(outputDirectory + File.separator + "location.csv");
+                                }
                             }
 
                         } else if (UploadDAO.checkFileName(fileName) != null && UploadDAO.checkFileName(fileName).length() > 0) { //if location.csv or location-lookup.csv or demographics.csv

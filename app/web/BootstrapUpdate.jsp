@@ -65,7 +65,6 @@
             <h1>Upload additional data to SLOCA</h1><br>
             <%
                 HashMap<Integer, String> demographicsError = (HashMap<Integer, String>) session.getAttribute("demographicsError");
-                HashMap<Integer, String> locationLookupError = (HashMap<Integer, String>) session.getAttribute("locationLookupError");
                 HashMap<Integer, String> locationError = (HashMap<Integer, String>) session.getAttribute("locationError");
                 String success = (String) session.getAttribute("success"); //success message retrieved from UploadServlet
 
@@ -86,20 +85,6 @@
                     }
                     session.removeAttribute("demographicsError");
                 }
-                out.print("</tbody></table></div><br>");
-
-                // Table for locationLookup error
-                if (locationLookupError != null && locationLookupError.size() > 0) {
-                    Set<Integer> keys = locationLookupError.keySet();
-                    keys = new TreeSet(keys);
-                    out.print("<div class=\"container\"><table class=\"table table-bordered\"><thead>");
-                    out.print("<tr><th colspan=\"2\"><center>Location Lookup Error</center></th></tr><tr><th><center>Row</center></th><th><center>Errors</center></th></tr>");
-                    for (Integer key : keys) {
-                        out.print("<tr><td>" + key + "</td><td>" + locationLookupError.get(key) + "</td></tr>");
-                    }
-                    session.removeAttribute("locationLookupError");
-                }
-                out.print("</tbody></table></div><br>");
 
                 // Table for location error
                 if (locationError != null && locationError.size() > 0) {
