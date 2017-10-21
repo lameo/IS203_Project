@@ -908,21 +908,18 @@ public class ReportDAO {
 
         for (String macaddress2 : macaddressess) {
             double colocationTime3 = CompanionColocations.get(macaddress2);
-            //result.put(macaddress2, colocationTime3)
-            //if (colocationTime3 > maxcolocationTime) {
-            //maxcolocationTime = colocationTime3;
-            //maxmacaddress = macaddress2;
-            //} else if (colocationTime3 == maxcolocationTime) {
-            //maxmacaddress = maxmacaddress + "," + macaddress2;
-            //}
+            String email = retrieveEmailByMacaddress(macaddress2);
+            if (email == null || email.length() <= 0) {
+                email = "No email found";
+            }
             ArrayList<String> companions = SortedList.get(colocationTime3); //null or something
             if (companions == null || companions.size() <= 0) {
                 ArrayList<String> companionsList = new ArrayList<String>();
-                companionsList.add(macaddress2 + retrieveEmailByMacaddress(macaddress2));
+                companionsList.add(macaddress2 + "," + email);
                 SortedList.put(colocationTime3, companionsList);
             } else {
 
-                companions.add(macaddress2 + retrieveEmailByMacaddress(macaddress2));
+                companions.add(macaddress2 + "," + email);
                 SortedList.put(colocationTime3, companions);
             }
 
@@ -1131,6 +1128,7 @@ public class ReportDAO {
             String macaddress = Companions.get(j);
             colocationTime = 0;
             ans = "";
+            boolean CorrectTimestring = false;
 
             //CompanionLocationTimestamps.add(macaddress + "," + j);
             try {
@@ -1157,22 +1155,21 @@ public class ReportDAO {
                     SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss.SSSSSS");
                     java.util.Date timestamp = dateFormat.parse(timestring);//convert time string to Date format
                     double gap = (double) (timeDiff - duration);
-                    boolean CorrectTimestring = false;
                     if (resultSet.isLast()) {
                         if (location.equals(locationid)) {
                             if (timestamp.before(timeStart)) {
                                 if (timeDiff > 300) {
-                                    colocationTime = colocationTime + (300 - gap);
-                                } else if (timeDiff <= 300) {
-                                    colocationTime = colocationTime + timeDiff - gap;
+                                    colocationTime = (300 - gap);
+                                } else {
+                                    colocationTime = timeDiff - gap;
                                 }
-                                //CompanionLocationTimestamps.add(macaddress + "last location time before start " + colocationTime + "," + timeDiff);
+                                CompanionLocationTimestamps.add(macaddress + "first and last location time before start " + "," + gap + "," + colocationTime + "," + timeDiff);
 
                             } else if (!timestamp.before(timeStart)) {
                                 if (timeDiff > 300) {
                                     colocationTime += 300;
-                                } else if (timeDiff <= 300) {
-                                    colocationTime += timeDiff;
+                                } else {
+                                    colocationTime = timeDiff;
                                 }
                                 //CompanionLocationTimestamps.add(macaddress + "last location time " + colocationTime + "," + timeDiff);
 
@@ -1185,110 +1182,112 @@ public class ReportDAO {
                             CorrectTimestring = false;
                         }
                     }
+
                     while (resultSet.next()) {
                         String locationNext = resultSet.getString(2);
                         int timeDiffNext = resultSet.getInt(3);
                         String timestringNext = resultSet.getString(1);
-                        timestamp = dateFormat.parse(timestring);//convert time string to Date format
-                        gap = (double) (timeDiff - duration);
-                        CorrectTimestring = false;
-                        //check if the previous location is correct or current location is correct
-                        if (resultSet.isLast()) {
-                            if (location.equals(locationid)) {
-                                if (timestamp.before(timeStart)) {
-                                    if (timeDiff > 300) {
-                                        colocationTime = colocationTime + (300 - gap);
-                                    } else if (timeDiff <= 300) {
-                                        colocationTime = colocationTime + timeDiff - gap;
-                                    }
-                                    //CompanionLocationTimestamps.add(macaddress + "last location time before start " + colocationTime + "," + timeDiff);
+                        java.util.Date timestampNext = dateFormat.parse(timestringNext);//convert time string to Date format
+                        gap = (double) (timeDiffNext - duration);
 
-                                } else if (!timestamp.before(timeStart)) {
-                                    if (timeDiff > 300) {
+                        //check if the previous location is correct or current location is correct
+                        if (location.equals(locationid) || CorrectTimestring) {
+                            //java.util.Date timestampNext = dateFormat.parse(timestringNext);//convert time string to Date format
+                            //if time stamp before time start
+                            if (timestamp.before(timeStart)) {
+                                //CompanionLocationTimestamps.add(macaddress + "before start " +timeDiff+","+timeDiffNext+ ","+timestring);
+                                //if timestamp is the last one before time start and location is correct
+                                if (timestampNext.after(timeStart) && location.equals(locationid)) {
+                                    //if current and next location is the same
+                                    if (location.equals(locationNext)) {
+                                        tmp = timeDiff - timeDiffNext;
+                                        if (tmp > 300) {
+                                            colocationTime = (300 - gap);
+                                        } else {
+                                            colocationTime = duration - timeDiffNext;
+                                        }
+                                        CompanionLocationTimestamps.add(macaddress + "same location time before start " + "," + colocationTime + "," + tmp + "," + duration + "," + gap);
+                                        CorrectTimestring = true;
+                                    } else if (!location.equals(locationNext)) {
+                                        tmp = timeDiff - timeDiffNext;
+                                        if (tmp > 300) {
+                                            colocationTime = (300 - gap);
+                                        } else {
+                                            colocationTime = duration - timeDiffNext;
+                                        }
+                                        //CompanionLocationTimestamps.add(macaddress + "diff location time before start " + colocationTime + "," + tmp);
+                                        ans = macaddress + "," + locationid + "," + timestampNext + "," + colocationTime + ",";
+                                        CompanionLocationTimestamps.add(ans);
+                                        ans = "";
+                                        colocationTime = 0;
+                                        CorrectTimestring = false;
+                                    }
+                                }
+                                //if timestamp is after time start
+                            } else if (!timestamp.before(timeStart)) {
+                                //CompanionLocationTimestamps.add(macaddress + "timestamp after time start" + timestring);
+                                //if current and next location is the same
+                                if (location.equals(locationNext) && location.equals(locationid)) {
+
+                                    tmp = timeDiff - timeDiffNext;
+                                    if (tmp > 300) {
                                         colocationTime += 300;
-                                    } else if (timeDiff <= 300) {
-                                        colocationTime += timeDiff;
+                                    } else {
+                                        colocationTime += tmp;
+                                    }
+                                    CorrectTimestring = true;
+                                    //CompanionLocationTimestamps.add(macaddress + "same location " + colocationTime + "," + tmp + "," + timeDiff + "," + timeDiffNext + "," + timestring + ",");
+                                    //if current location is different from next one and is correct location
+                                } else if (!location.equals(locationNext) && location.equals(locationid)) {
+                                    tmp = timeDiff - timeDiffNext;
+                                    if (tmp > 300) {
+                                        colocationTime += 300;
+                                    } else {
+                                        colocationTime += tmp;
+                                    }
+                                    //CompanionLocationTimestamps.add(macaddress + "diff location " + colocationTime + "," + tmp + "," + timeDiff + "," + timeDiffNext + "," + timestring + "," + timestringNext);
+                                    ans = macaddress + "," + locationid + "," + timestampNext + "," + colocationTime + ",";
+                                    CompanionLocationTimestamps.add(ans);
+                                    ans = "";
+                                    colocationTime = 0;
+                                    CorrectTimestring = false;
+                                    //if previous location is correct and is not correct location
+                                }
+                            }
+                        }
+                        if (resultSet.isLast()) {
+                            if (locationNext.equals(locationid)) {
+                                if (timestamp.before(timeStart)) {
+                                    if (timeDiffNext > 300) {
+                                        colocationTime = (300 - gap);
+                                    } else {
+                                        colocationTime += timeDiffNext - gap;
+                                    }
+                                    CompanionLocationTimestamps.add(macaddress + "last location time before start " + duration + "," + colocationTime + "," + gap + "," + timeDiffNext);
+                                    //if last location is correct location and not before start timestamp  
+                                } else if (!timestamp.before(timeStart)) {
+                                    if (timeDiffNext > 300) {
+                                        colocationTime += 300;
+                                    } else {
+                                        colocationTime += timeDiffNext;
                                     }
                                     //CompanionLocationTimestamps.add(macaddress + "last location time " + colocationTime + "," + timeDiff);
 
                                 }
 
-                                ans = macaddress + "," + locationid + "," + timestamp + "," + colocationTime + ",";
+                                ans = macaddress + "," + locationid + "," + timestampNext + "," + colocationTime + ",";
                                 CompanionLocationTimestamps.add(ans);
                                 ans = "";
                                 colocationTime = 0;
                                 CorrectTimestring = false;
                             }
-                        } else {
-                            if (location.equals(locationid) || CorrectTimestring) {
-                                java.util.Date timestampNext = dateFormat.parse(timestringNext);//convert time string to Date format
-                                //if time stamp before time start
-                                if (timestamp.before(timeStart)) {
-                                    //CompanionLocationTimestamps.add(macaddress + "before start " +timeDiff+","+timeDiffNext+ ","+timestring);
-                                    //if timestamp is the last one before time start and location is correct
-                                    if (timestampNext.after(timeStart) && location.equals(locationid)) {
-                                        //if current and next location is the same
-                                        if (location.equals(locationNext)) {
-                                            tmp = timeDiff - timeDiffNext;
-                                            if (tmp > 300) {
-                                                colocationTime += (300 - gap);
-                                            } else {
-                                                colocationTime += duration - timeDiffNext;
-                                            }
-                                            //CompanionLocationTimestamps.add(macaddress + "same location time before start " + colocationTime + "," + tmp+","+duration+","+gap);
-                                            CorrectTimestring = true;
-                                        } else if (!location.equals(locationNext)) {
-                                            tmp = timeDiff - timeDiffNext;
-                                            if (tmp > 300) {
-                                                colocationTime += (300 - gap);
-                                            } else {
-                                                colocationTime += duration - timeDiffNext;
-                                            }
-                                            //CompanionLocationTimestamps.add(macaddress + "diff location time before start " + colocationTime + "," + tmp);
-                                            ans = macaddress + "," + locationid + "," + timestamp + "," + colocationTime + ",";
-                                            CompanionLocationTimestamps.add(ans);
-                                            ans = "";
-                                            colocationTime = 0;
-                                            CorrectTimestring = false;
-                                        }
-                                    }
-                                    //if timestamp is after time start
-                                } else if (!timestamp.before(timeStart)) {
-                                    //CompanionLocationTimestamps.add(macaddress + "timestamp after time start" + timestring);
-                                    //if current and next location is the same
-                                    if (location.equals(locationNext) && location.equals(locationid)) {
-
-                                        tmp = timeDiff - timeDiffNext;
-                                        if (tmp > 300) {
-                                            colocationTime += 300;
-                                        } else {
-                                            colocationTime += tmp;
-                                        }
-                                        CorrectTimestring = true;
-                                        //CompanionLocationTimestamps.add(macaddress + "same location " + colocationTime + "," + tmp + "," + timeDiff + "," + timeDiffNext + "," + timestring + ",");
-                                        //if current location is different from next one and is correct location
-                                    } else if (!location.equals(locationNext) && location.equals(locationid)) {
-                                        tmp = timeDiff - timeDiffNext;
-                                        if (tmp > 300) {
-                                            colocationTime += 300;
-                                        } else {
-                                            colocationTime += tmp;
-                                        }
-                                        //CompanionLocationTimestamps.add(macaddress + "diff location " + colocationTime + "," + tmp + "," + timeDiff + "," + timeDiffNext + "," + timestring + ",");
-                                        ans = macaddress + "," + locationid + "," + timestamp + "," + colocationTime + ",";
-                                        CompanionLocationTimestamps.add(ans);
-                                        ans = "";
-                                        colocationTime = 0;
-                                        CorrectTimestring = false;
-                                        //if previous location is correct and is not correct location
-                                    }
-                                }
-                            }
-                            timestring = timestringNext;
-                            location = locationNext;
-                            timeDiff = timeDiffNext;
                         }
+                        timestring = timestringNext;
+                        location = locationNext;
+                        timeDiff = timeDiffNext;
+                        timestamp = dateFormat.parse(timestring);
                     }
+
                 }
                 //close connections
                 resultSet.close();
@@ -1302,7 +1301,7 @@ public class ReportDAO {
         return CompanionLocationTimestamps;
     }
 
-    //retreiveemailbymac
+    //retrieve user's email by macaddress
     public static String retrieveEmailByMacaddress(String macaddress) {
         Connection connection = null;
         PreparedStatement preparedStatement = null;

@@ -24,7 +24,7 @@ public class ReportServlet extends HttpServlet {
             String reportType = request.getParameter("reportType"); //to retrieve which basic location report the user selected
             HttpSession session = request.getSession();
             String timeDate = request.getParameter("timeDate"); //retrieve time from user input
-            timeDate = timeDate.replace("T"," ");
+            timeDate = timeDate.replace("T", " ");
             SimpleDateFormat readFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm");
             SimpleDateFormat writeFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSSSSS");
             Date timestamp = null;
@@ -38,7 +38,7 @@ public class ReportServlet extends HttpServlet {
             }
             switch (reportType) {
                 case "basicReport":
-                    
+
                     String[] order = request.getParameterValues("order"); //retrieve order from user input
 
                     String breakdownReport = ReportDAO.notVeryBasicBreakdown(order, timeDate); //retrieve HTML table from reportDAO after getting data from SQL
@@ -47,7 +47,7 @@ public class ReportServlet extends HttpServlet {
                     //setting attributes to use to display results at basicReport.jsp
                     session.setAttribute("breakdownReport", breakdownReport);
                     session.setAttribute("orderList", orderList);
-                    session.setAttribute("timeDate", timeDate);                    
+                    session.setAttribute("timeDate", timeDate);
                     response.sendRedirect("basicReport.jsp");  //send back to basicReport
                     break;
                 case "topKPopular":
