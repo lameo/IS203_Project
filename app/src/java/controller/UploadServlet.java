@@ -55,18 +55,14 @@ public class UploadServlet extends HttpServlet implements java.io.Serializable {
                             upBean.store(multipartRequest, "uploadfile"); //save to directory
 
                             String fileExist = UploadDAO.unzip(filePath, outputDirectory); //unzip the files in the zip and save into the directory
-
                             if (fileExist != null && fileExist.contains("demographics.csv")) {
                                 demographicsError = UploadDAO.readDemographics(outputDirectory + File.separator + "demographics.csv");
-                                demographicsError.remove(Integer.MAX_VALUE);
                             }
                             if (fileExist != null && fileExist.contains("location-lookup.csv")) {
                                 locationLookupError = UploadDAO.readLookup(outputDirectory + File.separator + "location-lookup.csv");
-                                locationLookupError.remove(Integer.MAX_VALUE);
                             }
                             if (fileExist != null && fileExist.contains("location.csv")) {
                                 locationError = UploadDAO.readLocation(outputDirectory + File.separator + "location.csv");
-                                locationError.remove(Integer.MAX_VALUE);
                             }
                             if(fileExist == null || !(fileExist.contains("demographics.csv") && fileExist.contains("location-lookup.csv") && fileExist.contains("location.csv"))){
                                 session.setAttribute("error", "Wrong file name or type"); //send error messsage        
@@ -77,15 +73,12 @@ public class UploadServlet extends HttpServlet implements java.io.Serializable {
                             switch (fileName) {
                                 case "location-lookup.csv":
                                     locationLookupError = UploadDAO.readLookup(outputDirectory + File.separator + "location-lookup.csv");
-                                    locationLookupError.remove(Integer.MAX_VALUE);
                                     break;
                                 case "demographics.csv":
                                     demographicsError = UploadDAO.readDemographics(outputDirectory + File.separator + "demographics.csv");
-                                    demographicsError.remove(Integer.MAX_VALUE);
                                     break;
                                 case "location.csv":
                                     locationError = UploadDAO.readLocation(outputDirectory + File.separator + "location.csv");
-                                    locationError.remove(Integer.MAX_VALUE);
                                     break;
                                 default:
                                     break;

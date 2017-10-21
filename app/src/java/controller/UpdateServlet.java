@@ -28,7 +28,6 @@ public class UpdateServlet extends HttpServlet implements java.io.Serializable {
         UploadBean upBean = new UploadBean();
         String success = "";
         HashMap<Integer, String> demographicsError = new HashMap<>();
-        HashMap<Integer, String> locationLookupError = new HashMap<>();
         HashMap<Integer, String> locationError = new HashMap<>();
         try {
             ServletContext servletContext = this.getServletConfig().getServletContext();
@@ -59,13 +58,11 @@ public class UpdateServlet extends HttpServlet implements java.io.Serializable {
                                 demographicsError = UploadDAO.updateDemographics(outputDirectory + File.separator + "demographics.csv");
                             } else if (fileExist != null && fileExist.contains("location.csv")) {
                                 locationError = UploadDAO.updateLocation(outputDirectory + File.separator + "location.csv");
-                            } else if (fileExist != null && fileExist.contains("location-lookup.csv")) {
-                                locationLookupError = UploadDAO.updateLocationLookUp(outputDirectory + File.separator + "location-lookup.csv");
                             } else {
                                 session.setAttribute("error", "Wrong file name or type"); //send error messsage                                  
                             }
 
-                        } else if (UploadDAO.checkFileName(fileName) != null && UploadDAO.checkFileName(fileName).length() > 0) { //if location.csv or location-lookup.csv or demographics.csv
+                        } else if (UploadDAO.checkFileName(fileName) != null && UploadDAO.checkFileName(fileName).length() > 0) { //if location.csv or demographics.csv
                             upBean.store(multipartRequest, "uploadfile"); //save to directory
                             switch (fileName) {
                                 case "demographics.csv":
@@ -74,9 +71,6 @@ public class UpdateServlet extends HttpServlet implements java.io.Serializable {
                                 case "location.csv":
                                     locationError = UploadDAO.updateLocation(outputDirectory + File.separator + "location.csv");
                                     break;
-                                case "location-lookup.csv":
-                                    locationLookupError = UploadDAO.updateLocationLookUp(outputDirectory + File.separator + "location-lookup.csv");
-                                    break;
                                 default:
                                     break;
                             }
@@ -84,12 +78,11 @@ public class UpdateServlet extends HttpServlet implements java.io.Serializable {
                             session.setAttribute("error", "Wrong file name or type"); //send error messsage                                  
                         }
 
-                        if (demographicsError.isEmpty() && locationError.isEmpty() && locationLookupError.isEmpty()) {
+                        if (demographicsError.isEmpty() && locationError.isEmpty()) {
                             success = "Uploaded file: " + fileName + " (" + file.getFileSize() + " bytes)";
                             session.setAttribute("success", success); //send success messsage       
                         } else {
                             session.setAttribute("demographicsError", demographicsError); //send error messsage       
-                            session.setAttribute("locationLookupError", locationLookupError);
                             session.setAttribute("locationError", locationError);
                         }
                         file = null;
