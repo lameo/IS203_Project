@@ -19,7 +19,7 @@ import model.ReportDAO;
 
 public class ReportServlet extends HttpServlet {
 
-    protected void processRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    protected void processRequest(HttpServletRequest request, HttpServletResponse response) {
         try {
             String reportType = request.getParameter("reportType"); //to retrieve which basic location report the user selected
             HttpSession session = request.getSession();
@@ -103,7 +103,7 @@ public class ReportServlet extends HttpServlet {
                 default:
                     break;
             }
-        } catch (ParseException ex) {
+        } catch (IOException ex) {
             Logger.getLogger(ReportServlet.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
