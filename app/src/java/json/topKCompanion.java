@@ -123,7 +123,7 @@ public class topKCompanion extends HttpServlet {
                 JsonArray resultsArr = new JsonArray();
 
                 int count = 1; //to match topk number after incrementation
-                Map<Double, ArrayList<String>> topKCompanionMap = ReportDAO.retrieveTopKCompanions(date, macaddress, topK);
+                Map<Double, ArrayList<String>> topKCompanionMap = ReportDAO.retrieveTopKCompanions(date, macaddress);
 
                 Set<Double> timeSpentByCompanionsList = topKCompanionMap.keySet();
                 for (Double timeSpentByCompanions : timeSpentByCompanionsList) {

@@ -44,43 +44,41 @@ public class AutoGroupServlet extends HttpServlet {
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException, ParseException {
 
-        try (PrintWriter out = response.getWriter()) {
+        try {
             HttpSession session = request.getSession();
 
             String timeDate = request.getParameter("timeDate"); //retrieve time from user input
             timeDate = timeDate.replace("T", " ");
-            SimpleDateFormat readFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm");
-            SimpleDateFormat writeFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSSSSS");
+            SimpleDateFormat readFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+            SimpleDateFormat writeFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             Date timestamp = null;
-            try {
-                timestamp = (Date) readFormat.parse(timeDate);
-                timeDate = writeFormat.format(timestamp);
-                //System.out.println("Retrieved and formatted dateTime: " + timestamp.toString());
-            } catch (ParseException e) {
-                System.out.println("Date formatter failed to parse chosen sendTime.");
-                e.printStackTrace();
-            }
+
+            timestamp = (Date) readFormat.parse(timeDate);
+            timeDate = writeFormat.format(timestamp);
+            //System.out.println("Retrieved and formatted dateTime: " + timestamp.toString());
+
             //retreive all the users whom stay at SIS building in specified time window
             ArrayList<String> AutoUsers = AutoGroupDAO.retreiveAutoUserMacaddresses(timeDate);
-            Map<String,ArrayList<String>> ValidAutoUsers = new HashMap<String,ArrayList<String>>();
+            Map<String, ArrayList<String>> ValidAutoUsers = new HashMap<String, ArrayList<String>>();
             //retrieve group of users whom stay at SIS in processing window
             for (int i = 0; i < AutoUsers.size(); i += 1) {
                 String AutoUserMac = AutoUsers.get(i);
                 //retreive location traces of each user 
-                ArrayList<String> AutoUserLocationTimestamps = ReportDAO.retrieveUserLocationTimestamps(AutoUserMac,timeDate);
+                ArrayList<String> AutoUserLocationTimestamps = ReportDAO.retrieveUserLocationTimestamps(AutoUserMac, timeDate);
                 //check if user stays at SIS building for at least 12 minutes
-                if(AutoGroupDAO.AutoUser12Mins(AutoUserLocationTimestamps)){
+                if (AutoGroupDAO.AutoUser12Mins(AutoUserLocationTimestamps)) {
                     ValidAutoUsers.put(AutoUserMac, AutoUserLocationTimestamps);
-                    
+
                 }
             }
-            
-            
 
             session.setAttribute("timeDate", timeDate);
             session.setAttribute("test", ValidAutoUsers);
 
             response.sendRedirect("automaticGroupDetection.jsp");
+        } catch (ParseException e) {
+            System.out.println("Date formatter failed to parse chosen sendTime.");
+            e.printStackTrace();
         }
     }
 

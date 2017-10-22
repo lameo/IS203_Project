@@ -21,6 +21,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -29,7 +31,7 @@ import java.util.concurrent.TimeUnit;
 //retreive groups of users,
 public class AutoGroupDAO {
 
-    public static boolean CommonLocationTimestamps(ArrayList<String> LocationTimestamps1, ArrayList<String> LocationTimestamps2) throws ParseException {
+    public static boolean CommonLocationTimestamps(ArrayList<String> LocationTimestamps1, ArrayList<String> LocationTimestamps2) {
 
         boolean CommonLocationTimestamps12Mins = false;
         int count = 0;
@@ -58,63 +60,66 @@ public class AutoGroupDAO {
         }
     }
 
-    public static ArrayList<String> CommonLocationTimestamps12Mins(ArrayList<String> LocationTimestamps1, ArrayList<String> LocationTimestamps2) throws ParseException {
+    public static ArrayList<String> CommonLocationTimestamps12Mins(ArrayList<String> LocationTimestamps1, ArrayList<String> LocationTimestamps2) {
 
         ArrayList<String> CommonLocationTimestamps = new ArrayList<String>();
         double totalDuration = 0;
-        //check common location timestamps from user1 and user2
-        for (int i = 0; i < LocationTimestamps1.size(); i++) {
-            String[] LocationTimestamp1 = LocationTimestamps1.get(i).split(",");
-            String location1 = LocationTimestamp1[0];
-            String timestringStart1 = LocationTimestamp1[1];
-            String timestringEnd1 = LocationTimestamp1[2];
-            for (int j = 0; j < LocationTimestamps2.size(); j++) {
-                String[] LocationTimestamp2 = LocationTimestamps1.get(i).split(",");
-                String location2 = LocationTimestamp2[0];
-                String timestringStart2 = LocationTimestamp1[1];
-                String timestringEnd2 = LocationTimestamp1[2];
-                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss.SSSSSS");
-                java.util.Date timestampStart1 = dateFormat.parse(timestringStart1);//convert time string to Date format
-                java.util.Date timestampEnd1 = dateFormat.parse(timestringEnd1);
-                java.util.Date timestampStart2 = dateFormat.parse(timestringStart2);//convert time string to Date format
-                java.util.Date timestampEnd2 = dateFormat.parse(timestringEnd2);
-                if (location1.equals(location2)) {
-                    //if common location found from user1 and user2
-                    //if timestart of user 1 is before or equal to user 2 and timeend of user 1 equal or after user 2,
-                    //common timestamps are from time start to time end of user 2
-                    if (!timestampStart1.after(timestampStart2) && !timestampEnd1.before(timestampEnd2)) {
-                        CommonLocationTimestamps.add(location2 + "," + timestringStart2 + "," + timestringEnd2);
-                        totalDuration += (timestampEnd2.getTime() - timestampStart2.getTime()) / (1000.0);
-                        //if timestart of user 2 is before or equal to user 1 and timeend of user 2 equal or after user 1,
-                        //common timestamps are from time start to time end of user 1
-                    } else if (!timestampStart2.after(timestampStart1) && timestampEnd2.before(timestampEnd1)) {
-                        CommonLocationTimestamps.add(location1 + "," + timestringStart1 + "," + timestringEnd1);
-                        totalDuration += (timestampEnd1.getTime() - timestampStart1.getTime()) / (1000.0);
-                        //if timestart of user 1 is before or equal to user 2 and timeend of user 1 before user 2,
-                        //common timestamps are from time start of user 2 to time end of user 1
-                    } else if (!timestampStart1.after(timestampStart2) && timestampEnd1.before(timestampEnd2)) {
-                        CommonLocationTimestamps.add(location1 + "," + timestringStart2 + "," + timestringEnd1);
-                        totalDuration += (timestampEnd1.getTime() - timestampStart2.getTime()) / (1000.0);
-                        //if timestart of user 1 is before or equal to user 2 and timeend of user 1 before user 2,
-                        //common timestamps are from time start of user 2 to time end of user 1
-                    } else if (!timestampStart2.after(timestampStart2) && timestampEnd2.before(timestampEnd1)) {
-                        CommonLocationTimestamps.add(location1 + "," + timestringStart1 + "," + timestringEnd2);
-                        totalDuration += (timestampEnd2.getTime() - timestampStart1.getTime()) / (1000.0);
+        try {
+            //check common location timestamps from user1 and user2
+            for (int i = 0; i < LocationTimestamps1.size(); i++) {
+                String[] LocationTimestamp1 = LocationTimestamps1.get(i).split(",");
+                String location1 = LocationTimestamp1[0];
+                String timestringStart1 = LocationTimestamp1[1];
+                String timestringEnd1 = LocationTimestamp1[2];
+                for (int j = 0; j < LocationTimestamps2.size(); j++) {
+                    String[] LocationTimestamp2 = LocationTimestamps1.get(i).split(",");
+                    String location2 = LocationTimestamp2[0];
+                    String timestringStart2 = LocationTimestamp1[1];
+                    String timestringEnd2 = LocationTimestamp1[2];
+                    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                    java.util.Date timestampStart1 = dateFormat.parse(timestringStart1);//convert time string to Date format
+                    java.util.Date timestampEnd1 = dateFormat.parse(timestringEnd1);
+                    java.util.Date timestampStart2 = dateFormat.parse(timestringStart2);//convert time string to Date format
+                    java.util.Date timestampEnd2 = dateFormat.parse(timestringEnd2);
+                    if (location1.equals(location2)) {
+                        //if common location found from user1 and user2
+                        //if timestart of user 1 is before or equal to user 2 and timeend of user 1 equal or after user 2,
+                        //common timestamps are from time start to time end of user 2
+                        if (!timestampStart1.after(timestampStart2) && !timestampEnd1.before(timestampEnd2)) {
+                            CommonLocationTimestamps.add(location2 + "," + timestringStart2 + "," + timestringEnd2);
+                            totalDuration += (timestampEnd2.getTime() - timestampStart2.getTime()) / (1000.0);
+                            //if timestart of user 2 is before or equal to user 1 and timeend of user 2 equal or after user 1,
+                            //common timestamps are from time start to time end of user 1
+                        } else if (!timestampStart2.after(timestampStart1) && timestampEnd2.before(timestampEnd1)) {
+                            CommonLocationTimestamps.add(location1 + "," + timestringStart1 + "," + timestringEnd1);
+                            totalDuration += (timestampEnd1.getTime() - timestampStart1.getTime()) / (1000.0);
+                            //if timestart of user 1 is before or equal to user 2 and timeend of user 1 before user 2,
+                            //common timestamps are from time start of user 2 to time end of user 1
+                        } else if (!timestampStart1.after(timestampStart2) && timestampEnd1.before(timestampEnd2)) {
+                            CommonLocationTimestamps.add(location1 + "," + timestringStart2 + "," + timestringEnd1);
+                            totalDuration += (timestampEnd1.getTime() - timestampStart2.getTime()) / (1000.0);
+                            //if timestart of user 1 is before or equal to user 2 and timeend of user 1 before user 2,
+                            //common timestamps are from time start of user 2 to time end of user 1
+                        } else if (!timestampStart2.after(timestampStart2) && timestampEnd2.before(timestampEnd1)) {
+                            CommonLocationTimestamps.add(location1 + "," + timestringStart1 + "," + timestringEnd2);
+                            totalDuration += (timestampEnd2.getTime() - timestampStart1.getTime()) / (1000.0);
+                        }
                     }
                 }
+
             }
-
+            //check if total time duration is at least 12 minutes
+            if (totalDuration >= 720) {
+                return CommonLocationTimestamps;
+            }
+        } catch (ParseException ex) {
+            Logger.getLogger(AutoGroupDAO.class.getName()).log(Level.SEVERE, null, ex);
         }
-        //check if total time duration is at least 12 minutes
-        if(totalDuration>=720){
-            return CommonLocationTimestamps;
-        }
-
         return CommonLocationTimestamps;
     }
 
     //check for each user if they spend at least 12 minutes together
-    public static Group retrieveAutoGroups(Map<String, ArrayList<String>> ValidAutoUsers) throws ParseException {
+    public static Group retrieveAutoGroups(Map<String, ArrayList<String>> ValidAutoUsers) {
         Group group = null;
         Set<String> macaddresses = ValidAutoUsers.keySet();
         for (String macaddress1 : macaddresses) {
@@ -127,12 +132,12 @@ public class AutoGroupDAO {
                         //if two users have stayed for at least 12 minutes, record their common timestamps and durations
                         //check if they have stayed together for at least 12 minutes
                         ArrayList<String> LocationTimestamps = CommonLocationTimestamps12Mins(LocationTimestamps1, LocationTimestamps2);
-                        if (LocationTimestamps!=null||LocationTimestamps.size()>=1) {
+                        if (LocationTimestamps != null || LocationTimestamps.size() >= 1) {
                             //if two users have stayed for at least 12 minutes, record their common timestamps and durations
                             ArrayList<String> Users = new ArrayList<String>();
                             Users.add(macaddress1);
                             Users.add(macaddress2);
-                            group = new Group(Users,LocationTimestamps);
+                            group = new Group(Users, LocationTimestamps);
                         }
                     }
                 }
@@ -142,17 +147,21 @@ public class AutoGroupDAO {
     }
 
     //Valify if user has stayed at least 12 minutes at SIS building in specified time window
-    public static boolean AutoUser12Mins(ArrayList<String> AutoUserLocationTimestamps) throws ParseException {
+    public static boolean AutoUser12Mins(ArrayList<String> AutoUserLocationTimestamps) {
         double timeDuration = 0;
         for (int i = 0; i < AutoUserLocationTimestamps.size(); i++) {
-            String[] LocationTimestamp = AutoUserLocationTimestamps.get(i).split(",");
-            String timeStart = LocationTimestamp[1];
-            String timeEnd = LocationTimestamp[2];
-            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss.SSSSSS");
-            java.util.Date timestampStart = dateFormat.parse(timeStart);//convert time string to Date format
-            java.util.Date timestampEnd = dateFormat.parse(timeEnd);
-            //calculate the time duration for each user location trace in seconds
-            timeDuration += (timestampEnd.getTime() - timestampStart.getTime()) / (1000.0);
+            try {
+                String[] LocationTimestamp = AutoUserLocationTimestamps.get(i).split(",");
+                String timeStart = LocationTimestamp[1];
+                String timeEnd = LocationTimestamp[2];
+                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                java.util.Date timestampStart = dateFormat.parse(timeStart);//convert time string to Date format
+                java.util.Date timestampEnd = dateFormat.parse(timeEnd);
+                //calculate the time duration for each user location trace in seconds
+                timeDuration += (timestampEnd.getTime() - timestampStart.getTime()) / (1000.0);
+            } catch (ParseException ex) {
+                Logger.getLogger(AutoGroupDAO.class.getName()).log(Level.SEVERE, null, ex);
+            }
         }
         //check if total time duration is at least 12 minutes
         if (timeDuration >= 720) {

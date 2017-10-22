@@ -34,32 +34,32 @@ public class HeatMapServlet extends HttpServlet {
 
         String timeDate = request.getParameter("timeDate"); //retrieve time from user input
         timeDate = timeDate.replace("T", " ");
-        SimpleDateFormat readFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm");
-        SimpleDateFormat writeFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSSSSS");
+        SimpleDateFormat readFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+        SimpleDateFormat writeFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         Date timestamp = null;
         try {
             timestamp = (Date) readFormat.parse(timeDate);
             timeDate = writeFormat.format(timestamp);
             //System.out.println("Retrieved and formatted dateTime: " + timestamp.toString());
+
+            int floor = Integer.parseInt(request.getParameter("floor")); //retrieve floor from user input
+            String floorName = "B1";
+
+            if (floor > 0) {
+                floorName = "L" + floor;
+            }
+
+            HashMap<String, HeatMap> heatmapList = HeatMapDAO.retrieveHeatMap(timeDate, floorName);
+
+            session.setAttribute("floorName", floorName);
+            session.setAttribute("timeDate", timeDate);
+            session.setAttribute("heatmapList", heatmapList);
+
+            response.sendRedirect("heatmapPage.jsp"); //send back to heatmapPage
+            
         } catch (ParseException e) {
-            System.out.println("Date formatter failed to parse chosen sendTime.");
             e.printStackTrace();
         }
-
-        int floor = Integer.parseInt(request.getParameter("floor")); //retrieve floor from user input
-        String floorName = "B1";
-
-        if (floor > 0) {
-            floorName = "L" + floor;
-        }
-
-        HashMap<String, HeatMap> heatmapList = HeatMapDAO.retrieveHeatMap(timeDate, floorName);
-
-        session.setAttribute("floorName", floorName);
-        session.setAttribute("timeDate", timeDate);
-        session.setAttribute("heatmapList", heatmapList);
-
-        response.sendRedirect("heatmapPage.jsp"); //send back to heatmapPage
 
     }
 

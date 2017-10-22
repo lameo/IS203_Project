@@ -4,7 +4,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -267,6 +266,7 @@ public class ReportDAO {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
+        
         ArrayList<String> usersInSpecificPlace = new ArrayList<String>();
 
         try {
@@ -307,9 +307,11 @@ public class ReportDAO {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
+        
         ArrayList<String> locationTimestampList = new ArrayList<>();
         String currentPlace = ""; //latest place the user spends at least 5 mins
         String spentMoreThan5Minutes = "";
+        
         DateFormat df = new SimpleDateFormat("yyyy-mm-dd HH:mm:ss");
 
         try {
@@ -863,22 +865,26 @@ public class ReportDAO {
         return ans;
     }
 
-    public static Map<Double, ArrayList<String>> retrieveTopKCompanions(String endTimeDate, String macaddress, int k){
+    public static Map<Double, ArrayList<String>> retrieveTopKCompanions(String endTimeDate, String macaddress) {
         ArrayList<String> UserLocationTimestamps = retrieveUserLocationTimestamps(macaddress, endTimeDate);
+        
         ArrayList<String> Companions = new ArrayList<String>();
         ArrayList<String> CompanionLocationTimestamps = null;
+        
         Map<String, Double> CompanionColocations = new HashMap<String, Double>();
         Map<Double, ArrayList<String>> SortedList = new TreeMap<Double, ArrayList<String>>(Collections.reverseOrder());
-        Map<ArrayList<String>, Integer> result = new HashMap<ArrayList<String>, Integer>();
 
         for (int i = 0; i < UserLocationTimestamps.size(); i += 1) {
             String UserLocationTimestamp = UserLocationTimestamps.get(i);
             String[] LocationTimestamp = UserLocationTimestamp.split(",");
+            
             String locationid = LocationTimestamp[0];
             String timestringStart = LocationTimestamp[1];
             String timestringEnd = LocationTimestamp[2];
+            
             Companions = retreiveCompanionMacaddresses(macaddress, locationid, timestringStart, timestringEnd);
             CompanionLocationTimestamps = retrieveCompanionLocationTimestamps(Companions, locationid, timestringStart, timestringEnd);
+            
             if (CompanionLocationTimestamps != null) {
                 for (int j = 0; j < CompanionLocationTimestamps.size(); j += 1) {
                     String CompanionLocationTimestamp = CompanionLocationTimestamps.get(j);
@@ -900,10 +906,6 @@ public class ReportDAO {
             }
         }
 
-        int rank = 1;
-        int maxcolocationTime = 0;
-        String maxmacaddress = null;
-
         Set<String> macaddressess = CompanionColocations.keySet();
 
         for (String macaddress2 : macaddressess) {
@@ -922,9 +924,7 @@ public class ReportDAO {
                 companions.add(macaddress2 + "," + email);
                 SortedList.put(colocationTime3, companions);
             }
-
         }
-
         return SortedList;
     }
 
@@ -933,14 +933,17 @@ public class ReportDAO {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
+        
         String ans = "";
         double duration = 0;
+        
         ArrayList<String> UserLocationTimestamps = new ArrayList<String>();
         ArrayList<String> locations = new ArrayList<String>();
-        ArrayList<Timestamp> timestamps = new ArrayList<Timestamp>();
+
         String timestring = null;
         int timeStartIndex = -1;
         java.util.Date timedateEnd = null;
+        
         try {
             //get a connection to database
             connection = ConnectionManager.getConnection();
@@ -961,7 +964,8 @@ public class ReportDAO {
                 locations.add(locationid);
                 locations.add(timestring);
             }
-
+            
+            //close connections
             resultSet.close();
             preparedStatement.close();
             connection.close();
@@ -969,14 +973,17 @@ public class ReportDAO {
             for (int i = 0; i < locations.size(); i += 2) {
                 String locationid = locations.get(i); //find first location id
                 timestring = locations.get(i + 1); //find first time string
+                
                 SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                 java.util.Date timestamp = dateFormat.parse(timestring);//convert time string to Date format
                 java.util.Date timestampEnd = dateFormat.parse(endtimeDate);
                 Calendar cal = Calendar.getInstance();
                 cal.setTime(timestampEnd);
                 cal.add(Calendar.SECOND, -1);
+                
                 timedateEnd = cal.getTime();
                 timestampEnd = null;
+                
                 if (locations.size() <= i + 2) { //if last pair of location and time
                     duration = (timedateEnd.getTime() - timestamp.getTime()) / (1000.0);
 
@@ -1051,28 +1058,19 @@ public class ReportDAO {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
-        String ans = "";
-        double colocationTime = 0;
-        java.util.Date timeEnd = null;
-        java.util.Date timeStart = null;
-        String timestringBeforeStart = null;
-        ArrayList<String> CompanionLocationTimestamps = new ArrayList<String>();
+
         ArrayList<String> Companions = new ArrayList<String>();
-        double tmp = 0;
-        double duration = 0;
+
         try {
             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-            timeStart = dateFormat.parse(timestringStart);
-            timeEnd = dateFormat.parse(timestringEnd);
+            java.util.Date timeStart = dateFormat.parse(timestringStart);
+
             Calendar cal = Calendar.getInstance();
             cal.setTime(timeStart);
             cal.add(Calendar.MINUTE, -5);
-            timestringBeforeStart = dateFormat.format(cal.getTime());
-            duration = (timeEnd.getTime() - timeStart.getTime()) / 1000.0;
-        } catch (Exception e) { //this generic but you can control another types of exception
-            // look the origin of excption 
-        }
-        try {
+            String timestringBeforeStart = dateFormat.format(cal.getTime());
+
+
             //get a connection to database
             connection = ConnectionManager.getConnection();
 
@@ -1090,12 +1088,15 @@ public class ReportDAO {
             while (resultSet.next()) {
                 Companions.add(resultSet.getString(1));
             }
-
+            
+            //close connections
             resultSet.close();
             preparedStatement.close();
             connection.close();
         } catch (SQLException e) {
             e.printStackTrace();
+        } catch (ParseException ex) {
+            Logger.getLogger(ReportDAO.class.getName()).log(Level.SEVERE, null, ex);
         }
         //UserLocationTimestamps.add("1010110032"+","+"014-03-24 09:07:27.000000"+","+"1");
         return Companions;
@@ -1106,36 +1107,31 @@ public class ReportDAO {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
+        
         String ans = "";
-        double colocationTime = 0;
-        java.util.Date timeEnd = null;
-        java.util.Date timeStart = null;
-        String timestringBeforeStart = null;
+        
         ArrayList<String> CompanionLocationTimestamps = new ArrayList<String>();
-        ArrayList<String> locations = new ArrayList<String>();
+        
+        double colocationTime = 0;
         double tmp = 0;
         double duration = 0;
+        
         try {
             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-            timeStart = dateFormat.parse(timestringStart);
-            timeEnd = dateFormat.parse(timestringEnd);
+            java.util.Date timeStart = dateFormat.parse(timestringStart);
+            java.util.Date timeEnd = dateFormat.parse(timestringEnd);
             Calendar cal = Calendar.getInstance();
             cal.setTime(timeStart);
             cal.add(Calendar.MINUTE, -5);
-            timestringBeforeStart = dateFormat.format(cal.getTime());
+            String timestringBeforeStart = dateFormat.format(cal.getTime());
             duration = (timeEnd.getTime() - timeStart.getTime()) / 1000.0;
-        } catch (Exception e) { //this generic but you can control another types of exception
-            // look the origin of excption 
-        }
 
-        for (int j = 0; j < Companions.size(); j += 1) {
-            String macaddress = Companions.get(j);
-            colocationTime = 0;
-            ans = "";
-            boolean CorrectTimestring = false;
+            for (int j = 0; j < Companions.size(); j += 1) {
+                String macaddress = Companions.get(j);
+                colocationTime = 0;
+                ans = "";
+                boolean CorrectTimestring = false;
 
-            //CompanionLocationTimestamps.add(macaddress + "," + j);
-            try {
                 //get a connection to database
                 connection = ConnectionManager.getConnection();
 
@@ -1156,7 +1152,6 @@ public class ReportDAO {
                     String location = resultSet.getString(2);
                     int timeDiff = resultSet.getInt(3);
                     //CompanionLocationTimestamps.add("test sql " + macaddress + "" + timestring + "" + location + "" + timeDiff);
-                    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                     java.util.Date timestamp = dateFormat.parse(timestring);//convert time string to Date format
                     double gap = (double) (timeDiff - duration);
                     if (resultSet.isLast()) {
@@ -1297,13 +1292,13 @@ public class ReportDAO {
                 resultSet.close();
                 preparedStatement.close();
                 connection.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            } catch (ParseException ex) {
-                Logger.getLogger(ReportDAO.class.getName()).log(Level.SEVERE, null, ex);
             }
-
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (ParseException ex) {
+            Logger.getLogger(ReportDAO.class.getName()).log(Level.SEVERE, null, ex);
         }
+
         return CompanionLocationTimestamps;
     }
 
