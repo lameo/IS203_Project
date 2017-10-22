@@ -310,7 +310,7 @@ public class ReportDAO {
         ArrayList<String> locationTimestampList = new ArrayList<>();
         String currentPlace = ""; //latest place the user spends at least 5 mins
         String spentMoreThan5Minutes = "";
-        DateFormat df = new SimpleDateFormat("yyyy-mm-dd hh:mm:ss");
+        DateFormat df = new SimpleDateFormat("yyyy-mm-dd HH:mm:ss");
 
         try {
             //get a connection to database
@@ -969,7 +969,7 @@ public class ReportDAO {
             for (int i = 0; i < locations.size(); i += 2) {
                 String locationid = locations.get(i); //find first location id
                 timestring = locations.get(i + 1); //find first time string
-                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                 java.util.Date timestamp = dateFormat.parse(timestring);//convert time string to Date format
                 java.util.Date timestampEnd = dateFormat.parse(endtimeDate);
                 Calendar cal = Calendar.getInstance();
@@ -1061,7 +1061,7 @@ public class ReportDAO {
         double tmp = 0;
         double duration = 0;
         try {
-            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             timeStart = dateFormat.parse(timestringStart);
             timeEnd = dateFormat.parse(timestringEnd);
             Calendar cal = Calendar.getInstance();
@@ -1116,7 +1116,7 @@ public class ReportDAO {
         double tmp = 0;
         double duration = 0;
         try {
-            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             timeStart = dateFormat.parse(timestringStart);
             timeEnd = dateFormat.parse(timestringEnd);
             Calendar cal = Calendar.getInstance();
@@ -1156,7 +1156,7 @@ public class ReportDAO {
                     String location = resultSet.getString(2);
                     int timeDiff = resultSet.getInt(3);
                     //CompanionLocationTimestamps.add("test sql " + macaddress + "" + timestring + "" + location + "" + timeDiff);
-                    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+                    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                     java.util.Date timestamp = dateFormat.parse(timestring);//convert time string to Date format
                     double gap = (double) (timeDiff - duration);
                     if (resultSet.isLast()) {
