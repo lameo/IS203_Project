@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.servlet.ServletException;
@@ -70,10 +71,11 @@ public class AutoGroupServlet extends HttpServlet {
                 //check if user stays at SIS building for at least 12 minutes
                 if(AutoGroupDAO.AutoUser12Mins(AutoUserLocationTimestamps)){
                     ValidAutoUsers.put(AutoUserMac, AutoUserLocationTimestamps);
+                    
                 }
             }
-            //check for each user if they spend at least 12 minutes together
-            ArrayList<Group> AutoGroups = retrieveAutoGroups(timeDate);
+            
+            
 
             session.setAttribute("timeDate", timeDate);
             session.setAttribute("test", ValidAutoUsers);

@@ -929,7 +929,7 @@ public class ReportDAO {
     }
 
     //retreive users in hashmap form, hashmap key is macaddress and hashmap value is array of email, locationid and timestamp
-    public static ArrayList<String> retrieveUserLocationTimestamps(String macaddress, String endtimeDate) throws ParseException {
+    public static ArrayList<String> retrieveUserLocationTimestamps(String macaddress, String endtimeDate) {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
@@ -965,80 +965,84 @@ public class ReportDAO {
             resultSet.close();
             preparedStatement.close();
             connection.close();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        for (int i = 0; i < locations.size(); i += 2) {
-            String locationid = locations.get(i); //find first location id
-            timestring = locations.get(i + 1); //find first time string
-            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss.SSSSSS");
-            java.util.Date timestamp = dateFormat.parse(timestring);//convert time string to Date format
-            java.util.Date timestampEnd = dateFormat.parse(endtimeDate);
-            Calendar cal = Calendar.getInstance();
-            cal.setTime(timestampEnd);
-            cal.add(Calendar.SECOND, -1);
-            timedateEnd = cal.getTime();
-            timestampEnd = null;
-            if (locations.size() <= i + 2) { //if last pair of location and time
-                duration = (timedateEnd.getTime() - timestamp.getTime()) / (1000.0);
 
-                if (duration > 300.0) {
-                    cal.setTime(timestamp);
-                    cal.add(Calendar.MINUTE, 5);
-                    //timeDateEnd is 5 minutes after timeDateStart
-                    timestampEnd = cal.getTime();
-                } else {
-                    timestampEnd = timedateEnd;
-                }
-                if (timeStartIndex > -1) {
-                    java.util.Date timestampStart = dateFormat.parse(locations.get(timeStartIndex));
-                    timestamp = timestampStart;;
-                }
-                ans += locationid + "," + dateFormat.format(timestamp) + "," + dateFormat.format(timestampEnd) + ",";
-                UserLocationTimestamps.add(ans);
-                ans = "";
-            } else if (locations.size() > i + 2) {
-                String locationidNext = locations.get(i + 2);
-                String timestringNext = locations.get(i + 3);
-                java.util.Date timestampNext = dateFormat.parse(timestringNext);
+            for (int i = 0; i < locations.size(); i += 2) {
+                String locationid = locations.get(i); //find first location id
+                timestring = locations.get(i + 1); //find first time string
+                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+                java.util.Date timestamp = dateFormat.parse(timestring);//convert time string to Date format
+                java.util.Date timestampEnd = dateFormat.parse(endtimeDate);
+                Calendar cal = Calendar.getInstance();
+                cal.setTime(timestampEnd);
+                cal.add(Calendar.SECOND, -1);
+                timedateEnd = cal.getTime();
+                timestampEnd = null;
+                if (locations.size() <= i + 2) { //if last pair of location and time
+                    duration = (timedateEnd.getTime() - timestamp.getTime()) / (1000.0);
 
-                if (!locationid.equals(locationidNext)) {
-                    duration = (double) (timestampNext.getTime() - timestamp.getTime()) / (1000.0);
-                    if (timeStartIndex > -1) {
-                        java.util.Date timestampStart = dateFormat.parse(locations.get(timeStartIndex));
-                        timestamp = timestampStart;
-                    }
-                    ans += locationid + "," + dateFormat.format(timestamp) + "," + dateFormat.format(timestampNext) + ",";
-                    UserLocationTimestamps.add(ans);
-                    duration = 0;
-                    ans = "";
-                    timeStartIndex = -1;
-                    //UserLocationTimestamps.add(ans);
-                    //if the next update location is same as the previous one
-                } else if (locationid.equals(locationidNext)) {
-                    if (timeStartIndex == -1) {
-                        timeStartIndex = i + 1;
-                    }
-                    duration = (double) (timestampNext.getTime() - timestamp.getTime()) / (1000.0);
                     if (duration > 300.0) {
                         cal.setTime(timestamp);
                         cal.add(Calendar.MINUTE, 5);
                         //timeDateEnd is 5 minutes after timeDateStart
                         timestampEnd = cal.getTime();
+                    } else {
+                        timestampEnd = timedateEnd;
+                    }
+                    if (timeStartIndex > -1) {
                         java.util.Date timestampStart = dateFormat.parse(locations.get(timeStartIndex));
-                        ans += locationidNext + "," + dateFormat.format(timestampStart) + "," + dateFormat.format(timestampEnd) + ",";
+                        timestamp = timestampStart;;
+                    }
+                    ans += locationid + "," + dateFormat.format(timestamp) + "," + dateFormat.format(timestampEnd) + ",";
+                    UserLocationTimestamps.add(ans);
+                    ans = "";
+                } else if (locations.size() > i + 2) {
+                    String locationidNext = locations.get(i + 2);
+                    String timestringNext = locations.get(i + 3);
+                    java.util.Date timestampNext = dateFormat.parse(timestringNext);
+
+                    if (!locationid.equals(locationidNext)) {
+                        duration = (double) (timestampNext.getTime() - timestamp.getTime()) / (1000.0);
+                        if (timeStartIndex > -1) {
+                            java.util.Date timestampStart = dateFormat.parse(locations.get(timeStartIndex));
+                            timestamp = timestampStart;
+                        }
+                        ans += locationid + "," + dateFormat.format(timestamp) + "," + dateFormat.format(timestampNext) + ",";
                         UserLocationTimestamps.add(ans);
                         duration = 0;
                         ans = "";
                         timeStartIndex = -1;
                         //UserLocationTimestamps.add(ans);
-                    } else if (duration <= 300) {
-                        duration += (timestampNext.getTime() - timestamp.getTime()) / (1000.0);
-                    }
+                        //if the next update location is same as the previous one
+                    } else if (locationid.equals(locationidNext)) {
+                        if (timeStartIndex == -1) {
+                            timeStartIndex = i + 1;
+                        }
+                        duration = (double) (timestampNext.getTime() - timestamp.getTime()) / (1000.0);
+                        if (duration > 300.0) {
+                            cal.setTime(timestamp);
+                            cal.add(Calendar.MINUTE, 5);
+                            //timeDateEnd is 5 minutes after timeDateStart
+                            timestampEnd = cal.getTime();
+                            java.util.Date timestampStart = dateFormat.parse(locations.get(timeStartIndex));
+                            ans += locationidNext + "," + dateFormat.format(timestampStart) + "," + dateFormat.format(timestampEnd) + ",";
+                            UserLocationTimestamps.add(ans);
+                            duration = 0;
+                            ans = "";
+                            timeStartIndex = -1;
+                            //UserLocationTimestamps.add(ans);
+                        } else if (duration <= 300) {
+                            duration += (timestampNext.getTime() - timestamp.getTime()) / (1000.0);
+                        }
 
+                    }
                 }
             }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (ParseException ex) {
+            Logger.getLogger(ReportDAO.class.getName()).log(Level.SEVERE, null, ex);
         }
+
         //UserLocationTimestamps.add("1010110032"+","+"014-03-24 09:07:27.000000"+","+"1");
         return UserLocationTimestamps;
     }
@@ -1098,7 +1102,7 @@ public class ReportDAO {
     }
 
     //retreive users in hashmap form, hashmap key is macaddress and hashmap value is array of email, locationid and timestamp
-    public static ArrayList<String> retrieveCompanionLocationTimestamps(ArrayList<String> Companions, String locationid, String timestringStart, String timestringEnd) throws ParseException {
+    public static ArrayList<String> retrieveCompanionLocationTimestamps(ArrayList<String> Companions, String locationid, String timestringStart, String timestringEnd) {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
@@ -1152,7 +1156,7 @@ public class ReportDAO {
                     String location = resultSet.getString(2);
                     int timeDiff = resultSet.getInt(3);
                     //CompanionLocationTimestamps.add("test sql " + macaddress + "" + timestring + "" + location + "" + timeDiff);
-                    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss.SSSSSS");
+                    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
                     java.util.Date timestamp = dateFormat.parse(timestring);//convert time string to Date format
                     double gap = (double) (timeDiff - duration);
                     if (resultSet.isLast()) {
@@ -1295,6 +1299,8 @@ public class ReportDAO {
                 connection.close();
             } catch (SQLException e) {
                 e.printStackTrace();
+            } catch (ParseException ex) {
+                Logger.getLogger(ReportDAO.class.getName()).log(Level.SEVERE, null, ex);
             }
 
         }
