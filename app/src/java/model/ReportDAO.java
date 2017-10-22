@@ -310,7 +310,7 @@ public class ReportDAO {
         ArrayList<String> locationTimestampList = new ArrayList<>();
         String currentPlace = ""; //latest place the user spends at least 5 mins
         String spentMoreThan5Minutes = "";
-        DateFormat df = new SimpleDateFormat("yyyy-mm-dd HH:mm:ss");
+        DateFormat df = new SimpleDateFormat("yyyy-mm-dd hh:mm:ss");
 
         try {
             //get a connection to database
