@@ -123,31 +123,30 @@ public class topKCompanion extends HttpServlet {
                 JsonArray resultsArr = new JsonArray();
 
                 int count = 1; //to match topk number after incrementation
-                try {
-                    Map<Double, ArrayList<String>> topKCompanionMap = ReportDAO.retrieveTopKCompanions(date, macaddress, topK);
+                Map<Double, ArrayList<String>> topKCompanionMap = ReportDAO.retrieveTopKCompanions(date, macaddress, topK);
 
-                    Set<Double> timeSpentByCompanionsList = topKCompanionMap.keySet();
-                    for (Double timeSpentByCompanions : timeSpentByCompanionsList) {
-                        if (count <= topK) {// to only display till topk number
-                            //temp json object to store required output first before adding to resultsArr for final output
-                            JsonObject topKCompanions = new JsonObject();
-                            topKCompanions.addProperty("rank", count);
+                Set<Double> timeSpentByCompanionsList = topKCompanionMap.keySet();
+                for (Double timeSpentByCompanions : timeSpentByCompanionsList) {
+                    if (count <= topK) {// to only display till topk number
+                        //temp json object to store required output first before adding to resultsArr for final output
+                        JsonObject topKCompanions = new JsonObject();
+                        topKCompanions.addProperty("rank", count);
 
-                            //temp JsonArray objects to store all the required output as array before printing
-                            JsonArray allCompanionsMacaddress = new JsonArray();
-                            JsonArray allCompanionsEmail = new JsonArray();
+                        //temp JsonArray objects to store all the required output as array before printing
+                        JsonArray allCompanionsMacaddress = new JsonArray();
+                        JsonArray allCompanionsEmail = new JsonArray();
 
-                            //get the arraylist out from map
-                            ArrayList<String> currTimeCompanionList = topKCompanionMap.get(timeSpentByCompanions);
+                        //get the arraylist out from map
+                        ArrayList<String> currTimeCompanionList = topKCompanionMap.get(timeSpentByCompanions);
 
-                            //loop through arraylist
-                            for (int i = 0; i < currTimeCompanionList.size(); i++) {
-                                //get individual string from list
-                                String macaddressEmailPair = currTimeCompanionList.get(i);
+                        //loop through arraylist
+                        for (int i = 0; i < currTimeCompanionList.size(); i++) {
+                            //get individual string from list
+                            String macaddressEmailPair = currTimeCompanionList.get(i);
 
-                                //use string.split(",") mtd to retrive String[] of macaddress and email
-                                String[] allMacaddressEmailPairs = macaddressEmailPair.split(",");
-                                /*
+                            //use string.split(",") mtd to retrive String[] of macaddress and email
+                            String[] allMacaddressEmailPairs = macaddressEmailPair.split(",");
+                            /*
                                 //loop String[]
                                 for (int j = 0; j < allMacaddressEmailPairs.length; j+=2) {
                                     String macaddressFound = allMacaddressEmailPairs[j];
@@ -157,29 +156,19 @@ public class topKCompanion extends HttpServlet {
                                     allCompanionsMacaddress.add(macaddressFound);
                                     allCompanionsEmail.add(emailFound);
                                 }
-                                */
-                                allCompanionsMacaddress.add(allMacaddressEmailPairs[0]);
-                                allCompanionsEmail.add(allMacaddressEmailPairs[1]);
-                            }
-                            //add into jsonObject
-                            topKCompanions.add("companion", allCompanionsEmail);
-                            topKCompanions.add("mac-address", allCompanionsMacaddress);
-                            topKCompanions.addProperty("time-together", timeSpentByCompanions);
-
-                            //add every individual object into the results array for printing
-                            resultsArr.add(topKCompanions);
+                             */
+                            allCompanionsMacaddress.add(allMacaddressEmailPairs[0]);
+                            allCompanionsEmail.add(allMacaddressEmailPairs[1]);
                         }
-                        count++;
+                        //add into jsonObject
+                        topKCompanions.add("companion", allCompanionsEmail);
+                        topKCompanions.add("mac-address", allCompanionsMacaddress);
+                        topKCompanions.addProperty("time-together", timeSpentByCompanions);
+
+                        //add every individual object into the results array for printing
+                        resultsArr.add(topKCompanions);
                     }
-                    /*
-                    //final output for viewing 
-                    jsonOutput.addProperty("status", "success");
-                    jsonOutput.add("results", resultsArr);
-                    out.println(gson.toJson(jsonOutput));
-                    return;
-                     */
-                } catch (ParseException ex) {
-                    Logger.getLogger(topKCompanion.class.getName()).log(Level.SEVERE, null, ex);
+                    count++;
                 }
 
                 //final output for viewing 
@@ -195,8 +184,8 @@ public class topKCompanion extends HttpServlet {
         }
         out.println(gson.toJson(jsonOutput));
     }
-
 // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
+
     /**
      * Handles the HTTP <code>GET</code> method.
      *
