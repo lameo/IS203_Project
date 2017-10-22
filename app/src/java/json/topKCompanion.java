@@ -49,7 +49,6 @@ public class topKCompanion extends HttpServlet {
         //create a json array to store errors
         JsonArray errMsg = new JsonArray();
 
-        //ArrayList<String> errors = new ArrayList<>();
         //get token from request
         String token = request.getParameter("token");
         //check if token is valid
@@ -90,13 +89,13 @@ public class topKCompanion extends HttpServlet {
         if (topKEntered == null || topKEntered.equals("")) { // if not specified, set default value to 3
             topKEntered = "3";
         }
-        int topK = Integer.parseInt(topKEntered); //get the number user entered in url as an int
+        int topK = Integer.parseInt(topKEntered); //get the number user entered in url as an int OR convert the string 3 to int 3 if no k is entered
         if (topK < 1 || topK > 10) {
             errMsg.add("invalid k"); //add error msg into JsonArray
         } else {
             //from here on, user is verified
             //topk number is between 1 - 10 inclusive with default as 3 if no k is entered
-            //semantic place is valid
+            //mac-address is valid
 
             //check for valid date entered by user
             boolean dateValid = true;
@@ -109,56 +108,92 @@ public class topKCompanion extends HttpServlet {
             // Day bigger than 0 & smaller or equal to 12
             dateValid = dateValid && (Integer.parseInt(date.substring(8, 10)) > 0) && (Integer.parseInt(date.substring(8, 10)) <= 31);
             // Hour bigger or equal 0 & smaller or equal to 24
-            dateValid = dateValid && (Integer.parseInt(date.substring(8, 10)) >= 0) && (Integer.parseInt(date.substring(11, 13)) <= 23);
+            dateValid = dateValid && (Integer.parseInt(date.substring(11, 13)) >= 0) && (Integer.parseInt(date.substring(11, 13)) <= 23);
             // Min bigger or equal 0 & smaller or equal to 59
-            dateValid = dateValid && (Integer.parseInt(date.substring(8, 10)) >= 0) && (Integer.parseInt(date.substring(14, 16)) <= 59);
+            dateValid = dateValid && (Integer.parseInt(date.substring(14, 16)) >= 0) && (Integer.parseInt(date.substring(14, 16)) <= 59);
             // Second bigger or equal 0 & smaller or equal to 59
-            dateValid = dateValid && (Integer.parseInt(date.substring(8, 10)) >= 0) && (Integer.parseInt(date.substring(14, 16)) <= 59);
+            dateValid = dateValid && (Integer.parseInt(date.substring(17, 19)) >= 0) && (Integer.parseInt(date.substring(17, 19)) <= 59);
             if (!dateValid) {
                 errMsg.add("invalid date");
             } else {
-                //at this point, dateEntered is valid and is in the right format 
+                //at this point, date entered is valid and is in the right format 
                 date = date.replaceAll("T", " ");
 
-                JsonArray list = new JsonArray();
-                int count = 1;
-                Map<Double, ArrayList<String>> results;
+                //create a json array to store results
+                JsonArray resultsArr = new JsonArray();
+
+                int count = 1; //to match topk number after incrementation
                 try {
-                    results = ReportDAO.retrieveTopKCompanions(date, macaddress, topK);
-                    System.out.println(results);
-                    System.out.println("trying");
-                    System.out.println("trying");
-                    System.out.println("trying");
+                    Map<Double, ArrayList<String>> topKCompanionMap = ReportDAO.retrieveTopKCompanions(date, macaddress, topK);
 
-                    Set<Double> as = results.keySet();
-                    for (Double temp : results.keySet()) {
-                        JsonObject tempJson = new JsonObject();
-                        tempJson.addProperty("rank", count++);
-                        tempJson.addProperty("email", results.get(temp).get(0));
-                        tempJson.addProperty("mac-address", results.get(temp).get(1));
-                        tempJson.addProperty("time-together", temp);
-                        list.add(tempJson);
+                    Set<Double> timeSpentByCompanionsList = topKCompanionMap.keySet();
+                    for (Double timeSpentByCompanions : timeSpentByCompanionsList) {
+                        if (count <= topK) {// to only display till topk number
+                            //temp json object to store required output first before adding to resultsArr for final output
+                            JsonObject topKCompanions = new JsonObject();
+                            topKCompanions.addProperty("rank", count);
+
+                            //temp JsonArray objects to store all the required output as array before printing
+                            JsonArray allCompanionsMacaddress = new JsonArray();
+                            JsonArray allCompanionsEmail = new JsonArray();
+
+                            //get the arraylist out from map
+                            ArrayList<String> currTimeCompanionList = topKCompanionMap.get(timeSpentByCompanions);
+
+                            //loop through arraylist
+                            for (int i = 0; i < currTimeCompanionList.size(); i++) {
+                                //get individual string from list
+                                String macaddressEmailPair = currTimeCompanionList.get(i);
+
+                                //use string.split(",") mtd to retrive String[] of macaddress and email
+                                String[] allMacaddressEmailPairs = macaddressEmailPair.split(",");
+                                /*
+                                //loop String[]
+                                for (int j = 0; j < allMacaddressEmailPairs.length; j+=2) {
+                                    String macaddressFound = allMacaddressEmailPairs[j];
+                                    String emailFound = allMacaddressEmailPairs[j + 1];
+
+                                    //add into jsonArray
+                                    allCompanionsMacaddress.add(macaddressFound);
+                                    allCompanionsEmail.add(emailFound);
+                                }
+                                */
+                                allCompanionsMacaddress.add(allMacaddressEmailPairs[0]);
+                                allCompanionsEmail.add(allMacaddressEmailPairs[1]);
+                            }
+                            //add into jsonObject
+                            topKCompanions.add("companion", allCompanionsEmail);
+                            topKCompanions.add("mac-address", allCompanionsMacaddress);
+                            topKCompanions.addProperty("time-together", timeSpentByCompanions);
+
+                            //add every individual object into the results array for printing
+                            resultsArr.add(topKCompanions);
+                        }
+                        count++;
                     }
-
-                    for (Map.Entry<Double, ArrayList<String>> temp : results.entrySet()) {
-                        double key = temp.getKey();
-                        System.out.println(key);
-
-                    }
+                    /*
+                    //final output for viewing 
+                    jsonOutput.addProperty("status", "success");
+                    jsonOutput.add("results", resultsArr);
+                    out.println(gson.toJson(jsonOutput));
+                    return;
+                     */
                 } catch (ParseException ex) {
                     Logger.getLogger(topKCompanion.class.getName()).log(Level.SEVERE, null, ex);
                 }
 
-                /*
-                JsonObject ans = new JsonObject();
-                ans.addProperty("status", "success");
-                ans.add("results", list);
-                out.println(gson.toJson(ans));
-                */
+                //final output for viewing 
+                jsonOutput.addProperty("status", "success");
+                jsonOutput.add("results", resultsArr);
+                out.println(gson.toJson(jsonOutput));
+                return;
             }
-            
         }
-
+        if (errMsg.size() > 0) {
+            jsonOutput.addProperty("status", "error");
+            jsonOutput.add("messages", errMsg);
+        }
+        out.println(gson.toJson(jsonOutput));
     }
 
 // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
