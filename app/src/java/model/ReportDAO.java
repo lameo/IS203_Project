@@ -1061,7 +1061,7 @@ public class ReportDAO {
         double tmp = 0;
         double duration = 0;
         try {
-            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss.SSS");
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
             timeStart = dateFormat.parse(timestringStart);
             timeEnd = dateFormat.parse(timestringEnd);
             Calendar cal = Calendar.getInstance();
@@ -1116,7 +1116,7 @@ public class ReportDAO {
         double tmp = 0;
         double duration = 0;
         try {
-            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss.SSS");
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
             timeStart = dateFormat.parse(timestringStart);
             timeEnd = dateFormat.parse(timestringEnd);
             Calendar cal = Calendar.getInstance();
