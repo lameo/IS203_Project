@@ -863,7 +863,7 @@ public class ReportDAO {
         return ans;
     }
 
-    public static Map<Double, ArrayList<String>> retrieveTopKCompanions(String endTimeDate, String macaddress, int k) throws ParseException {
+    public static Map<Double, ArrayList<String>> retrieveTopKCompanions(String endTimeDate, String macaddress, int k){
         ArrayList<String> UserLocationTimestamps = retrieveUserLocationTimestamps(macaddress, endTimeDate);
         ArrayList<String> Companions = new ArrayList<String>();
         ArrayList<String> CompanionLocationTimestamps = null;
