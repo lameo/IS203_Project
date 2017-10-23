@@ -61,16 +61,25 @@ public class AutoGroupServlet extends HttpServlet {
             ArrayList<String> AutoUsers = AutoGroupDAO.retreiveAutoUserMacaddresses(timeDate);
             Map<String, ArrayList<String>> ValidAutoUsers = new HashMap<String, ArrayList<String>>();
             //retrieve group of users whom stay at SIS in processing window
+            //check each of autousers
             for (int i = 0; i < AutoUsers.size(); i += 1) {
                 String AutoUserMac = AutoUsers.get(i);
                 //retreive location traces of each user 
                 ArrayList<String> AutoUserLocationTimestamps = ReportDAO.retrieveUserLocationTimestamps(AutoUserMac, timeDate);
-                //check if user stays at SIS building for at least 12 minutes
+                //check if user stays at SIS building for at least 12 minutes, if yes add to ValidAutoUsers
                 if (AutoGroupDAO.AutoUser12Mins(AutoUserLocationTimestamps)) {
                     ValidAutoUsers.put(AutoUserMac, AutoUserLocationTimestamps);
-
                 }
             }
+            ArrayList<Group> AutoGroups = new ArrayList<Group>();
+            //check if there are valid auto users
+            if(ValidAutoUsers!=null||ValidAutoUsers.size()!=0){
+                //retrieve groups formed from valid auto users
+                AutoGroups = retrieveAutoGroups(ValidAutoUsers);
+            }
+            
+            
+            
 
             session.setAttribute("timeDate", timeDate);
             session.setAttribute("test", ValidAutoUsers);
@@ -80,7 +89,7 @@ public class AutoGroupServlet extends HttpServlet {
             System.out.println("Date formatter failed to parse chosen sendTime.");
             e.printStackTrace();
         }
-    }
+    } 
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
     /**

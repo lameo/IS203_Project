@@ -115,12 +115,12 @@ public class AutoGroupDAO {
         } catch (ParseException ex) {
             Logger.getLogger(AutoGroupDAO.class.getName()).log(Level.SEVERE, null, ex);
         }
-        return CommonLocationTimestamps;
+        return null;
     }
 
     //check for each user if they spend at least 12 minutes together
-    public static Group retrieveAutoGroups(Map<String, ArrayList<String>> ValidAutoUsers) {
-        Group group = null;
+    public static ArrayList<Group> retrieveAutoGroups(Map<String, ArrayList<String>> ValidAutoUsers) {
+        ArrayList<Group> AutoGroups = new ArrayList<Group>();
         Set<String> macaddresses = ValidAutoUsers.keySet();
         for (String macaddress1 : macaddresses) {
             ArrayList<String> LocationTimestamps1 = ValidAutoUsers.get(macaddress1);
@@ -132,18 +132,63 @@ public class AutoGroupDAO {
                         //if two users have stayed for at least 12 minutes, record their common timestamps and durations
                         //check if they have stayed together for at least 12 minutes
                         ArrayList<String> LocationTimestamps = CommonLocationTimestamps12Mins(LocationTimestamps1, LocationTimestamps2);
-                        if (LocationTimestamps != null || LocationTimestamps.size() >= 1) {
+                        if (LocationTimestamps != null || LocationTimestamps.size() != 0) {
                             //if two users have stayed for at least 12 minutes, record their common timestamps and durations
                             ArrayList<String> Users = new ArrayList<String>();
                             Users.add(macaddress1);
                             Users.add(macaddress2);
-                            group = new Group(Users, LocationTimestamps);
+                            //add two users to a group
+                            Group NewAutoGroup = new Group(Users, LocationTimestamps);
+                            boolean subgroup = false;
+                            //check if can join the autouser2 to an existing group if he/she has stayed with group at least 12 minutes
+                            //check if autogroup is not empty
+                            if (AutoGroups != null || AutoGroups.size() != 0) {
+                                for (Group AutoGroup : AutoGroups) {
+                                    //find new location timestamps for new group
+                                    ArrayList<String> NewLocationTimestamps = AutoGroup.JoinGroup(macaddress2, LocationTimestamps);
+                                    //if found, add this as a new group
+                                    if (NewLocationTimestamps != null || NewLocationTimestamps.size() != 0) {
+                                        AutoGroup.addAutoUser(macaddress2, NewLocationTimestamps);
+                                    }
+                                    if (AutoGroup.CheckSubGroup(NewAutoGroup)){
+                                        
+                                    }
+                                }
+                            }
+                            if (!subgroup) {
+
+                                //check if this group already exists (in different sequence) or if this group is a sub group of existing group
+                                
+                                //add two users to same group
+                                AutoGroups.add(NewAutoGroup);
+                            }
+
                         }
                     }
                 }
             }
+            //After finish adding groups for macaddress1
+
         }
-        return group;
+        return AutoGroups;
+    }
+
+    //
+    public static ArrayList<Group> CheckAutoGroups(ArrayList<Group> AutoGroups) {
+        for (Group AutoGroup1 : AutoGroups) {
+            for (Group AutoGroup2 : AutoGroups) {
+                if (AutoGroup1.RemoveSubGroup(AutoGroup2) > 0) {
+                    //remove the smae group or sub group
+                    if (AutoGroup1.RemoveSubGroup(AutoGroup2) == 2) {
+                        AutoGroups.remove(AutoGroup2);
+                    } else {
+                        AutoGroups.remove(AutoGroup1);
+                    }
+                }
+            }
+
+        }
+        return null;
     }
 
     //Valify if user has stayed at least 12 minutes at SIS building in specified time window
