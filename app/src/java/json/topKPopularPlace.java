@@ -12,9 +12,7 @@ import com.google.gson.JsonObject;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Map;
-import java.util.Set;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -32,7 +30,8 @@ import model.SharedSecretManager;
 public class topKPopularPlace extends HttpServlet {
 
     /**
-     * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
+     * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
+     * methods.
      *
      * @param request servlet request
      * @param response servlet response
@@ -59,6 +58,14 @@ public class topKPopularPlace extends HttpServlet {
         String topKEntered = request.getParameter("k"); //get topK from url
         String dateEntered = request.getParameter("date"); //get date from url
 
+        if (tokenEntered == null || tokenEntered.isEmpty()) {
+            errMsg.add("blank token");
+            jsonOutput.addProperty("status", "error");
+            jsonOutput.add("messages", errMsg);
+            out.println(gson.toJson(jsonOutput));
+            return;
+        }
+
         //print out all the error with null or empty string that is required but the user did not enter 
         if (!SharedSecretManager.verifyUser(tokenEntered)) { //verify the user - if the user is not verified
             errMsg.add("invalid token");
@@ -76,69 +83,71 @@ public class topKPopularPlace extends HttpServlet {
             return;
         }
 
+        //check for valid date entered
+        boolean valid = true;
+        // Length check
+        valid = valid && dateEntered.length() == 19;
+        // Year bigger than 2013 & smaller or equal to 2017
+        valid = valid && (Integer.parseInt(dateEntered.substring(0, 4)) > 2013) && (Integer.parseInt(dateEntered.substring(0, 4)) <= 2017);
+        // Month bigger than 0 & smaller or equal to 12
+        valid = valid && (Integer.parseInt(dateEntered.substring(5, 7)) > 0) && (Integer.parseInt(dateEntered.substring(5, 7)) <= 12);
+        // Day bigger than 0 & smaller or equal to 12
+        valid = valid && (Integer.parseInt(dateEntered.substring(8, 10)) > 0) && (Integer.parseInt(dateEntered.substring(8, 10)) <= 31);
+        // Hour bigger or equal 0 & smaller or equal to 24
+        valid = valid && (Integer.parseInt(dateEntered.substring(11, 13)) >= 0) && (Integer.parseInt(dateEntered.substring(11, 13)) <= 23);
+        // Min bigger or equal 0 & smaller or equal to 59
+        valid = valid && (Integer.parseInt(dateEntered.substring(14, 16)) >= 0) && (Integer.parseInt(dateEntered.substring(14, 16)) <= 59);
+        // Second bigger or equal 0 & smaller or equal to 59
+        valid = valid && (Integer.parseInt(dateEntered.substring(17, 19)) >= 0) && (Integer.parseInt(dateEntered.substring(17, 19)) <= 59);
+        if (!valid) {
+            errMsg.add("invalid date");
+        }        
+        
         if (topKEntered == null || topKEntered.equals("")) {
             topKEntered = "3";
         }
         int topK = Integer.parseInt(topKEntered); //get the number user entered in url in int
         if (topK < 1 || topK > 10) {
             errMsg.add("invalid k"); //add error msg into JsonArray
-        } else { //only run with valid k
-            //check for valid date entered
-            boolean valid = true;
-            // Length check
-            valid = valid && dateEntered.length() == 19;
-            // Year bigger than 2013 & smaller or equal to 2017
-            valid = valid && (Integer.parseInt(dateEntered.substring(0, 4)) > 2013) && (Integer.parseInt(dateEntered.substring(0, 4)) <= 2017);
-            // Month bigger than 0 & smaller or equal to 12
-            valid = valid && (Integer.parseInt(dateEntered.substring(5, 7)) > 0) && (Integer.parseInt(dateEntered.substring(5, 7)) <= 12);
-            // Day bigger than 0 & smaller or equal to 12
-            valid = valid && (Integer.parseInt(dateEntered.substring(8, 10)) > 0) && (Integer.parseInt(dateEntered.substring(8, 10)) <= 31);
-            // Hour bigger or equal 0 & smaller or equal to 24
-            valid = valid && (Integer.parseInt(dateEntered.substring(11, 13)) >= 0) && (Integer.parseInt(dateEntered.substring(11, 13)) <= 23);
-            // Min bigger or equal 0 & smaller or equal to 59
-            valid = valid && (Integer.parseInt(dateEntered.substring(14, 16)) >= 0) && (Integer.parseInt(dateEntered.substring(14, 16)) <= 59);
-            // Second bigger or equal 0 & smaller or equal to 59
-            valid = valid && (Integer.parseInt(dateEntered.substring(17, 19)) >= 0) && (Integer.parseInt(dateEntered.substring(17, 19)) <= 59);
-            if (!valid) {
-                errMsg.add("invalid date");
-            } else {
-                //at this point, dateEntered is valid and is in the right format
-                dateEntered = dateEntered.replaceAll("T", " ");
-                
-                Map<Integer, String> topKPopularMap = ReportDAO.retrieveTopKPopularPlaces(dateEntered);
-
-                //create a json array to store errors
-                JsonArray resultsArr = new JsonArray();
-                ArrayList<Integer> keys = new ArrayList<Integer>(topKPopularMap.keySet());
-               
-                int count = 1;
-                for (int i = 0; i < keys.size(); i++) { 
-                    if (count <= topK) {
-                        //System.out.print(topKPopularMap.get(keys.get(i)));
-                        JsonObject topKPopPlaces = new JsonObject();
-                        topKPopPlaces.addProperty("rank", count);
-                        
-                        //To add popular places into an array for output
-                        JsonArray popularSemanticPlaces = new JsonArray();
-                        
-                        //add every popular place in accordance to every key(integer) found in topKPopularMap
-                        popularSemanticPlaces.add(topKPopularMap.get(keys.get(i)));
-                        
-                        //add back JsonArray object popularSemanticPlaces into JsonObject topKPopPlaces for viewing
-                        topKPopPlaces.add("semantic-places", popularSemanticPlaces);
-                        
-                        topKPopPlaces.addProperty("count", keys.get(i));
-                        resultsArr.add(topKPopPlaces);
-                    }
-                    count++;
-                }
-                jsonOutput.addProperty("status", "success");
-                jsonOutput.add("results", resultsArr);
-                out.println(gson.toJson(jsonOutput));
-                return;
-            }
         }
-        if (errMsg.size() > 0) {
+        
+        //only run with valid k
+        if (errMsg.size() == 0) {
+            //at this point, dateEntered is valid and is in the right format
+            dateEntered = dateEntered.replaceAll("T", " ");
+
+            Map<Integer, String> topKPopularMap = ReportDAO.retrieveTopKPopularPlaces(dateEntered);
+
+            //create a json array to store errors
+            JsonArray resultsArr = new JsonArray();
+            ArrayList<Integer> keys = new ArrayList<Integer>(topKPopularMap.keySet());
+
+            int count = 1;
+            for (int i = 0; i < keys.size(); i++) {
+                if (count <= topK) {
+                    //System.out.print(topKPopularMap.get(keys.get(i)));
+                    JsonObject topKPopPlaces = new JsonObject();
+                    topKPopPlaces.addProperty("rank", count);
+
+                    //To add popular places into an array for output
+                    JsonArray popularSemanticPlaces = new JsonArray();
+
+                    //add every popular place in accordance to every key(integer) found in topKPopularMap
+                    popularSemanticPlaces.add(topKPopularMap.get(keys.get(i)));
+
+                    //add back JsonArray object popularSemanticPlaces into JsonObject topKPopPlaces for viewing
+                    topKPopPlaces.add("semantic-places", popularSemanticPlaces);
+
+                    topKPopPlaces.addProperty("count", keys.get(i));
+                    resultsArr.add(topKPopPlaces);
+                }
+                count++;
+            }
+            jsonOutput.addProperty("status", "success");
+            jsonOutput.add("results", resultsArr);
+            out.println(gson.toJson(jsonOutput));
+            return;
+        } else {
             jsonOutput.addProperty("status", "error");
             jsonOutput.add("messages", errMsg);
         }

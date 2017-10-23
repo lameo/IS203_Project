@@ -20,7 +20,6 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 import model.ReportDAO;
 import model.SharedSecretManager;
 
@@ -43,7 +42,6 @@ public class topKNextPlaces extends HttpServlet {
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        HttpSession session = request.getSession();
         PrintWriter out = response.getWriter();
 
         //creates a new gson object
@@ -60,6 +58,14 @@ public class topKNextPlaces extends HttpServlet {
         String topKEntered = request.getParameter("k"); //get topK from url
         String dateEntered = request.getParameter("date"); //get date from url
         String semanticPlace = request.getParameter("origin"); //get the semantic place from url
+
+        if (tokenEntered == null || tokenEntered.isEmpty()) {
+            errMsg.add("blank token");
+            jsonOutput.addProperty("status", "error");
+            jsonOutput.add("messages", errMsg);
+            out.println(gson.toJson(jsonOutput));
+            return;
+        }
 
         //check if token is invalid
         if (!SharedSecretManager.verifyUser(tokenEntered)) { //if the user is not verified
@@ -78,17 +84,36 @@ public class topKNextPlaces extends HttpServlet {
             out.println(gson.toJson(jsonOutput));
             return;
         }
-
-        //check if semantic place comes from location-lookup.csv
-        ArrayList<String> validSemanticPlacesList = ReportDAO.getSemanticPlaces();
-        if (!validSemanticPlacesList.contains(semanticPlace)) { //if semanticPlace is not inside the locationloopup table
-            errMsg.add("invalid origin");
+        
+        //check if origin is entered by user from url
+        if (semanticPlace == null || semanticPlace.equals("")) {
+            errMsg.add("blank origin");
             jsonOutput.addProperty("status", "error");
             jsonOutput.add("messages", errMsg);
             out.println(gson.toJson(jsonOutput));
             return;
-        }
+        }        
 
+        //check for valid date entered by user
+        boolean valid = true;
+        // Length check
+        valid = valid && dateEntered.length() == 19;
+        // Year bigger than 2013 & smaller or equal to 2017
+        valid = valid && (Integer.parseInt(dateEntered.substring(0, 4)) > 2013) && (Integer.parseInt(dateEntered.substring(0, 4)) <= 2017);
+        // Month bigger than 0 & smaller or equal to 12
+        valid = valid && (Integer.parseInt(dateEntered.substring(5, 7)) > 0) && (Integer.parseInt(dateEntered.substring(5, 7)) <= 12);
+        // Day bigger than 0 & smaller or equal to 12
+        valid = valid && (Integer.parseInt(dateEntered.substring(8, 10)) > 0) && (Integer.parseInt(dateEntered.substring(8, 10)) <= 31);
+        // Hour bigger or equal 0 & smaller or equal to 24
+        valid = valid && (Integer.parseInt(dateEntered.substring(11, 13)) >= 0) && (Integer.parseInt(dateEntered.substring(11, 13)) <= 23);
+        // Min bigger or equal 0 & smaller or equal to 59
+        valid = valid && (Integer.parseInt(dateEntered.substring(14, 16)) >= 0) && (Integer.parseInt(dateEntered.substring(14, 16)) <= 59);
+        // Second bigger or equal 0 & smaller or equal to 59
+        valid = valid && (Integer.parseInt(dateEntered.substring(17, 19)) >= 0) && (Integer.parseInt(dateEntered.substring(17, 19)) <= 59);
+        if (!valid) {
+            errMsg.add("invalid date");
+        }        
+        
         //check top k added is correct
         if (topKEntered == null || topKEntered.equals("")) { // if not specified, set default value to 3
             topKEntered = "3";
@@ -96,79 +121,66 @@ public class topKNextPlaces extends HttpServlet {
         int topK = Integer.parseInt(topKEntered); //get the number user entered in url as an int
         if (topK < 1 || topK > 10) {
             errMsg.add("invalid k"); //add error msg into JsonArray
-        } else {
-            //from here on, user is verified
-            //topk number is between 1 - 10 inclusive with default as 3 if no k is entered
-            //semantic place is valid
-
-            //check for valid date entered by user
-            boolean valid = true;
-            // Length check
-            valid = valid && dateEntered.length() == 19;
-            // Year bigger than 2013 & smaller or equal to 2017
-            valid = valid && (Integer.parseInt(dateEntered.substring(0, 4)) > 2013) && (Integer.parseInt(dateEntered.substring(0, 4)) <= 2017);
-            // Month bigger than 0 & smaller or equal to 12
-            valid = valid && (Integer.parseInt(dateEntered.substring(5, 7)) > 0) && (Integer.parseInt(dateEntered.substring(5, 7)) <= 12);
-            // Day bigger than 0 & smaller or equal to 12
-            valid = valid && (Integer.parseInt(dateEntered.substring(8, 10)) > 0) && (Integer.parseInt(dateEntered.substring(8, 10)) <= 31);
-            // Hour bigger or equal 0 & smaller or equal to 24
-            valid = valid && (Integer.parseInt(dateEntered.substring(11, 13)) >= 0) && (Integer.parseInt(dateEntered.substring(11, 13)) <= 23);
-            // Min bigger or equal 0 & smaller or equal to 59
-            valid = valid && (Integer.parseInt(dateEntered.substring(14, 16)) >= 0) && (Integer.parseInt(dateEntered.substring(14, 16)) <= 59);
-            // Second bigger or equal 0 & smaller or equal to 59
-            valid = valid && (Integer.parseInt(dateEntered.substring(17, 19)) >= 0) && (Integer.parseInt(dateEntered.substring(17, 19)) <= 59);
-            if (!valid) {
-                errMsg.add("invalid date");
-            } else {
-                //at this point, dateEntered is valid and is in the right format 
-                dateEntered = dateEntered.replaceAll("T", " ");
-                
-                //create a json array to store errors
-                JsonArray resultsArr = new JsonArray();
-                
-                int usersVisitingNextPlace = 0; // total quantity of users visiting next place
-                Map<Integer, ArrayList<String>> topKNextPlaces = ReportDAO.retrieveTopKNextPlaces(dateEntered, semanticPlace);
-                
-                //retrieve users who are in a specific place given a specific time frame in a specific location
-                ArrayList<String> usersList = ReportDAO.retrieveUserBasedOnLocation(dateEntered, semanticPlace); 
-                   
-                Set<Integer> totalNumOfUsersSet = topKNextPlaces.keySet(); // to get the different total number of users in a next place in desc order
-                int counter = 1; // to match topk number after incrementation
-                for (int totalNumOfUsers : totalNumOfUsersSet) {
-                    ArrayList<String> locations = topKNextPlaces.get(totalNumOfUsers); // gives the list of location with the same totalNumOfUsers
-                    Collections.sort(locations); // sort the locations list in ascending order first
-                    if (counter <= topK) { // to only display till topk number
-                        JsonObject topKNextPlace = new JsonObject();
-                        
-                        //to add all locations with the same count inside to output results as an array
-                        JsonArray chainAllSemanticPlaces = new JsonArray(); 
-                        topKNextPlace.addProperty("rank", counter);
-                        
-                        for (int i = 0; i < locations.size(); i++) {
-                            if (locations.get(i).equals(semanticPlace)) { // if the locations is the same, find the number of users who visited another place (exclude those left the place but have not visited another place) in the query window
-                                usersVisitingNextPlace -= totalNumOfUsers; // minus off if the user is staying at the same place
-                            }
-                            chainAllSemanticPlaces.add(locations.get(i));
-                            //if (i + 1 < locations.size()) { //fence-post method to add the comma
-                            //    chainAllSemanticPlaces+=", ";
-                            //}
-                        }
-                        topKNextPlace.add("semantic-place", chainAllSemanticPlaces); //add the JsonArray of locations into the JsonObject
-                        topKNextPlace.addProperty("count", totalNumOfUsers);
-                        resultsArr.add(topKNextPlace);
-                        counter++;
-                    }
-                    usersVisitingNextPlace += totalNumOfUsers * locations.size(); // add if the user is going other places but the quantity may have multiple next locations
-                }
-                jsonOutput.addProperty("status", "success");
-                jsonOutput.addProperty("total-users", usersList.size());
-                jsonOutput.addProperty("total-next-place-users", usersVisitingNextPlace);
-                jsonOutput.add("results", resultsArr);
-                out.println(gson.toJson(jsonOutput));
-                return;
-            }
+        }        
+        
+        //check if semantic place comes from location-lookup.csv
+        ArrayList<String> validSemanticPlacesList = ReportDAO.getSemanticPlaces();
+        if (!validSemanticPlacesList.contains(semanticPlace)) { //if semanticPlace is not inside the locationloopup table
+            errMsg.add("invalid origin");
         }
-        if (errMsg.size() > 0) {
+
+        //from here on, user is verified
+        //topk number is between 1 - 10 inclusive with default as 3 if no k is entered
+        //semantic place is valid
+        if (errMsg.size() == 0) {
+            //at this point, dateEntered is valid and is in the right format 
+            dateEntered = dateEntered.replaceAll("T", " ");
+
+            //create a json array to store errors
+            JsonArray resultsArr = new JsonArray();
+
+            int usersVisitingNextPlace = 0; // total quantity of users visiting next place
+            Map<Integer, ArrayList<String>> topKNextPlaces = ReportDAO.retrieveTopKNextPlaces(dateEntered, semanticPlace);
+
+            //retrieve users who are in a specific place given a specific time frame in a specific location
+            ArrayList<String> usersList = ReportDAO.retrieveUserBasedOnLocation(dateEntered, semanticPlace);
+
+            Set<Integer> totalNumOfUsersSet = topKNextPlaces.keySet(); // to get the different total number of users in a next place in desc order
+            int counter = 1; // to match topk number after incrementation
+            for (int totalNumOfUsers : totalNumOfUsersSet) {
+                ArrayList<String> locations = topKNextPlaces.get(totalNumOfUsers); // gives the list of location with the same totalNumOfUsers
+                Collections.sort(locations); // sort the locations list in ascending order first
+                if (counter <= topK) { // to only display till topk number
+                    JsonObject topKNextPlace = new JsonObject();
+
+                    //to add all locations with the same count inside to output results as an array
+                    JsonArray chainAllSemanticPlaces = new JsonArray();
+                    topKNextPlace.addProperty("rank", counter);
+
+                    for (int i = 0; i < locations.size(); i++) {
+                        if (locations.get(i).equals(semanticPlace)) { // if the locations is the same, find the number of users who visited another place (exclude those left the place but have not visited another place) in the query window
+                            usersVisitingNextPlace -= totalNumOfUsers; // minus off if the user is staying at the same place
+                        }
+                        chainAllSemanticPlaces.add(locations.get(i));
+                        //if (i + 1 < locations.size()) { //fence-post method to add the comma
+                        //    chainAllSemanticPlaces+=", ";
+                        //}
+                    }
+                    topKNextPlace.add("semantic-place", chainAllSemanticPlaces); //add the JsonArray of locations into the JsonObject
+                    topKNextPlace.addProperty("count", totalNumOfUsers);
+                    resultsArr.add(topKNextPlace);
+                    counter++;
+                }
+                usersVisitingNextPlace += totalNumOfUsers * locations.size(); // add if the user is going other places but the quantity may have multiple next locations
+            }
+            jsonOutput.addProperty("status", "success");
+            jsonOutput.addProperty("total-users", usersList.size());
+            jsonOutput.addProperty("total-next-place-users", usersVisitingNextPlace);
+            jsonOutput.add("results", resultsArr);
+            out.println(gson.toJson(jsonOutput));
+            return;
+        } else {
+
             jsonOutput.addProperty("status", "error");
             jsonOutput.add("messages", errMsg);
         }

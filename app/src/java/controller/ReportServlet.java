@@ -31,7 +31,6 @@ public class ReportServlet extends HttpServlet {
 
             timestamp = (Date) readFormat.parse(timeDate);
             timeDate = writeFormat.format(timestamp);
-            //System.out.println("Retrieved and formatted dateTime: " + timestamp.toString());
 
             switch (reportType) {
                 case "basicReport":

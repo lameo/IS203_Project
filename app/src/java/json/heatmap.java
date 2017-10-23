@@ -53,6 +53,7 @@ public class heatmap extends HttpServlet {
             out.println(gson.toJson(jsonOutput));
             return;
         }
+        
         if (stringFloor == null || stringFloor.isEmpty()) {
             errMsg.add("blank floor");
             jsonOutput.addProperty("status", "error");
@@ -95,46 +96,48 @@ public class heatmap extends HttpServlet {
 
         if (!validDate) {
             errMsg.add("invalid date");
-        } else {
-            int floor = Integer.parseInt(stringFloor);
-            if (floor < 0 || floor > 5) {
-                errMsg.add("invalid floor");
-            } else {
-                String floorName = "B1";
-
-                if (floor > 0) {
-                    floorName = "L" + floor;
-                }
-
-                HashMap<String, HeatMap> heatmapList = HeatMapDAO.retrieveHeatMap(timeDate, floorName);
-
-                jsonOutput.addProperty("status", "success");
-                JsonArray heatmaps = new JsonArray();
-
-                Set<String> keys = heatmapList.keySet();
-                for (String key : keys) {
-                    HeatMap heatmap = heatmapList.get(key);
-                    JsonObject heatmapObject = new JsonObject();
-
-                    heatmapObject.addProperty("semantic-place", heatmap.getPlace());
-                    heatmapObject.addProperty("num-people", heatmap.getQtyPax());
-                    heatmapObject.addProperty("crowd-density", heatmap.getHeatLevel());
-
-                    heatmaps.add(heatmapObject);
-
-                }
-                jsonOutput.add("heatmap", heatmaps);
-
-                out.println(gson.toJson(jsonOutput));
-                return;
-            }
         }
-        if (errMsg.size() > 0) {
+        
+        int floor = Integer.parseInt(stringFloor);
+        if (floor < 0 || floor > 5) {
+            errMsg.add("invalid floor");
+        }
+
+        if (errMsg.size() == 0) {
+            timeDate = timeDate.replaceAll("T", " ");
+
+            String floorName = "B1";
+
+            if (floor > 0) {
+                floorName = "L" + floor;
+            }
+
+            HashMap<String, HeatMap> heatmapList = HeatMapDAO.retrieveHeatMap(timeDate, floorName);
+
+            jsonOutput.addProperty("status", "success");
+            JsonArray heatmaps = new JsonArray();
+
+            Set<String> keys = heatmapList.keySet();
+            for (String key : keys) {
+                HeatMap heatmap = heatmapList.get(key);
+                JsonObject heatmapObject = new JsonObject();
+
+                heatmapObject.addProperty("semantic-place", heatmap.getPlace());
+                heatmapObject.addProperty("num-people", heatmap.getQtyPax());
+                heatmapObject.addProperty("crowd-density", heatmap.getHeatLevel());
+
+                heatmaps.add(heatmapObject);
+
+            }
+            jsonOutput.add("heatmap", heatmaps);
+
+            out.println(gson.toJson(jsonOutput));
+            return;
+        } else {
             jsonOutput.addProperty("status", "error");
             jsonOutput.add("messages", errMsg);
         }
         out.println(gson.toJson(jsonOutput));
-
     }
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">

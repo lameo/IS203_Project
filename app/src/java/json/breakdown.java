@@ -32,31 +32,73 @@ public class breakdown extends HttpServlet {
             throws ServletException, IOException {
 
         PrintWriter out = response.getWriter();
-        //creates a new gson object
-        //by instantiating a new factory object, set pretty printing, then calling the create method
+
+        //creates a new gson object by instantiating a new factory object, set pretty printing, then calling the create method
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
         //creats a new json object for printing the desired json output
-        ArrayList<String> errors = new ArrayList<>();
-        
-        //get token from request
-        String token = request.getParameter("token"); 
+        JsonObject finalAns = new JsonObject();
+
+        JsonArray errMsg = new JsonArray();
+
+        String order = request.getParameter("order"); //get order from request    
+        String token = request.getParameter("token"); //get token from request
+        String timeDate = request.getParameter("date"); //get date from request    
+
         // Token checking
-        if(token==null){
-            errors.add("missing token");
-        }else if(token.equals("")){
-            errors.add("blank token");
-        }else if(SharedSecretManager.verifyUser(token)){
-            errors.add("invalid token");
+        if (token == null || token.isEmpty()) {
+            errMsg.add("blank token");
+            finalAns.addProperty("status", "error");
+            finalAns.add("messages", errMsg);
+            out.println(gson.toJson(finalAns));
+            return;
         }
-        
-        //get order from request
-        String order = request.getParameter("order"); 
+
+        if (!SharedSecretManager.verifyUser(token)) {
+            errMsg.add("invalid token");
+            finalAns.addProperty("status", "error");
+            finalAns.add("messages", errMsg);
+            out.println(gson.toJson(finalAns));
+            return;
+        }
+
         //Order checking
-        if(order==null){
-            errors.add("missing token");
-        }else if(order.equals("")){
-            errors.add("blank token");
+        if (order == null || order.isEmpty()) {
+            errMsg.add("blank order");
+            finalAns.addProperty("status", "error");
+            finalAns.add("messages", errMsg);
+            out.println(gson.toJson(finalAns));
+            return;
         }
+
+        //Date checking
+        if (timeDate == null || timeDate.isEmpty()) {
+            errMsg.add("blank date");
+            finalAns.addProperty("status", "error");
+            finalAns.add("messages", errMsg);
+            out.println(gson.toJson(finalAns));
+            return;
+        }
+
+        boolean validDate = true;
+        // Length check
+        validDate = validDate && timeDate.length() == 19;
+        // Year bigger than 2013 & smaller or equal to 2017
+        validDate = validDate && (Integer.parseInt(timeDate.substring(0, 4)) > 2013) && (Integer.parseInt(timeDate.substring(0, 4)) <= 2017);
+        // Month bigger than 0 & smaller or equal to 12
+        validDate = validDate && (Integer.parseInt(timeDate.substring(5, 7)) > 0) && (Integer.parseInt(timeDate.substring(5, 7)) <= 12);
+        // Day bigger than 0 & smaller or equal to 12
+        validDate = validDate && (Integer.parseInt(timeDate.substring(8, 10)) > 0) && (Integer.parseInt(timeDate.substring(8, 10)) <= 31);
+        // Hour bigger or equal 0 & smaller or equal to 24
+        validDate = validDate && (Integer.parseInt(timeDate.substring(11, 13)) >= 0) && (Integer.parseInt(timeDate.substring(11, 13)) <= 23);
+        // Min bigger or equal 0 & smaller or equal to 59
+        validDate = validDate && (Integer.parseInt(timeDate.substring(14, 16)) >= 0) && (Integer.parseInt(timeDate.substring(14, 16)) <= 59);
+        // Second bigger or equal 0 & smaller or equal to 59
+        validDate = validDate && (Integer.parseInt(timeDate.substring(17, 19)) >= 0) && (Integer.parseInt(timeDate.substring(17, 19)) <= 59);
+
+        if (!validDate) {
+            errMsg.add("invalid date");
+        }
+
         order = order.toLowerCase();
         ArrayList<String> aaa = new ArrayList<>();
         String[] options = "year gender school".split(" ");
@@ -74,49 +116,22 @@ public class breakdown extends HttpServlet {
                 }
             }
         }
-        if(!aaa.contains(order)){
-            errors.add("invalid order");
-        }
-        //get date from request
-        String date = request.getParameter("date");
-        //Order checking
-        if(order==null){
-            errors.add("missing date");
-        }else if(order.equals("")){
-            errors.add("blank date");
-        }
-        
-        boolean dateValid = true;
-        // Length check
-        dateValid = dateValid && date.length() == 19;
-        // Year bigger than 2013 & smaller or equal to 2017
-        dateValid = dateValid && (Integer.parseInt(date.substring(0, 4)) > 2013) && (Integer.parseInt(date.substring(0, 4)) <= 2017);
-        // Month bigger than 0 & smaller or equal to 12
-        dateValid = dateValid && (Integer.parseInt(date.substring(5, 7)) > 0) && (Integer.parseInt(date.substring(5, 7)) <= 12);
-        // Day bigger than 0 & smaller or equal to 12
-        dateValid = dateValid && (Integer.parseInt(date.substring(8, 10)) > 0) && (Integer.parseInt(date.substring(8, 10)) <= 31);
-        // Hour bigger or equal 0 & smaller or equal to 24
-        dateValid = dateValid && (Integer.parseInt(date.substring(8, 10)) >= 0) && (Integer.parseInt(date.substring(11, 13)) <= 23);
-        // Min bigger or equal 0 & smaller or equal to 59
-        dateValid = dateValid && (Integer.parseInt(date.substring(8, 10)) >= 0) && (Integer.parseInt(date.substring(14, 16)) <= 59);
-        // Second bigger or equal 0 & smaller or equal to 59
-        dateValid = dateValid && (Integer.parseInt(date.substring(8, 10)) >= 0) && (Integer.parseInt(date.substring(14, 16)) <= 59);
-        
-        if(!dateValid){
-            errors.add("invalid date");
+        if (!aaa.contains(order)) {
+            errMsg.add("invalid order");
         }
 
         //if all checks are valid
-        JsonObject finalAns = new JsonObject();
-        if (errors.size() == 0) {
+        if (errMsg.size() == 0) {
+            timeDate = timeDate.replaceAll("T", " ");
+
             String[] year = {"year", "2013", "2014", "2015", "2016", "2017"};                              //5
             String[] gender = {"gender", "M", "F"};                                                        //2
             String[] school = {"School", "accountancy", "business", "economics", "law", "sis", "socsc"};   //6
 
             String[] arr = order.split(",");
-            ArrayList<Integer> temp1 = ReportDAO.notVeryBasicBreakdownJson(Arrays.copyOfRange(arr, 0, 1), date);
-            ArrayList<Integer> temp2 = ReportDAO.notVeryBasicBreakdownJson(Arrays.copyOfRange(arr, 0, 2), date);
-            ArrayList<Integer> temp3 = ReportDAO.notVeryBasicBreakdownJson(arr, date);
+            ArrayList<Integer> temp1 = ReportDAO.notVeryBasicBreakdownJson(Arrays.copyOfRange(arr, 0, 1), timeDate);
+            ArrayList<Integer> temp2 = ReportDAO.notVeryBasicBreakdownJson(Arrays.copyOfRange(arr, 0, 2), timeDate);
+            ArrayList<Integer> temp3 = ReportDAO.notVeryBasicBreakdownJson(arr, timeDate);
             String[] first = null;
             String[] second = null;
             String[] third = null;
@@ -223,7 +238,7 @@ public class breakdown extends HttpServlet {
             //if order or date is not valid
         } else {
             finalAns.addProperty("status", "error");
-            finalAns.addProperty("messages", errors.toString());
+            finalAns.add("messages", errMsg);
         }
         out.println(gson.toJson(finalAns));
     }
