@@ -11,14 +11,9 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -92,6 +87,7 @@ public class UploadDAO {
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
         String ans = "";
+        //ArrayList<String> ans = new ArrayList<>();
         try {
             //get a connection to database
             connection = ConnectionManager.getConnection();
@@ -105,6 +101,9 @@ public class UploadDAO {
             resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
                 ans += " " + resultSet.getString(1);
+                //System.out.println(resultSet.getString(1));
+
+                //ans.add(resultSet.getString(1));
             }
 
             //close connections
@@ -113,6 +112,8 @@ public class UploadDAO {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+        System.out.println(ans.contains("1010100009"));
+        System.out.println(ans);
         return ans;
     }
 
@@ -182,6 +183,7 @@ public class UploadDAO {
         HashMap<Integer, String> errorMap = new HashMap<>();
         int lineNumber = 1;
         int count = 0;
+        int successful = 0;
         try {
             //get a connection to database
             connection = ConnectionManager.getConnection();
@@ -280,6 +282,7 @@ public class UploadDAO {
                 if (!errorMsg.equals("")) {
                     errorMap.put(lineNumber, errorMsg.substring(2));
                 } else {
+                    successful++;
                     preparedStatement.setString(1, macaddress);
                     preparedStatement.setString(2, name);
                     preparedStatement.setString(3, password);
@@ -307,7 +310,7 @@ public class UploadDAO {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
+        errorMap.put(Integer.MAX_VALUE, "" + successful);
         return errorMap;
     }
 
@@ -317,8 +320,9 @@ public class UploadDAO {
         PreparedStatement preparedStatement = null;
         final int batchSize = 300;
         HashMap<Integer, String> errorMap = new HashMap<>();
-        int count = 0;
         int lineNumber = 1;
+        int count = 0;
+        int successful = 0;
         try {
             //get a connection to database
             connection = ConnectionManager.getConnection();
@@ -330,27 +334,21 @@ public class UploadDAO {
             BufferedReader bufferReader = new BufferedReader(new InputStreamReader(new FileInputStream(filePath)));
 
             CSVReader reader = new CSVReader(bufferReader);
-            String[] columns;
             reader.readNext();
+            String[] columns;
             while ((columns = reader.readNext()) != null) {
+                System.out.println(columns[0] );
                 lineNumber++;
+                System.out.println(lineNumber);
                 String errorMsg = "";
                 int locationID = 0;
-                String locationName = columns[1];
 
+                // Checking for LocationID
                 if (columns[0].isEmpty()) {
                     errorMsg += ", Missing locationID";
                     errorMap.put(lineNumber, errorMsg.substring(2));
                     continue;
                 }
-
-                if (locationName.isEmpty()) {
-                    errorMsg += ", Missing semantic place";
-                    errorMap.put(lineNumber, errorMsg.substring(2));
-                    continue;
-                }
-
-                // Checking for LocationID
                 try {
                     locationID = Integer.parseInt(columns[0].trim());
                     if (locationID < 0) {
@@ -361,6 +359,12 @@ public class UploadDAO {
                 }
 
                 // Checking for semantic name
+                if (columns[1].isEmpty()) {
+                    errorMsg += ", Missing semantic place";
+                    errorMap.put(lineNumber, errorMsg.substring(2));
+                    continue;
+                }
+                String locationName = columns[1];
                 locationName = locationName.trim();
                 boolean valid = false;
                 for (String level : "SMUSISB1 SMUSISL1 SMUSISL2 SMUSISL3 SMUSISL4 SMUSISL5".split(" ")) {
@@ -376,6 +380,7 @@ public class UploadDAO {
                 if (!errorMsg.equals("")) {
                     errorMap.put(lineNumber, errorMsg.substring(2));
                 } else {
+                    successful++;
                     preparedStatement.setInt(1, locationID);
                     preparedStatement.setString(2, locationName);
                     preparedStatement.addBatch();
@@ -386,8 +391,9 @@ public class UploadDAO {
                     connection.commit();
                     preparedStatement.clearParameters();
                 }
+
             }
-            preparedStatement.executeBatch(); //insert remaining records 
+            preparedStatement.executeBatch(); //insert remaining records
             connection.commit();
 
             //close connections
@@ -399,6 +405,7 @@ public class UploadDAO {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        errorMap.put(Integer.MAX_VALUE, "" + successful);
         return errorMap;
     }
 
@@ -406,12 +413,11 @@ public class UploadDAO {
         clearLocation();
         Connection connection = null;
         PreparedStatement preparedStatement = null;
-
         final int batchSize = 500000;
         int count = 0;
-
+        int successful = 0;
         String locationIDs = retrieveLocationID();
-
+        //ArrayList<String> locationIDs = retrieveLocationID();
         HashMap<String, String> checking = new HashMap<>();
         HashMap<Integer, String> errorMap = new HashMap<>();
         try {
@@ -435,7 +441,7 @@ public class UploadDAO {
                 String locationID = row[2];
 
                 if (timeDate.isEmpty()) {
-                    errorMsg += ", Missing date & time";
+                    errorMsg += ", Missing date and time";
                     errorMap.put(i + 1, errorMsg.substring(2));
                     continue;
                 }
@@ -494,6 +500,7 @@ public class UploadDAO {
                 if (!errorMsg.equals("")) {
                     errorMap.put(i + 1, errorMsg.substring(2));
                 } else {
+                    successful++;
                     preparedStatement.setString(1, timeDate);
                     preparedStatement.setString(2, macaddress);
                     preparedStatement.setString(3, locationID);
@@ -519,6 +526,7 @@ public class UploadDAO {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        errorMap.put(Integer.MAX_VALUE, "" + successful);
         return errorMap;
     }
 
@@ -528,6 +536,7 @@ public class UploadDAO {
 
         final int batchSize = 2000;
         int count = 0;
+        int successful = 0;
 
         ArrayList<String> previousMacEmail = retrieveMacEmail();
         HashMap<Integer, String> errorMap = new HashMap<>();
@@ -636,6 +645,7 @@ public class UploadDAO {
                 if (!errorMsg.equals("")) {
                     errorMap.put(i + 1, errorMsg.substring(2));
                 } else {
+                    successful++;
                     preparedStatement.setString(1, macaddress);
                     preparedStatement.setString(2, name);
                     preparedStatement.setString(3, password);
@@ -664,6 +674,7 @@ public class UploadDAO {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        errorMap.put(Integer.MAX_VALUE, "" + successful);
         return errorMap;
     }
 
@@ -673,8 +684,9 @@ public class UploadDAO {
 
         final int batchSize = 500000;
         int count = 0;
-
+        int successful = 0;
         String locationIDs = retrieveLocationID();
+        //ArrayList<String> locationIDs = retrieveLocationID();
 
         ArrayList<String> previousMacEmail = retrieveMACDatePair();
         HashMap<Integer, String> errorMap = new HashMap<>();
@@ -700,7 +712,7 @@ public class UploadDAO {
                 String locationID = row[2];
 
                 if (timeDate.isEmpty()) {
-                    errorMsg += ", Missing date & time";
+                    errorMsg += ", Missing date and time";
                     errorMap.put(i + 1, errorMsg.substring(2));
                     continue;
                 }
@@ -760,6 +772,7 @@ public class UploadDAO {
                 if (!errorMsg.equals("")) {
                     errorMap.put(i + 1, errorMsg.substring(2));
                 } else {
+                    successful++;
                     preparedStatement.setString(1, timeDate);
                     preparedStatement.setString(2, macaddress);
                     preparedStatement.setString(3, locationID);
@@ -785,6 +798,7 @@ public class UploadDAO {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        errorMap.put(Integer.MAX_VALUE, "" + successful);
         return errorMap;
     }
 

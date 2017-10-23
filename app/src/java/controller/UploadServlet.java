@@ -27,7 +27,6 @@ public class UploadServlet extends HttpServlet implements java.io.Serializable {
         HttpSession session = request.getSession();
         UploadBean upBean = new UploadBean();
         String success = "";
-        String uploadType = "";
         HashMap<Integer, String> demographicsError = new HashMap<>();
         HashMap<Integer, String> locationLookupError = new HashMap<>();
         HashMap<Integer, String> locationError = new HashMap<>();
@@ -59,14 +58,17 @@ public class UploadServlet extends HttpServlet implements java.io.Serializable {
                                 session.setAttribute("error", "Wrong file name or type"); //send error messsage        
                             } else {
 
-                                if (fileExist.contains("demographics.csv")) {
-                                    demographicsError = UploadDAO.readDemographics(outputDirectory + File.separator + "demographics.csv");
-                                }
                                 if (fileExist.contains("location-lookup.csv")) {
                                     locationLookupError = UploadDAO.readLookup(outputDirectory + File.separator + "location-lookup.csv");
+                                    locationLookupError.remove(Integer.MAX_VALUE);
+                                }
+                                if (fileExist.contains("demographics.csv")) {
+                                    demographicsError = UploadDAO.readDemographics(outputDirectory + File.separator + "demographics.csv");
+                                    demographicsError.remove(Integer.MAX_VALUE);
                                 }
                                 if (fileExist.contains("location.csv")) {
                                     locationError = UploadDAO.readLocation(outputDirectory + File.separator + "location.csv");
+                                    locationError.remove(Integer.MAX_VALUE);
                                 }
                             }
 
@@ -75,12 +77,15 @@ public class UploadServlet extends HttpServlet implements java.io.Serializable {
                             switch (fileName) {
                                 case "location-lookup.csv":
                                     locationLookupError = UploadDAO.readLookup(outputDirectory + File.separator + "location-lookup.csv");
+                                    locationLookupError.remove(Integer.MAX_VALUE);
                                     break;
                                 case "demographics.csv":
                                     demographicsError = UploadDAO.readDemographics(outputDirectory + File.separator + "demographics.csv");
+                                    demographicsError.remove(Integer.MAX_VALUE);
                                     break;
                                 case "location.csv":
                                     locationError = UploadDAO.readLocation(outputDirectory + File.separator + "location.csv");
+                                    locationError.remove(Integer.MAX_VALUE);
                                     break;
                                 default:
                                     break;

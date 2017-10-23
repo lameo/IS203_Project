@@ -58,10 +58,12 @@ public class UpdateServlet extends HttpServlet implements java.io.Serializable {
                             } else {
                                 if (fileExist.contains("demographics.csv")) {
                                     demographicsError = UploadDAO.updateDemographics(outputDirectory + File.separator + "demographics.csv");
+                                    demographicsError.remove(Integer.MAX_VALUE);
                                 }
 
                                 if (fileExist.contains("location.csv")) {
                                     locationError = UploadDAO.updateLocation(outputDirectory + File.separator + "location.csv");
+                                    locationError.remove(Integer.MAX_VALUE);
                                 }
                             }
 
@@ -70,9 +72,11 @@ public class UpdateServlet extends HttpServlet implements java.io.Serializable {
                             switch (fileName) {
                                 case "demographics.csv":
                                     demographicsError = UploadDAO.updateDemographics(outputDirectory + File.separator + "demographics.csv");
+                                    demographicsError.remove(Integer.MAX_VALUE);
                                     break;
                                 case "location.csv":
                                     locationError = UploadDAO.updateLocation(outputDirectory + File.separator + "location.csv");
+                                    locationError.remove(Integer.MAX_VALUE);
                                     break;
                                 default:
                                     break;

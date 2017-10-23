@@ -1,8 +1,6 @@
 package controller;
 
-import java.io.FileWriter;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -14,8 +12,6 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import model.HeatMap;
 import model.HeatMapDAO;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 public class HeatMapServlet extends HttpServlet {
 
