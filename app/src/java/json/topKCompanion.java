@@ -183,8 +183,6 @@ public class topKCompanion extends HttpServlet {
             //final output for viewing 
             jsonOutput.addProperty("status", "success");
             jsonOutput.add("results", resultsArr);
-            out.println(gson.toJson(jsonOutput));
-            return;
         } else {
             jsonOutput.addProperty("status", "error");
             jsonOutput.add("messages", errMsg);

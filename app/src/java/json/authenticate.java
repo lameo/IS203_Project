@@ -51,6 +51,7 @@ public class authenticate extends HttpServlet {
             out.println(gson.toJson(jsonOutput));
             return;
         }
+        
         if (password == null || password.isEmpty()) { //check if password is null or empty
             errMsg.add("blank password");            
             jsonOutput.addProperty("status", "error");
@@ -72,6 +73,8 @@ public class authenticate extends HttpServlet {
                     String token = SharedSecretManager.authenticateUser(user.getName());
                     jsonOutput.addProperty("status", "success");
                     jsonOutput.addProperty("token", token);
+                } else {
+                    errMsg.add("invalid username/password");
                 }
             } else {
                 errMsg.add("invalid username/password");

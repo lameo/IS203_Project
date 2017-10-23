@@ -100,7 +100,6 @@
                     int count = 1;
                     for (int i = 0; i < keys.size(); i++) {
                         if (count <= topK) {
-                            System.out.print(map.get(keys.get(i)));
                             out.print("<tr><td>" + count++ + "</td><td>" + map.get(keys.get(i)) + "</td><td>" + keys.get(i) + "</td></tr>");
                         }
                     }

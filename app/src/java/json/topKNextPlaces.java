@@ -177,10 +177,7 @@ public class topKNextPlaces extends HttpServlet {
             jsonOutput.addProperty("total-users", usersList.size());
             jsonOutput.addProperty("total-next-place-users", usersVisitingNextPlace);
             jsonOutput.add("results", resultsArr);
-            out.println(gson.toJson(jsonOutput));
-            return;
         } else {
-
             jsonOutput.addProperty("status", "error");
             jsonOutput.add("messages", errMsg);
         }

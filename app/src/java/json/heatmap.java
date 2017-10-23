@@ -130,9 +130,6 @@ public class heatmap extends HttpServlet {
 
             }
             jsonOutput.add("heatmap", heatmaps);
-
-            out.println(gson.toJson(jsonOutput));
-            return;
         } else {
             jsonOutput.addProperty("status", "error");
             jsonOutput.add("messages", errMsg);

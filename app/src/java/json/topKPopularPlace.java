@@ -125,7 +125,6 @@ public class topKPopularPlace extends HttpServlet {
             int count = 1;
             for (int i = 0; i < keys.size(); i++) {
                 if (count <= topK) {
-                    //System.out.print(topKPopularMap.get(keys.get(i)));
                     JsonObject topKPopPlaces = new JsonObject();
                     topKPopPlaces.addProperty("rank", count);
 
@@ -145,8 +144,6 @@ public class topKPopularPlace extends HttpServlet {
             }
             jsonOutput.addProperty("status", "success");
             jsonOutput.add("results", resultsArr);
-            out.println(gson.toJson(jsonOutput));
-            return;
         } else {
             jsonOutput.addProperty("status", "error");
             jsonOutput.add("messages", errMsg);

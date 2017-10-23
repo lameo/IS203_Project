@@ -40,7 +40,6 @@ public class HeatMapServlet extends HttpServlet {
         try {
             timestamp = (Date) readFormat.parse(timeDate);
             timeDate = writeFormat.format(timestamp);
-            //System.out.println("Retrieved and formatted dateTime: " + timestamp.toString());
 
             int floor = Integer.parseInt(request.getParameter("floor")); //retrieve floor from user input
             String floorName = "B1";

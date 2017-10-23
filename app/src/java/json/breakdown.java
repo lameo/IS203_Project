@@ -61,7 +61,7 @@ public class breakdown extends HttpServlet {
             return;
         }
 
-        //Order checking
+        // Order checking
         if (order == null || order.isEmpty()) {
             errMsg.add("blank order");
             finalAns.addProperty("status", "error");
@@ -70,7 +70,7 @@ public class breakdown extends HttpServlet {
             return;
         }
 
-        //Date checking
+        // Date checking
         if (timeDate == null || timeDate.isEmpty()) {
             errMsg.add("blank date");
             finalAns.addProperty("status", "error");
@@ -107,7 +107,6 @@ public class breakdown extends HttpServlet {
             for (int j = 0; j < options.length; j++) {
                 if (i != j) {
                     aaa.add(options[i] + "," + options[j]);
-                    System.out.println(options[i] + "," + options[j]);
                     for (int k = 0; k < options.length; k++) {
                         if (j != k && i != k) {
                             aaa.add(options[i] + "," + options[j] + "," + options[k]);
