@@ -1,3 +1,6 @@
+<%@page import="java.util.Map"%>
+<%@page import="model.ReportDAO"%>
+<%@page import="model.Group"%>
 <%@page import="java.util.Set"%>
 <%@page import="java.util.HashMap"%>
 <%@page import="java.util.ArrayList"%>
@@ -54,10 +57,8 @@
 
         <div class="container">
             <br><br>
-            <!-- Form for user to input date&time and top K for top K popular places report -->
+            <!-- Form for user to input date&time for automatic group detection -->
             <form method=post action="AutoGroup">
-                <!-- report type -->
-                <input type="hidden" name="andHere" value="xyChangeHereTooooooo">
                 <!-- form input for date & time  -->
                 <div class="form-group">
                     <label for="example-datetime-local-input" class="form-control-label">Enter date & time:</label>
@@ -73,35 +74,49 @@
             //If top K report is generated
             if (session.getAttribute("test") != null) {
 
-                String timedate = (String)session.getAttribute("timeDate");
+                String timedate = (String) session.getAttribute("timeDate");
                 out.print("<h3> Potential groups in the SIS builind at " + timedate + "</h3>");
-                
-                
-                
+
                 out.print("<div class=\"container\"><table class=\"table table-bordered\"><thead>");
-                HashMap<String, ArrayList<String>> AutoGroups = (HashMap<String, ArrayList<String>>) (session.getAttribute("test")); 
+                ArrayList<Group> AutoGroups = (ArrayList<Group>) (session.getAttribute("test"));
                 out.print("<tr><th>Group No.</th><th>Macaddress</th><th>Email</th><th>Location id</th><th>Time spent</th></tr></thead></tbody>");
-                Set<String> AutoGroup = AutoGroups.keySet();
+
                 int GroupNo = 1;
-                for (String group : AutoGroup) {
-                            ArrayList<String> LocationTimestamps = AutoGroups.get(group);
-                            out.print("<tr><td rowspan=" + LocationTimestamps.size() + ">" + (GroupNo) + "</td>");
-                            for (int i = 0; i < LocationTimestamps.size(); i += 1) {
-                                String[] LocationTimestamp = LocationTimestamps.get(i).split(","); 
-                                if (i == 0) {
-                                    out.print("<td>" + LocationTimestamp[0] + "</td>");
-                                    out.print("<td>" + LocationTimestamp[1] + "</td>");
-                                    //add rowspan for first row of companion user
-                                    out.print("<td rowspan=" + LocationTimestamps.size() + ">" + LocationTimestamp[2] + "</td>");
-                                } else {
-                                    out.print("<tr><td>" + LocationTimestamp[0] + "</td>");
-                                    out.print("<td>" + LocationTimestamp[1] + "</td></tr>");
-                                }
-                            }
-                            out.print("</tr>");
-                            GroupNo++;
+                for (Group AutoGroup : AutoGroups) {
+                    ArrayList<String> AutoUsers = AutoGroup.retreiveMacsWithEmails();
+                    Map<String, Double> locationTimestamps = AutoGroup.CalculateTimeDuration();
+                    Set<String> Locations = locationTimestamps.keySet();
+                    int AutoUsersNum = AutoGroup.getAutoUsersSize();
+                    double rowspanMac = 0;
+                    double rowspanLocation = 0;
+                    double rowspan = 0;
+                    if (AutoUsers.size() >= locationTimestamps.size()) {
+                        rowspanMac = AutoUsers.size();
+                        rowspanLocation = rowspanMac / locationTimestamps.size();
+                        rowspan = rowspanMac;
+                    } else {
+                        rowspanLocation = locationTimestamps.size();
+                        rowspanMac = rowspanLocation / AutoUsers.size();
+                        rowspan = rowspanLocation;
                     }
-                    out.print("</tbody></table></div>");
+                    out.print("<tr><td rowspan=" + rowspan + ">" + (GroupNo) + "</td>");
+                    for (int i = 0; i < AutoUsers.size(); i += 1) {
+                        String[] AutoUser = AutoUsers.get(i).split(",");
+                        String mac = AutoUser[0];
+                        String email = AutoUser[1];
+                        out.print("<td rowspan=" + rowspanMac + ">" + mac + "</td>");
+                        out.print("<td rowspan=" + rowspanMac + ">" + email + "</td>");
+
+                    }
+                    for (String Location : Locations) {
+                        Double TimeDuration = locationTimestamps.get(Location);
+                        out.print("<td rowspan=" + rowspanLocation + ">" + Location + "</td>");
+                        out.print("<td rowspan=" + rowspanLocation + ">" + TimeDuration + "</td>");
+                    }
+                    out.print("</tr>");
+                    GroupNo++;
+                }
+                out.print("</tbody></table></div>");
             }
             session.removeAttribute("timeDate");
             session.removeAttribute("test");

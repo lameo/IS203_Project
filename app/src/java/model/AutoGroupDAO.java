@@ -123,7 +123,7 @@ public class AutoGroupDAO {
                         //if two users have stayed for at least 12 minutes, record their common timestamps and durations
                         //check if they have stayed together for at least 12 minutes
                         ArrayList<String> LocationTimestamps = CommonLocationTimestamps12Mins(LocationTimestamps1, LocationTimestamps2);
-                        if (LocationTimestamps != null || LocationTimestamps.size() != 0) {
+                        if (LocationTimestamps != null || LocationTimestamps.size() > 0) {
                             //if two users have stayed for at least 12 minutes, record their common timestamps and durations
                             ArrayList<String> Users = new ArrayList<String>();
                             Users.add(macaddress1);
@@ -133,27 +133,34 @@ public class AutoGroupDAO {
                             boolean subgroup = false;
                             //check if can join the autouser2 to an existing group if he/she has stayed with group at least 12 minutes
                             //check if autogroup is not empty
-                            if (AutoGroups != null || AutoGroups.size() != 0) {
+                            //test
+                            /*
+                            if (AutoGroups != null || AutoGroups.size() > 0) {
                                 for (Group AutoGroup : AutoGroups) {
+                                    //test
+                                    if(AutoGroup!=null&&macaddress2!=null&&LocationTimestamps!=null&&LocationTimestamps.size()>0){
                                     //find new location timestamps for new group
                                     ArrayList<String> NewLocationTimestamps = AutoGroup.JoinGroup(macaddress2, LocationTimestamps);
                                     //if found, add this as a new group
-                                    if (NewLocationTimestamps != null || NewLocationTimestamps.size() != 0) {
+                                    if (NewLocationTimestamps != null || NewLocationTimestamps.size() > 0) {
                                         AutoGroup.addAutoUser(macaddress2, NewLocationTimestamps);
                                     }
                                     if (AutoGroup.CheckSubGroup(NewAutoGroup)){
-                                        
+                                        subgroup=true;
+                                    }
                                     }
                                 }
                             }
-                            if (!subgroup) {
+                            */
+                            //if no subgroup, add new group to autogroups
+                            if (!subgroup&&NewAutoGroup!=null) {
 
                                 //check if this group already exists (in different sequence) or if this group is a sub group of existing group
                                 
                                 //add two users to same group
                                 AutoGroups.add(NewAutoGroup);
                             }
-
+                            
                         }
                     }
                 }
