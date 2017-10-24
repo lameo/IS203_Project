@@ -13,6 +13,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Map;
+import java.util.TreeMap;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -172,7 +173,8 @@ public class bootstrapUpload extends HttpServlet {
                                 
 
                                 // demographics.csv file errors
-                                for (Map.Entry<Integer, String> temp : demographicsError.entrySet()) {
+                                Map<Integer, String> demographicsErrorSorted = new TreeMap<>(demographicsError);
+                                for (Map.Entry<Integer, String> temp : demographicsErrorSorted.entrySet()) {
                                     int key = temp.getKey();
                                     String value = temp.getValue();
                                     JsonObject tempJson = new JsonObject();
@@ -193,7 +195,8 @@ public class bootstrapUpload extends HttpServlet {
                                 
 
                                 // Location-lookup.csv file errors
-                                for (Map.Entry<Integer, String> temp : locationLookupError.entrySet()) {
+                                Map<Integer, String> locationLookupErrorSorted = new TreeMap<>(demographicsError);
+                                for (Map.Entry<Integer, String> temp : locationLookupErrorSorted.entrySet()) {
                                     int key = temp.getKey();
                                     String value = temp.getValue();
                                     JsonObject tempJson = new JsonObject();
@@ -214,7 +217,8 @@ public class bootstrapUpload extends HttpServlet {
                                 
 
                                 // Location.csv file errors
-                                for (Map.Entry<Integer, String> temp : locationError.entrySet()) {
+                                Map<Integer, String> locationErrorSored = new TreeMap<>(locationError);
+                                for (Map.Entry<Integer, String> temp : locationErrorSored.entrySet()) {
                                     int key = temp.getKey();
                                     String value = temp.getValue();
                                     JsonObject tempJson = new JsonObject();

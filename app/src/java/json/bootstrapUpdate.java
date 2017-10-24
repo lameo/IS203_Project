@@ -13,6 +13,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Map;
+import java.util.TreeMap;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -73,7 +74,6 @@ public class bootstrapUpdate extends HttpServlet {
             HttpSession session = request.getSession();
             UploadBean upBean = new UploadBean();
             HashMap<Integer, String> demographicsError = new HashMap<>();
-            HashMap<Integer, String> locationLookupError = new HashMap<>();
             HashMap<Integer, String> locationError = new HashMap<>();
             JsonArray fileUpload = new JsonArray();
 
@@ -166,7 +166,8 @@ public class bootstrapUpdate extends HttpServlet {
                                 //temp.toString() -> "["abc"]"
                                 
                                 // demographics.csv file errors
-                                for (Map.Entry<Integer, String> temp : demographicsError.entrySet()) {
+                                Map<Integer, String> demographicsErrorSorted = new TreeMap<>(demographicsError);
+                                for (Map.Entry<Integer, String> temp : demographicsErrorSorted.entrySet()) {
                                     int key = temp.getKey();
                                     String value = temp.getValue();
                                     JsonObject tempJson = new JsonObject();
@@ -187,7 +188,8 @@ public class bootstrapUpdate extends HttpServlet {
 
                                 
                                 // Location.csv file errors
-                                for (Map.Entry<Integer, String> temp : locationError.entrySet()) {
+                                Map<Integer, String> locationErrorSored = new TreeMap<>(locationError);
+                                for (Map.Entry<Integer, String> temp : locationErrorSored.entrySet()) {
                                     int key = temp.getKey();
                                     String value = temp.getValue();
                                     JsonObject tempJson = new JsonObject();
