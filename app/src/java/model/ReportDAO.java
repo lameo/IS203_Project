@@ -1162,7 +1162,7 @@ public class ReportDAO {
                                 } else {
                                     colocationTime = timeDiff - gap;
                                 }
-                                CompanionLocationTimestamps.add(macaddress + "first and last location time before start " + "," + gap + "," + colocationTime + "," + timeDiff);
+                                //CompanionLocationTimestamps.add(macaddress + "first and last location time before start " + "," + gap + "," + colocationTime + "," + timeDiff);
 
                             } else if (!timestamp.before(timeStart)) {
                                 if (timeDiff > 300) {
@@ -1205,7 +1205,7 @@ public class ReportDAO {
                                         } else {
                                             colocationTime = duration - timeDiffNext;
                                         }
-                                        CompanionLocationTimestamps.add(macaddress + "same location time before start " + "," + colocationTime + "," + tmp + "," + duration + "," + gap);
+                                        //CompanionLocationTimestamps.add(macaddress + "same location time before start " + "," + colocationTime + "," + tmp + "," + duration + "," + gap);
                                         CorrectTimestring = true;
                                     } else if (!location.equals(locationNext)) {
                                         tmp = timeDiff - timeDiffNext;
@@ -1262,7 +1262,7 @@ public class ReportDAO {
                                     } else {
                                         colocationTime += timeDiffNext - gap;
                                     }
-                                    CompanionLocationTimestamps.add(macaddress + "last location time before start " + duration + "," + colocationTime + "," + gap + "," + timeDiffNext);
+                                    //CompanionLocationTimestamps.add(macaddress + "last location time before start " + duration + "," + colocationTime + "," + gap + "," + timeDiffNext);
                                     //if last location is correct location and not before start timestamp  
                                 } else if (!timestamp.before(timeStart)) {
                                     if (timeDiffNext > 300) {
