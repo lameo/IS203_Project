@@ -6,7 +6,10 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Set;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -53,7 +56,7 @@ public class heatmap extends HttpServlet {
             out.println(gson.toJson(jsonOutput));
             return;
         }
-        
+
         if (stringFloor == null || stringFloor.isEmpty()) {
             errMsg.add("blank floor");
             jsonOutput.addProperty("status", "error");
@@ -97,7 +100,7 @@ public class heatmap extends HttpServlet {
         if (!validDate) {
             errMsg.add("invalid date");
         }
-        
+
         int floor = Integer.parseInt(stringFloor);
         if (floor < 0 || floor > 5) {
             errMsg.add("invalid floor");
@@ -113,11 +116,12 @@ public class heatmap extends HttpServlet {
             }
 
             HashMap<String, HeatMap> heatmapList = HeatMapDAO.retrieveHeatMap(timeDate, floorName);
-
             jsonOutput.addProperty("status", "success");
             JsonArray heatmaps = new JsonArray();
 
-            Set<String> keys = heatmapList.keySet();
+            //Set<String> keys = heatmapList.keySet();
+            List<String> keys = new ArrayList<>(heatmapList.keySet());
+            Collections.sort(keys);
             for (String key : keys) {
                 HeatMap heatmap = heatmapList.get(key);
                 JsonObject heatmapObject = new JsonObject();
@@ -125,7 +129,6 @@ public class heatmap extends HttpServlet {
                 heatmapObject.addProperty("semantic-place", heatmap.getPlace());
                 heatmapObject.addProperty("num-people", heatmap.getQtyPax());
                 heatmapObject.addProperty("crowd-density", heatmap.getHeatLevel());
-
                 heatmaps.add(heatmapObject);
 
             }

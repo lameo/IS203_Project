@@ -46,7 +46,7 @@ public class HeatMapDAO {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-
+        
         return heatmapList;
     }
 
