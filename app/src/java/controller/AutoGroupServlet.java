@@ -41,12 +41,10 @@ public class AutoGroupServlet extends HttpServlet {
      * @throws ServletException if a servlet-specific error occurs
      * @throws IOException if an I/O error occurs
      */
-    protected void processRequest(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException, ParseException {
+    protected void processRequest(HttpServletRequest request, HttpServletResponse response){
 
         try {
             HttpSession session = request.getSession();
-
             String timeDate = request.getParameter("timeDate"); //retrieve time from user input
             timeDate = timeDate.replace("T", " ");
             SimpleDateFormat readFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
@@ -72,24 +70,30 @@ public class AutoGroupServlet extends HttpServlet {
                 }
             }
             ArrayList<Group> AutoGroups = new ArrayList<Group>();
+            //test
+            
             //check if there are valid auto users
-            if(ValidAutoUsers!=null||ValidAutoUsers.size()!=0){
+            if (ValidAutoUsers != null || ValidAutoUsers.size() > 0) {
                 //retrieve groups formed from valid auto users
                 AutoGroups = retrieveAutoGroups(ValidAutoUsers);
             }
-            
-            
-            
-
+            /*
+            if (AutoGroups != null || AutoGroups.size() > 0) {
+                //check autogroups and remove sub groups
+                AutoGroups = AutoGroupDAO.CheckAutoGroups(AutoGroups);
+            }
+            */
             session.setAttribute("timeDate", timeDate);
-            session.setAttribute("test", ValidAutoUsers);
+            session.setAttribute("test", AutoGroups);
 
             response.sendRedirect("automaticGroupDetection.jsp");
         } catch (ParseException e) {
             System.out.println("Date formatter failed to parse chosen sendTime.");
             e.printStackTrace();
+        } catch (IOException ex) {
+            Logger.getLogger(AutoGroupServlet.class.getName()).log(Level.SEVERE, null, ex);
         }
-    } 
+    }
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
     /**
@@ -101,13 +105,8 @@ public class AutoGroupServlet extends HttpServlet {
      * @throws IOException if an I/O error occurs
      */
     @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        try {
-            processRequest(request, response);
-        } catch (ParseException ex) {
-            Logger.getLogger(AutoGroupServlet.class.getName()).log(Level.SEVERE, null, ex);
-        }
+    protected void doGet(HttpServletRequest request, HttpServletResponse response){
+        processRequest(request, response);
     }
 
     /**
@@ -119,13 +118,8 @@ public class AutoGroupServlet extends HttpServlet {
      * @throws IOException if an I/O error occurs
      */
     @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        try {
-            processRequest(request, response);
-        } catch (ParseException ex) {
-            Logger.getLogger(AutoGroupServlet.class.getName()).log(Level.SEVERE, null, ex);
-        }
+    protected void doPost(HttpServletRequest request, HttpServletResponse response){
+        processRequest(request, response);
     }
 
     /**
