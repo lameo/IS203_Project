@@ -27,8 +27,8 @@ import javazoom.upload.UploadFile;
 import model.SharedSecretManager;
 import model.UploadDAO;
 
-@WebServlet(urlPatterns = {"/json/bootstrap"})
-public class bootstrapUpload extends HttpServlet {
+@WebServlet(urlPatterns = {"/json/update"})
+public class bootstrapUpdate extends HttpServlet {
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -47,6 +47,7 @@ public class bootstrapUpload extends HttpServlet {
         //creates a new json object for printing the desired json output
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
+        
         //get token from request
         String token = request.getParameter("token");
         boolean tokenValid = true;
@@ -61,20 +62,22 @@ public class bootstrapUpload extends HttpServlet {
         
 
         // set to "if(tokenValid)" to debug without token, default "if(!tokenValid)"
+        // if token is not valid, return error message and end
         if (!tokenValid) {
             ans.addProperty("status", "error");
             JsonArray message = new JsonArray();
             message.add("invalid token");
             ans.add("messages", message);
         } else {
+        // if token is valid, continue processing
             HttpSession session = request.getSession();
             UploadBean upBean = new UploadBean();
             HashMap<Integer, String> demographicsError = new HashMap<>();
             HashMap<Integer, String> locationLookupError = new HashMap<>();
             HashMap<Integer, String> locationError = new HashMap<>();
             JsonArray fileUpload = new JsonArray();
-            
 
+            
             try {
                 ServletContext servletContext = this.getServletConfig().getServletContext();
                 //Pathname to a scratch directory to be provided by this Context for temporary read-write use by servlets within the associated web application
@@ -87,8 +90,8 @@ public class bootstrapUpload extends HttpServlet {
                 if (MultipartFormDataRequest.isMultipartFormData(request)) {
                     //Uses MultipartFormDataRequest to parse the HTTP request.
                     MultipartFormDataRequest multipartRequest = new MultipartFormDataRequest(request); //specialized version of request object to interpret the data
-                    
 
+                    
                     Hashtable files = multipartRequest.getFiles(); //get the files sent over, hastable is the older version of hashmap
                     if ((files != null) && (!files.isEmpty())) {
                         UploadFile file = (UploadFile) files.get("uploadfile"); //get the files from bootstrapinitialize
@@ -96,31 +99,23 @@ public class bootstrapUpload extends HttpServlet {
                             String fileName = file.getFileName();
                             String contentType = file.getContentType(); //Get the file type
                             String filePath = outputDirectory + File.separator + fileName; //get the file path 
-                            
 
+                            
                             if (contentType.equals("application/x-zip-compressed")) { //if it is a zip file
                                 upBean.store(multipartRequest, "uploadfile"); //save to directory
                                 String fileExist = UploadDAO.unzip(filePath, outputDirectory); //unzip the files in the zip and save into the directory
-                                
 
+                                
                                 if (fileExist != null && fileExist.contains("demographics.csv")) {
-                                    demographicsError = UploadDAO.readDemographics(outputDirectory + File.separator + "demographics.csv");
+                                    demographicsError = UploadDAO.updateDemographics(outputDirectory + File.separator + "demographics.csv");
                                     JsonObject temp = new JsonObject();
                                     // using integer.max_value to pass the number of lines processed
                                     temp.addProperty("demographics.csv", Integer.parseInt(demographicsError.get(Integer.MAX_VALUE)));
                                     demographicsError.remove(Integer.MAX_VALUE);
                                     fileUpload.add(temp);
                                 }
-                                if (fileExist != null && fileExist.contains("location-lookup.csv")) {
-                                    locationLookupError = UploadDAO.readLookup(outputDirectory + File.separator + "location-lookup.csv");
-                                    JsonObject temp = new JsonObject();
-                                    // using integer.max_value to pass the number of lines processed
-                                    temp.addProperty("location-lookup.csv", Integer.parseInt(locationLookupError.get(Integer.MAX_VALUE)));
-                                    locationLookupError.remove(Integer.MAX_VALUE);
-                                    fileUpload.add(temp);
-                                }
                                 if (fileExist != null && fileExist.contains("location.csv")) {
-                                    locationError = UploadDAO.readLocation(outputDirectory + File.separator + "location.csv");
+                                    locationError = UploadDAO.updateLocation(outputDirectory + File.separator + "location.csv");
                                     JsonObject temp = new JsonObject();
                                     // using integer.max_value to pass the number of lines processed
                                     temp.addProperty("location.csv", Integer.parseInt(locationError.get(Integer.MAX_VALUE)));
@@ -129,26 +124,20 @@ public class bootstrapUpload extends HttpServlet {
                                 }
                                 
                                 
-                            //if location.csv or location-lookup.csv or demographics.csv
-                            } else if (UploadDAO.checkFileName(fileName) != null && UploadDAO.checkFileName(fileName).length() > 0) { upBean.store(multipartRequest, "uploadfile"); //save to directory
+                            //if location.csv or demographics.csv
+                            } else if (UploadDAO.checkFileName(fileName) != null && UploadDAO.checkFileName(fileName).length() > 0) { 
+                                upBean.store(multipartRequest, "uploadfile"); //save to directory
                                 JsonObject temp = new JsonObject();
                                 switch (fileName) {
                                     case "demographics.csv":
-                                        demographicsError = UploadDAO.readDemographics(outputDirectory + File.separator + "demographics.csv");
+                                        demographicsError = UploadDAO.updateDemographics(outputDirectory + File.separator + "demographics.csv");
                                         // using integer.max_value to pass the number of lines processed
                                         temp.addProperty("demographics.csv", Integer.parseInt(demographicsError.get(Integer.MAX_VALUE)));
                                         demographicsError.remove(Integer.MAX_VALUE);
                                         fileUpload.add(temp);
                                         break;
-                                    case "location-lookup.csv":
-                                        locationLookupError = UploadDAO.readLookup(outputDirectory + File.separator + "location-lookup.csv");
-                                        // using integer.max_value to pass the number of lines processed
-                                        temp.addProperty("location-lookup.csv", Integer.parseInt(locationLookupError.get(Integer.MAX_VALUE)));
-                                        locationLookupError.remove(Integer.MAX_VALUE);
-                                        fileUpload.add(temp);
-                                        break;
                                     case "location.csv":
-                                        locationError = UploadDAO.readLocation(outputDirectory + File.separator + "location.csv");
+                                        locationError = UploadDAO.updateLocation(outputDirectory + File.separator + "location.csv");
                                         // using integer.max_value to pass the number of lines processed
                                         temp.addProperty("location.csv", Integer.parseInt(locationError.get(Integer.MAX_VALUE)));
                                         locationError.remove(Integer.MAX_VALUE);
@@ -159,8 +148,8 @@ public class bootstrapUpload extends HttpServlet {
                                 }
                             }
                             
-
-                            if (demographicsError.isEmpty() && locationError.isEmpty() && locationLookupError.isEmpty()) {
+                            
+                            if (demographicsError.isEmpty() && locationError.isEmpty()) {
                                 // if successful
                                 ans.addProperty("status", "success");
                                 ans.add("num-record-loaded", fileUpload);
@@ -169,8 +158,8 @@ public class bootstrapUpload extends HttpServlet {
                                 ans.addProperty("status", "error");
                                 ans.add("num-record-loaded", fileUpload);
                                 JsonArray error = new JsonArray();
-                                
 
+                                
                                 // demographics.csv file errors
                                 for (Map.Entry<Integer, String> temp : demographicsError.entrySet()) {
                                     int key = temp.getKey();
@@ -190,8 +179,8 @@ public class bootstrapUpload extends HttpServlet {
                                     tempJson.add("message", erro);
                                     error.add(tempJson);
                                 }
-                                
 
+                                
                                 // Location-lookup.csv file errors
                                 for (Map.Entry<Integer, String> temp : locationLookupError.entrySet()) {
                                     int key = temp.getKey();
@@ -211,8 +200,8 @@ public class bootstrapUpload extends HttpServlet {
                                     tempJson.add("message", erro);
                                     error.add(tempJson);
                                 }
-                                
 
+                                
                                 // Location.csv file errors
                                 for (Map.Entry<Integer, String> temp : locationError.entrySet()) {
                                     int key = temp.getKey();
@@ -233,6 +222,7 @@ public class bootstrapUpload extends HttpServlet {
                                     error.add(tempJson);
                                 }
                                 ans.add("error", error);
+
                             }
                             file = null;
                         }
