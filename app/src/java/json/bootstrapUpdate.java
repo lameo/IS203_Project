@@ -63,7 +63,7 @@ public class bootstrapUpdate extends HttpServlet {
 
         // set to "if(tokenValid)" to debug without token, default "if(!tokenValid)"
         // if token is not valid, return error message and end
-        if (!tokenValid) {
+        if (tokenValid) {
             ans.addProperty("status", "error");
             JsonArray message = new JsonArray();
             message.add("invalid token");
@@ -159,6 +159,11 @@ public class bootstrapUpdate extends HttpServlet {
                                 ans.add("num-record-loaded", fileUpload);
                                 JsonArray error = new JsonArray();
 
+                                // if it is arrayList.toString in json array, it will be "["abc","def"]"
+                                // if it is jsonarray added into jsonobject, it will be ["abc","def"]
+                                //ArrayList<String> temp = new ArrayList<>();
+                                //temp.add("abc");
+                                //temp.toString() -> "["abc"]"
                                 
                                 // demographics.csv file errors
                                 for (Map.Entry<Integer, String> temp : demographicsError.entrySet()) {
@@ -166,27 +171,6 @@ public class bootstrapUpdate extends HttpServlet {
                                     String value = temp.getValue();
                                     JsonObject tempJson = new JsonObject();
                                     tempJson.addProperty("file", "demographics.csv");
-                                    tempJson.addProperty("line", key);
-                                    //Adding row errors into arraylist so they could be sorted
-                                    //After they are sorted, they are added into JSONarray and commited
-                                    ArrayList<String> err = new ArrayList<>();
-                                    err.addAll(Arrays.asList(value.split(",")));
-                                    Collections.sort(err);
-                                    JsonArray erro = new JsonArray();
-                                    for (String msg : err) {
-                                        erro.add(msg);
-                                    }
-                                    tempJson.add("message", erro);
-                                    error.add(tempJson);
-                                }
-
-                                
-                                // Location-lookup.csv file errors
-                                for (Map.Entry<Integer, String> temp : locationLookupError.entrySet()) {
-                                    int key = temp.getKey();
-                                    String value = temp.getValue();
-                                    JsonObject tempJson = new JsonObject();
-                                    tempJson.addProperty("file", "location-lookup.csv");
                                     tempJson.addProperty("line", key);
                                     //Adding row errors into arraylist so they could be sorted
                                     //After they are sorted, they are added into JSONarray and commited

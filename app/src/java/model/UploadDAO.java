@@ -250,7 +250,7 @@ public class UploadDAO {
                 if (password.length() < 8 || password.contains(" ")) {
                     errorMsg += ", Invalid password";
                 }
-
+                
                 // Email
                 email = email.trim();
                 String[] schools = "business socsc law sis accountancy economics".split(" ");
@@ -265,7 +265,7 @@ public class UploadDAO {
                     }
                 }
                 if (email.contains("@")) {
-                    if (!UserDAO.validateUsername(email.substring(0, email.indexOf("@"))) || !valid || email.contains("..")) {
+                    if (!UserDAO.validateUsername(email.substring(0, email.lastIndexOf("@"))) || !valid || email.contains("..")) {
                         errorMsg += ", Invalid email";
                     }
                 } else {
@@ -296,7 +296,6 @@ public class UploadDAO {
                     connection.commit();
                     preparedStatement.clearParameters();
                 }
-
             }
             preparedStatement.executeBatch(); //insert remaining records
             connection.commit();

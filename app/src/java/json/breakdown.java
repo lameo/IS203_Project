@@ -53,6 +53,7 @@ public class breakdown extends HttpServlet {
             return;
         }
 
+        // Token verification
         if (!SharedSecretManager.verifyUser(token)) {
             errMsg.add("invalid token");
             finalAns.addProperty("status", "error");
@@ -99,6 +100,8 @@ public class breakdown extends HttpServlet {
             errMsg.add("invalid date");
         }
 
+        // checking if orders only contains any combination of year, gender, school
+        // eg ygs, gys, sgy, ys, gs where y - year; g - gender; s - school
         order = order.toLowerCase();
         ArrayList<String> aaa = new ArrayList<>();
         String[] options = "year gender school".split(" ");
@@ -127,6 +130,8 @@ public class breakdown extends HttpServlet {
             String[] gender = {"gender", "M", "F"};                                                        //2
             String[] school = {"School", "accountancy", "business", "economics", "law", "sis", "socsc"};   //6
 
+            
+            
             String[] arr = order.split(",");
             ArrayList<Integer> temp1 = ReportDAO.notVeryBasicBreakdownJson(Arrays.copyOfRange(arr, 0, 1), timeDate);
             ArrayList<Integer> temp2 = ReportDAO.notVeryBasicBreakdownJson(Arrays.copyOfRange(arr, 0, 2), timeDate);
@@ -135,14 +140,12 @@ public class breakdown extends HttpServlet {
             String[] second = null;
             String[] third = null;
 
-            if (arr[0].equals(
-                    "year")) {
+            // Getting saving down the order of first, second and third variable to sort by
+            if (arr[0].equals("year")) {
                 first = year;
-            } else if (arr[0].equals(
-                    "gender")) {
+            } else if (arr[0].equals("gender")) {
                 first = gender;
-            } else if (arr[0].equals(
-                    "school")) {
+            } else if (arr[0].equals("school")) {
                 first = school;
             }
 
@@ -168,8 +171,10 @@ public class breakdown extends HttpServlet {
             }
 
             JsonArray one = new JsonArray();
-            if (arr.length
-                    == 1) {
+            // if there is only one variable
+            // run though temp1 (breakdown by only variable)
+            // add property of variable name (first[0]) & amount first[i+1]
+            if (arr.length == 1) {
                 for (int i = 0; i < temp1.size(); i++) {
                     JsonObject temp = new JsonObject();
                     temp.addProperty(first[0], first[i + 1]);
@@ -177,8 +182,11 @@ public class breakdown extends HttpServlet {
                     one.add(temp);
                 }
             }
-            if (arr.length
-                    == 2) {
+
+            // if there is length of two
+            // run through the outer variable (temp1)
+            // then run through the inner variable and add the result set to outer variable to create a nest
+            if (arr.length == 2) {
                 for (int i = 0; i < temp1.size(); i++) {
                     JsonObject temp = new JsonObject();
                     temp.addProperty(first[0], first[i + 1]);
@@ -197,8 +205,8 @@ public class breakdown extends HttpServlet {
                     }
                 }
             }
-            if (arr.length
-                    == 3) {
+
+            if (arr.length == 3) {
                 JsonArray two = new JsonArray();
                 for (int i = 0; i < temp2.size(); i++) {
                     JsonObject temp = new JsonObject();

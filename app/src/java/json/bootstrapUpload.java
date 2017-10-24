@@ -61,7 +61,7 @@ public class bootstrapUpload extends HttpServlet {
         
 
         // set to "if(tokenValid)" to debug without token, default "if(!tokenValid)"
-        if (!tokenValid) {
+        if (tokenValid) {
             ans.addProperty("status", "error");
             JsonArray message = new JsonArray();
             message.add("invalid token");

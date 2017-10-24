@@ -16,6 +16,7 @@ import model.User;
 import model.UserDAO;
 import model.SharedSecretManager;
 
+
 @WebServlet(urlPatterns = {"/json/authenticate"})
 public class authenticate extends HttpServlet {
 
