@@ -189,7 +189,7 @@ public class AutoGroupDAO {
         return null;
     }
 
-    //Valify if user has stayed at least 12 minutes at SIS building in specified time window
+    //Verify if user has stayed at least 12 minutes at SIS building in specified time window
     public static boolean AutoUser12Mins(ArrayList<String> AutoUserLocationTimestamps) {
         double timeDuration = 0;
         for (int i = 0; i < AutoUserLocationTimestamps.size(); i++) {
@@ -237,15 +237,12 @@ public class AutoGroupDAO {
             while (resultSet.next()) {
                 AutoUsers.add(resultSet.getString(1));
             }
-
             resultSet.close();
             preparedStatement.close();
             connection.close();
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        //UserLocationTimestamps.add("1010110032"+","+"014-03-24 09:07:27.000000"+","+"1");
         return AutoUsers;
     }
-
 }
