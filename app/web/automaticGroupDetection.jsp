@@ -73,13 +73,13 @@
         <%
             //If top K report is generated
             if (session.getAttribute("test") != null) {
-
+                //out.println(session.getAttribute("test"));
                 String timedate = (String) session.getAttribute("timeDate");
                 out.print("<h3> Potential groups in the SIS builind at " + timedate + "</h3>");
 
                 out.print("<div class=\"container\"><table class=\"table table-bordered\"><thead>");
                 ArrayList<Group> AutoGroups = (ArrayList<Group>) (session.getAttribute("test"));
-                out.print("<tr><th>Group No.</th><th>Macaddress</th><th>Email</th><th>Location id</th><th>Time spent</th></tr></thead></tbody>");
+                out.print("<tr><th>Group No.</th><th>Macaddress, Email</th><th>Location id, Time spent</th></tr></thead></tbody>");
 
                 int GroupNo = 1;
                 for (Group AutoGroup : AutoGroups) {
@@ -87,43 +87,52 @@
                     Map<String, Double> locationTimestamps = AutoGroup.CalculateTimeDuration();
                     Set<String> Locations = locationTimestamps.keySet();
                     int AutoUsersNum = AutoGroup.getAutoUsersSize();
-                    double rowspanMac = 0;
-                    double rowspanLocation = 0;
-                    double rowspan = 0;
+                    int rowspanMac = 1;
+                    int rowspanLocation = 1;
+                    int rowspan = 1;
                     if (AutoUsers.size() >= locationTimestamps.size()) {
                         rowspanMac = AutoUsers.size();
-                        rowspanLocation = rowspanMac / locationTimestamps.size();
+                        rowspanLocation = rowspanMac;
                         rowspan = rowspanMac;
                     } else {
                         rowspanLocation = locationTimestamps.size();
-                        rowspanMac = rowspanLocation / AutoUsers.size();
+                        rowspanMac = rowspanLocation;
                         rowspan = rowspanLocation;
                     }
-                    out.print("<tr><td rowspan=" + rowspan + ">" + (GroupNo) + "</td>");
+
+                    //out.print("<tr><td rowspan=" + AutoGroup.getAutoUsersSize() + ">" + (GroupNo) + "</td>");
+                    out.print("<tr><td>" + (GroupNo) + "</td>");
+                    //out.print("<td rowspan=" + rowspan + ">");
+                    out.println("<td>");
                     for (int i = 0; i < AutoUsers.size(); i += 1) {
                         String[] AutoUser = AutoUsers.get(i).split(",");
                         String mac = AutoUser[0];
                         String email = AutoUser[1];
-                        out.print("<td rowspan=" + rowspanMac + ">" + mac + "</td>");
-                        out.print("<td rowspan=" + rowspanMac + ">" + email + "</td>");
+
+                        out.println(mac + ", " + email);
 
                     }
+                    out.print("</td>");
+                    out.println("<td>");
                     for (String Location : Locations) {
                         Double TimeDuration = locationTimestamps.get(Location);
-                        out.print("<td rowspan=" + rowspanLocation + ">" + Location + "</td>");
-                        out.print("<td rowspan=" + rowspanLocation + ">" + TimeDuration + "</td>");
+                        out.println(Location + ", " + TimeDuration);
+                        //out.println(Location + " " + TimeDuration);
                     }
-                    out.print("</tr>");
+                    
+                    out.print("</td></tr>");
                     GroupNo++;
                 }
                 out.print("</tbody></table></div>");
+
             }
             session.removeAttribute("timeDate");
             session.removeAttribute("test");
         %>
 
-        <%="<br>Example: 2017-02-06 11:34:43"%>
-        <%="<br>User session: " + timestamp%>
+        <%="<br>Example: 2017-02-06 11:34:43.000000"%>
+        <%="<br>Mac address: 009562b08360d78848a977dc26368b53cc0f1d44"%>
+        <%="<br><br>User session: " + timestamp%>
     </center>
 </body>
 </html>

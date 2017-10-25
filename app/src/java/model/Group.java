@@ -5,15 +5,18 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class Group {
 
-    ArrayList<String> AutoUsersMacs;
-    ArrayList<String> locationTimestamps;
+    private ArrayList<String> AutoUsersMacs;
+    private ArrayList<String> locationTimestamps;
 
-    public Group(ArrayList<String> AutoUsersMac, ArrayList<String> locationTimestamps) {
+    public Group(ArrayList<String> AutoUsersMacs, ArrayList<String> locationTimestamps) {
+        AutoUsersMacs = new ArrayList<String>();
+        locationTimestamps = new ArrayList<String>();
         this.AutoUsersMacs = AutoUsersMacs;
         this.locationTimestamps = locationTimestamps;
     }
@@ -66,11 +69,11 @@ public class Group {
                 SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                 java.util.Date timestampStart = dateFormat.parse(TimestringStart);//convert time string to Date format
                 java.util.Date timestampEnd = dateFormat.parse(TimestringEnd);
-                double duration = (timestampStart.getTime() - timestampEnd.getTime()) / 1000.0;
+                double duration = (timestampEnd.getTime() - timestampStart.getTime()) / 1000.0;
                 if (LocationDuration.containsKey(locationid)) {
                     double CurrentDuration = LocationDuration.get(locationid);
                     CurrentDuration += duration;
-                    LocationDuration.remove(locationid);
+                    //LocationDuration.remove(locationid);
                     LocationDuration.put(locationid, CurrentDuration);
                 } else {
                     LocationDuration.put(locationid, duration);
@@ -117,6 +120,9 @@ public class Group {
 
     //Check if two group is the same, or is a subgroup of another larger group, return the group number to remove
     public boolean CheckSubGroup(Group NewAutoGroup) {
+        if(NewAutoGroup==null){
+            return false;
+        }
         ArrayList<String> AutoUsersMacs2 = NewAutoGroup.getAutoUsersMacs();
         int AutoGroup2Size = NewAutoGroup.getAutoUsersSize();
         int sameUser = 0;
@@ -137,9 +143,9 @@ public class Group {
     public ArrayList<String> JoinGroup(String macaddress2, ArrayList<String> LocationTimestamps2) {
         ArrayList<String> LocationTimestamps = null;
         //test
-        if (this.AutoUsersMacs != null || this.AutoUsersMacs.size() > 0) {
+        if (AutoUsersMacs != null && AutoUsersMacs.size() > 0) {
             //check if user is already in the group
-            if (this.AutoUsersMacs.contains(macaddress2)) {
+            if (!AutoUsersMacs.contains(macaddress2)) {
                 //check if user and group has stayed for at least 12 minutes
                 LocationTimestamps = AutoGroupDAO.CommonLocationTimestamps12Mins(locationTimestamps, LocationTimestamps2);
             }
@@ -148,9 +154,38 @@ public class Group {
         return LocationTimestamps;
     }
 
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final Group other = (Group) obj;
+        if (!Objects.equals(this.AutoUsersMacs, other.AutoUsersMacs)) {
+            return false;
+        }
+        if (!Objects.equals(this.locationTimestamps, other.locationTimestamps)) {
+            return false;
+        }
+        return true;
+    }
+
     //add new autouser to existing group, add user macaddress and change location timestamps
     public void addAutoUser(String macaddress2, ArrayList<String> NewLocationTimestamps) {
         AutoUsersMacs.add(macaddress2);
         setLocationTimestamps(NewLocationTimestamps);
     }
+    
+    
 }

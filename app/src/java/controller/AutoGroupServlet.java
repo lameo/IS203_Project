@@ -1,12 +1,19 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
 package controller;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.servlet.ServletException;
@@ -19,8 +26,21 @@ import static model.AutoGroupDAO.retrieveAutoGroups;
 import model.Group;
 import model.ReportDAO;
 
+/**
+ *
+ * @author xuying
+ */
 public class AutoGroupServlet extends HttpServlet {
 
+    /**
+     * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
+     * methods.
+     *
+     * @param request servlet request
+     * @param response servlet response
+     * @throws ServletException if a servlet-specific error occurs
+     * @throws IOException if an I/O error occurs
+     */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response){
 
         try {
@@ -37,6 +57,7 @@ public class AutoGroupServlet extends HttpServlet {
 
             //retreive all the users whom stay at SIS building in specified time window
             ArrayList<String> AutoUsers = AutoGroupDAO.retreiveAutoUserMacaddresses(timeDate);
+            
             Map<String, ArrayList<String>> ValidAutoUsers = new HashMap<String, ArrayList<String>>();
             //retrieve group of users whom stay at SIS in processing window
             //check each of autousers
@@ -49,22 +70,23 @@ public class AutoGroupServlet extends HttpServlet {
                     ValidAutoUsers.put(AutoUserMac, AutoUserLocationTimestamps);
                 }
             }
+            
             ArrayList<Group> AutoGroups = new ArrayList<Group>();
             //test
             
             //check if there are valid auto users
-            if (ValidAutoUsers != null || ValidAutoUsers.size() > 0) {
+            if (ValidAutoUsers != null && ValidAutoUsers.size() > 0) {
                 //retrieve groups formed from valid auto users
                 AutoGroups = retrieveAutoGroups(ValidAutoUsers);
             }
-            /*
-            if (AutoGroups != null || AutoGroups.size() > 0) {
+            
+            if (AutoGroups != null && AutoGroups.size() > 0) {
                 //check autogroups and remove sub groups
                 AutoGroups = AutoGroupDAO.CheckAutoGroups(AutoGroups);
             }
-            */
-            session.setAttribute("timeDate", timeDate);
             session.setAttribute("test", AutoGroups);
+            session.setAttribute("timeDate", timeDate);
+            //session.setAttribute("test", AutoGroups);
 
             response.sendRedirect("automaticGroupDetection.jsp");
         } catch (ParseException e) {
