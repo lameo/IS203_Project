@@ -4,15 +4,16 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.HashMap;
+import java.util.Map;
+import java.util.TreeMap;
 
 public class HeatMapDAO {
 
-    public static HashMap<String, HeatMap> retrieveHeatMap(String endtimeDate, String floor) {
+    public static Map<String, HeatMap> retrieveHeatMap(String endtimeDate, String floor) {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
-        HashMap<String, HeatMap> heatmapList = new HashMap<>();
+        Map<String, HeatMap> heatmapList = new TreeMap<>();
         
         String ans = "";
         try {
@@ -20,14 +21,10 @@ public class HeatMapDAO {
             connection = ConnectionManager.getConnection();
 
             //prepare a statement
-            preparedStatement = connection.prepareStatement("select distinct(locationname) "
-                    + "from location l, locationlookup ll "
-                    + "where l.locationid = ll.locationid and timestamp between DATE_SUB(?,INTERVAL 15 MINUTE) and DATE_SUB(?,INTERVAL 1 SECOND) and locationname like ?");
+            preparedStatement = connection.prepareStatement("select distinct(locationname) from locationlookup where locationname like ?");
 
             //set the parameters
-            preparedStatement.setString(1, endtimeDate);
-            preparedStatement.setString(2, endtimeDate);
-            preparedStatement.setString(3, "%" + floor + "%");
+            preparedStatement.setString(1, "%" + floor + "%");
             
             //execute SQL query
             resultSet = preparedStatement.executeQuery();
@@ -64,7 +61,7 @@ public class HeatMapDAO {
                     + "from location l, locationlookup ll, (SELECT max(TIMESTAMP) as TIMESTAMP, macaddress "
                         + "FROM location "
                         + "WHERE timestamp BETWEEN (SELECT DATE_SUB(?,INTERVAL 15 MINUTE)) AND (SELECT DATE_SUB(?,INTERVAL 1 SECOND)) group by macaddress) as temp "
-                    + "where ll.locationname like ? and l.locationid = ll.locationid and temp.macaddress = l.macaddress and temp.timestamp = l.timestamp;");
+                    + "where ll.locationname like ? and l.locationid = ll.locationid and temp.macaddress = l.macaddress and temp.timestamp = l.timestamp");
 
             //set the parameters
             preparedStatement.setString(1, timeDate);            
