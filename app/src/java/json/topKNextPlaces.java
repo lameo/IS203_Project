@@ -23,9 +23,21 @@ import javax.servlet.http.HttpServletResponse;
 import model.ReportDAO;
 import model.SharedSecretManager;
 
+/**
+ *
+ * @author HongYuan
+ */
 @WebServlet(urlPatterns = {"/json/top-k-next-places"})
 public class topKNextPlaces extends HttpServlet {
 
+    /**
+     * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
+     *
+     * @param request servlet request
+     * @param response servlet response
+     * @throws ServletException if a servlet-specific error occurs
+     * @throws IOException if an I/O error occurs
+     */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
@@ -71,7 +83,7 @@ public class topKNextPlaces extends HttpServlet {
             out.println(gson.toJson(jsonOutput));
             return;
         }
-        
+
         //check if origin is entered by user from url
         if (semanticPlace == null || semanticPlace.equals("")) {
             errMsg.add("blank origin");
@@ -79,7 +91,7 @@ public class topKNextPlaces extends HttpServlet {
             jsonOutput.add("messages", errMsg);
             out.println(gson.toJson(jsonOutput));
             return;
-        }        
+        }
 
         //check for valid date entered by user
         boolean valid = true;
@@ -99,17 +111,28 @@ public class topKNextPlaces extends HttpServlet {
         valid = valid && (Integer.parseInt(dateEntered.substring(17, 19)) >= 0) && (Integer.parseInt(dateEntered.substring(17, 19)) <= 59);
         if (!valid) {
             errMsg.add("invalid date");
-        }        
-        
-        //check top k added is correct
-        if (topKEntered == null || topKEntered.equals("")) { // if not specified, set default value to 3
+        }
+
+        //Check if user entered a top k number
+        if (topKEntered == null || topKEntered.equals("")) {
             topKEntered = "3";
         }
-        int topK = Integer.parseInt(topKEntered); //get the number user entered in url as an int
-        if (topK < 1 || topK > 10) {
+
+        //assign default number to topK first before try-catch
+        int topK = 3;
+
+        //Check if user entered in a number as a string instead of spelling it out as a whole
+        //Eg: k=1 is correct but k=one is wrong
+        try {
+            topK = Integer.parseInt(topKEntered); //get the number user entered in url in int
+
+            if (topK < 1 || topK > 10) {
+                errMsg.add("invalid k"); //add error msg into JsonArray
+            }
+        } catch (NumberFormatException e) {
             errMsg.add("invalid k"); //add error msg into JsonArray
-        }        
-        
+        }
+
         //check if semantic place comes from location-lookup.csv
         ArrayList<String> validSemanticPlacesList = ReportDAO.getSemanticPlaces();
         if (!validSemanticPlacesList.contains(semanticPlace)) { //if semanticPlace is not inside the locationloopup table
