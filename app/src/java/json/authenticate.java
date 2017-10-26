@@ -76,8 +76,7 @@ public class authenticate extends HttpServlet {
                 String token = SharedSecretManager.authenticateAdmin();
                 jsonOutput.addProperty("status", "success");
                 jsonOutput.addProperty("token", token);
-            }
-            if (UserDAO.validateUsername(username)) { //if username is valid e.g. john.doe.2016
+            } else if (UserDAO.validateUsername(username)) { //if username is valid e.g. john.doe.2016
                 User user = UserDAO.retrieveUserByName(username, password);
 
                 if (user instanceof User) { //if user in database

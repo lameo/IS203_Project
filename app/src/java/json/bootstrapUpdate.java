@@ -64,7 +64,7 @@ public class bootstrapUpdate extends HttpServlet {
         }
 
         //print out all the error with null or empty string that is required but the user did not enter 
-        if (!SharedSecretManager.verifyUser(token)) { //verify the user - if the user is not verified
+        if (!SharedSecretManager.verifyAdmin(token)) { //verify the user - if the user is not verified
             errMsg.add("invalid token");
             ans.addProperty("status", "error");
             ans.add("messages", errMsg);
