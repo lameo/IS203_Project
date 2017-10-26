@@ -71,23 +71,37 @@ public class breakdown extends HttpServlet {
             return;
         }
 
-        boolean validDate = true;
-        // Length check
-        validDate = validDate && timeDate.length() == 19;
-        // Year bigger than 2013 & smaller or equal to 2017
-        validDate = validDate && (Integer.parseInt(timeDate.substring(0, 4)) > 2013) && (Integer.parseInt(timeDate.substring(0, 4)) <= 2017);
-        // Month bigger than 0 & smaller or equal to 12
-        validDate = validDate && (Integer.parseInt(timeDate.substring(5, 7)) > 0) && (Integer.parseInt(timeDate.substring(5, 7)) <= 12);
-        // Day bigger than 0 & smaller or equal to 12
-        validDate = validDate && (Integer.parseInt(timeDate.substring(8, 10)) > 0) && (Integer.parseInt(timeDate.substring(8, 10)) <= 31);
-        // Hour bigger or equal 0 & smaller or equal to 24
-        validDate = validDate && (Integer.parseInt(timeDate.substring(11, 13)) >= 0) && (Integer.parseInt(timeDate.substring(11, 13)) <= 23);
-        // Min bigger or equal 0 & smaller or equal to 59
-        validDate = validDate && (Integer.parseInt(timeDate.substring(14, 16)) >= 0) && (Integer.parseInt(timeDate.substring(14, 16)) <= 59);
-        // Second bigger or equal 0 & smaller or equal to 59
-        validDate = validDate && (Integer.parseInt(timeDate.substring(17, 19)) >= 0) && (Integer.parseInt(timeDate.substring(17, 19)) <= 59);
-
-        if (!validDate) {
+        try {
+            //check for valid date entered by user
+            boolean dateValid = true;
+            // Length check
+            dateValid = dateValid && timeDate.length() == 19;
+            // Year bigger than 2013 & smaller or equal to 2017
+            dateValid = dateValid && (Integer.parseInt(timeDate.substring(0, 4)) > 2013) && (Integer.parseInt(timeDate.substring(0, 4)) <= 2017);            
+            // Check for dashes
+            dateValid = dateValid && (timeDate.substring(4, 5).equals("-"));   
+            // Month bigger than 0 & smaller or equal to 12
+            dateValid = dateValid && (Integer.parseInt(timeDate.substring(5, 7)) > 0) && (Integer.parseInt(timeDate.substring(5, 7)) <= 12);
+            // Check for dashes
+            dateValid = dateValid && (timeDate.substring(7, 8).equals("-"));            
+            // Day bigger than 0 & smaller or equal to 12
+            dateValid = dateValid && (Integer.parseInt(timeDate.substring(8, 10)) > 0) && (Integer.parseInt(timeDate.substring(8, 10)) <= 31);
+            // Check for T
+            dateValid = dateValid && (timeDate.substring(10, 11).equals("T"));            
+            // Hour bigger or equal 0 & smaller or equal to 24
+            dateValid = dateValid && (Integer.parseInt(timeDate.substring(11, 13)) >= 0) && (Integer.parseInt(timeDate.substring(11, 13)) <= 23);
+            // Check for :
+            dateValid = dateValid && (timeDate.substring(13, 14).equals(":"));                
+            // Min bigger or equal 0 & smaller or equal to 59
+            dateValid = dateValid && (Integer.parseInt(timeDate.substring(14, 16)) >= 0) && (Integer.parseInt(timeDate.substring(14, 16)) <= 59);
+            // Check for :
+            dateValid = dateValid && (timeDate.substring(16, 17).equals(":"));                
+            // Second bigger or equal 0 & smaller or equal to 59
+            dateValid = dateValid && (Integer.parseInt(timeDate.substring(17, 19)) >= 0) && (Integer.parseInt(timeDate.substring(17, 19)) <= 59);
+            if (!dateValid) {
+                errMsg.add("invalid date");
+            }
+        } catch (NumberFormatException e) {
             errMsg.add("invalid date");
         }
 
