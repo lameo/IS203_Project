@@ -36,11 +36,21 @@ public class breakdown extends HttpServlet {
         String timeDate = request.getParameter("date"); //get date from request    
 
         // Token checking
-        if (token == null || token.isEmpty()) {
+        if (token == null) {
+            errMsg.add("missing token");
+            finalAns.addProperty("status", "error");
+            finalAns.add("messages", errMsg);
+            out.println(gson.toJson(finalAns));
+            out.close(); //close PrintWriter
+            return;
+        }
+
+        if (token.isEmpty()) {
             errMsg.add("blank token");
             finalAns.addProperty("status", "error");
             finalAns.add("messages", errMsg);
             out.println(gson.toJson(finalAns));
+            out.close(); //close PrintWriter
             return;
         }
 
@@ -50,24 +60,45 @@ public class breakdown extends HttpServlet {
             finalAns.addProperty("status", "error");
             finalAns.add("messages", errMsg);
             out.println(gson.toJson(finalAns));
+            out.close(); //close PrintWriter
             return;
         }
 
         // Order checking
-        if (order == null || order.isEmpty()) {
+        if (order == null) {
+            errMsg.add("missing order");
+            finalAns.addProperty("status", "error");
+            finalAns.add("messages", errMsg);
+            out.println(gson.toJson(finalAns));
+            out.close(); //close PrintWriter
+            return;
+        }
+
+        if (order.isEmpty()) {
             errMsg.add("blank order");
             finalAns.addProperty("status", "error");
             finalAns.add("messages", errMsg);
             out.println(gson.toJson(finalAns));
+            out.close(); //close PrintWriter
             return;
         }
 
         // Date checking
-        if (timeDate == null || timeDate.isEmpty()) {
+        if (timeDate == null) {
+            errMsg.add("missing date");
+            finalAns.addProperty("status", "error");
+            finalAns.add("messages", errMsg);
+            out.println(gson.toJson(finalAns));
+            out.close(); //close PrintWriter
+            return;
+        }
+
+        if (timeDate.isEmpty()) {
             errMsg.add("blank date");
             finalAns.addProperty("status", "error");
             finalAns.add("messages", errMsg);
             out.println(gson.toJson(finalAns));
+            out.close(); //close PrintWriter
             return;
         }
 
@@ -77,25 +108,25 @@ public class breakdown extends HttpServlet {
             // Length check
             dateValid = dateValid && timeDate.length() == 19;
             // Year bigger than 2013 & smaller or equal to 2017
-            dateValid = dateValid && (Integer.parseInt(timeDate.substring(0, 4)) > 2013) && (Integer.parseInt(timeDate.substring(0, 4)) <= 2017);            
+            dateValid = dateValid && (Integer.parseInt(timeDate.substring(0, 4)) > 2013) && (Integer.parseInt(timeDate.substring(0, 4)) <= 2017);
             // Check for dashes
-            dateValid = dateValid && (timeDate.substring(4, 5).equals("-"));   
+            dateValid = dateValid && (timeDate.substring(4, 5).equals("-"));
             // Month bigger than 0 & smaller or equal to 12
             dateValid = dateValid && (Integer.parseInt(timeDate.substring(5, 7)) > 0) && (Integer.parseInt(timeDate.substring(5, 7)) <= 12);
             // Check for dashes
-            dateValid = dateValid && (timeDate.substring(7, 8).equals("-"));            
+            dateValid = dateValid && (timeDate.substring(7, 8).equals("-"));
             // Day bigger than 0 & smaller or equal to 12
             dateValid = dateValid && (Integer.parseInt(timeDate.substring(8, 10)) > 0) && (Integer.parseInt(timeDate.substring(8, 10)) <= 31);
             // Check for T
-            dateValid = dateValid && (timeDate.substring(10, 11).equals("T"));            
+            dateValid = dateValid && (timeDate.substring(10, 11).equals("T"));
             // Hour bigger or equal 0 & smaller or equal to 24
             dateValid = dateValid && (Integer.parseInt(timeDate.substring(11, 13)) >= 0) && (Integer.parseInt(timeDate.substring(11, 13)) <= 23);
             // Check for :
-            dateValid = dateValid && (timeDate.substring(13, 14).equals(":"));                
+            dateValid = dateValid && (timeDate.substring(13, 14).equals(":"));
             // Min bigger or equal 0 & smaller or equal to 59
             dateValid = dateValid && (Integer.parseInt(timeDate.substring(14, 16)) >= 0) && (Integer.parseInt(timeDate.substring(14, 16)) <= 59);
             // Check for :
-            dateValid = dateValid && (timeDate.substring(16, 17).equals(":"));                
+            dateValid = dateValid && (timeDate.substring(16, 17).equals(":"));
             // Second bigger or equal 0 & smaller or equal to 59
             dateValid = dateValid && (Integer.parseInt(timeDate.substring(17, 19)) >= 0) && (Integer.parseInt(timeDate.substring(17, 19)) <= 59);
             if (!dateValid) {
@@ -135,8 +166,6 @@ public class breakdown extends HttpServlet {
             String[] gender = {"gender", "M", "F"};                                                        //2
             String[] school = {"School", "accountancy", "business", "economics", "law", "sis", "socsc"};   //6
 
-            
-            
             String[] arr = order.split(",");
             ArrayList<Integer> temp1 = ReportDAO.notVeryBasicBreakdownJson(Arrays.copyOfRange(arr, 0, 1), timeDate);
             ArrayList<Integer> temp2 = ReportDAO.notVeryBasicBreakdownJson(Arrays.copyOfRange(arr, 0, 2), timeDate);
@@ -253,6 +282,8 @@ public class breakdown extends HttpServlet {
             finalAns.add("messages", errMsg);
         }
         out.println(gson.toJson(finalAns));
+
+        out.close(); //close PrintWriter
     }
 
 // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">

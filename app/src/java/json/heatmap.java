@@ -10,7 +10,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -40,26 +39,21 @@ public class heatmap extends HttpServlet {
         String stringFloor = request.getParameter("floor"); //get password from request    
         String timeDate = request.getParameter("date"); //get password from request   
 
-        if (token == null || token.isEmpty()) {
+        if (token == null) {
+            errMsg.add("missing token");
+            jsonOutput.addProperty("status", "error");
+            jsonOutput.add("messages", errMsg);
+            out.println(gson.toJson(jsonOutput));
+            out.close(); //close PrintWriter
+            return;
+        }
+
+        if (token.isEmpty()) {
             errMsg.add("blank token");
             jsonOutput.addProperty("status", "error");
             jsonOutput.add("messages", errMsg);
             out.println(gson.toJson(jsonOutput));
-            return;
-        }
-
-        if (stringFloor == null || stringFloor.isEmpty()) {
-            errMsg.add("blank floor");
-            jsonOutput.addProperty("status", "error");
-            jsonOutput.add("messages", errMsg);
-            out.println(gson.toJson(jsonOutput));
-            return;
-        }
-        if (timeDate == null || timeDate.isEmpty()) {
-            errMsg.add("blank date");
-            jsonOutput.addProperty("status", "error");
-            jsonOutput.add("messages", errMsg);
-            out.println(gson.toJson(jsonOutput));
+            out.close(); //close PrintWriter
             return;
         }
 
@@ -69,6 +63,43 @@ public class heatmap extends HttpServlet {
             jsonOutput.addProperty("status", "error");
             jsonOutput.add("messages", errMsg);
             out.println(gson.toJson(jsonOutput));
+            out.close(); //close PrintWriter
+            return;
+        }
+
+        if (stringFloor == null) {
+            errMsg.add("missing floor");
+            jsonOutput.addProperty("status", "error");
+            jsonOutput.add("messages", errMsg);
+            out.println(gson.toJson(jsonOutput));
+            out.close(); //close PrintWriter
+            return;
+        }
+
+        if (stringFloor.isEmpty()) {
+            errMsg.add("blank floor");
+            jsonOutput.addProperty("status", "error");
+            jsonOutput.add("messages", errMsg);
+            out.println(gson.toJson(jsonOutput));
+            out.close(); //close PrintWriter
+            return;
+        }
+
+        if (timeDate == null) {
+            errMsg.add("missing date");
+            jsonOutput.addProperty("status", "error");
+            jsonOutput.add("messages", errMsg);
+            out.println(gson.toJson(jsonOutput));
+            out.close(); //close PrintWriter
+            return;
+        }
+
+        if (timeDate.isEmpty()) {
+            errMsg.add("blank date");
+            jsonOutput.addProperty("status", "error");
+            jsonOutput.add("messages", errMsg);
+            out.println(gson.toJson(jsonOutput));
+            out.close(); //close PrintWriter
             return;
         }
 
@@ -78,25 +109,25 @@ public class heatmap extends HttpServlet {
             // Length check
             dateValid = dateValid && timeDate.length() == 19;
             // Year bigger than 2013 & smaller or equal to 2017
-            dateValid = dateValid && (Integer.parseInt(timeDate.substring(0, 4)) > 2013) && (Integer.parseInt(timeDate.substring(0, 4)) <= 2017);            
+            dateValid = dateValid && (Integer.parseInt(timeDate.substring(0, 4)) > 2013) && (Integer.parseInt(timeDate.substring(0, 4)) <= 2017);
             // Check for dashes
-            dateValid = dateValid && (timeDate.substring(4, 5).equals("-"));   
+            dateValid = dateValid && (timeDate.substring(4, 5).equals("-"));
             // Month bigger than 0 & smaller or equal to 12
             dateValid = dateValid && (Integer.parseInt(timeDate.substring(5, 7)) > 0) && (Integer.parseInt(timeDate.substring(5, 7)) <= 12);
             // Check for dashes
-            dateValid = dateValid && (timeDate.substring(7, 8).equals("-"));            
+            dateValid = dateValid && (timeDate.substring(7, 8).equals("-"));
             // Day bigger than 0 & smaller or equal to 12
             dateValid = dateValid && (Integer.parseInt(timeDate.substring(8, 10)) > 0) && (Integer.parseInt(timeDate.substring(8, 10)) <= 31);
             // Check for T
-            dateValid = dateValid && (timeDate.substring(10, 11).equals("T"));            
+            dateValid = dateValid && (timeDate.substring(10, 11).equals("T"));
             // Hour bigger or equal 0 & smaller or equal to 24
             dateValid = dateValid && (Integer.parseInt(timeDate.substring(11, 13)) >= 0) && (Integer.parseInt(timeDate.substring(11, 13)) <= 23);
             // Check for :
-            dateValid = dateValid && (timeDate.substring(13, 14).equals(":"));                
+            dateValid = dateValid && (timeDate.substring(13, 14).equals(":"));
             // Min bigger or equal 0 & smaller or equal to 59
             dateValid = dateValid && (Integer.parseInt(timeDate.substring(14, 16)) >= 0) && (Integer.parseInt(timeDate.substring(14, 16)) <= 59);
             // Check for :
-            dateValid = dateValid && (timeDate.substring(16, 17).equals(":"));                
+            dateValid = dateValid && (timeDate.substring(16, 17).equals(":"));
             // Second bigger or equal 0 & smaller or equal to 59
             dateValid = dateValid && (Integer.parseInt(timeDate.substring(17, 19)) >= 0) && (Integer.parseInt(timeDate.substring(17, 19)) <= 59);
             if (!dateValid) {
@@ -143,6 +174,8 @@ public class heatmap extends HttpServlet {
             jsonOutput.add("messages", errMsg);
         }
         out.println(gson.toJson(jsonOutput));
+
+        out.close(); //close PrintWriter
     }
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">

@@ -22,7 +22,8 @@ import model.SharedSecretManager;
 public class topKNextPlaces extends HttpServlet {
 
     /**
-     * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
+     * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
+     * methods.
      *
      * @param request servlet request
      * @param response servlet response
@@ -49,11 +50,21 @@ public class topKNextPlaces extends HttpServlet {
         String dateEntered = request.getParameter("date"); //get date from url
         String semanticPlace = request.getParameter("origin"); //get the semantic place from url
 
-        if (tokenEntered == null || tokenEntered.isEmpty()) {
+        if (tokenEntered == null) {
+            errMsg.add("missing token");
+            jsonOutput.addProperty("status", "error");
+            jsonOutput.add("messages", errMsg);
+            out.println(gson.toJson(jsonOutput));
+            out.close(); //close PrintWriter
+            return;
+        }
+
+        if (tokenEntered.isEmpty()) {
             errMsg.add("blank token");
             jsonOutput.addProperty("status", "error");
             jsonOutput.add("messages", errMsg);
             out.println(gson.toJson(jsonOutput));
+            out.close(); //close PrintWriter
             return;
         }
 
@@ -63,24 +74,45 @@ public class topKNextPlaces extends HttpServlet {
             jsonOutput.addProperty("status", "error");
             jsonOutput.add("messages", errMsg);
             out.println(gson.toJson(jsonOutput));
+            out.close(); //close PrintWriter
             return;
         }
 
         //check if dateEntered is entered by user from url
-        if (dateEntered == null || dateEntered.equals("")) {
+        if (dateEntered == null) {
+            errMsg.add("missing date");
+            jsonOutput.addProperty("status", "error");
+            jsonOutput.add("messages", errMsg);
+            out.println(gson.toJson(jsonOutput));
+            out.close(); //close PrintWriter
+            return;
+        }
+
+        if (dateEntered.isEmpty()) {
             errMsg.add("blank date");
             jsonOutput.addProperty("status", "error");
             jsonOutput.add("messages", errMsg);
             out.println(gson.toJson(jsonOutput));
+            out.close(); //close PrintWriter
             return;
         }
 
         //check if origin is entered by user from url
-        if (semanticPlace == null || semanticPlace.equals("")) {
+        if (semanticPlace == null) {
+            errMsg.add("missing origin");
+            jsonOutput.addProperty("status", "error");
+            jsonOutput.add("messages", errMsg);
+            out.println(gson.toJson(jsonOutput));
+            out.close(); //close PrintWriter
+            return;
+        }
+
+        if (semanticPlace.isEmpty()) {
             errMsg.add("blank origin");
             jsonOutput.addProperty("status", "error");
             jsonOutput.add("messages", errMsg);
             out.println(gson.toJson(jsonOutput));
+            out.close(); //close PrintWriter
             return;
         }
 
@@ -90,25 +122,25 @@ public class topKNextPlaces extends HttpServlet {
             // Length check
             dateValid = dateValid && dateEntered.length() == 19;
             // Year bigger than 2013 & smaller or equal to 2017
-            dateValid = dateValid && (Integer.parseInt(dateEntered.substring(0, 4)) > 2013) && (Integer.parseInt(dateEntered.substring(0, 4)) <= 2017);            
+            dateValid = dateValid && (Integer.parseInt(dateEntered.substring(0, 4)) > 2013) && (Integer.parseInt(dateEntered.substring(0, 4)) <= 2017);
             // Check for dashes
-            dateValid = dateValid && (dateEntered.substring(4, 5).equals("-"));   
+            dateValid = dateValid && (dateEntered.substring(4, 5).equals("-"));
             // Month bigger than 0 & smaller or equal to 12
             dateValid = dateValid && (Integer.parseInt(dateEntered.substring(5, 7)) > 0) && (Integer.parseInt(dateEntered.substring(5, 7)) <= 12);
             // Check for dashes
-            dateValid = dateValid && (dateEntered.substring(7, 8).equals("-"));            
+            dateValid = dateValid && (dateEntered.substring(7, 8).equals("-"));
             // Day bigger than 0 & smaller or equal to 12
             dateValid = dateValid && (Integer.parseInt(dateEntered.substring(8, 10)) > 0) && (Integer.parseInt(dateEntered.substring(8, 10)) <= 31);
             // Check for T
-            dateValid = dateValid && (dateEntered.substring(10, 11).equals("T"));            
+            dateValid = dateValid && (dateEntered.substring(10, 11).equals("T"));
             // Hour bigger or equal 0 & smaller or equal to 24
             dateValid = dateValid && (Integer.parseInt(dateEntered.substring(11, 13)) >= 0) && (Integer.parseInt(dateEntered.substring(11, 13)) <= 23);
             // Check for :
-            dateValid = dateValid && (dateEntered.substring(13, 14).equals(":"));                
+            dateValid = dateValid && (dateEntered.substring(13, 14).equals(":"));
             // Min bigger or equal 0 & smaller or equal to 59
             dateValid = dateValid && (Integer.parseInt(dateEntered.substring(14, 16)) >= 0) && (Integer.parseInt(dateEntered.substring(14, 16)) <= 59);
             // Check for :
-            dateValid = dateValid && (dateEntered.substring(16, 17).equals(":"));                
+            dateValid = dateValid && (dateEntered.substring(16, 17).equals(":"));
             // Second bigger or equal 0 & smaller or equal to 59
             dateValid = dateValid && (Integer.parseInt(dateEntered.substring(17, 19)) >= 0) && (Integer.parseInt(dateEntered.substring(17, 19)) <= 59);
             if (!dateValid) {
@@ -197,6 +229,8 @@ public class topKNextPlaces extends HttpServlet {
             jsonOutput.add("messages", errMsg);
         }
         out.println(gson.toJson(jsonOutput));
+
+        out.close(); //close PrintWriter
     }
 // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
 

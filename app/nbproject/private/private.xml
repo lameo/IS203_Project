@@ -3,11 +3,15 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/D:/testt/app/src/java/model/HeatMapDAO.java</file>
-            <file>file:/D:/testt/app/src/java/json/bootstrapUpdate.java</file>
+            <file>file:/D:/testt/app/web/reportsPage.jsp</file>
+            <file>file:/D:/testt/app/web/resource/B1.json</file>
+            <file>file:/D:/testt/app/src/java/json/topKCompanion.java</file>
+            <file>file:/D:/testt/app/src/java/json/topKPopularPlace.java</file>
             <file>file:/D:/testt/app/src/java/json/heatmap.java</file>
+            <file>file:/D:/testt/app/web/heatmapPage.jsp</file>
             <file>file:/D:/testt/app/src/java/json/authenticate.java</file>
-            <file>file:/D:/testt/app/src/java/json/bootstrapUpload.java</file>
+            <file>file:/D:/testt/app/src/java/json/breakdown.java</file>
+            <file>file:/D:/testt/app/src/java/json/topKNextPlaces.java</file>
         </group>
     </open-files>
 </project-private>

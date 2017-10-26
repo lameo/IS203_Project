@@ -16,7 +16,6 @@ import model.User;
 import model.UserDAO;
 import model.SharedSecretManager;
 
-
 @WebServlet(urlPatterns = {"/json/authenticate"})
 public class authenticate extends HttpServlet {
 
@@ -36,19 +35,39 @@ public class authenticate extends HttpServlet {
         String username = request.getParameter("username"); //get username from request
         String password = request.getParameter("password"); //get password from request   
 
-        if (username == null || username.isEmpty()) { //check if username is null or empty
+        if (username == null) { //check if username is null
+            errMsg.add("missing username");
+            jsonOutput.addProperty("status", "error");
+            jsonOutput.add("messages", errMsg);
+            out.println(gson.toJson(jsonOutput));
+            out.close(); //close PrintWriter
+            return;
+        }
+
+        if (username.isEmpty()) { //check if username is empty
             errMsg.add("blank username");
             jsonOutput.addProperty("status", "error");
             jsonOutput.add("messages", errMsg);
             out.println(gson.toJson(jsonOutput));
+            out.close(); //close PrintWriter
             return;
         }
-        
-        if (password == null || password.isEmpty()) { //check if password is null or empty
-            errMsg.add("blank password");            
+
+        if (password == null) { //check if password is null
+            errMsg.add("missing password");
             jsonOutput.addProperty("status", "error");
             jsonOutput.add("messages", errMsg);
             out.println(gson.toJson(jsonOutput));
+            out.close(); //close PrintWriter
+            return;
+        }
+
+        if (password.isEmpty()) { //check if password is empty
+            errMsg.add("blank password");
+            jsonOutput.addProperty("status", "error");
+            jsonOutput.add("messages", errMsg);
+            out.println(gson.toJson(jsonOutput));
+            out.close(); //close PrintWriter
             return;
         }
 
@@ -81,6 +100,8 @@ public class authenticate extends HttpServlet {
             jsonOutput.add("messages", errMsg);
         }
         out.println(gson.toJson(jsonOutput));
+
+        out.close(); // close PrintWriter
     }
 
 // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">

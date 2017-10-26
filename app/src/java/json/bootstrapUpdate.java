@@ -39,192 +39,196 @@ public class bootstrapUpdate extends HttpServlet {
         //creates a new json object for printing the desired json output
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
-        
+        JsonArray errMsg = new JsonArray();
+
         //get token from request
         String token = request.getParameter("token");
-        boolean tokenValid = true;
+
         // Token checking
         if (token == null) {
-            tokenValid = false;
-        } else if (token.equals("")) {
-            tokenValid = false;
-        } else if (SharedSecretManager.verifyUser(token)) {
-            tokenValid = false;
-        }
-        
-
-        // set to "if(tokenValid)" to debug without token, default "if(!tokenValid)"
-        // if token is not valid, return error message and end
-        if (tokenValid) {
+            errMsg.add("missing token");
             ans.addProperty("status", "error");
-            JsonArray message = new JsonArray();
-            message.add("invalid token");
-            ans.add("messages", message);
-        } else {
+            ans.add("messages", errMsg);
+            out.println(gson.toJson(ans));
+            out.close(); //close PrintWriter
+            return;
+        }
+
+        if (token.isEmpty()) {
+            errMsg.add("blank token");
+            ans.addProperty("status", "error");
+            ans.add("messages", errMsg);
+            out.println(gson.toJson(ans));
+            out.close(); //close PrintWriter
+            return;
+        }
+
+        //print out all the error with null or empty string that is required but the user did not enter 
+        if (!SharedSecretManager.verifyUser(token)) { //verify the user - if the user is not verified
+            errMsg.add("invalid token");
+            ans.addProperty("status", "error");
+            ans.add("messages", errMsg);
+            out.println(gson.toJson(ans));
+            out.close(); //close PrintWriter
+            return;
+        }
+
         // if token is valid, continue processing
-            HttpSession session = request.getSession();
-            UploadBean upBean = new UploadBean();
-            HashMap<Integer, String> demographicsError = new HashMap<>();
-            HashMap<Integer, String> locationError = new HashMap<>();
-            JsonArray fileUpload = new JsonArray();
+        UploadBean upBean = new UploadBean();
+        HashMap<Integer, String> demographicsError = new HashMap<>();
+        HashMap<Integer, String> locationError = new HashMap<>();
+        JsonArray fileUpload = new JsonArray();
 
-            
-            try {
-                ServletContext servletContext = this.getServletConfig().getServletContext();
-                //Pathname to a scratch directory to be provided by this Context for temporary read-write use by servlets within the associated web application
-                File directory = (File) servletContext.getAttribute("javax.servlet.context.tempdir"); 
-                String outputDirectory = "" + directory; //String format of directory
+        try {
+            ServletContext servletContext = this.getServletConfig().getServletContext();
+            //Pathname to a scratch directory to be provided by this Context for temporary read-write use by servlets within the associated web application
+            File directory = (File) servletContext.getAttribute("javax.servlet.context.tempdir");
+            String outputDirectory = "" + directory; //String format of directory
 
-                upBean.setFolderstore(outputDirectory); //set upBean output directory
-                Long size = Long.parseLong("8589934592"); //the size limit of the file uploads
-                upBean.setFilesizelimit(size);
-                if (MultipartFormDataRequest.isMultipartFormData(request)) {
-                    //Uses MultipartFormDataRequest to parse the HTTP request.
-                    MultipartFormDataRequest multipartRequest = new MultipartFormDataRequest(request); //specialized version of request object to interpret the data
+            upBean.setFolderstore(outputDirectory); //set upBean output directory
+            Long size = Long.parseLong("8589934592"); //the size limit of the file uploads
+            upBean.setFilesizelimit(size);
+            if (MultipartFormDataRequest.isMultipartFormData(request)) {
+                //Uses MultipartFormDataRequest to parse the HTTP request.
+                MultipartFormDataRequest multipartRequest = new MultipartFormDataRequest(request); //specialized version of request object to interpret the data
 
-                    
-                    Hashtable files = multipartRequest.getFiles(); //get the files sent over, hastable is the older version of hashmap
-                    if ((files != null) && (!files.isEmpty())) {
-                        UploadFile file = (UploadFile) files.get("uploadfile"); //get the files from bootstrapinitialize
-                        if (file != null && file.getFileSize() > 0 && file.getFileName() != null) {
-                            String fileName = file.getFileName();
-                            String contentType = file.getContentType(); //Get the file type
-                            String filePath = outputDirectory + File.separator + fileName; //get the file path 
+                Hashtable files = multipartRequest.getFiles(); //get the files sent over, hastable is the older version of hashmap
+                if ((files != null) && (!files.isEmpty())) {
+                    UploadFile file = (UploadFile) files.get("uploadfile"); //get the files from bootstrapinitialize
+                    if (file != null && file.getFileSize() > 0 && file.getFileName() != null) {
+                        String fileName = file.getFileName();
+                        String contentType = file.getContentType(); //Get the file type
+                        String filePath = outputDirectory + File.separator + fileName; //get the file path 
 
-                            
-                            if (contentType.equals("application/x-zip-compressed")) { //if it is a zip file
-                                upBean.store(multipartRequest, "uploadfile"); //save to directory
-                                String fileExist = UploadDAO.unzip(filePath, outputDirectory); //unzip the files in the zip and save into the directory
+                        if (contentType.equals("application/x-zip-compressed")) { //if it is a zip file
+                            upBean.store(multipartRequest, "uploadfile"); //save to directory
+                            String fileExist = UploadDAO.unzip(filePath, outputDirectory); //unzip the files in the zip and save into the directory
 
-                                
-                                if (fileExist != null && fileExist.contains("demographics.csv")) {
+                            if (fileExist != null && fileExist.contains("demographics.csv")) {
+                                demographicsError = UploadDAO.updateDemographics(outputDirectory + File.separator + "demographics.csv");
+                                JsonObject temp = new JsonObject();
+                                // using integer.max_value to pass the number of lines processed
+                                temp.addProperty("demographics.csv", Integer.parseInt(demographicsError.get(Integer.MAX_VALUE)));
+                                demographicsError.remove(Integer.MAX_VALUE);
+                                fileUpload.add(temp);
+                            }
+                            if (fileExist != null && fileExist.contains("location.csv")) {
+                                locationError = UploadDAO.updateLocation(outputDirectory + File.separator + "location.csv");
+                                JsonObject temp = new JsonObject();
+                                // using integer.max_value to pass the number of lines processed
+                                temp.addProperty("location.csv", Integer.parseInt(locationError.get(Integer.MAX_VALUE)));
+                                locationError.remove(Integer.MAX_VALUE);
+                                fileUpload.add(temp);
+                            }
+
+                            //if location.csv or demographics.csv
+                        } else if (UploadDAO.checkFileName(fileName) != null && UploadDAO.checkFileName(fileName).length() > 0) {
+                            upBean.store(multipartRequest, "uploadfile"); //save to directory
+                            JsonObject temp = new JsonObject();
+                            switch (fileName) {
+                                case "demographics.csv":
                                     demographicsError = UploadDAO.updateDemographics(outputDirectory + File.separator + "demographics.csv");
-                                    JsonObject temp = new JsonObject();
                                     // using integer.max_value to pass the number of lines processed
                                     temp.addProperty("demographics.csv", Integer.parseInt(demographicsError.get(Integer.MAX_VALUE)));
                                     demographicsError.remove(Integer.MAX_VALUE);
                                     fileUpload.add(temp);
-                                }
-                                if (fileExist != null && fileExist.contains("location.csv")) {
+                                    break;
+                                case "location.csv":
                                     locationError = UploadDAO.updateLocation(outputDirectory + File.separator + "location.csv");
-                                    JsonObject temp = new JsonObject();
                                     // using integer.max_value to pass the number of lines processed
                                     temp.addProperty("location.csv", Integer.parseInt(locationError.get(Integer.MAX_VALUE)));
                                     locationError.remove(Integer.MAX_VALUE);
                                     fileUpload.add(temp);
-                                }
-                                
-                                
-                            //if location.csv or demographics.csv
-                            } else if (UploadDAO.checkFileName(fileName) != null && UploadDAO.checkFileName(fileName).length() > 0) { 
-                                upBean.store(multipartRequest, "uploadfile"); //save to directory
-                                JsonObject temp = new JsonObject();
-                                switch (fileName) {
-                                    case "demographics.csv":
-                                        demographicsError = UploadDAO.updateDemographics(outputDirectory + File.separator + "demographics.csv");
-                                        // using integer.max_value to pass the number of lines processed
-                                        temp.addProperty("demographics.csv", Integer.parseInt(demographicsError.get(Integer.MAX_VALUE)));
-                                        demographicsError.remove(Integer.MAX_VALUE);
-                                        fileUpload.add(temp);
-                                        break;
-                                    case "location.csv":
-                                        locationError = UploadDAO.updateLocation(outputDirectory + File.separator + "location.csv");
-                                        // using integer.max_value to pass the number of lines processed
-                                        temp.addProperty("location.csv", Integer.parseInt(locationError.get(Integer.MAX_VALUE)));
-                                        locationError.remove(Integer.MAX_VALUE);
-                                        fileUpload.add(temp);
-                                        break;
-                                    default:
-                                        break;
-                                }
+                                    break;
+                                default:
+                                    break;
                             }
-                            
-                            
-                            if (demographicsError.isEmpty() && locationError.isEmpty()) {
-                                // if successful
-                                ans.addProperty("status", "success");
-                                ans.add("num-record-loaded", fileUpload);
-                            } else {
-                                // if contains error message
-                                ans.addProperty("status", "error");
-                                ans.add("num-record-loaded", fileUpload);
-                                JsonArray error = new JsonArray();
-
-                                // if it is arrayList.toString in json array, it will be "["abc","def"]"
-                                // if it is jsonarray added into jsonobject, it will be ["abc","def"]
-                                //ArrayList<String> temp = new ArrayList<>();
-                                //temp.add("abc");
-                                //temp.toString() -> "["abc"]"
-                                
-                                // demographics.csv file errors
-                                Map<Integer, String> demographicsErrorSorted = new TreeMap<>(demographicsError);
-                                for (Map.Entry<Integer, String> temp : demographicsErrorSorted.entrySet()) {
-                                    int key = temp.getKey();
-                                    String value = temp.getValue();
-                                    JsonObject tempJson = new JsonObject();
-                                    tempJson.addProperty("file", "demographics.csv");
-                                    tempJson.addProperty("line", key);
-                                    //Adding row errors into arraylist so they could be sorted
-                                    //After they are sorted, they are added into JSONarray and commited
-                                    ArrayList<String> err = new ArrayList<>();
-                                    err.addAll(Arrays.asList(value.split(",")));
-                                    Collections.sort(err);
-                                    JsonArray erro = new JsonArray();
-                                    for (String msg : err) {
-                                        erro.add(msg);
-                                    }
-                                    tempJson.add("message", erro);
-                                    error.add(tempJson);
-                                }
-
-                                
-                                // Location.csv file errors
-                                Map<Integer, String> locationErrorSored = new TreeMap<>(locationError);
-                                for (Map.Entry<Integer, String> temp : locationErrorSored.entrySet()) {
-                                    int key = temp.getKey();
-                                    String value = temp.getValue();
-                                    JsonObject tempJson = new JsonObject();
-                                    tempJson.addProperty("file", "location.csv");
-                                    tempJson.addProperty("line", key);
-                                    //Adding row errors into arraylist so they could be sorted
-                                    //After they are sorted, they are added into JSONarray and commited
-                                    ArrayList<String> err = new ArrayList<>();
-                                    err.addAll(Arrays.asList(value.split(",")));
-                                    Collections.sort(err);
-                                    JsonArray erro = new JsonArray();
-                                    for (String msg : err) {
-                                        erro.add(msg);
-                                    }
-                                    tempJson.add("message", erro);
-                                    error.add(tempJson);
-                                }
-                                ans.add("error", error);
-
-                            }
-                            file = null;
                         }
+
+                        if (demographicsError.isEmpty() && locationError.isEmpty()) {
+                            // if successful
+                            ans.addProperty("status", "success");
+                            ans.add("num-record-loaded", fileUpload);
+                        } else {
+                            // if contains error message
+                            ans.addProperty("status", "error");
+                            ans.add("num-record-loaded", fileUpload);
+                            JsonArray error = new JsonArray();
+
+                            // if it is arrayList.toString in json array, it will be "["abc","def"]"
+                            // if it is jsonarray added into jsonobject, it will be ["abc","def"]
+                            //ArrayList<String> temp = new ArrayList<>();
+                            //temp.add("abc");
+                            //temp.toString() -> "["abc"]"
+                            // demographics.csv file errors
+                            Map<Integer, String> demographicsErrorSorted = new TreeMap<>(demographicsError);
+                            for (Map.Entry<Integer, String> temp : demographicsErrorSorted.entrySet()) {
+                                int key = temp.getKey();
+                                String value = temp.getValue();
+                                JsonObject tempJson = new JsonObject();
+                                tempJson.addProperty("file", "demographics.csv");
+                                tempJson.addProperty("line", key);
+                                //Adding row errors into arraylist so they could be sorted
+                                //After they are sorted, they are added into JSONarray and commited
+                                ArrayList<String> err = new ArrayList<>();
+                                err.addAll(Arrays.asList(value.split(",")));
+                                Collections.sort(err);
+                                JsonArray erro = new JsonArray();
+                                for (String msg : err) {
+                                    erro.add(msg);
+                                }
+                                tempJson.add("message", erro);
+                                error.add(tempJson);
+                            }
+
+                            // Location.csv file errors
+                            Map<Integer, String> locationErrorSored = new TreeMap<>(locationError);
+                            for (Map.Entry<Integer, String> temp : locationErrorSored.entrySet()) {
+                                int key = temp.getKey();
+                                String value = temp.getValue();
+                                JsonObject tempJson = new JsonObject();
+                                tempJson.addProperty("file", "location.csv");
+                                tempJson.addProperty("line", key);
+                                //Adding row errors into arraylist so they could be sorted
+                                //After they are sorted, they are added into JSONarray and commited
+                                ArrayList<String> err = new ArrayList<>();
+                                err.addAll(Arrays.asList(value.split(",")));
+                                Collections.sort(err);
+                                JsonArray erro = new JsonArray();
+                                for (String msg : err) {
+                                    erro.add(msg);
+                                }
+                                tempJson.add("message", erro);
+                                error.add(tempJson);
+                            }
+                            ans.add("error", error);
+
+                        }
+                        file = null;
                     }
                 }
-                
-                
-                // Deleting temp file so as to prevent issue with reuploading
-                if (outputDirectory == null) {
-                    return;
-                }
-                File dir = new File(outputDirectory);
-                if (dir.exists() && dir.isDirectory()) {
-                    File[] files = dir.listFiles();
-                    if (null != files) {
-                        for (File file : files) {
-                            file.delete();
-                        }
-                    }
-                }
-            } catch (UploadException e) {
-                out.println("error, Unable to upload. Please try again later");
             }
+
+            // Deleting temp file so as to prevent issue with reuploading
+            if (outputDirectory == null) {
+                return;
+            }
+            File dir = new File(outputDirectory);
+            if (dir.exists() && dir.isDirectory()) {
+                File[] files = dir.listFiles();
+                if (null != files) {
+                    for (File file : files) {
+                        file.delete();
+                    }
+                }
+            }
+        } catch (UploadException e) {
+            out.println("error, Unable to upload. Please try again later");
         }
+
         out.println(gson.toJson(ans));
+
+        out.close(); //close PrintWriter
     }
 
 // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">

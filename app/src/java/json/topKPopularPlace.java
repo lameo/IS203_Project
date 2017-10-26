@@ -32,7 +32,6 @@ public class topKPopularPlace extends HttpServlet {
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        HttpSession session = request.getSession();
         PrintWriter out = response.getWriter();
 
         //creates a new gson object
@@ -49,11 +48,21 @@ public class topKPopularPlace extends HttpServlet {
         String topKEntered = request.getParameter("k"); //get topK from url
         String dateEntered = request.getParameter("date"); //get date from url
 
-        if (tokenEntered == null || tokenEntered.isEmpty()) {
+        if (tokenEntered == null) {
+            errMsg.add("missing token");
+            jsonOutput.addProperty("status", "error");
+            jsonOutput.add("messages", errMsg);
+            out.println(gson.toJson(jsonOutput));
+            out.close(); //close PrintWriter
+            return;
+        }
+
+        if (tokenEntered.isEmpty()) {
             errMsg.add("blank token");
             jsonOutput.addProperty("status", "error");
             jsonOutput.add("messages", errMsg);
             out.println(gson.toJson(jsonOutput));
+            out.close(); //close PrintWriter
             return;
         }
 
@@ -63,14 +72,25 @@ public class topKPopularPlace extends HttpServlet {
             jsonOutput.addProperty("status", "error");
             jsonOutput.add("messages", errMsg);
             out.println(gson.toJson(jsonOutput));
+            out.close(); //close PrintWriter
             return;
         }
 
-        if (dateEntered == null || dateEntered.equals("")) { //if the dateEntered not the right format
+        if (dateEntered == null) { //if the dateEntered not the right format
+            errMsg.add("missing date");
+            jsonOutput.addProperty("status", "error");
+            jsonOutput.add("messages", errMsg);
+            out.println(gson.toJson(jsonOutput));
+            out.close(); //close PrintWriter
+            return;
+        }
+
+        if (dateEntered.isEmpty()) { //if the dateEntered not the right format
             errMsg.add("blank date");
             jsonOutput.addProperty("status", "error");
             jsonOutput.add("messages", errMsg);
             out.println(gson.toJson(jsonOutput));
+            out.close(); //close PrintWriter
             return;
         }
 
@@ -80,25 +100,25 @@ public class topKPopularPlace extends HttpServlet {
             // Length check
             dateValid = dateValid && dateEntered.length() == 19;
             // Year bigger than 2013 & smaller or equal to 2017
-            dateValid = dateValid && (Integer.parseInt(dateEntered.substring(0, 4)) > 2013) && (Integer.parseInt(dateEntered.substring(0, 4)) <= 2017);            
+            dateValid = dateValid && (Integer.parseInt(dateEntered.substring(0, 4)) > 2013) && (Integer.parseInt(dateEntered.substring(0, 4)) <= 2017);
             // Check for dashes
-            dateValid = dateValid && (dateEntered.substring(4, 5).equals("-"));   
+            dateValid = dateValid && (dateEntered.substring(4, 5).equals("-"));
             // Month bigger than 0 & smaller or equal to 12
             dateValid = dateValid && (Integer.parseInt(dateEntered.substring(5, 7)) > 0) && (Integer.parseInt(dateEntered.substring(5, 7)) <= 12);
             // Check for dashes
-            dateValid = dateValid && (dateEntered.substring(7, 8).equals("-"));            
+            dateValid = dateValid && (dateEntered.substring(7, 8).equals("-"));
             // Day bigger than 0 & smaller or equal to 12
             dateValid = dateValid && (Integer.parseInt(dateEntered.substring(8, 10)) > 0) && (Integer.parseInt(dateEntered.substring(8, 10)) <= 31);
             // Check for T
-            dateValid = dateValid && (dateEntered.substring(10, 11).equals("T"));            
+            dateValid = dateValid && (dateEntered.substring(10, 11).equals("T"));
             // Hour bigger or equal 0 & smaller or equal to 24
             dateValid = dateValid && (Integer.parseInt(dateEntered.substring(11, 13)) >= 0) && (Integer.parseInt(dateEntered.substring(11, 13)) <= 23);
             // Check for :
-            dateValid = dateValid && (dateEntered.substring(13, 14).equals(":"));                
+            dateValid = dateValid && (dateEntered.substring(13, 14).equals(":"));
             // Min bigger or equal 0 & smaller or equal to 59
             dateValid = dateValid && (Integer.parseInt(dateEntered.substring(14, 16)) >= 0) && (Integer.parseInt(dateEntered.substring(14, 16)) <= 59);
             // Check for :
-            dateValid = dateValid && (dateEntered.substring(16, 17).equals(":"));                
+            dateValid = dateValid && (dateEntered.substring(16, 17).equals(":"));
             // Second bigger or equal 0 & smaller or equal to 59
             dateValid = dateValid && (Integer.parseInt(dateEntered.substring(17, 19)) >= 0) && (Integer.parseInt(dateEntered.substring(17, 19)) <= 59);
             if (!dateValid) {
@@ -107,27 +127,27 @@ public class topKPopularPlace extends HttpServlet {
         } catch (NumberFormatException e) {
             errMsg.add("invalid date");
         }
-        
+
         //Check if user entered a top k number
         if (topKEntered == null || topKEntered.equals("")) {
             topKEntered = "3";
         }
-        
+
         //assign default number to topK first before try-catch
         int topK = 3;
-        
+
         //Check if user entered in a number as a string instead of spelling it out as a whole
         //Eg: k=1 is correct but k=one is wrong
         try {
             topK = Integer.parseInt(topKEntered); //get the number user entered in url in int
-            
+
             if (topK < 1 || topK > 10) {
                 errMsg.add("invalid k"); //add error msg into JsonArray
             }
-        } catch(NumberFormatException e) { 
+        } catch (NumberFormatException e) {
             errMsg.add("invalid k"); //add error msg into JsonArray
         }
-       
+
         //only run with valid k
         if (errMsg.size() == 0) {
             //at this point, dateEntered is valid and is in the right format
@@ -166,6 +186,8 @@ public class topKPopularPlace extends HttpServlet {
             jsonOutput.add("messages", errMsg);
         }
         out.println(gson.toJson(jsonOutput));
+
+        out.close(); //close PrintWriter
     }
 
 // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
