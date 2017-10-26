@@ -7,6 +7,7 @@ import com.google.gson.JsonObject;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 import javax.servlet.ServletException;
@@ -168,7 +169,10 @@ public class topKCompanion extends HttpServlet {
                     //temp JsonArray objects to store all the required output as array before printing
                     JsonArray allCompanionsMacaddress = new JsonArray();
                     JsonArray allCompanionsEmail = new JsonArray();
-
+                    
+                    //to add in macaddress and email pair for sorting
+                    ArrayList<String> unsortedMacEmailPair = new ArrayList<>();
+                    
                     //get the arraylist out from map
                     ArrayList<String> currTimeCompanionList = topKCompanionMap.get(timeSpentByCompanions);
 
@@ -179,20 +183,22 @@ public class topKCompanion extends HttpServlet {
 
                         //use string.split(",") mtd to retrive String[] of macaddress and email
                         String[] allMacaddressEmailPairs = macaddressEmailPair.split(",");
-                        /*
-                                //loop String[]
-                                for (int j = 0; j < allMacaddressEmailPairs.length; j+=2) {
-                                    String macaddressFound = allMacaddressEmailPairs[j];
-                                    String emailFound = allMacaddressEmailPairs[j + 1];
-
-                                    //add into jsonArray
-                                    allCompanionsMacaddress.add(macaddressFound);
-                                    allCompanionsEmail.add(emailFound);
-                                }
-                         */
+                        
+                        //add in all macaddress and email retrieved from topKCompanionMap after getting the timeSpentByCompanions
+                        unsortedMacEmailPair.add(allMacaddressEmailPairs[0] + "," + allMacaddressEmailPairs[1]);
+                    }
+                    
+                    //sort the arraylist unsortedMacEmailPair in ascending order by macaddress
+                    //Collections.sort sorts data from left to right hence all the accompanying email will not be affected
+                    Collections.sort(unsortedMacEmailPair);
+                    
+                    //retrieve sorted macaddresses with their emails and add into the jsonarray respectively
+                    for(String eachMacEmail : unsortedMacEmailPair){
+                        String[] allMacaddressEmailPairs = eachMacEmail.split(",");                        
                         allCompanionsMacaddress.add(allMacaddressEmailPairs[0]);
                         allCompanionsEmail.add(allMacaddressEmailPairs[1]);
                     }
+                    
                     //add into jsonObject
                     topKCompanions.add("companion", allCompanionsEmail);
                     topKCompanions.add("mac-address", allCompanionsMacaddress);
