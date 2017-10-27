@@ -18,6 +18,8 @@ public class UpdateServlet extends HttpServlet implements java.io.Serializable {
         HttpSession session = request.getSession();
         UploadBean upBean = new UploadBean();
         String success = "";
+        boolean fileValid = false;
+        HashMap<String, String> processedLines = new HashMap<>();
         HashMap<Integer, String> demographicsError = new HashMap<>();
         HashMap<Integer, String> locationError = new HashMap<>();
         try {
@@ -44,45 +46,61 @@ public class UpdateServlet extends HttpServlet implements java.io.Serializable {
                             upBean.store(multipartRequest, "uploadfile"); //save to directory
 
                             String fileExist = UploadDAO.unzip(filePath, outputDirectory); //unzip the files in the zip and save into the directory    
-                            if (fileExist == null || fileExist.length()<=0) {
+                            if (fileExist == null || fileExist.length() <= 0) {
                                 session.setAttribute("error", "Wrong file name or type"); //send error messsage        
                             } else {
                                 if (fileExist.contains("demographics.csv")) {
                                     demographicsError = UploadDAO.updateDemographics(outputDirectory + File.separator + "demographics.csv");
+                                    processedLines.put("demographics.csv", demographicsError.get(Integer.MAX_VALUE));
                                     demographicsError.remove(Integer.MAX_VALUE);
+                                    fileValid = true;
                                 }
-
                                 if (fileExist.contains("location.csv")) {
                                     locationError = UploadDAO.updateLocation(outputDirectory + File.separator + "location.csv");
+                                    processedLines.put("location.csv", locationError.get(Integer.MAX_VALUE));
                                     locationError.remove(Integer.MAX_VALUE);
+                                    fileValid = true;
                                 }
                             }
-
+                            if (demographicsError.isEmpty() && locationError.isEmpty()) {
+                                success = "Uploaded file: " + fileName + " (" + file.getFileSize() + " bytes)";
+                                session.setAttribute("success", success); //send success messsage       
+                            } else {
+                                session.setAttribute("demographicsError", demographicsError); //send error messsage       
+                                session.setAttribute("locationError", locationError);
+                            }
                         } else if (UploadDAO.checkFileName(fileName) != null && UploadDAO.checkFileName(fileName).length() > 0) { //if location.csv or demographics.csv
                             upBean.store(multipartRequest, "uploadfile"); //save to directory
                             switch (fileName) {
                                 case "demographics.csv":
                                     demographicsError = UploadDAO.updateDemographics(outputDirectory + File.separator + "demographics.csv");
+                                    processedLines.put("demographics.csv", demographicsError.get(Integer.MAX_VALUE));
                                     demographicsError.remove(Integer.MAX_VALUE);
+                                    fileValid = true;
                                     break;
                                 case "location.csv":
                                     locationError = UploadDAO.updateLocation(outputDirectory + File.separator + "location.csv");
+                                    processedLines.put("location.csv", locationError.get(Integer.MAX_VALUE));
                                     locationError.remove(Integer.MAX_VALUE);
+                                    fileValid = true;
                                     break;
                                 default:
+                                    session.setAttribute("error", "Wrong file name or type"); //send error messsage                             
                                     break;
+                            }
+
+                            if (demographicsError.isEmpty() && locationError.isEmpty() && !fileValid) {
+                                success = "Uploaded file: " + fileName + " (" + file.getFileSize() + " bytes)";
+                                session.setAttribute("success", success); //send success messsage       
+                            } else {
+                                session.setAttribute("demographicsError", demographicsError); //send error messsage       
+                                session.setAttribute("locationError", locationError);
                             }
                         } else {
                             session.setAttribute("error", "Wrong file name or type"); //send error messsage                                  
                         }
+                        session.setAttribute("processedLines", processedLines); //send lines processed
 
-                        if (demographicsError.isEmpty() && locationError.isEmpty()) {
-                            success = "Uploaded file: " + fileName + " (" + file.getFileSize() + " bytes)";
-                            session.setAttribute("success", success); //send success messsage       
-                        } else {
-                            session.setAttribute("demographicsError", demographicsError); //send error messsage       
-                            session.setAttribute("locationError", locationError);
-                        }
                         file = null;
                     } else {
                         session.setAttribute("error", "No uploaded files"); //send error messsage                     

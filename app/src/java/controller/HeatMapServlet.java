@@ -1,7 +1,6 @@
 package controller;
 
 import java.io.IOException;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Map;
@@ -24,48 +23,21 @@ public class HeatMapServlet extends HttpServlet {
         SimpleDateFormat readFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
         SimpleDateFormat writeFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         Date timestamp = null;
-        try {
-            int floor = Integer.parseInt(request.getParameter("floor")); //retrieve floor from user input
-            String floorName = "B1";
 
-            if (floor > 0) {
-                floorName = "L" + floor;
-            }
+        int floor = Integer.parseInt(request.getParameter("floor")); //retrieve floor from user input
+        String floorName = "B1";
 
-            timestamp = (Date) readFormat.parse(timeDate);
-            timeDate = writeFormat.format(timestamp);
-
-            //check for valid date entered by user
-            boolean dateValid = true;
-            // Length check
-            dateValid = dateValid && timeDate.length() == 19;
-            // Year equal to 2017
-            dateValid = dateValid && (Integer.parseInt(timeDate.substring(0, 4)) == 2017);
-            // Month equal to 2
-            dateValid = dateValid && (Integer.parseInt(timeDate.substring(5, 7)) == 2);
-            // Day equal to 6
-            dateValid = dateValid && (Integer.parseInt(timeDate.substring(8, 10)) > 0) && (Integer.parseInt(timeDate.substring(8, 10)) <= 31);
-            // Hour bigger or equal 10 & smaller or equal to 12
-            dateValid = dateValid && (Integer.parseInt(timeDate.substring(11, 13)) >= 10) && (Integer.parseInt(timeDate.substring(11, 13)) <= 12);
-            // Min bigger or equal 0 & smaller or equal to 59
-            dateValid = dateValid && (Integer.parseInt(timeDate.substring(14, 16)) >= 0) && (Integer.parseInt(timeDate.substring(14, 16)) <= 59);
-            // Second bigger or equal 0 & smaller or equal to 59
-            dateValid = dateValid && (Integer.parseInt(timeDate.substring(17, 19)) >= 0) && (Integer.parseInt(timeDate.substring(17, 19)) <= 59);
-
-            if (dateValid) {
-
-                Map<String, HeatMap> heatmapList = HeatMapDAO.retrieveHeatMap(timeDate, floorName);
-                session.setAttribute("heatmapList", heatmapList);
-                
-            }
-            session.setAttribute("floorName", floorName);
-            session.setAttribute("timeDate", timeDate);
-
-            response.sendRedirect("heatmapPage.jsp"); //send back to heatmapPage
-
-        } catch (ParseException e) {
-            e.printStackTrace();
+        if (floor > 0) {
+            floorName = "L" + floor;
         }
+
+        Map<String, HeatMap> heatmapList = HeatMapDAO.retrieveHeatMap(timeDate, floorName);
+        session.setAttribute("heatmapList", heatmapList);
+
+        session.setAttribute("floorName", floorName);
+        session.setAttribute("timeDate", timeDate);
+
+        response.sendRedirect("heatmapPage.jsp"); //send back to heatmapPage
 
     }
 

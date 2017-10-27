@@ -40,6 +40,7 @@ public class bootstrapUpdate extends HttpServlet {
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
         JsonArray errMsg = new JsonArray();
+        boolean validFile = true;
 
         //get token from request
         String token = request.getParameter("token");
@@ -143,9 +144,11 @@ public class bootstrapUpdate extends HttpServlet {
                                 default:
                                     break;
                             }
+                        }else{
+                            validFile = false;
                         }
 
-                        if (demographicsError.isEmpty() && locationError.isEmpty()) {
+                        if (demographicsError.isEmpty() && locationError.isEmpty() && validFile) {
                             // if successful
                             ans.addProperty("status", "success");
                             ans.add("num-record-loaded", fileUpload);

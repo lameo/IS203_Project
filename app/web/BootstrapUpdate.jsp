@@ -66,12 +66,33 @@
             <%
                 HashMap<Integer, String> demographicsError = (HashMap<Integer, String>) session.getAttribute("demographicsError");
                 HashMap<Integer, String> locationError = (HashMap<Integer, String>) session.getAttribute("locationError");
+                HashMap<String, String> processedLines = (HashMap<String, String>) session.getAttribute("processedLines");
                 String success = (String) session.getAttribute("success"); //success message retrieved from UploadServlet
-
-                String error = (String) session.getAttribute("error"); //error message retrieved from UploadServlet
+                
+                //error message retrieved from UploadServlet
+                String error = (String) session.getAttribute("error"); 
                 if (error != null && error.length() >= 1) {
                     out.println("<font color='red'>" + "<br/>" + error + "</font>");
                     session.removeAttribute("error");
+                }else{
+                    if(success!=null){                        
+                        out.println("<center><font color='green'>" + "<br/> Success!!</font>");
+                        out.println("<font color='green'>" + "<br/>" + success + "</font></center>");
+                        session.removeAttribute("success");
+                    }
+                }
+                // Table for processed line
+                if(processedLines!= null && processedLines.size()>0){
+                    out.print("<div class=\"container\"><table class=\"table table-bordered\"><thead>");
+                    out.print("<tr><th>File</th><th># of Records Loaded</th></tr></thead><tbody>");
+                    if(processedLines.containsKey("location.csv")){
+                        out.print("<tr><td>location.csv</td><td>" + processedLines.get("location.csv") + "</td></tr>");
+                    }
+                    if(processedLines.containsKey("demographics.csv")){
+                        out.print("<tr><td>demographics.csv</td><td>" + processedLines.get("demographics.csv") + "</td></tr>");
+                    }
+                    out.print("</tbody></table></div><br>");
+                    session.removeAttribute("processedLines");
                 }
 
                 // Table for demographic error
@@ -83,6 +104,7 @@
                     for (Integer key : keys) {
                         out.print("<tr><td>" + key + "</td><td>" + demographicsError.get(key) + "</td></tr>");
                     }
+                    out.print("</tbody></table></div><br>");
                     session.removeAttribute("demographicsError");
                 }
 
@@ -95,14 +117,8 @@
                     for (Integer key : keys) {
                         out.print("<tr><td>" + key + "</td><td>" + locationError.get(key) + "</td></tr>");
                     }
+                    out.print("</tbody></table></div><br>");
                     session.removeAttribute("locationError");
-                }
-                out.print("</tbody></table></div><br>");
-
-                if (success != null) {
-                    out.println("<center><font color='green'>" + "<br/> SUCCESS!!</font>");
-                    out.println("<font color='green'>" + "<br/>" + success + "</font></center>");
-                    session.removeAttribute("success");
                 }
             %>
             <center>

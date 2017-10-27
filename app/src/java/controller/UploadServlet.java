@@ -17,6 +17,7 @@ public class UploadServlet extends HttpServlet implements java.io.Serializable {
     protected void processRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         HttpSession session = request.getSession();
         UploadBean upBean = new UploadBean();
+        HashMap<String, String> processedLines = new HashMap<>();
         String success = "";
         HashMap<Integer, String> demographicsError = new HashMap<>();
         HashMap<Integer, String> locationLookupError = new HashMap<>();
@@ -45,54 +46,71 @@ public class UploadServlet extends HttpServlet implements java.io.Serializable {
                             upBean.store(multipartRequest, "uploadfile"); //save to directory
 
                             String fileExist = UploadDAO.unzip(filePath, outputDirectory); //unzip the files in the zip and save into the directory
-                            if (fileExist == null || fileExist.length()<=0 || !(fileExist.contains("demographics.csv") || !fileExist.contains("location-lookup.csv") || !fileExist.contains("location.csv"))) {
+                            if (fileExist == null || fileExist.length() <= 0 || !(fileExist.contains("demographics.csv") || !fileExist.contains("location-lookup.csv") || !fileExist.contains("location.csv"))) {
                                 session.setAttribute("error", "Wrong file name or type"); //send error messsage        
                             } else {
 
                                 if (fileExist.contains("location-lookup.csv")) {
                                     locationLookupError = UploadDAO.readLookup(outputDirectory + File.separator + "location-lookup.csv");
+                                    processedLines.put("location-lookup.csv", locationLookupError.get(Integer.MAX_VALUE));
                                     locationLookupError.remove(Integer.MAX_VALUE);
                                 }
                                 if (fileExist.contains("demographics.csv")) {
                                     demographicsError = UploadDAO.readDemographics(outputDirectory + File.separator + "demographics.csv");
+                                    processedLines.put("demographics.csv", demographicsError.get(Integer.MAX_VALUE));
                                     demographicsError.remove(Integer.MAX_VALUE);
                                 }
                                 if (fileExist.contains("location.csv")) {
                                     locationError = UploadDAO.readLocation(outputDirectory + File.separator + "location.csv");
+                                    processedLines.put("location.csv", locationError.get(Integer.MAX_VALUE));
                                     locationError.remove(Integer.MAX_VALUE);
                                 }
                             }
-
+                            session.setAttribute("processedLines", processedLines); //send lines processed
+                            if (demographicsError.isEmpty() && locationError.isEmpty() && locationLookupError.isEmpty()) {
+                                success = "Uploaded file: " + fileName + " (" + file.getFileSize() + " bytes)";
+                                session.setAttribute("success", success); //send success messsage       
+                            } else {
+                                session.setAttribute("demographicsError", demographicsError); //send error messsage       
+                                session.setAttribute("locationLookupError", locationLookupError);
+                                session.setAttribute("locationError", locationError);
+                            }
                         } else if (UploadDAO.checkFileName(fileName) != null && UploadDAO.checkFileName(fileName).length() > 0) { //if location.csv or location-lookup.csv or demographics.csv
                             upBean.store(multipartRequest, "uploadfile"); //save to directory
                             switch (fileName) {
                                 case "location-lookup.csv":
                                     locationLookupError = UploadDAO.readLookup(outputDirectory + File.separator + "location-lookup.csv");
+                                    processedLines.put("location-lookup.csv", locationLookupError.get(Integer.MAX_VALUE));
                                     locationLookupError.remove(Integer.MAX_VALUE);
                                     break;
                                 case "demographics.csv":
                                     demographicsError = UploadDAO.readDemographics(outputDirectory + File.separator + "demographics.csv");
+                                    processedLines.put("demographics.csv", demographicsError.get(Integer.MAX_VALUE));
                                     demographicsError.remove(Integer.MAX_VALUE);
                                     break;
                                 case "location.csv":
                                     locationError = UploadDAO.readLocation(outputDirectory + File.separator + "location.csv");
+                                    processedLines.put("location.csv", locationError.get(Integer.MAX_VALUE));
                                     locationError.remove(Integer.MAX_VALUE);
                                     break;
                                 default:
+                                    session.setAttribute("error", "Wrong file name or type"); //send error messsage
                                     break;
                             }
+                            session.setAttribute("processedLines", processedLines); //send lines processed
+                            if (demographicsError.isEmpty() && locationError.isEmpty() && locationLookupError.isEmpty()) {
+                                success = "Uploaded file: " + fileName + " (" + file.getFileSize() + " bytes)";
+                                session.setAttribute("success", success); //send success messsage       
+                            } else {
+                                session.setAttribute("demographicsError", demographicsError); //send error messsage       
+                                session.setAttribute("locationLookupError", locationLookupError);
+                                session.setAttribute("locationError", locationError);
+                            }
+
                         } else {
                             session.setAttribute("error", "Wrong file name or type"); //send error messsage                                  
                         }
 
-                        if (demographicsError.isEmpty() && locationError.isEmpty() && locationLookupError.isEmpty()) {
-                            success = "Uploaded file: " + fileName + " (" + file.getFileSize() + " bytes)";
-                            session.setAttribute("success", success); //send success messsage       
-                        } else {
-                            session.setAttribute("demographicsError", demographicsError); //send error messsage       
-                            session.setAttribute("locationLookupError", locationLookupError);
-                            session.setAttribute("locationError", locationError);
-                        }
                         file = null;
                     } else {
                         session.setAttribute("error", "No uploaded files"); //send error messsage                     
