@@ -66,21 +66,21 @@
 
 
 
-    <br><br><h4>Test accounts:</h4><h5>Admin:<br>admin<br>password</h5>
-    <form method=post action="processLogin">
-        <input type="hidden" name="username" value ="admin" required/>
-        <input type="hidden" name="password" value ="password" required/>
-        <input type="hidden" name="timestamp" value="<%= new Timestamp(System.currentTimeMillis()).toString()%>">
-        <div align="left"><input type="submit" value ="Admin Login"/>
-    </form>
-    <h5>User:<br>zorro.fan.2013<br>zxcvbn1284</h5>
-    <form method=post action="processLogin">
-        <input type="hidden" name="username" value ="zorro.fan.2013" required/>
-        <input type="hidden" name="password" value ="zxcvbn1284" required/>
-        <input type="hidden" name="timestamp" value="<%= new Timestamp(System.currentTimeMillis()).toString()%>">
-        <div align="left"><input type="submit" value ="Zorro fan Login"/>
-    </form>
-    <form method=post action="processLogin">
-    </form>
+    <div class="container">
+        <form method=post action="processLogin">
+            <br><br><h4>Test accounts:</h4><h5>Admin:<br>admin<br>password</h5>
+            <input type="hidden" name="username" value ="admin" required/>
+            <input type="hidden" name="password" value ="password" required/>
+            <input type="hidden" name="timestamp" value="<%= new Timestamp(System.currentTimeMillis()).toString()%>">
+            <input type="submit" value ="Admin Login"/>
+        </form>
+        <form method=post action="processLogin">
+            <h5>User:<br>zorro.fan.2013<br>zxcvbn1284</h5>
+            <input type="hidden" name="username" value ="zorro.fan.2013" required/>
+            <input type="hidden" name="password" value ="zxcvbn1284" required/>
+            <input type="hidden" name="timestamp" value="<%= new Timestamp(System.currentTimeMillis()).toString()%>">
+            <input type="submit" value ="Zorro fan Login"/>
+        </form>
+    </div>
 </body>
 </html>
