@@ -30,6 +30,8 @@
         <title>Breakdown Report</title>
     </head>
     <body>
+        <table id="excelDataTable" border="1">
+        </table>
         <nav class="navbar navbar-inverse"> <%-- navigation menu for user to click --%>
             <div class="container-fluid">
                 <div class="navbar-header">
@@ -102,6 +104,7 @@
             </form>
         </div>
 
+
         <%
             List<String> options = (List<String>) session.getAttribute("orderList");
             if (options != null) {
@@ -139,7 +142,7 @@
             session.removeAttribute("breakdownReport"); //remove session attribute from the session object
             session.removeAttribute("orderList"); //remove session attribute from the session object            
             session.removeAttribute("timeDate"); //remove session attribute from the session object 
-        %>        
+%>        
         <%="<br><br>User session: " + timestamp%>
     </center>
 </body>

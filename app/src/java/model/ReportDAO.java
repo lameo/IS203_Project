@@ -266,7 +266,7 @@ public class ReportDAO {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
-        
+
         ArrayList<String> usersInSpecificPlace = new ArrayList<String>();
 
         try {
@@ -307,11 +307,11 @@ public class ReportDAO {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
-        
+
         ArrayList<String> locationTimestampList = new ArrayList<>();
         String currentPlace = ""; //latest place the user spends at least 5 mins
         String spentMoreThan5Minutes = "";
-        
+
         DateFormat df = new SimpleDateFormat("yyyy-mm-dd HH:mm:ss");
 
         try {
@@ -444,11 +444,10 @@ public class ReportDAO {
     public static String notVeryBasicBreakdown(String[] text, String endTimeDate) {
         // initialize array
         String[] first, second, third;  //category have name in their first value to know what does first, second or third variable contains
-        String[] year = {"Year", "2013", "2014", "2015", "2016", "2017"};                              //5
-        String[] gender = {"Gender", "M", "F"};                                                        //2
-        String[] school = {"School", "accountancy", "business", "economics", "law", "sis", "socsc"};   //6
+        String[] year = {"year", "2013", "2014", "2015", "2016", "2017"};                              //5
+        String[] gender = {"gender", "M", "F"};                                                        //2
+        String[] school = {"school", "accountancy", "business", "economics", "law", "sis", "socsc"};   //6
 
-        int checking = -1;
         String userInput = "";
 
         switch (text[0]) { //get from basicReport.jsp, can be year/gender/school
@@ -514,24 +513,15 @@ public class ReportDAO {
         String[] userInputArray = userInput.split(" "); //change from string into string array
         int totalOptions = userInputArray.length; //check how many options has the user selected, can be 1 2 or 3
 
-        int firstL = (first.length - 1); //to make sure the array doesn't have ArrayOutOfBoundException
         int secondL = 1;
-        int thirdL = 1;
-        if (second != null) { //if user chose a second option
+        if (second != null) { //if user choose a second option
             secondL = (second.length - 1); //to make sure the array doesn't have ArrayOutOfBoundException
         }
-        if (third != null) { //if user chose a third option
+        int thirdL = 1;
+        if (third != null) { //if user choose a third option
             thirdL = (third.length - 1); //to make sure the array doesn't have ArrayOutOfBoundException
         }
 
-        //Number of rows to print
-        int numberOfRows = firstL;
-        if (second != null) {
-            numberOfRows *= secondL;
-        }
-        if (third != null) {
-            numberOfRows *= thirdL;
-        }
 
         //string to return to ReportServlet.java
         String returnThis = "<div class=\"container\">      <table class=\"table table-bordered\">";
@@ -540,124 +530,91 @@ public class ReportDAO {
         int totalBetweenTime = everyoneWithinTime(endTimeDate);
 
         //Print table header
-        returnThis += ("<thead><tr><th colspan = " + (totalOptions + 2) + ">Breakdown by " + userInput + " <br>Total: " + totalBetweenTime + "</th></tr>");
+        returnThis += ("<thead><tr><th colspan = " + (totalOptions + 2) + ">Breakdown by: " + userInput + " <br>Total user found: " + totalBetweenTime + "</th></tr>");
         for (String header : userInputArray) { //can be year/gender/school
-            returnThis += "<th>" + header.substring(0, 1).toUpperCase() + header.substring(1) + "</th>";
+            returnThis += "<th>" + proper(header) + "</th>";
         }
         returnThis += "<th>Qty</th><th>Percentage</th></thead><tbody>";
 
-        for (int i = 1; i <= numberOfRows; i++) {
+        //Arraylist for first
+        int r1Count = 0;
+        ArrayList<Integer> firstVarSplit = null;
+        if (second != null) {
+            firstVarSplit = notVeryBasicBreakdownJson(first[0].split(" "), endTimeDate);
+        }
+        
+        
+        int r2Count = 0;
+        ArrayList<Integer> secondVarSplit = null;
+        if (second != null) {
+            secondVarSplit = notVeryBasicBreakdownJson((first[0] + " " + second[0]).split(" "), endTimeDate);
+        }
+        
+        
+        int r3Count = 0;
+        ArrayList<Integer> thirdVarSplit = notVeryBasicBreakdownJson(userInputArray, endTimeDate);
+
+        for (int i = 1; i <= thirdVarSplit.size(); i++) {
+            //Stating of first row
             String currentLine = "<tr>";
-
-            //first var to split by
-            //if 1 trigger = 0
-            //if 2/3 trigger = 1
-            if (i % (secondL * thirdL) == totalOptions / 2) {
-                currentLine += "<td rowspan =\"" + (secondL * thirdL) + "\">"
-                        //Text for first col
-                        + first[i / (secondL * thirdL) + totalOptions / 2]
-                        + "</td>";
+            
+            
+            //Text for first col
+            if (i % (secondL * thirdL) == totalOptions / 2) {       //checks whether to print this row (happens when there is 3 var)
+                //first var to split by
+                //if one var trigger = 0
+                //if two or three var trigger = 1
+                currentLine += "<td rowspan =\""
+                        + (secondL * thirdL) + "\">"
+                        + proper(first[i / (secondL * thirdL) + totalOptions / 2]);
+                if (second != null) {
+                    currentLine += "<br>Qty: "
+                            + firstVarSplit.get(r1Count) + "<br>"
+                            + Math.round(firstVarSplit.get(r1Count++) * 100.0 / totalBetweenTime)
+                            + "%</td>";
+                }
+                currentLine += "</td>";
             }
 
-            //if 2 trigger = 0
-            //if 3 trigger = 1
+            
             int trigger = totalOptions - 2;
-            //Second var to split by
-            if (second != null && i % (thirdL) == trigger) {
+            //text for second col
+            if (second != null && i % (thirdL) == trigger) {        //checks whether to print this row (happens when there is 2 var)
+                //Second var to split by
+                //if two var trigger = 0
+                //if three var trigger = 1
                 currentLine += "<td rowspan =\"" + (thirdL) + "\">"
-                        //text for second col
-                        + second[(int) (i / (0.001 + thirdL) % (secondL)) + 1]
-                        + "</td>";
+                        + proper(second[(int) (i / (0.001 + thirdL) % (secondL)) + 1]);
+                if (third != null) {
+                    currentLine += "<br>Qty: "
+                            + secondVarSplit.get(r2Count)
+                            + "<br>"
+                            + Math.round(secondVarSplit.get(r2Count++) * 100.0 / totalBetweenTime)
+                            + "%</td>";
+                }
+                currentLine += "</td>";
             }
+            
 
-            //Third var to split by
+            //text for third col
             if (third != null) {
+                //Third var to split by
                 currentLine += "<td>"
-                        //text for third col
-                        + third[(int) Math.ceil(i % (0.001 + thirdL))]
+                        + proper(third[(int) Math.ceil(i % (0.001 + thirdL))])
                         + "</td>";
             }
-
-            //run all the time
-            int value = -1;
-            switch (totalOptions) {
-                case 1: //user only choose 1 option
-                    switch (userInput) { //check which option did the user choose
-                        case "gender ":
-                            value = retrieveByGender(endTimeDate, gender[i]);
-                            break;
-                        case "school ":
-                            value = retrieveByEmail(endTimeDate, school[i]);
-                            break;
-                        case "year ":
-                            value = retrieveByEmail(endTimeDate, year[i]);
-                            break;
-                        default:
-                            value = -2;
-                            break;
-                    }
-                    break;
-                case 2: //user only choose 2 options
-                    //Checking which variable is not selected
-                    int totalSum = 0;
-                    if (userInputArray[0].equals("year") && userInputArray[1].equals("gender")) {
-                        for (int j = 1; j < school.length; j++) { //sum every school according to that year and gender, magic number is 2 (length of second input eg gender)
-                            totalSum += retrieveThreeBreakdown(endTimeDate, year[(int) Math.ceil(i / 2.0)], gender[(i - 1) % 2 + 1], school[j]);
-                        }
-                    } else if (userInputArray[0].equals("year") && userInputArray[1].equals("school")) {
-                        for (int j = 1; j < gender.length; j++) { //sum every gender according to that year and school, magic number is 6 (length of second input eg school)
-                            totalSum += retrieveThreeBreakdown(endTimeDate, year[(int) Math.ceil((i / 6.0))], gender[j], school[(i - 1) % 6 + 1]);
-                        }
-                    } else if (userInputArray[0].equals("school") && userInputArray[1].equals("gender")) {
-                        for (int j = 1; j < year.length; j++) { //sum every year according to that school and gender, magic number is 2 (length of second input eg gender)
-                            totalSum += retrieveThreeBreakdown(endTimeDate, year[j], gender[(i - 1) % 2 + 1], school[(int) Math.ceil(i / 2.0)]);
-                        }
-                    } else if (userInputArray[0].equals("school") && userInputArray[1].equals("year")) {
-                        for (int j = 1; j < gender.length; j++) { //sum every gender according to that school and year, magic number is 5 (length of second input eg year)
-                            totalSum += retrieveThreeBreakdown(endTimeDate, year[(i - 1) % 5 + 1], gender[j], school[(int) Math.ceil(i / 5.0)]);
-                        }
-                    } else if (userInputArray[0].equals("gender") && userInputArray[1].equals("school")) {
-                        for (int j = 1; j < year.length; j++) { //sum every year according to that gender and school, magic number is 6 (length of second input eg school)
-                            totalSum += retrieveThreeBreakdown(endTimeDate, year[j], gender[(int) Math.ceil(i / 6.0)], school[(i - 1) % 6 + 1]);
-                        }
-                    } else if (userInputArray[0].equals("gender") && userInputArray[1].equals("year")) {
-                        for (int j = 1; j < school.length; j++) { //sum every school according to that gender and year, magic number is 5 (length of second input eg year)
-                            totalSum += retrieveThreeBreakdown(endTimeDate, year[(i - 1) % 5 + 1], gender[(int) Math.ceil(i / 5.0)], school[j]);
-                        }
-                    }
-                    value = totalSum;
-                    break;
-                default: //user only choose 3 options
-                    if (userInputArray[0].equals("year") && userInputArray[1].equals("gender") && userInputArray[2].equals("school")) { //same year 12 times, same gender 6 times, 6 different schools
-                        value = retrieveThreeBreakdown(endTimeDate, year[(int) Math.ceil(i / 12.0)], gender[((int) Math.ceil((i - 1) / 6)) % 2 + 1], school[(i - 1) % 6 + 1]);
-                    } else if (userInputArray[0].equals("year") && userInputArray[1].equals("school") && userInputArray[2].equals("gender")) { //same year 12 times, same school 2 times, 2 different gender
-                        value = retrieveThreeBreakdown(endTimeDate, year[(int) Math.ceil(i / 12.0)], gender[(i - 1) % 2 + 1], school[((int) Math.ceil((i - 1) / 2)) % 6 + 1]);
-                    } else if (userInputArray[0].equals("gender") && userInputArray[1].equals("year") && userInputArray[2].equals("school")) { //same gender 30 times, same year 6 times, 6 different school
-                        value = retrieveThreeBreakdown(endTimeDate, year[((int) Math.ceil((i - 1) / 6)) % 5 + 1], gender[((int) Math.ceil(i / 30.0))], school[(i - 1) % 6 + 1]);
-                    } else if (userInputArray[0].equals("gender") && userInputArray[1].equals("school") && userInputArray[2].equals("year")) { //same gender 30 times, same school 5 times, 5 different year
-                        value = retrieveThreeBreakdown(endTimeDate, year[(i - 1) % 5 + 1], gender[(int) Math.ceil(i / 30.0)], school[((int) Math.ceil((i - 1) / 5)) % 6 + 1]);
-                    } else if (userInputArray[0].equals("school") && userInputArray[1].equals("year") && userInputArray[2].equals("gender")) { //same school 10 times, same year 2 times, 2 different gender
-                        value = retrieveThreeBreakdown(endTimeDate, year[((int) Math.ceil((i - 1) / 2)) % 5 + 1], gender[(i - 1) % 2 + 1], school[(int) Math.ceil(i / 10.0)]);
-                    } else if (userInputArray[0].equals("school") && userInputArray[1].equals("gender") && userInputArray[2].equals("year")) { //same school 10 times, same gender 5 times, 5 different year
-                        value = retrieveThreeBreakdown(endTimeDate, year[(i - 1) % 5 + 1], gender[((int) Math.ceil((i - 1) / 5)) % 2 + 1], school[(int) Math.ceil(i / 10.0)]);
-                    }
-                    break;
-            }
-            currentLine += "<td>" + value + "</td>";
-
-            //Generating percentage
-            currentLine += "<td>" + Math.round(value * 100.0 / totalBetweenTime) + "%</td>";
-
+            
+            //Third var qty
+            currentLine += "<td>" + thirdVarSplit.get(r3Count) + "</td>";
+            
+            //Third var percentage
+            currentLine += "<td>" + Math.round(thirdVarSplit.get(r3Count++) * 100.0 / totalBetweenTime) + "%</td>";
+            
             //Ending
             currentLine += "</tr>";
             returnThis += currentLine;
-
-            checking += value; //if value is always 0 or -1, meaning no value, means that checking will always be less than or equals to -1
         }
         returnThis += "</tbody></table></div>";
-        if (checking <= -1) {
-            return null;
-        }
         return returnThis;
     }
 
@@ -867,24 +824,24 @@ public class ReportDAO {
 
     public static Map<Double, ArrayList<String>> retrieveTopKCompanions(String endTimeDate, String macaddress) {
         ArrayList<String> UserLocationTimestamps = retrieveUserLocationTimestamps(macaddress, endTimeDate);
-        
+
         ArrayList<String> Companions = new ArrayList<String>();
         ArrayList<String> CompanionLocationTimestamps = null;
-        
+
         Map<String, Double> CompanionColocations = new HashMap<String, Double>();
         Map<Double, ArrayList<String>> SortedList = new TreeMap<Double, ArrayList<String>>(Collections.reverseOrder());
 
         for (int i = 0; i < UserLocationTimestamps.size(); i += 1) {
             String UserLocationTimestamp = UserLocationTimestamps.get(i);
             String[] LocationTimestamp = UserLocationTimestamp.split(",");
-            
+
             String locationid = LocationTimestamp[0];
             String timestringStart = LocationTimestamp[1];
             String timestringEnd = LocationTimestamp[2];
-            
+
             Companions = retreiveCompanionMacaddresses(macaddress, locationid, timestringStart, timestringEnd);
             CompanionLocationTimestamps = retrieveCompanionLocationTimestamps(Companions, locationid, timestringStart, timestringEnd);
-            
+
             if (CompanionLocationTimestamps != null) {
                 for (int j = 0; j < CompanionLocationTimestamps.size(); j += 1) {
                     String CompanionLocationTimestamp = CompanionLocationTimestamps.get(j);
@@ -933,17 +890,17 @@ public class ReportDAO {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
-        
+
         String ans = "";
         double duration = 0;
-        
+
         ArrayList<String> UserLocationTimestamps = new ArrayList<String>();
         ArrayList<String> locations = new ArrayList<String>();
 
         String timestring = null;
         int timeStartIndex = -1;
         java.util.Date timedateEnd = null;
-        
+
         try {
             //get a connection to database
             connection = ConnectionManager.getConnection();
@@ -964,7 +921,7 @@ public class ReportDAO {
                 locations.add(locationid);
                 locations.add(timestring);
             }
-            
+
             //close connections
             resultSet.close();
             preparedStatement.close();
@@ -973,17 +930,17 @@ public class ReportDAO {
             for (int i = 0; i < locations.size(); i += 2) {
                 String locationid = locations.get(i); //find first location id
                 timestring = locations.get(i + 1); //find first time string
-                
+
                 SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                 java.util.Date timestamp = dateFormat.parse(timestring);//convert time string to Date format
                 java.util.Date timestampEnd = dateFormat.parse(endtimeDate);
                 Calendar cal = Calendar.getInstance();
                 cal.setTime(timestampEnd);
                 cal.add(Calendar.SECOND, -1);
-                
+
                 timedateEnd = cal.getTime();
                 timestampEnd = null;
-                
+
                 if (locations.size() <= i + 2) { //if last pair of location and time
                     duration = (timedateEnd.getTime() - timestamp.getTime()) / (1000.0);
 
@@ -1070,7 +1027,6 @@ public class ReportDAO {
             cal.add(Calendar.MINUTE, -5);
             String timestringBeforeStart = dateFormat.format(cal.getTime());
 
-
             //get a connection to database
             connection = ConnectionManager.getConnection();
 
@@ -1088,7 +1044,7 @@ public class ReportDAO {
             while (resultSet.next()) {
                 Companions.add(resultSet.getString(1));
             }
-            
+
             //close connections
             resultSet.close();
             preparedStatement.close();
@@ -1107,15 +1063,15 @@ public class ReportDAO {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
-        
+
         String ans = "";
-        
+
         ArrayList<String> CompanionLocationTimestamps = new ArrayList<String>();
-        
+
         double colocationTime = 0;
         double tmp = 0;
         double duration = 0;
-        
+
         try {
             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             java.util.Date timeStart = dateFormat.parse(timestringStart);
@@ -1333,6 +1289,16 @@ public class ReportDAO {
             e.printStackTrace();
         }
         return ans;
+    }
+
+    private static String proper(String line) {
+        if (line == null) {
+            return null;
+        }
+        if (line.length() == 1) {
+            return line.toUpperCase();
+        }
+        return line.substring(0, 1).toUpperCase() + line.substring(1);
     }
 
 }

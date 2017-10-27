@@ -69,7 +69,6 @@
                 HashMap<Integer, String> locationError = (HashMap<Integer, String>) session.getAttribute("locationError");
                 HashMap<String, String> processedLines = (HashMap<String, String>) session.getAttribute("processedLines");
                 String success = (String) session.getAttribute("success"); //success message retrieved from UploadServlet
-                
 
                 if(processedLines!= null && processedLines.size()>0){
                     out.print("<div class=\"container\"><table class=\"table table-bordered\"><thead>");

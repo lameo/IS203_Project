@@ -42,8 +42,7 @@ public class bootstrapUpload extends HttpServlet {
         boolean validFile = true;
 
         //get token from request
-        //String token = request.getParameter("token");
-        String token = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsImV4cCI6MTUwOTEwMTU1OCwiaWF0IjoxNTA5MDk3OTU4fQ.DwL4OT3W6KFmqT_ooFc0h6vcPluGt6a66IWtOvc0GQY";
+        String token = request.getParameter("token");
 
         // Token checking
         if (token == null) {
