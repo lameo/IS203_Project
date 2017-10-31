@@ -13,6 +13,7 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import model.ReportDAO;
 import model.SharedSecretManager;
 
@@ -20,8 +21,7 @@ import model.SharedSecretManager;
 public class topKPopularPlace extends HttpServlet {
 
     /**
-     * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
-     * methods.
+     * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
      *
      * @param request servlet request
      * @param response servlet response
@@ -161,20 +161,25 @@ public class topKPopularPlace extends HttpServlet {
             int count = 1;
             for (int i = 0; i < keys.size(); i++) {
                 if (count <= topK) {
-                    JsonObject topKPopPlaces = new JsonObject();
-                    topKPopPlaces.addProperty("rank", count);
+                    //retrieve all semantic places found from map
+                    String allLocationFound = topKPopularMap.get(keys.get(i));
+                    
+                    //get all locations in String[] to for-loop
+                    String[] allLocationFoundArr = allLocationFound.split(", ");
+                    
+                    for (String location : allLocationFoundArr) {
+                        //temp json object to store required output first before adding to resultsArr for final output
+                        JsonObject topKPopPlaces = new JsonObject();
+                        topKPopPlaces.addProperty("rank", count);
 
-                    //To add popular places into an array for output
-                    JsonArray popularSemanticPlaces = new JsonArray();
-
-                    //add every popular place in accordance to every key(integer) found in topKPopularMap
-                    popularSemanticPlaces.add(topKPopularMap.get(keys.get(i)));
-
-                    //add back JsonArray object popularSemanticPlaces into JsonObject topKPopPlaces for viewing
-                    topKPopPlaces.add("semantic-places", popularSemanticPlaces);
-
-                    topKPopPlaces.addProperty("count", keys.get(i));
-                    resultsArr.add(topKPopPlaces);
+                        //add every location to semantic-places for each rank if rank has 2 or more locations
+                        //Eg: if rank 1 has 2 locations, 2 jsonobjects will be created for each location and added to resultsArr jsonarray respectively
+                        topKPopPlaces.addProperty("semantic-places", location);
+                        topKPopPlaces.addProperty("count", keys.get(i));
+                        
+                        // add temp json object to final json array for output
+                        resultsArr.add(topKPopPlaces);
+                    }
                 }
                 count++;
             }

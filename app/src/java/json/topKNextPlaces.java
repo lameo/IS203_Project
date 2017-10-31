@@ -1,29 +1,28 @@
 package json;
 
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.annotation.WebServlet;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonObject;
-import model.SharedSecretManager;
-import com.google.gson.JsonArray;
-import java.util.Collections;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
-import model.ReportDAO;
+import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import model.ReportDAO;
+import model.SharedSecretManager;
 
 @WebServlet(urlPatterns = {"/json/top-k-next-places"})
 public class topKNextPlaces extends HttpServlet {
 
     /**
-     * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
-     * methods.
+     * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
      *
      * @param request servlet request
      * @param response servlet response
@@ -186,39 +185,44 @@ public class topKNextPlaces extends HttpServlet {
             //create a json array to store errors
             JsonArray resultsArr = new JsonArray();
 
-            int usersVisitingNextPlace = 0; // total quantity of users visiting next place
+            // total quantity of users visiting next place
+            int usersVisitingNextPlace = 0; 
             Map<Integer, ArrayList<String>> topKNextPlaces = ReportDAO.retrieveTopKNextPlaces(dateEntered, semanticPlace);
 
             //retrieve users who are in a specific place given a specific time frame in a specific location
             ArrayList<String> usersList = ReportDAO.retrieveUserBasedOnLocation(dateEntered, semanticPlace);
 
-            Set<Integer> totalNumOfUsersSet = topKNextPlaces.keySet(); // to get the different total number of users in a next place in desc order
+            //to get the different total number of users in a next place in desc order
+            Set<Integer> totalNumOfUsersSet = topKNextPlaces.keySet();
+
             int counter = 1; // to match topk number after incrementation
             for (int totalNumOfUsers : totalNumOfUsersSet) {
-                ArrayList<String> locations = topKNextPlaces.get(totalNumOfUsers); // gives the list of location with the same totalNumOfUsers
-                Collections.sort(locations); // sort the locations list in ascending order first
+                // gives the list of location with the same totalNumOfUsers
+                ArrayList<String> locations = topKNextPlaces.get(totalNumOfUsers); 
+                
+                // sort the locations list in ascending order first
+                Collections.sort(locations); 
                 if (counter <= topK) { // to only display till topk number
-                    JsonObject topKNextPlace = new JsonObject();
-
-                    //to add all locations with the same count inside to output results as an array
-                    JsonArray chainAllSemanticPlaces = new JsonArray();
-                    topKNextPlace.addProperty("rank", counter);
-
                     for (int i = 0; i < locations.size(); i++) {
-                        if (locations.get(i).equals(semanticPlace)) { // if the locations is the same, find the number of users who visited another place (exclude those left the place but have not visited another place) in the query window
-                            usersVisitingNextPlace -= totalNumOfUsers; // minus off if the user is staying at the same place
+                        //temp json object to store required output first before adding to resultsArr for final output
+                        JsonObject topKNextPlace = new JsonObject();
+                        topKNextPlace.addProperty("rank", counter);
+                        
+                        //if the locations is the same, find the number of users who visited another place (exclude those left the place but have not visited another place) in the query window
+                        if (locations.get(i).equals(semanticPlace)) { 
+                            //minus off if the user is staying at the same place
+                            usersVisitingNextPlace -= totalNumOfUsers; 
                         }
-                        chainAllSemanticPlaces.add(locations.get(i));
-                        //if (i + 1 < locations.size()) { //fence-post method to add the comma
-                        //    chainAllSemanticPlaces+=", ";
-                        //}
+                        topKNextPlace.addProperty("semantic-place", locations.get(i));
+                        topKNextPlace.addProperty("count", totalNumOfUsers);
+                        
+                        // add temp json object to final json array for output
+                        resultsArr.add(topKNextPlace);
                     }
-                    topKNextPlace.add("semantic-place", chainAllSemanticPlaces); //add the JsonArray of locations into the JsonObject
-                    topKNextPlace.addProperty("count", totalNumOfUsers);
-                    resultsArr.add(topKNextPlace);
                     counter++;
                 }
-                usersVisitingNextPlace += totalNumOfUsers * locations.size(); // add if the user is going other places but the quantity may have multiple next locations
+                //add if the user is going other places but the quantity may have multiple next locations
+                usersVisitingNextPlace += totalNumOfUsers * locations.size(); 
             }
             jsonOutput.addProperty("status", "success");
             jsonOutput.addProperty("total-users", usersList.size());

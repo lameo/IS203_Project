@@ -1,21 +1,21 @@
 package model;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.text.SimpleDateFormat;
-import java.text.ParseException;
-import java.util.logging.Logger;
-import java.util.logging.Level;
-import java.util.Collections;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.sql.Connection;
-import java.sql.ResultSet;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.HashMap;
-import java.util.TreeMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class ReportDAO {
 
@@ -57,7 +57,8 @@ public class ReportDAO {
             connection = ConnectionManager.getConnection();
 
             //prepare a statement
-            preparedStatement = connection.prepareStatement("select distinct macaddress from demographics");
+            //retrieve all the macaddresses found besides those from demographics.csv
+            preparedStatement = connection.prepareStatement("select distinct macaddress from location");
 
             //execute SQL query
             resultSet = preparedStatement.executeQuery();

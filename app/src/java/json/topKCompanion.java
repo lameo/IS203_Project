@@ -22,8 +22,7 @@ import model.SharedSecretManager;
 public class topKCompanion extends HttpServlet {
 
     /**
-     * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
-     * methods.
+     * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
      *
      * @param request servlet request
      * @param response servlet response
@@ -171,9 +170,10 @@ public class topKCompanion extends HttpServlet {
             errMsg.add("invalid k"); //add error msg into JsonArray
         }
 
-        //retrieve all existing macaddresses from demographics.csv 
+        //retrieve all existing macaddresses from location.csv 
+        //Not all macaddresses will belong to students so must get from location.csv instead from demographics.csv
         ArrayList<String> allMacaddressList = ReportDAO.getAllMacaddress();
-        if (!allMacaddressList.contains(macaddress)) { //check if macaddress is inside demographics.csv
+        if (!allMacaddressList.contains(macaddress)) { //check if macaddress is inside location.csv
             errMsg.add("invalid mac-address");
         }
 
@@ -193,14 +193,6 @@ public class topKCompanion extends HttpServlet {
             Set<Double> timeSpentByCompanionsList = topKCompanionMap.keySet();
             for (Double timeSpentByCompanions : timeSpentByCompanionsList) {
                 if (count <= topK) {// to only display till topk number
-                    //temp json object to store required output first before adding to resultsArr for final output
-                    JsonObject topKCompanions = new JsonObject();
-                    topKCompanions.addProperty("rank", count);
-
-                    //temp JsonArray objects to store all the required output as array before printing
-                    JsonArray allCompanionsMacaddress = new JsonArray();
-                    JsonArray allCompanionsEmail = new JsonArray();
-
                     //to add in macaddress and email pair for sorting
                     ArrayList<String> unsortedMacEmailPair = new ArrayList<>();
 
@@ -223,20 +215,27 @@ public class topKCompanion extends HttpServlet {
                     //Collections.sort sorts data from left to right hence all the accompanying email will not be affected
                     Collections.sort(unsortedMacEmailPair);
 
-                    //retrieve sorted macaddresses with their emails and add into the jsonarray respectively
+                    //retrieve sorted macaddresses with their emails and add into the jsonobject
                     for (String eachMacEmail : unsortedMacEmailPair) {
                         String[] allMacaddressEmailPairs = eachMacEmail.split(",");
-                        allCompanionsMacaddress.add(allMacaddressEmailPairs[0]);
-                        allCompanionsEmail.add(allMacaddressEmailPairs[1]);
+
+                        //temp json object to store required output first before adding to resultsArr for final output
+                        JsonObject topKCompanions = new JsonObject();
+                        topKCompanions.addProperty("rank", count);
+                        
+                        //check if corresponding email has email or not
+                        if(allMacaddressEmailPairs[1].equals("No email found")) {
+                            topKCompanions.addProperty("companion", "");
+                        } else {
+                            topKCompanions.addProperty("companion", allMacaddressEmailPairs[1]);
+                        }
+                        
+                        topKCompanions.addProperty("mac-address", allMacaddressEmailPairs[0]);
+                        topKCompanions.addProperty("time-together", timeSpentByCompanions);
+                        
+                        // add temp json object to final json array for output
+                        resultsArr.add(topKCompanions);
                     }
-
-                    //add into jsonObject
-                    topKCompanions.add("companion", allCompanionsEmail);
-                    topKCompanions.add("mac-address", allCompanionsMacaddress);
-                    topKCompanions.addProperty("time-together", timeSpentByCompanions);
-
-                    //add every individual object into the results array for printing
-                    resultsArr.add(topKCompanions);
                 }
                 count++;
             }
