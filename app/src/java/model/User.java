@@ -39,34 +39,5 @@ public class User {
     public String getPassword(){
         return password;
     }
-    
-    /**
-     * Get macaddress
-     *
-     * @return macaddress - the MAC address indicating the unique id of
-     * a user's device
-     */
-    public String getMacaddress() {
-        return macaddress;
-    }
-    
-     /**
-     * Get email
-     *
-     * @return email - email of user
-     */
-    public String getEmail() {
-        return email;
-    } 
-    
-     /**
-     *
-     * Get gender
-     *
-     * @return gender - gender of user
-     */
-    public char getGender() {
-        return gender;
-    }
 }
 

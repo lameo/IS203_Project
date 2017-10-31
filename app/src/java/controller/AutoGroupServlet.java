@@ -5,26 +5,26 @@
  */
 package controller;
 
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import static model.AutoGroupDAO.retrieveAutoGroups;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import java.text.SimpleDateFormat;
+import java.text.ParseException;
+import java.util.logging.Logger;
+import java.util.logging.Level;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.ArrayList;
 import model.AutoGroupDAO;
-import static model.AutoGroupDAO.retrieveAutoGroups;
-import model.Group;
+import java.util.HashMap;
 import model.ReportDAO;
+import java.util.Date;
+import java.util.Map;
+import java.util.Set;
+import model.Group;
 
 /**
  *

@@ -155,7 +155,6 @@
             session.removeAttribute("timeDate"); //remove session attribute from the session object
             session.removeAttribute("topK"); //remove session attribute from the session object
         %>
-        <%="<br><br>User session: " + timestamp%>
     </center>
 </body>
 </html>

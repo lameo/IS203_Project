@@ -404,8 +404,7 @@
             session.removeAttribute("heatmapList");
             session.removeAttribute("timeDate");
             session.removeAttribute("floor");
-        %>
-        <%="<br><br>User session: " + timestamp%>           
+        %>      
     </center>      
 </body>
 </html>

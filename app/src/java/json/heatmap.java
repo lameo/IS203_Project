@@ -1,23 +1,23 @@
 package json;
 
-import com.google.gson.Gson;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
 import com.google.gson.GsonBuilder;
-import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import model.SharedSecretManager;
+import com.google.gson.JsonArray;
+import java.util.Collections;
+import com.google.gson.Gson;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import javax.servlet.ServletException;
-import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import model.HeatMap;
 import model.HeatMapDAO;
-import model.SharedSecretManager;
+import java.util.List;
+import model.HeatMap;
+import java.util.Map;
 
 @WebServlet(urlPatterns = {"/json/heatmap"})
 public class heatmap extends HttpServlet {

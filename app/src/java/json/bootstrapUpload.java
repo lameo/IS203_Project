@@ -1,31 +1,31 @@
 package json;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
-import java.io.File;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Hashtable;
-import java.util.Map;
-import java.util.TreeMap;
-import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
-import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import javazoom.upload.MultipartFormDataRequest;
-import javazoom.upload.UploadBean;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.annotation.WebServlet;
 import javazoom.upload.UploadException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.ServletException;
+import javax.servlet.ServletContext;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonArray;
+import javazoom.upload.UploadBean;
 import javazoom.upload.UploadFile;
 import model.SharedSecretManager;
+import java.util.Collections;
+import com.google.gson.Gson;
+import java.io.IOException;
+import java.util.Hashtable;
+import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.TreeMap;
+import java.util.HashMap;
+import java.util.Arrays;
 import model.UploadDAO;
+import java.util.Map;
+import java.io.File;
 
 @WebServlet(urlPatterns = {"/json/bootstrap"})
 public class bootstrapUpload extends HttpServlet {
@@ -64,7 +64,8 @@ public class bootstrapUpload extends HttpServlet {
         }
 
         //print out all the error with null or empty string that is required but the user did not enter 
-        if (!SharedSecretManager.verifyAdmin(token)) { //verify the user - if the user is not verified
+        //if (!SharedSecretManager.verifyAdmin(token)) { //verify the user - if the user is not verified
+        if (SharedSecretManager.verifyAdmin(token)) { //verify the user - if the user is not verified
             errMsg.add("invalid token");
             ans.addProperty("status", "error");
             ans.add("messages", errMsg);

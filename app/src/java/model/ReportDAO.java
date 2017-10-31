@@ -1,21 +1,21 @@
 package model;
 
-import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
+import java.text.SimpleDateFormat;
+import java.text.ParseException;
+import java.util.logging.Logger;
+import java.util.logging.Level;
+import java.util.Collections;
 import java.sql.SQLException;
 import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.sql.Connection;
+import java.sql.ResultSet;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.HashMap;
+import java.util.TreeMap;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeMap;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class ReportDAO {
 

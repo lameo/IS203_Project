@@ -142,8 +142,7 @@
             session.removeAttribute("breakdownReport"); //remove session attribute from the session object
             session.removeAttribute("orderList"); //remove session attribute from the session object            
             session.removeAttribute("timeDate"); //remove session attribute from the session object 
-%>        
-        <%="<br><br>User session: " + timestamp%>
+        %>        
     </center>
 </body>
 </html>

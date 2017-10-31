@@ -152,7 +152,6 @@
             session.removeAttribute("locationname");
 
         %>
-        <%="<br><br>User session: " + timestamp%>
     </center>
 </body>
 </html>

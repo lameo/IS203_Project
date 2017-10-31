@@ -1,12 +1,11 @@
 package model;
 
+import java.util.logging.Logger;
+import java.util.logging.Level;
 import is203.JWTException;
 import is203.JWTUtility;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class SharedSecretManager {
-
     private static final String sharedSecret = "DQjq5Dv5DRrt4vAB";
 
     public static String authenticateUser(String name){

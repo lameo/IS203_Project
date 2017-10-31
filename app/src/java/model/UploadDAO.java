@@ -1,21 +1,21 @@
 package model;
 
 import au.com.bytecode.opencsv.CSVReader;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.sql.Connection;
+import java.util.zip.ZipInputStream;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
+import java.io.InputStreamReader;
+import java.io.FileOutputStream;
+import java.io.FileInputStream;
+import java.io.BufferedReader;
+import java.util.zip.ZipEntry;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.ResultSet;
 import java.util.HashMap;
 import java.util.List;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
+import java.io.File;
 
 public class UploadDAO {
 
@@ -412,7 +412,7 @@ public class UploadDAO {
         clearLocation();
         Connection connection = null;
         PreparedStatement preparedStatement = null;
-        final int batchSize = 500000;
+        final int batchSize = 10000;
         int count = 0;
         int successful = 0;
         String locationIDs = retrieveLocationID();
@@ -681,7 +681,7 @@ public class UploadDAO {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
 
-        final int batchSize = 500000;
+        final int batchSize = 10000;
         int count = 0;
         int successful = 0;
         String locationIDs = retrieveLocationID();

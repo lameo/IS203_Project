@@ -75,6 +75,5 @@
                 </div>
             </div>
         </div>
-    <center><%="<br>User session: " + timestamp%></center>
 </body>
 </html>

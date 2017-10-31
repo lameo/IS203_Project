@@ -1,11 +1,11 @@
 package model;
 
-import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Map;
+import java.sql.Connection;
+import java.sql.ResultSet;
 import java.util.TreeMap;
+import java.util.Map;
 
 public class HeatMapDAO {
 

@@ -1,11 +1,15 @@
 package model;
 
-import java.sql.*;
+import java.util.logging.Logger;
+import java.util.logging.Level;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 import java.util.Properties;
 import java.io.InputStream;
 import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.Statement;
 
 /**
  * A class that manages connections to the database. It also has a utility

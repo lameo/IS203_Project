@@ -139,10 +139,6 @@
             session.removeAttribute("timeDate");
             session.removeAttribute("test");
         %>
-
-        <%="<br>Example: 2017-02-06 11:34:43.000000"%>
-        <%="<br>Mac address: 009562b08360d78848a977dc26368b53cc0f1d44"%>
-        <%="<br><br>User session: " + timestamp%>
     </center>
 </body>
 </html>

@@ -1,14 +1,14 @@
 package controller;
 
-import java.io.IOException;
-import java.sql.SQLException;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import model.User;
+import java.sql.SQLException;
+import java.io.IOException;
 import model.UserDAO;
+import model.User;
 
 public class LoginServlet extends HttpServlet {
 
@@ -19,7 +19,7 @@ public class LoginServlet extends HttpServlet {
         HttpSession session = request.getSession();          
 
         try {
-            if (username.equals("admin") && password.equals("password")) { //admin
+            if (username.equals("admin") && password.equals("Password!SE888")) { //admin
                 session.setAttribute("admin", username);
                 session.setAttribute("timestamp", timestamp);
                 response.sendRedirect("adminPage.jsp"); //changes url

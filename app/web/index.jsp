@@ -1,7 +1,7 @@
-<%@page import="is203.JWTUtility"%>
+<%@page import="java.awt.SystemColor.*"%>
 <%@page import="java.sql.Timestamp"%>
 <%@page import="java.time.Instant"%>
-<%@page import="java.awt.SystemColor.*"%>
+<%@page import="is203.JWTUtility"%>
 
 <!DOCTYPE html>
 <html>
@@ -21,13 +21,6 @@
             margin-right: -50%;
             transform: translate(-50%, -50%)
         }
-        html {
-            display: table;
-        }
-        body {
-            display: table-cell;
-            vertical-align: middle;
-        }
     </style>
     <body>
     <center>
@@ -44,7 +37,7 @@
     <form method=post action="processLogin"> <%-- send data to LoginServlet M-V-C model --%>
         <div class="container">
             <br><br>
-            <!-- Form for user to input date&time and top K for top K popular places report -->
+            <!-- Form for user to input username and password -->
             <form method=post action="processLogin">
                 <!-- form input for username  -->
                 <div class="form-group">
@@ -54,9 +47,8 @@
                 <!-- form input for password  -->
                 <div class="form-group">
                     <label class="form-control-label" for="password">Password:</label>
-                    <input type="text" class="form-control" id="password" name="password" placeholder="Enter your password" required>
+                    <input type="password" class="form-control" id="password" name="password" placeholder="Enter your password" required>
                 </div>
-                <input type="hidden" name="timestamp" value="<%= new Timestamp(System.currentTimeMillis()).toString()%>">
                 <button type="submit" class="btn btn-danger">Login</button>
             </form>
         </div>
@@ -65,22 +57,12 @@
 
 
 
-
-    <div class="container">
-        <form method=post action="processLogin">
-            <br><br><h4>Test accounts:</h4><h5>Admin:<br>admin<br>password</h5>
-            <input type="hidden" name="username" value ="admin" required/>
-            <input type="hidden" name="password" value ="password" required/>
-            <input type="hidden" name="timestamp" value="<%= new Timestamp(System.currentTimeMillis()).toString()%>">
-            <input type="submit" value ="Admin Login"/>
-        </form>
-        <form method=post action="processLogin">
-            <h5>User:<br>zorro.fan.2013<br>zxcvbn1284</h5>
-            <input type="hidden" name="username" value ="zorro.fan.2013" required/>
-            <input type="hidden" name="password" value ="zxcvbn1284" required/>
-            <input type="hidden" name="timestamp" value="<%= new Timestamp(System.currentTimeMillis()).toString()%>">
-            <input type="submit" value ="Zorro fan Login"/>
-        </form>
-    </div>
+    <%
+        // quick login buttons
+        boolean debug = false;
+        if (debug) {
+            out.print("<div class=\"container\">\r\n<form method=post action=\"processLogin\">\r\n<br><br><h4>Test accounts:</h4><h5>Admin:<br>admin<br>Password!SE888</h5>\r\n<input type=\"hidden\" name=\"username\" value =\"admin\" required/>\r\n<input type=\"hidden\" name=\"password\" value =\"Password!SE888\" required/>\r\n<input type=\"submit\" value =\"Admin Login\"/>\r\n</form>\r\n<form method=post action=\"processLogin\">\r\n<h5>User:<br>zorro.fan.2013<br>zxcvbn1284</h5>\r\n<input type=\"hidden\" name=\"username\" value =\"zorro.fan.2013\" required/>\r\n<input type=\"hidden\" name=\"password\" value =\"zxcvbn1284\" required/>\r\n<input type=\"submit\" value =\"Zorro fan Login\"/>\r\n</form></div>");
+        }
+    %>
 </body>
 </html>
