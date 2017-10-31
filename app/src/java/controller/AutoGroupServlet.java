@@ -55,10 +55,10 @@ public class AutoGroupServlet extends HttpServlet {
             timeDate = writeFormat.format(timestamp);
             //System.out.println("Retrieved and formatted dateTime: " + timestamp.toString());
 
-            //retreive all the users whom stay at SIS building in specified time window
-            ArrayList<String> AutoUsers = AutoGroupDAO.retreiveAutoUserMacaddresses(timeDate);
-            
-            Map<String, ArrayList<String>> ValidAutoUsers = new HashMap<String, ArrayList<String>>();
+            //retreive map of all the users and their location traces whom stay at SIS building in specified time window for at least 12 mins
+            Map<String, Map<String, ArrayList<String>>> AutoUsers = AutoGroupDAO.retreiveAutoUsers(timeDate);
+            //session.setAttribute("test", AutoUsers);
+            /*Map<String, ArrayList<String>> ValidAutoUsers = new HashMap<String, ArrayList<String>>();
             //retrieve group of users whom stay at SIS in processing window
             //check each of autousers
             for (int i = 0; i < AutoUsers.size(); i += 1) {
@@ -70,16 +70,16 @@ public class AutoGroupServlet extends HttpServlet {
                     ValidAutoUsers.put(AutoUserMac, AutoUserLocationTimestamps);
                 }
             }
-            
+            */
             ArrayList<Group> AutoGroups = new ArrayList<Group>();
             //test
-            
+            //ArrayList<String> AutoGroups = new ArrayList<String>();
             //check if there are valid auto users
-            if (ValidAutoUsers != null && ValidAutoUsers.size() > 0) {
+            if (AutoUsers != null && AutoUsers.size() > 0) {
                 //retrieve groups formed from valid auto users
-                AutoGroups = retrieveAutoGroups(ValidAutoUsers);
+                AutoGroups = retrieveAutoGroups(AutoUsers);
             }
-            
+            //session.setAttribute("test", AutoGroups);
             if (AutoGroups != null && AutoGroups.size() > 0) {
                 //check autogroups and remove sub groups
                 AutoGroups = AutoGroupDAO.CheckAutoGroups(AutoGroups);

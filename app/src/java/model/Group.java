@@ -4,6 +4,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Objects;
 import java.util.logging.Level;
@@ -11,12 +12,12 @@ import java.util.logging.Logger;
 
 public class Group {
 
-    private ArrayList<String> AutoUsersMacs;
-    private ArrayList<String> locationTimestamps;
+    public ArrayList<String> AutoUsersMacs;
+    public Map<String, ArrayList<String>> locationTimestamps;
 
-    public Group(ArrayList<String> AutoUsersMacs, ArrayList<String> locationTimestamps) {
-        AutoUsersMacs = new ArrayList<String>();
-        locationTimestamps = new ArrayList<String>();
+    public Group(ArrayList<String> AutoUsersMacs, Map<String, ArrayList<String>> locationTimestamps) {
+        //AutoUsersMacs = new ArrayList<String>();
+        //locationTimestamps = new HashMap<String, ArrayList<String>>();
         this.AutoUsersMacs = AutoUsersMacs;
         this.locationTimestamps = locationTimestamps;
     }
@@ -25,7 +26,7 @@ public class Group {
         return AutoUsersMacs;
     }
 
-    public ArrayList<String> getLocationTimestamps() {
+    public Map<String, ArrayList<String>> getLocationTimestamps() {
         return locationTimestamps;
     }
 
@@ -53,36 +54,40 @@ public class Group {
         this.AutoUsersMacs = AutoUsersMacs;
     }
 
-    public void setLocationTimestamps(ArrayList<String> locationTimestamps) {
+    public void setLocationTimestamps(Map<String, ArrayList<String>> locationTimestamps) {
         this.locationTimestamps = locationTimestamps;
     }
 
     //calculate total time duration of the location timestamps of the group for each location
     public Map<String, Double> CalculateTimeDuration() {
-        Map<String, Double> LocationDuration = new HashMap<String, Double>();
-        for (int i = 0; i < locationTimestamps.size(); i++) {
-            try {
-                String[] LocationTimestamp = locationTimestamps.get(i).split(",");
-                String locationid = LocationTimestamp[0];
-                String TimestringStart = LocationTimestamp[1];
-                String TimestringEnd = LocationTimestamp[2];
-                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                java.util.Date timestampStart = dateFormat.parse(TimestringStart);//convert time string to Date format
-                java.util.Date timestampEnd = dateFormat.parse(TimestringEnd);
-                double duration = (timestampEnd.getTime() - timestampStart.getTime()) / 1000.0;
-                if (LocationDuration.containsKey(locationid)) {
-                    double CurrentDuration = LocationDuration.get(locationid);
-                    CurrentDuration += duration;
-                    //LocationDuration.remove(locationid);
-                    LocationDuration.put(locationid, CurrentDuration);
-                } else {
-                    LocationDuration.put(locationid, duration);
-                }
-            } catch (ParseException ex) {
-                Logger.getLogger(Group.class.getName()).log(Level.SEVERE, null, ex);
+        Map<String, Double> locationDuration = new HashMap<String, Double>();
+        Iterator<String> locations = locationTimestamps.keySet().iterator();
+        while (locations.hasNext()) {
+            String location = locations.next();
+            ArrayList<String> timestamps = locationTimestamps.get(location);
+            double duration = 0;
+            for (int i = 0; i < timestamps.size(); i++) {
+                String[] timestamp = timestamps.get(i).split(",");
+                String TimestringStart = timestamp[0];
+                String TimestringEnd = timestamp[1];
+                duration += Double.parseDouble(timestamp[2]);
+                java.util.Date timestampStart = null;//convert time string to Date format
+                java.util.Date timestampEnd = null;
+                /*try {
+                    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                    timestampStart = dateFormat.parse(TimestringStart);//convert time string to Date format
+                    timestampEnd = dateFormat.parse(TimestringEnd);
+                } catch (ParseException ex) {
+                    Logger.getLogger(Group.class.getName()).log(Level.SEVERE, null, ex);
+                }*/
+                //duration = (timestampEnd.getTime() - timestampStart.getTime()) / 1000.0 + 1;
+
             }
+            if (!locationDuration.containsKey(location)) {
+                locationDuration.put(location, duration);
+            } 
         }
-        return LocationDuration;
+        return locationDuration;
     }
 
     public ArrayList<String> retreiveMacsWithEmails() {
@@ -120,14 +125,18 @@ public class Group {
 
     //Check if two group is the same, or is a subgroup of another larger group, return the group number to remove
     public boolean CheckSubGroup(Group NewAutoGroup) {
-        if(NewAutoGroup==null){
+        if (NewAutoGroup == null) {
             return false;
         }
+        
         ArrayList<String> AutoUsersMacs2 = NewAutoGroup.getAutoUsersMacs();
         int AutoGroup2Size = NewAutoGroup.getAutoUsersSize();
+        if(getAutoUsersSize()<AutoGroup2Size){
+            return false;
+        }
         int sameUser = 0;
         for (int j = 0; j < getAutoUsersSize(); j++) {
-            for (int i = 0; i < AutoUsersMacs2.size() - 1; i++) {
+            for (int i = 0; i < AutoGroup2Size; i++) {
                 if (AutoUsersMacs2.get(i).equals(getAutoUserMac(j))) {
                     sameUser++;
                 }
@@ -140,18 +149,18 @@ public class Group {
     }
 
     //check if user can join the group, return the common locationstamps
-    public ArrayList<String> JoinGroup(String macaddress2, ArrayList<String> LocationTimestamps2) {
-        ArrayList<String> LocationTimestamps = null;
+    public Map<String, ArrayList<String>> JoinGroup(String macaddress2, Map<String, ArrayList<String>> locationTimestamps2) {
+        Map<String, ArrayList<String>> newLocationTimestamps = new HashMap<String, ArrayList<String>>();
         //test
         if (AutoUsersMacs != null && AutoUsersMacs.size() > 0) {
             //check if user is already in the group
             if (!AutoUsersMacs.contains(macaddress2)) {
                 //check if user and group has stayed for at least 12 minutes
-                LocationTimestamps = AutoGroupDAO.CommonLocationTimestamps12Mins(locationTimestamps, LocationTimestamps2);
+                newLocationTimestamps = AutoGroupDAO.CommonLocationTimestamps12Mins(locationTimestamps, locationTimestamps2);
             }
         }
 
-        return LocationTimestamps;
+        return newLocationTimestamps;
     }
 
     @Override
@@ -182,10 +191,9 @@ public class Group {
     }
 
     //add new autouser to existing group, add user macaddress and change location timestamps
-    public void addAutoUser(String macaddress2, ArrayList<String> NewLocationTimestamps) {
+    public void addAutoUser(String macaddress2, Map<String, ArrayList<String>> NewLocationTimestamps) {
         AutoUsersMacs.add(macaddress2);
         setLocationTimestamps(NewLocationTimestamps);
     }
-    
-    
+
 }
