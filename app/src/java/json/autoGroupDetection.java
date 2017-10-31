@@ -12,12 +12,15 @@ import com.google.gson.JsonObject;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Map;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import model.AutoGroupDAO;
+import static model.AutoGroupDAO.retrieveAutoGroups;
+import model.Group;
 import model.ReportDAO;
 import model.SharedSecretManager;
 
@@ -147,20 +150,22 @@ public class autoGroupDetection extends HttpServlet {
             JsonArray resultsArr = new JsonArray();
             
             //retreive all the users whom stay at SIS building in specified time window
-            ArrayList<String> autoUsers = AutoGroupDAO.retreiveAutoUserMacaddresses(dateEntered);
-            
-            for(String autoUserMac : autoUsers) {
-                JsonObject autoGroups = new JsonObject();
-                autoGroups.addProperty("size", autoUsers.size());
-                
-                //retreive location traces of each user
-                ArrayList<String> AutoUserLocationTimestamps = ReportDAO.retrieveUserLocationTimestamps(autoUserMac, dateEntered);
-                
+            Map<String, Map<String, ArrayList<String>>> autoUsers = AutoGroupDAO.retreiveAutoUsers(dateEntered);
+            ArrayList<Group> AutoGroups = new ArrayList<Group>();
+            JsonObject autoGroups = new JsonObject();
+            autoGroups.addProperty("size", autoUsers.size());
+            if (autoUsers != null && autoUsers.size() > 0) {
+                //retrieve groups formed from valid auto users
+                AutoGroups = retrieveAutoGroups(autoUsers);
                 //To add auto group members into an array for output
                 JsonArray membersArr = new JsonArray();
                 
                 //to be continued
-                
+            }
+            //session.setAttribute("test", AutoGroups);
+            if (AutoGroups != null && AutoGroups.size() > 0) {
+                //check autogroups and remove sub groups
+                AutoGroups = AutoGroupDAO.CheckAutoGroups(AutoGroups);
             }
             jsonOutput.addProperty("status", "success");
             jsonOutput.add("results", resultsArr);
