@@ -1,3 +1,4 @@
+<%@page import="model.SharedSecretManager"%>
 <%@page import="java.awt.SystemColor.*"%>
 <%@page import="java.sql.Timestamp"%>
 <%@page import="java.time.Instant"%>
@@ -54,15 +55,58 @@
         </div>
     </form>
 
-
-
-
     <%
         // quick login buttons
-        boolean debug = false;
+        boolean debug = true;
         if (debug) {
-            out.print("<div class=\"container\">\r\n<form method=post action=\"processLogin\">\r\n<br><br><h4>Test accounts:</h4><h5>Admin:<br>admin<br>Password!SE888</h5>\r\n<input type=\"hidden\" name=\"username\" value =\"admin\" required/>\r\n<input type=\"hidden\" name=\"password\" value =\"Password!SE888\" required/>\r\n<input type=\"submit\" value =\"Admin Login\"/>\r\n</form>\r\n<form method=post action=\"processLogin\">\r\n<h5>User:<br>zorro.fan.2013<br>zxcvbn1284</h5>\r\n<input type=\"hidden\" name=\"username\" value =\"zorro.fan.2013\" required/>\r\n<input type=\"hidden\" name=\"password\" value =\"zxcvbn1284\" required/>\r\n<input type=\"submit\" value =\"Zorro fan Login\"/>\r\n</form></div>");
+            out.print("<br><br><form method=post action=\"processLogin\"><input type=\"hidden\" name=\"username\" value=\"admin\"><input type=\"hidden\" name=\"password\" value=\"Password!SE888\"><button type=\"submit\" class=\"btn btn-danger\">Admin login</button></form><br>");
+            out.print("<form method=post action=\"processLogin\"><input type=\"hidden\" name=\"username\" value=\"zorro.fan.2013\"><input type=\"hidden\" name=\"password\" value=\"zxcvbn1284\"><button type=\"submit\" class=\"btn btn-danger\">User login</button></form><br>");
+            
+            String token = SharedSecretManager.authenticateUser("zorro.fan.2013");
+            out.print("<form method=post action=");
+            out.print("http://localhost:8084/app/json/heatmap?floor=2&date=");
+            out.print("2017-02-06T11:00:00");
+            out.print("&token=" +token +">\r\n<button type=\"submit\" class=\"btn btn-danger\">");
+            out.print("heatmap");
+            out.print("</button>\r\n</form><br>");
+            
+            
+            out.print("<form method=post action=");
+            out.print("http://localhost:8084/app/json/basic-loc-report?order=year,gender,school&date=");
+            out.print("2017-02-06T11:00:00");
+            out.print("&token=" +token +">\r\n<button type=\"submit\" class=\"btn btn-danger\">");
+            out.print("breakdown");
+            out.print("</button>\r\n</form><br>");
+            
+            out.print("<form method=post action=");
+            out.print("http://localhost:8084/app/json/top-k-popular-places?k=10&date=");
+            out.print("2017-02-06T11:00:00");
+            out.print("&token=" +token +">\r\n<button type=\"submit\" class=\"btn btn-danger\">");
+            out.print("TopK Popular Places");
+            out.print("</button>\r\n</form><br>");
+            
+            out.print("<form method=post action=");
+            out.print("http://localhost:8084/app/json/top-k-companions?k=10&mac-address=a2935f43f2227c7adba65c18888c4553c70d0462&date=");
+            out.print("2017-02-06T11:00:00");
+            out.print("&token=" +token +">\r\n<button type=\"submit\" class=\"btn btn-danger\">");
+            out.print("TopK Companions");
+            out.print("</button>\r\n</form><br>");
+            
+            out.print("<form method=post action=");
+            out.print("http://localhost:8084/app/json/top-k-next-places?k=10&origin=SMUSISB1NearATM&date=");
+            out.print("2017-02-06T11:00:00");
+            out.print("&token=" +token +">\r\n<button type=\"submit\" class=\"btn btn-danger\">");
+            out.print("TopK Next Places");
+            out.print("</button>\r\n</form><br>");
+            
+            out.print("<form method=post action=");
+            out.print("http://localhost:8084/app/json/group_detect?date=");
+            out.print("2017-02-06T11:00:00");
+            out.print("&token=" +token +">\r\n<button type=\"submit\" class=\"btn btn-danger\">");
+            out.print("AGD");
+            out.print("</button>\r\n</form><br>");
         }
+        
     %>
 </body>
 </html>
