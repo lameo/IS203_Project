@@ -907,7 +907,7 @@ public class ReportDAO {
             connection = ConnectionManager.getConnection();
 
             //prepare a statement
-            preparedStatement = connection.prepareStatement("select locationid, timestamp from location where macaddress = ? and timestamp between DATE_SUB(?, INTERVAL 15 MINUTE) and DATE_SUB(?, INTERVAL 1 SECOND) order by timestamp");
+            preparedStatement = connection.prepareStatement("select locationid, timestamp from location where macaddress = ? and timestamp between DATE_SUB(?, INTERVAL 15 MINUTE) and ? order by timestamp");
 
             //set the parameters
             preparedStatement.setString(1, macaddress);
@@ -936,10 +936,10 @@ public class ReportDAO {
                 java.util.Date timestamp = dateFormat.parse(timestring);//convert time string to Date format
                 java.util.Date timestampEnd = dateFormat.parse(endtimeDate);
                 Calendar cal = Calendar.getInstance();
-                cal.setTime(timestampEnd);
-                cal.add(Calendar.SECOND, -1);
-
-                timedateEnd = cal.getTime();
+                //cal.setTime(timestampEnd);
+                //cal.add(Calendar.SECOND, -1);
+                timedateEnd = timestampEnd;
+                //timedateEnd = cal.getTime();
                 timestampEnd = null;
 
                 if (locations.size() <= i + 2) { //if last pair of location and time
@@ -1011,7 +1011,7 @@ public class ReportDAO {
         //UserLocationTimestamps.add("1010110032"+","+"014-03-24 09:07:27.000000"+","+"1");
         return UserLocationTimestamps;
     }
-
+    
     public static ArrayList<String> retreiveCompanionMacaddresses(String userMacaddress, String locationid, String timestringStart, String timestringEnd) {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
@@ -1211,8 +1211,10 @@ public class ReportDAO {
                                 }
                             }
                         }
-                        if (resultSet.isLast()) {
-                            if (locationNext.equals(locationid)) {
+                        //check last location update
+                        if (resultSet.isLast() && locationNext.equals(locationid)) {
+                            /*if (locationNext.equals(locationid)) {
+
                                 if (timestamp.before(timeStart)) {
                                     if (timeDiffNext > 300) {
                                         colocationTime = (300 - gap);
@@ -1231,12 +1233,31 @@ public class ReportDAO {
 
                                 }
 
-                                ans = macaddress + "," + locationid + "," + timestampNext + "," + colocationTime + ",";
-                                CompanionLocationTimestamps.add(ans);
-                                ans = "";
-                                colocationTime = 0;
-                                CorrectTimestring = false;
+                            }*/
+                            //if last location same, include last timestamp
+                            if (timestampNext.before(timeStart)) {
+                                if (timeDiffNext > 300) {
+                                    colocationTime += (300 - gap);
+                                } else {
+                                    colocationTime += timeDiffNext - gap;
+                                }
+                                //CompanionLocationTimestamps.add("last location before ");
+                                //CompanionLocationTimestamps.add(macaddress + "last location time before start " + duration + "," + colocationTime + "," + gap + "," + timeDiffNext);
+                                //if last location is correct location and not before start timestamp  
+                            } else {
+                                if (timeDiffNext > 300) {
+                                    colocationTime += 300;
+                                } else {
+                                    colocationTime += timeDiffNext;
+                                }
+                                //CompanionLocationTimestamps.add(macaddress + "last location time " + colocationTime + "," + timeDiff);
                             }
+                            //CompanionLocationTimestamps.add(macaddress + "last location update " + locationNext + ",timeStart: " + timeStart + ",timeEnd: " + timeEnd + "timeDiffNext: " + timeDiffNext+",colocation: "+colocationTime);
+                            ans = macaddress + "," + locationid + "," + timestampNext + "," + colocationTime + ",";
+                            CompanionLocationTimestamps.add(ans);
+                            ans = "";
+                            colocationTime = 0;
+                            CorrectTimestring = false;
                         }
                         timestring = timestringNext;
                         location = locationNext;
