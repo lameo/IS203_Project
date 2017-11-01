@@ -63,7 +63,7 @@
                 <!-- form input for date & time  -->
                 <div class="form-group">
                     <label for="example-datetime-local-input" class="form-control-label">Enter date & time:</label>
-                    <input class="form-control" type="datetime-local" id="input-datetime-local" name="timeDate" required>
+                    <input class="form-control" type="datetime-local" id="input-datetime-local" name="timeDate" min="2013-01-01T00:00" max="2017-12-31T23:59" required>
                 </div>
                 <button type="submit" class="btn btn-primary">Generate</button>
             </form>
@@ -74,15 +74,14 @@
         <%
             //If top K report is generated
             if (session.getAttribute("test") != null) {
-                //out.println(session.getAttribute("test"));
+                out.println(session.getAttribute("test"));
                 /*ArrayList<String> test = (ArrayList<String>)session.getAttribute("test");
                 for(int i=0;i<test.size();i++){
                     out.println(test.get(i)+"<br>");
-                }
-                */
-                
+                }*/
+
                 String timedate = (String) session.getAttribute("timeDate");
-                out.print("<h3> Potential groups in the SIS builind at " + timedate + "</h3>");
+                /*out.print("<h3> Potential groups in the SIS builind at " + timedate + "</h3>");
 
                 out.print("<div class=\"container\"><table class=\"table table-bordered\"><thead>");
                 ArrayList<Group> AutoGroups = (ArrayList<Group>) (session.getAttribute("test"));
@@ -98,17 +97,7 @@
                     int rowspanMac = 1;
                     int rowspanLocation = 1;
                     int rowspan = 1;
-                    /*
-                    if (AutoUsers.size() >= locationTimestamps.size()) {
-                        rowspanMac = AutoUsers.size();
-                        rowspanLocation = rowspanMac;
-                        rowspan = rowspanMac;
-                    } else {
-                        rowspanLocation = locationTimestamps.size();
-                        rowspanMac = rowspanLocation;
-                        rowspan = rowspanLocation;
-                    }
-                    */
+                    
                     //out.print("<tr><td rowspan=" + AutoGroup.getAutoUsersSize() + ">" + (GroupNo) + "</td>");
                     out.print("<tr><td>" + (GroupNo) + "</td>");
                     //out.print("<td rowspan=" + rowspan + ">");
@@ -134,10 +123,21 @@
                     GroupNo++;
                 }
                 out.print("</tbody></table></div>");
-                
+                 */
             }
             session.removeAttribute("timeDate");
             session.removeAttribute("test");
+            /*
+                    if (AutoUsers.size() >= locationTimestamps.size()) {
+                        rowspanMac = AutoUsers.size();
+                        rowspanLocation = rowspanMac;
+                        rowspan = rowspanMac;
+                    } else {
+                        rowspanLocation = locationTimestamps.size();
+                        rowspanMac = rowspanLocation;
+                        rowspan = rowspanLocation;
+                    }
+             */
         %>
     </center>
 </body>

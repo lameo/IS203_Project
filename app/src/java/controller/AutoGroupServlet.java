@@ -57,7 +57,7 @@ public class AutoGroupServlet extends HttpServlet {
 
             //retreive map of all the users and their location traces whom stay at SIS building in specified time window for at least 12 mins
             Map<String, Map<String, ArrayList<String>>> AutoUsers = AutoGroupDAO.retreiveAutoUsers(timeDate);
-            //session.setAttribute("test", AutoUsers);
+            session.setAttribute("test", AutoUsers);
             /*Map<String, ArrayList<String>> ValidAutoUsers = new HashMap<String, ArrayList<String>>();
             //retrieve group of users whom stay at SIS in processing window
             //check each of autousers
@@ -71,6 +71,7 @@ public class AutoGroupServlet extends HttpServlet {
                 }
             }
             */
+            /*
             ArrayList<Group> AutoGroups = new ArrayList<Group>();
             //test
             //ArrayList<String> AutoGroups = new ArrayList<String>();
@@ -84,7 +85,7 @@ public class AutoGroupServlet extends HttpServlet {
                 //check autogroups and remove sub groups
                 AutoGroups = AutoGroupDAO.CheckAutoGroups(AutoGroups);
             }
-            session.setAttribute("test", AutoGroups);
+            session.setAttribute("test", AutoGroups);*/
             session.setAttribute("timeDate", timeDate);
             //session.setAttribute("test", AutoGroups);
 
