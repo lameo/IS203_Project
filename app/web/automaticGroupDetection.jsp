@@ -74,7 +74,7 @@
         </div>
         <%
             //If top K report is generated
-            if (session.getAttribute("test") != null) {
+            if (session.getAttribute("AutoGroups") != null) {
                 //out.println(session.getAttribute("test"));
                 /*ArrayList<String> test = (ArrayList<String>)session.getAttribute("test");
                 for(int i=0;i<test.size();i++){
@@ -82,10 +82,12 @@
                 }*/
 
                 String timedate = (String) session.getAttribute("timeDate");
-                out.print("<h3> Potential groups in the SIS builind at " + timedate + "</h3>");
+                out.print("<h3> Potential groups in the SIS buiding at " + timedate + "</h3>");
 
                 out.print("<div class=\"container\"><table class=\"table table-bordered\"><thead>");
-                ArrayList<Group> AutoGroups = (ArrayList<Group>) (session.getAttribute("test"));
+                ArrayList<Group> AutoGroups = (ArrayList<Group>) (session.getAttribute("AutoGroups"));
+                int UsersNumber = (int) (session.getAttribute("UsersNumber"));
+                out.print("<thead><tr><th colspan = 3>Number of users in the entire SIS building: " + UsersNumber + " <br>Total number of groups discovered: " + AutoGroups.size() + "</th></tr>");
                 out.print("<tr><th>Group No.</th><th>Macaddress (Email)</th><th>Location id (Time spent in seconds)</th></tr></thead></tbody>");
 
                 int GroupNo = 1;
