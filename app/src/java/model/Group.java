@@ -5,8 +5,9 @@ import java.util.Iterator;
 import java.util.HashMap;
 import java.util.Objects;
 import java.util.Map;
+import java.util.TreeMap;
 
-public class Group {
+public class Group implements Comparable<Group> {
 
     public ArrayList<String> AutoUsersMacs;
     public Map<String, ArrayList<String>> locationTimestamps;
@@ -34,6 +35,16 @@ public class Group {
         return AutoUsersMacs.size();
     }
 
+    @Override
+    public int compareTo(Group o) {
+        if(o.getAutoUsersSize()==getAutoUsersSize()){
+            return (int)(o.CalculateTotalDuration() - CalculateTotalDuration());
+        }else{
+           return o.getAutoUsersSize() - getAutoUsersSize(); 
+        }
+        
+    }
+
     //retreive macaddress of groups AutoUser is in
     /*
     public HashMap<String,ArrayList<String>> RetrieveAutoGroups(){
@@ -56,7 +67,7 @@ public class Group {
 
     //calculate total time duration of the location timestamps of the group for each location
     public Map<String, Double> CalculateTimeDuration() {
-        Map<String, Double> locationDuration = new HashMap<String, Double>();
+        Map<String, Double> locationDuration = new TreeMap<String, Double>();
         Iterator<String> locations = locationTimestamps.keySet().iterator();
         while (locations.hasNext()) {
             String location = locations.next();
@@ -85,6 +96,23 @@ public class Group {
         }
         return locationDuration;
     }
+    
+    //calculate total time duration of the group
+    public double CalculateTotalDuration() {
+        Iterator<String> locations = locationTimestamps.keySet().iterator();
+        double duration = 0;
+        while (locations.hasNext()) {
+            String location = locations.next();
+            ArrayList<String> timestamps = locationTimestamps.get(location);
+            for (int i = 0; i < timestamps.size(); i++) {
+                String[] timestamp = timestamps.get(i).split(",");
+                String TimestringStart = timestamp[0];
+                String TimestringEnd = timestamp[1];
+                duration += Double.parseDouble(timestamp[2]);
+            }
+        }
+        return duration;
+    }
 
     public ArrayList<String> retreiveMacsWithEmails() {
         ArrayList<String> MacsWithEmails = new ArrayList<String>();
@@ -92,11 +120,39 @@ public class Group {
             String AutoUserMac = AutoUsersMacs.get(i);
             String email = ReportDAO.retrieveEmailByMacaddress(AutoUserMac);
             if (email == null || email.length() <= 0) {
-                email = "No email found";
+                //email = "No email found";
+                email = "";
             }
             MacsWithEmails.add(AutoUserMac + "," + email);
         }
         return MacsWithEmails;
+    }
+    
+    public TreeMap<String, String> retreiveEmailsWithMacs(){
+        TreeMap<String, String> sortedUserMap = new TreeMap<String, String>();
+        for (int i = 0; i < AutoUsersMacs.size(); i++) {
+            String AutoUserMac = AutoUsersMacs.get(i);
+            String email = ReportDAO.retrieveEmailByMacaddress(AutoUserMac);
+            if (email != null && email.length() > 0) {
+                //email = "No email found";
+                sortedUserMap.put(email, AutoUserMac);
+            }
+            
+        }
+        return sortedUserMap;
+    }
+    
+    public TreeMap<String, String> retreiveMacsNoEmails(){
+        TreeMap<String, String> sortedUserMap = new TreeMap<String, String>();
+        for (int i = 0; i < AutoUsersMacs.size(); i++) {
+            String AutoUserMac = AutoUsersMacs.get(i);
+            String email = ReportDAO.retrieveEmailByMacaddress(AutoUserMac);
+            if (email == null || email.length() <= 0) {
+                email = "";
+                sortedUserMap.put(AutoUserMac, email);
+            }
+        }
+        return sortedUserMap;
     }
 
     //Check if two group is the same, or is a subgroup of another larger group, return the group number to remove

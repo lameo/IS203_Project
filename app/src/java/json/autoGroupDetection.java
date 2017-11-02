@@ -12,7 +12,10 @@ import com.google.gson.JsonObject;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.TreeMap;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -149,26 +152,74 @@ public class autoGroupDetection extends HttpServlet {
             //create a json array to store errors
             JsonArray resultsArr = new JsonArray();
             
-            //retreive all the users whom stay at SIS building in specified time window
-            Map<String, Map<String, ArrayList<String>>> autoUsers = AutoGroupDAO.retreiveAutoUsers(dateEntered);
-            ArrayList<Group> AutoGroups = new ArrayList<Group>();
-            JsonObject autoGroups = new JsonObject();
-            autoGroups.addProperty("size", autoUsers.size());
-            if (autoUsers != null && autoUsers.size() > 0) {
+            int UsersNumber = AutoGroupDAO.retreiveUsersNumber(dateEntered);//retreive the number of users in the entire SIS building for that date and time
+            
+            //retreive map of all the users and their location traces whom stay at SIS building in specified time window for at least 12 mins
+            Map<String, Map<String, ArrayList<String>>> AutoUsers = AutoGroupDAO.retreiveAutoUsers(dateEntered);
+            
+            ArrayList<Group> autoGroups = new ArrayList<Group>();
+            //test
+            //ArrayList<String> AutoGroups = new ArrayList<String>();
+            //check if there are valid auto users
+            if (AutoUsers != null && AutoUsers.size() > 0) {
                 //retrieve groups formed from valid auto users
-                AutoGroups = retrieveAutoGroups(autoUsers);
-                //To add auto group members into an array for output
-                JsonArray membersArr = new JsonArray();
-                
-                //to be continued
+                autoGroups = retrieveAutoGroups(AutoUsers);
             }
+            
             //session.setAttribute("test", AutoGroups);
-            if (AutoGroups != null && AutoGroups.size() > 0) {
+            if (autoGroups != null && autoGroups.size() > 0) {
                 //check autogroups and remove sub groups
-                AutoGroups = AutoGroupDAO.CheckAutoGroups(AutoGroups);
+                autoGroups = AutoGroupDAO.CheckAutoGroups(autoGroups);
             }
+            // sort the autogroup list in group size, total time duration order first
+            Collections.sort(autoGroups);
+            for (Group autoGroup:autoGroups){
+                //temp json object to store required output first before adding to resultsArr for final output
+                JsonObject autoGroupObject = new JsonObject();
+                autoGroupObject.addProperty("size",autoGroup.getAutoUsersSize());
+                autoGroupObject.addProperty("total-time-spent",(int)autoGroup.CalculateTotalDuration());
+                JsonArray membersArr = new JsonArray();
+                JsonObject membersObject = new JsonObject();
+                TreeMap<String, String> sortedUsersWithEmails = autoGroup.retreiveEmailsWithMacs();
+                Iterator<String> usersWithEmails = sortedUsersWithEmails.keySet().iterator();
+                while(usersWithEmails.hasNext()){
+                    String email = usersWithEmails.next();
+                    String mac = sortedUsersWithEmails.get(email);
+                    membersObject.addProperty("email",email);
+                    membersObject.addProperty("mac-address",mac);
+                    membersArr.add(membersObject);
+                }
+                TreeMap<String, String> sortedUsersNoEmails = autoGroup.retreiveMacsNoEmails();
+                Iterator<String> usersNoEmails = sortedUsersNoEmails.keySet().iterator();
+                while(usersNoEmails.hasNext()){
+                    String mac = usersNoEmails.next();
+                    String email = sortedUsersNoEmails.get(mac);
+                    membersObject.addProperty("email","");
+                    membersObject.addProperty("mac-address",mac);
+                    membersArr.add(membersObject);
+                }
+                
+                autoGroupObject.add("members",membersArr);
+                JsonArray locationsArr = new JsonArray();
+                JsonObject locationsObject = new JsonObject();
+                Map<String, Double> locationsDuration =  autoGroup.CalculateTimeDuration();
+                Iterator<String> locations = locationsDuration.keySet().iterator();
+                while(locations.hasNext()){
+                    String location = locations.next();
+                    double duration = locationsDuration.get(location);
+                    locationsObject.addProperty("location",location);
+                    locationsObject.addProperty("time-spent",(int)(duration));
+                    locationsArr.add(locationsObject);
+                }
+                
+                autoGroupObject.add("locations",locationsArr);
+                resultsArr.add(autoGroupObject);
+            }
+            
             jsonOutput.addProperty("status", "success");
-            jsonOutput.add("results", resultsArr);
+            jsonOutput.addProperty("total-users", UsersNumber);
+            jsonOutput.addProperty("total-groups", autoGroups.size());
+            jsonOutput.add("groups", resultsArr);
         } else {
             jsonOutput.addProperty("status", "error");
             jsonOutput.add("messages", errMsg);
