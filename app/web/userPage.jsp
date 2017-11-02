@@ -56,7 +56,7 @@
                 </div>
                 <div id="collapse1" class="panel-collapse collapse">                
                     <div class="panel-body">
-                        There are no announcements to display
+                        There are no announcements to display.
                     </div>
                 </div>
             </div>    

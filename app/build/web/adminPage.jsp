@@ -67,7 +67,7 @@
                 </div>
                 <div id="collapse1" class="panel-collapse collapse">                
                     <div class="panel-body">
-                        There are no announcements to display
+                        There are no announcements to display.
                     </div>
                 </div>
             </div>    
@@ -79,7 +79,7 @@
                 </div>
                 <div id="collapse2" class="panel-collapse collapse">                
                     <div class="panel-body">
-                        The administrator can bootstrap the SLOCA system with location & demographics data.
+                        The administrator can bootstrap the SLOCA system with location & demographics & location-lookup data.
                     </div>
                 </div>
             </div>             
