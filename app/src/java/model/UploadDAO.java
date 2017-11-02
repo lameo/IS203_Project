@@ -201,36 +201,40 @@ public class UploadDAO {
                 lineNumber++;
                 String errorMsg = "";
                 String macaddress = columns[0];
-                String name = columns[1];
-                String password = columns[2];
-                String email = columns[3];
-                String gender = columns[4];
 
-                if (macaddress.isEmpty()) {
+                if (macaddress == null || macaddress.isEmpty()) {
                     errorMsg += ", Missing mac address";
                     errorMap.put(lineNumber, errorMsg.substring(2));
                     continue;
                 }
 
-                if (name.isEmpty()) {
+                String name = columns[1];
+
+                if (name == null || name.isEmpty()) {
                     errorMsg += ", Missing name";
                     errorMap.put(lineNumber, errorMsg.substring(2));
                     continue;
                 }
 
-                if (password.isEmpty()) {
+                String password = columns[2];
+
+                if (password == null || password.isEmpty()) {
                     errorMsg += ", Missing password";
                     errorMap.put(lineNumber, errorMsg.substring(2));
                     continue;
                 }
 
-                if (email.isEmpty()) {
+                String email = columns[3];
+
+                if (email == null || email.isEmpty()) {
                     errorMsg += ", Missing email";
                     errorMap.put(lineNumber, errorMsg.substring(2));
                     continue;
                 }
 
-                if (gender.isEmpty()) {
+                String gender = columns[4];
+
+                if (gender == null || gender.isEmpty()) {
                     errorMsg += ", Missing gender";
                     errorMap.put(lineNumber, errorMsg.substring(2));
                     continue;
@@ -250,7 +254,7 @@ public class UploadDAO {
                 if (password.length() < 8 || password.contains(" ")) {
                     errorMsg += ", Invalid password";
                 }
-                
+
                 // Email
                 email = email.trim();
                 String[] schools = "business socsc law sis accountancy economics".split(" ");
@@ -336,14 +340,14 @@ public class UploadDAO {
             reader.readNext();
             String[] columns;
             while ((columns = reader.readNext()) != null) {
-                System.out.println(columns[0] );
+                System.out.println(columns[0]);
                 lineNumber++;
                 System.out.println(lineNumber);
                 String errorMsg = "";
                 int locationID = 0;
 
                 // Checking for LocationID
-                if (columns[0].isEmpty()) {
+                if (columns[0] == null || columns[0].isEmpty()) {
                     errorMsg += ", Missing locationID";
                     errorMap.put(lineNumber, errorMsg.substring(2));
                     continue;
@@ -358,7 +362,7 @@ public class UploadDAO {
                 }
 
                 // Checking for semantic name
-                if (columns[1].isEmpty()) {
+                if (columns[1] == null || columns[1].isEmpty()) {
                     errorMsg += ", Missing semantic place";
                     errorMap.put(lineNumber, errorMsg.substring(2));
                     continue;
@@ -436,22 +440,24 @@ public class UploadDAO {
                 String errorMsg = "";
                 String[] row = rows.get(i);
                 String timeDate = row[0];
-                String macaddress = row[1];
-                String locationID = row[2];
 
-                if (timeDate.isEmpty()) {
+                if (timeDate == null || timeDate.isEmpty()) {
                     errorMsg += ", Missing date and time";
                     errorMap.put(i + 1, errorMsg.substring(2));
                     continue;
                 }
 
-                if (macaddress.isEmpty()) {
+                String macaddress = row[1];
+
+                if (macaddress == null || macaddress.isEmpty()) {
                     errorMsg += ", Missing mac address";
                     errorMap.put(i + 1, errorMsg.substring(2));
                     continue;
                 }
 
-                if (locationID.isEmpty()) {
+                String locationID = row[2];
+
+                if (locationID == null || locationID.isEmpty()) {
                     errorMsg += ", Missing locationID";
                     errorMap.put(i + 1, errorMsg.substring(2));
                     continue;
@@ -558,36 +564,40 @@ public class UploadDAO {
                 String errorMsg = "";
                 String[] row = rows.get(i);
                 String macaddress = row[0];
-                String name = row[1];
-                String password = row[2];
-                String email = row[3];
-                String gender = row[4];
 
-                if (macaddress.isEmpty()) {
+                if (macaddress == null || macaddress.isEmpty()) {
                     errorMsg += ", Missing mac address";
                     errorMap.put(i + 1, errorMsg.substring(2));
                     continue;
                 }
 
-                if (name.isEmpty()) {
+                String name = row[1];
+
+                if (name == null || name.isEmpty()) {
                     errorMsg += ", Missing name";
                     errorMap.put(i + 1, errorMsg.substring(2));
                     continue;
                 }
 
-                if (password.isEmpty()) {
+                String password = row[2];
+
+                if (password == null || password.isEmpty()) {
                     errorMsg += ", Missing password";
                     errorMap.put(i + 1, errorMsg.substring(2));
                     continue;
                 }
 
-                if (email.isEmpty()) {
+                String email = row[3];
+
+                if (email == null || email.isEmpty()) {
                     errorMsg += ", Missing email";
                     errorMap.put(i + 1, errorMsg.substring(2));
                     continue;
                 }
 
-                if (gender.isEmpty()) {
+                String gender = row[4];
+
+                if (gender == null || gender.isEmpty()) {
                     errorMsg += ", Missing gender";
                     errorMap.put(i + 1, errorMsg.substring(2));
                     continue;
@@ -707,22 +717,24 @@ public class UploadDAO {
                 String errorMsg = "";
                 String[] row = rows.get(i);
                 String timeDate = row[0];
-                String macaddress = row[1];
-                String locationID = row[2];
 
-                if (timeDate.isEmpty()) {
+                if (timeDate == null || timeDate.isEmpty()) {
                     errorMsg += ", Missing date and time";
                     errorMap.put(i + 1, errorMsg.substring(2));
                     continue;
                 }
 
-                if (macaddress.isEmpty()) {
+                String macaddress = row[1];
+
+                if (macaddress == null || macaddress.isEmpty()) {
                     errorMsg += ", Missing mac address";
                     errorMap.put(i + 1, errorMsg.substring(2));
                     continue;
                 }
 
-                if (locationID.isEmpty()) {
+                String locationID = row[2];
+
+                if (locationID == null || locationID.isEmpty()) {
                     errorMsg += ", Missing locationID";
                     errorMap.put(i + 1, errorMsg.substring(2));
                     continue;
