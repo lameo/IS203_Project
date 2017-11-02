@@ -54,23 +54,11 @@ public class AutoGroupServlet extends HttpServlet {
             timestamp = (Date) readFormat.parse(timeDate);
             timeDate = writeFormat.format(timestamp);
             //System.out.println("Retrieved and formatted dateTime: " + timestamp.toString());
-
+            int UsersNumber = AutoGroupDAO.retreiveUsersNumber(timeDate);//retreive the number of users in the entire SIS building for that date and time
+            
             //retreive map of all the users and their location traces whom stay at SIS building in specified time window for at least 12 mins
             Map<String, Map<String, ArrayList<String>>> AutoUsers = AutoGroupDAO.retreiveAutoUsers(timeDate);
             //session.setAttribute("test", AutoUsers);
-            /*Map<String, ArrayList<String>> ValidAutoUsers = new HashMap<String, ArrayList<String>>();
-            //retrieve group of users whom stay at SIS in processing window
-            //check each of autousers
-            for (int i = 0; i < AutoUsers.size(); i += 1) {
-                String AutoUserMac = AutoUsers.get(i);
-                //retreive location traces of each user 
-                ArrayList<String> AutoUserLocationTimestamps = ReportDAO.retrieveUserLocationTimestamps(AutoUserMac, timeDate);
-                //check if user stays at SIS building for at least 12 minutes, if yes add to ValidAutoUsers
-                if (AutoGroupDAO.AutoUser12Mins(AutoUserLocationTimestamps)) {
-                    ValidAutoUsers.put(AutoUserMac, AutoUserLocationTimestamps);
-                }
-            }
-            */
             
             ArrayList<Group> AutoGroups = new ArrayList<Group>();
             //test
@@ -86,7 +74,8 @@ public class AutoGroupServlet extends HttpServlet {
                 //check autogroups and remove sub groups
                 AutoGroups = AutoGroupDAO.CheckAutoGroups(AutoGroups);
             }
-            session.setAttribute("test", AutoGroups);
+            session.setAttribute("UsersNumber", UsersNumber);
+            session.setAttribute("AutoGroups", AutoGroups);
             session.setAttribute("timeDate", timeDate);
             //session.setAttribute("test", AutoGroups);
 

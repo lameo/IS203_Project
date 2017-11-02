@@ -478,5 +478,37 @@ public class AutoGroupDAO {
         //test.add("result: "+autoUsersTraces);
         return autoUsersTraces;
     }
+    
+    public static int retreiveUsersNumber(String timestringEnd) {
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
+        int count = 0;
+        try {
+            //get a connection to database
+            connection = ConnectionManager.getConnection();
+
+            //prepare a statement
+            preparedStatement = connection.prepareStatement("select distinct macaddress from location where timestamp between DATE_SUB(?, INTERVAL 15 minute) and DATE_SUB(?, INTERVAL 1 second)");
+
+            //set the parameters
+            preparedStatement.setString(1, timestringEnd);
+            preparedStatement.setString(2, timestringEnd);
+
+            //execute SQL query
+            resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()) {
+                count += 1;
+            }
+
+            //close connections
+            resultSet.close();
+            preparedStatement.close();
+            connection.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return count;
+    }
 
 }
