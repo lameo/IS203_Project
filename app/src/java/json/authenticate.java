@@ -72,7 +72,7 @@ public class authenticate extends HttpServlet {
         }
 
         try {
-            if (username.equals("admin") && password.equals("password")) { //admin
+            if (username.equals("admin") && password.equals("Password!SE888")) { //admin
                 String token = SharedSecretManager.authenticateAdmin();
                 jsonOutput.addProperty("status", "success");
                 jsonOutput.addProperty("token", token);
