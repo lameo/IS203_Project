@@ -283,7 +283,7 @@ public class AutoGroupDAO {
             connection = ConnectionManager.getConnection();
 
             //prepare a statement
-            preparedStatement = connection.prepareStatement("select distinct macaddress, locationid, timestamp, TIMESTAMPDIFF(second,timestamp,DATE_SUB(?,INTERVAL 1 second)) as diff from location where timestamp between DATE_SUB(?, INTERVAL 15 minute) and DATE_SUB(?,INTERVAL 1 second)");
+            preparedStatement = connection.prepareStatement("select distinct macaddress, locationid, timestamp, TIMESTAMPDIFF(second,timestamp,?) as diff from location where timestamp between DATE_SUB(?, INTERVAL 15 minute) and ?");
 
             //set the parameters
             preparedStatement.setString(1, timestringEnd);
@@ -356,9 +356,9 @@ public class AutoGroupDAO {
                     }
                     if (locationTraces.size() <= i + 1) {//if last location update
                         //test.add(AutoUserMac + " last one");
-                        cal.setTime(timestampEnd);
-                        cal.add(Calendar.SECOND, -1);
-                        timestampEnd = cal.getTime();
+                        //cal.setTime(timestampEnd);
+                        //cal.add(Calendar.SECOND, -1);
+                        //timestampEnd = cal.getTime();
                         double timeGap = timeDiff;
                         //if time gap is more than 5 minutes
                         if (timeGap > 300.0) {

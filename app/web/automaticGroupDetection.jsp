@@ -74,14 +74,14 @@
         <%
             //If top K report is generated
             if (session.getAttribute("test") != null) {
-                out.println(session.getAttribute("test"));
+                //out.println(session.getAttribute("test"));
                 /*ArrayList<String> test = (ArrayList<String>)session.getAttribute("test");
                 for(int i=0;i<test.size();i++){
                     out.println(test.get(i)+"<br>");
                 }*/
 
                 String timedate = (String) session.getAttribute("timeDate");
-                /*out.print("<h3> Potential groups in the SIS builind at " + timedate + "</h3>");
+                out.print("<h3> Potential groups in the SIS builind at " + timedate + "</h3>");
 
                 out.print("<div class=\"container\"><table class=\"table table-bordered\"><thead>");
                 ArrayList<Group> AutoGroups = (ArrayList<Group>) (session.getAttribute("test"));
@@ -123,7 +123,7 @@
                     GroupNo++;
                 }
                 out.print("</tbody></table></div>");
-                 */
+                 
             }
             session.removeAttribute("timeDate");
             session.removeAttribute("test");
