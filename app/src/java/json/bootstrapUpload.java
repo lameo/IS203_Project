@@ -41,39 +41,6 @@ public class bootstrapUpload extends HttpServlet {
         JsonArray errMsg = new JsonArray();
         boolean validFile = true;
 
-        //get token from request
-        String token = request.getParameter("token");
-
-        // Token checking
-        if (token == null) {
-            errMsg.add("missing token");
-            ans.addProperty("status", "error");
-            ans.add("messages", errMsg);
-            out.println(gson.toJson(ans));
-            out.close(); //close PrintWriter
-            return;
-        }
-
-        if (token.isEmpty()) {
-            errMsg.add("blank token");
-            ans.addProperty("status", "error");
-            ans.add("messages", errMsg);
-            out.println(gson.toJson(ans));
-            out.close(); //close PrintWriter
-            return;
-        }
-
-        //print out all the error with null or empty string that is required but the user did not enter 
-        //if (!SharedSecretManager.verifyAdmin(token)) { //verify the user - if the user is not verified
-        if (SharedSecretManager.verifyAdmin(token)) { //verify the user - if the user is not verified
-            errMsg.add("invalid token");
-            ans.addProperty("status", "error");
-            ans.add("messages", errMsg);
-            out.println(gson.toJson(ans));
-            out.close(); //close PrintWriter
-            return;
-        }
-
         UploadBean upBean = new UploadBean();
         HashMap<Integer, String> demographicsError = new HashMap<>();
         HashMap<Integer, String> locationLookupError = new HashMap<>();
@@ -81,28 +48,63 @@ public class bootstrapUpload extends HttpServlet {
         JsonArray fileUpload = new JsonArray();
 
         try {
-            ServletContext servletContext = this.getServletConfig().getServletContext();
-            //Pathname to a scratch directory to be provided by this Context for temporary read-write use by servlets within the associated web application
-            File directory = (File) servletContext.getAttribute("javax.servlet.context.tempdir");
-            String outputDirectory = "" + directory; //String format of directory
-
-            upBean.setFolderstore(outputDirectory); //set upBean output directory
-            Long size = Long.parseLong("8589934592"); //the size limit of the file uploads
-            upBean.setFilesizelimit(size);
             if (MultipartFormDataRequest.isMultipartFormData(request)) {
                 //Uses MultipartFormDataRequest to parse the HTTP request.
                 MultipartFormDataRequest multipartRequest = new MultipartFormDataRequest(request); //specialized version of request object to interpret the data
 
+                //get token from request
+                String token = (String) multipartRequest.getParameter("token");
+
+                // Token checking
+                if (token == null) {
+                    errMsg.add("missing token");
+                    ans.addProperty("status", "error");
+                    ans.add("messages", errMsg);
+                    out.println(gson.toJson(ans));
+                    out.close(); //close PrintWriter
+                    return;
+                }
+
+                if (token.isEmpty()) {
+                    errMsg.add("blank token");
+                    ans.addProperty("status", "error");
+                    ans.add("messages", errMsg);
+                    out.println(gson.toJson(ans));
+                    out.close(); //close PrintWriter
+                    return;
+                }
+
+                //print out all the error with null or empty string that is required but the user did not enter 
+                if (!SharedSecretManager.verifyAdmin(token)) { //verify the user - if the user is not verified
+                    errMsg.add("invalid token");
+                    ans.addProperty("status", "error");
+                    ans.add("messages", errMsg);
+                    out.println(gson.toJson(ans));
+                    out.close(); //close PrintWriter
+                    return;
+                }
+                
+                // if token is valid, continue processing
+                ServletContext servletContext = this.getServletConfig().getServletContext();
+                //Pathname to a scratch directory to be provided by this Context for temporary read-write use by servlets within the associated web application
+                File directory = (File) servletContext.getAttribute("javax.servlet.context.tempdir");
+                String outputDirectory = "" + directory; //String format of directory
+
+                upBean.setFolderstore(outputDirectory); //set upBean output directory
+                Long size = Long.parseLong("8589934592"); //the size limit of the file uploads
+                upBean.setFilesizelimit(size);
+                
                 Hashtable files = multipartRequest.getFiles(); //get the files sent over, hastable is the older version of hashmap
+                
                 if ((files != null) && (!files.isEmpty())) {
-                    UploadFile file = (UploadFile) files.get("uploadfile"); //get the files from bootstrapinitialize
+                    UploadFile file = (UploadFile) files.get("bootstrap-file"); //get the files from bootstrapinitialize
                     if (file != null && file.getFileSize() > 0 && file.getFileName() != null) {
                         String fileName = file.getFileName();
                         String contentType = file.getContentType(); //Get the file type
                         String filePath = outputDirectory + File.separator + fileName; //get the file path 
 
-                        if (contentType.equals("application/x-zip-compressed")) { //if it is a zip file
-                            upBean.store(multipartRequest, "uploadfile"); //save to directory
+                        if (contentType.equals("application/x-zip-compressed") || contentType.equals("application/zip")) { //if it is a zip file
+                            upBean.store(multipartRequest, "bootstrap-file"); //save to directory
                             String fileExist = UploadDAO.unzip(filePath, outputDirectory); //unzip the files in the zip and save into the directory
 
                             if (fileExist != null && fileExist.contains("demographics.csv")) {
@@ -132,7 +134,7 @@ public class bootstrapUpload extends HttpServlet {
 
                             //if location.csv or location-lookup.csv or demographics.csv
                         } else if (UploadDAO.checkFileName(fileName) != null && UploadDAO.checkFileName(fileName).length() > 0) {
-                            upBean.store(multipartRequest, "uploadfile"); //save to directory
+                            upBean.store(multipartRequest, "bootstrap-file"); //save to directory
                             JsonObject temp = new JsonObject();
                             switch (fileName) {
                                 case "demographics.csv":
@@ -159,7 +161,7 @@ public class bootstrapUpload extends HttpServlet {
                                 default:
                                     break;
                             }
-                        }else{
+                        } else {
                             validFile = false;
                         }
 
@@ -240,18 +242,18 @@ public class bootstrapUpload extends HttpServlet {
                         file = null;
                     }
                 }
-            }
 
-            // Deleting temp file so as to prevent issue with reuploading
-            if (outputDirectory == null) {
-                return;
-            }
-            File dir = new File(outputDirectory);
-            if (dir.exists() && dir.isDirectory()) {
-                File[] files = dir.listFiles();
-                if (null != files) {
-                    for (File file : files) {
-                        file.delete();
+                // Deleting temp file so as to prevent issue with reuploading
+                if (outputDirectory == null) {
+                    return;
+                }
+                File dir = new File(outputDirectory);
+                if (dir.exists() && dir.isDirectory()) {
+                    File[] allFiles = dir.listFiles();
+                    if (null != allFiles) {
+                        for (File file : allFiles) {
+                            file.delete();
+                        }
                     }
                 }
             }
