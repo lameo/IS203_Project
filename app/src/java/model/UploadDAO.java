@@ -117,7 +117,7 @@ public class UploadDAO {
         return ans;
     }
 
-    private static ArrayList<String> retrieveMacEmail() {
+    private static ArrayList<String> retrieveMac() {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
@@ -127,14 +127,14 @@ public class UploadDAO {
             connection = ConnectionManager.getConnection();
 
             //prepare a statement
-            preparedStatement = connection.prepareStatement("select macaddress, email from demographics");
+            preparedStatement = connection.prepareStatement("select distinct macaddress from demographics");
 
             //execute SQL query
             preparedStatement.executeQuery();
 
             resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
-                ans.add(resultSet.getString(1) + resultSet.getString(2));
+                ans.add(resultSet.getString(1));
             }
 
             //close connections
@@ -543,7 +543,7 @@ public class UploadDAO {
         int count = 0;
         int successful = 0;
 
-        ArrayList<String> previousMacEmail = retrieveMacEmail();
+        ArrayList<String> previousMacEmail = retrieveMac();
         HashMap<Integer, String> errorMap = new HashMap<>();
 
         try {
@@ -646,7 +646,7 @@ public class UploadDAO {
                 }
 
                 //Duplicate
-                if (previousMacEmail.contains(macaddress + email)) {
+                if (previousMacEmail.contains(macaddress)) {
                     errorMsg += ", Duplicate Row";
                 }
 
@@ -660,7 +660,7 @@ public class UploadDAO {
                     preparedStatement.setString(3, password);
                     preparedStatement.setString(4, email);
                     preparedStatement.setString(5, gender);
-                    previousMacEmail.add(macaddress + email);
+                    previousMacEmail.add(macaddress);
                     preparedStatement.addBatch();
                 }
 
