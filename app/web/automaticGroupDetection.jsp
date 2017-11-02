@@ -82,7 +82,7 @@
                 }*/
 
                 String timedate = (String) session.getAttribute("timeDate");
-                out.print("<h3> Potential groups in the SIS buiding at " + timedate + "</h3>");
+                out.print("<h3> Potential groups in the SIS building at " + timedate + "</h3>");
 
                 out.print("<div class=\"container\"><table class=\"table table-bordered\"><thead>");
                 ArrayList<Group> AutoGroups = (ArrayList<Group>) (session.getAttribute("AutoGroups"));
@@ -129,7 +129,8 @@
                  
             }
             session.removeAttribute("timeDate");
-            session.removeAttribute("test");
+            session.removeAttribute("AutoGroups");
+            session.removeAttribute("UsersNumber");
             /*
                     if (AutoUsers.size() >= locationTimestamps.size()) {
                         rowspanMac = AutoUsers.size();
