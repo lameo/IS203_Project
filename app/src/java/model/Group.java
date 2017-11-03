@@ -186,11 +186,10 @@ public class Group implements Comparable<Group> {
             return false;
         }
         int sameUser = 0;
-        for (int j = 0; j < getAutoUsersSize(); j++) {
-            for (int i = 0; i < AutoGroup2Size; i++) {
-                if (AutoUsersMacs2.get(i).equals(getAutoUserMac(j))) {
-                    sameUser++;
-                }
+        for (int j = 0; j < AutoGroup2Size; j++) {
+            String mac = AutoUsersMacs2.get(j);
+            if(AutoUsersMacs.contains(mac)){
+                sameUser += 1;
             }
         }
         if (sameUser == AutoGroup2Size) {
