@@ -158,7 +158,7 @@
                     map = d3.floorplan().xScale(xscale).yScale(yscale), //setup a floor plan map to hold layers and manage pan/zoom functionality
                     imagelayer = d3.floorplan.imagelayer(), //create a new image layer
                     heatmap = d3.floorplan.heatmap(), //create a heat map layer
-                    overlays = d3.floorplan.overlays().editMode(true),
+                    //overlays = d3.floorplan.overlays().editMode(true),
                     mapdata = {};
 
             var obj = new Object();
@@ -276,14 +276,14 @@
                     }];
 
                 map.addLayer(imagelayer) //add layer to the image
-                        .addLayer(heatmap)
-                        .addLayer(overlays);
+                        .addLayer(heatmap);
+                        //.addLayer(overlays);
 
                 heatmap.colorMode(['custom']); //set custom mode for colors
                 heatmap.customThresholds([1, 2, 3, 4, 5, 6]); //set colors to heat levels 
 
                 mapdata[heatmap.id()] = data.heatmap; //set variable from json
-                mapdata[overlays.id()] = data.overlays;
+                //mapdata[overlays.id()] = data.overlays;
                 d3.select("#L2HeatMap").append("svg")
                         .attr("height", 1106).attr("width", 1205)
                         .datum(mapdata).call(map);
@@ -327,14 +327,14 @@
                     }];
 
                 map.addLayer(imagelayer) //add layer to the image
-                        .addLayer(heatmap)
-                        .addLayer(overlays);
+                        .addLayer(heatmap);
+                        //.addLayer(overlays);
 
                 heatmap.colorMode(['custom']); //set custom mode for colors
                 heatmap.customThresholds([1, 2, 3, 4, 5, 6]); //set colors to heat levels 
 
                 mapdata[heatmap.id()] = data.heatmap; //set variable from json
-                mapdata[overlays.id()] = data.overlays;
+                //mapdata[overlays.id()] = data.overlays;
                 d3.select("#L3HeatMap").append("svg")
                         .attr("height", 1106).attr("width", 1205)
                         .datum(mapdata).call(map);
