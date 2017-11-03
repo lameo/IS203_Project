@@ -12,6 +12,8 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javazoom.upload.MultipartFormDataRequest;
+import javazoom.upload.UploadException;
 import model.User;
 import model.UserDAO;
 import model.SharedSecretManager;
@@ -32,46 +34,56 @@ public class authenticate extends HttpServlet {
 
         JsonArray errMsg = new JsonArray();
 
-        String username = request.getParameter("username"); //get username from request
-        String password = request.getParameter("password"); //get password from request   
-
-        if (username == null) { //check if username is null
-            errMsg.add("missing username");
-            jsonOutput.addProperty("status", "error");
-            jsonOutput.add("messages", errMsg);
-            out.println(gson.toJson(jsonOutput));
-            out.close(); //close PrintWriter
-            return;
-        }
-
-        if (username.isEmpty()) { //check if username is empty
-            errMsg.add("blank username");
-            jsonOutput.addProperty("status", "error");
-            jsonOutput.add("messages", errMsg);
-            out.println(gson.toJson(jsonOutput));
-            out.close(); //close PrintWriter
-            return;
-        }
-
-        if (password == null) { //check if password is null
-            errMsg.add("missing password");
-            jsonOutput.addProperty("status", "error");
-            jsonOutput.add("messages", errMsg);
-            out.println(gson.toJson(jsonOutput));
-            out.close(); //close PrintWriter
-            return;
-        }
-
-        if (password.isEmpty()) { //check if password is empty
-            errMsg.add("blank password");
-            jsonOutput.addProperty("status", "error");
-            jsonOutput.add("messages", errMsg);
-            out.println(gson.toJson(jsonOutput));
-            out.close(); //close PrintWriter
-            return;
-        }
-
         try {
+            String username = null;
+            String password = null;
+            if (MultipartFormDataRequest.isMultipartFormData(request)) {
+                //Uses MultipartFormDataRequest to parse the HTTP request.
+                MultipartFormDataRequest multipartRequest = new MultipartFormDataRequest(request); //specialized version of request object to interpret the data
+
+                username = (String) multipartRequest.getParameter("username"); //get username from request
+                password = (String) multipartRequest.getParameter("password"); //get password from request   
+            } else {
+                username = request.getParameter("username"); //get username from request
+                password = request.getParameter("password"); //get password from request   
+            }
+            
+            if (username == null) { //check if username is null
+                errMsg.add("missing username");
+                jsonOutput.addProperty("status", "error");
+                jsonOutput.add("messages", errMsg);
+                out.println(gson.toJson(jsonOutput));
+                out.close(); //close PrintWriter
+                return;
+            }
+
+            if (username.isEmpty()) { //check if username is empty
+                errMsg.add("blank username");
+                jsonOutput.addProperty("status", "error");
+                jsonOutput.add("messages", errMsg);
+                out.println(gson.toJson(jsonOutput));
+                out.close(); //close PrintWriter
+                return;
+            }
+
+            if (password == null) { //check if password is null
+                errMsg.add("missing password");
+                jsonOutput.addProperty("status", "error");
+                jsonOutput.add("messages", errMsg);
+                out.println(gson.toJson(jsonOutput));
+                out.close(); //close PrintWriter
+                return;
+            }
+
+            if (password.isEmpty()) { //check if password is empty
+                errMsg.add("blank password");
+                jsonOutput.addProperty("status", "error");
+                jsonOutput.add("messages", errMsg);
+                out.println(gson.toJson(jsonOutput));
+                out.close(); //close PrintWriter
+                return;
+            }
+
             if (username.equals("admin") && password.equals("Password!SE888")) { //admin
                 String token = SharedSecretManager.authenticateAdmin();
                 jsonOutput.addProperty("status", "success");
@@ -92,6 +104,8 @@ public class authenticate extends HttpServlet {
 
         } catch (SQLException e) {
             errMsg.add("server is currently unavailable, please try again later. Thank you.");
+        } catch (UploadException e) {
+            out.println("error, Unable to upload. Please try again later");
         }
 
         if (errMsg.size() > 0) {

@@ -58,7 +58,7 @@
 
     <%
         // quick login buttons
-        boolean debug = true;
+        boolean debug = false;
         boolean aws = false;
         if (debug) {
             out.print("<br><br><form method=post action=\"processLogin\"><input type=\"hidden\" name=\"username\" value=\"admin\"><input type=\"hidden\" name=\"password\" value=\"Password!SE888\"><button type=\"submit\" class=\"btn btn-danger\">Admin login</button></form><br>");
