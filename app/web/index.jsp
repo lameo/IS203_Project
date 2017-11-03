@@ -137,7 +137,6 @@
             out.print("AGD");
             out.print("</button>\r\n</form><br>");
         }
-
     %>
 </body>
 </html>

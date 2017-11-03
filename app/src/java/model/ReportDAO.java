@@ -19,6 +19,12 @@ import java.util.logging.Logger;
 
 public class ReportDAO {
 
+    /**
+     * Returns a list of all the semantic places in the database 
+     *
+     * @return ArrayList of all the semantic places
+     *
+     */
     public static ArrayList<String> getSemanticPlaces() {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
@@ -46,7 +52,13 @@ public class ReportDAO {
         }
         return list;
     }
-
+    
+    /**
+     * Returns a list of all the macaddress in the database 
+     *
+     * @return ArrayList of all the macaddress
+     *
+     */
     public static ArrayList<String> getAllMacaddress() {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
@@ -76,6 +88,14 @@ public class ReportDAO {
         return list;
     }
 
+    /**
+     * Returns a total quantity of users of a specific gender 15mins before the specified time
+     *
+     * @param timeEnd String in dd/mm/yyyy hh:mm format for when the report is generated
+     * @param gender String either "M" or "F"
+     * @return int of a specific gender 15mins before the specified time
+     *
+     */
     private static int retrieveByGender(String timeEnd, String gender) {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
@@ -112,6 +132,14 @@ public class ReportDAO {
         return Integer.parseInt(ans);
     }
 
+    /**
+     * Returns a total quantity of unique macaddress of a specific school 15mins before the specified time
+     *
+     * @param timeEnd String in dd/mm/yyyy hh:mm format for when the report is generated
+     * @param school String of the school to retrieve qty
+     * @return int of a specific school 15mins before the specified time
+     *
+     */
     private static int retrieveByEmail(String timeEnd, String school) {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
@@ -148,6 +176,13 @@ public class ReportDAO {
         return Integer.parseInt(ans);
     }
 
+    /**
+     * Returns a total quantity of unique macaddress 15mins before the specified time
+     *
+     * @param timeEnd String in dd/mm/yyyy hh:mm format for when the report is generated
+     * @return int of a specific school 15mins before the specified time
+     *
+     */
     private static int everyoneWithinTime(String timeEnd) {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
@@ -183,6 +218,13 @@ public class ReportDAO {
         return Integer.parseInt(ans);
     }
 
+    /**
+     * Returns the top 10 populated semantic places with qty of unique macaddress 15mins before the specified time
+     *
+     * @param time String in dd/mm/yyyy hh:mm format for when the report is generated
+     * @return Map<Integer, String> map with Key of places with the qty of unique macaddress 15mins before the specified time and Value of semantic place name
+     *
+     */
     public static Map<Integer, String> retrieveTopKPopularPlaces(String time) {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
@@ -224,7 +266,15 @@ public class ReportDAO {
         }
         return map;
     }
-
+    
+    /**
+     * Returns the top 10 next popular places that users located at a specific location are likely to visit in the next 15 minutes.
+     *
+     * @param inputTime String in dd/mm/yyyy hh:mm format for when the report is generated
+     * @param locationName String semantic name of the starting location 
+     * @return Map<Integer, ArrayList> map with value of ArrayList of semantic place sharing the same qty of user and Integer key of qty of users that arrived from the starting location
+     *
+     */
     public static Map<Integer, ArrayList<String>> retrieveTopKNextPlaces(String inputTime, String locationName) {
         ArrayList<String> usersList = retrieveUserBasedOnLocation(inputTime, locationName); //to retrieve all users who are in a specific place in given a specific time frame and location
         Map<String, Integer> nextPlacesMap = new HashMap<>();
@@ -262,7 +312,14 @@ public class ReportDAO {
         return ranking;
     }
 
-    //retrieve users who are in a specific place given a specific time frame in a specific location
+    /**
+     * Return users who are in a specific place 15mins before the specified time at a specific location
+     *
+     * @param inputTime String in dd/mm/yyyy hh:mm format for when the report is generated
+     * @param locationName String semantic name of the starting location 
+     * @return ArrayList list of users who are in a specific place 15mins before the specified time at a specific location 
+     *
+     */
     public static ArrayList<String> retrieveUserBasedOnLocation(String inputTime, String locationName) {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
@@ -303,7 +360,14 @@ public class ReportDAO {
         return usersInSpecificPlace;
     }
 
-    //retrieves the latest sematic place user spends at least 5 mins
+    /**
+     * Returns the latest sematic place user spends at least 5 mins
+     *
+     * @param macaddress String of the macaddress of the particular user
+     * @param dateTime String in dd/mm/yyyy hh:mm format for when the report is generated
+     * @return ArrayList<String> list of users who are in a specific place 15mins before the specified time at a specific location 
+     *
+     */
     public static String retrieveTimelineForUser(String macaddress, String dateTime) {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
@@ -405,6 +469,16 @@ public class ReportDAO {
         return spentMoreThan5Minutes; //return sematic place with more than 5 minutes or if the user does not have any sematic place with more than 5 mins, return empty string
     }
 
+    /**
+     * Returns quantity of users of a specific year, school and gender 15mins before the specified time
+     *
+     * @param timeEnd String in dd/mm/yyyy hh:mm format for when the report is generated
+     * @param year String of specific year to search
+     * @param gender String of specific gender to search
+     * @param school String of specific school to search
+     * @return int quantity of users of that particular year, school and gender
+     *
+     */
     private static int retrieveThreeBreakdown(String timeEnd, String year, String gender, String school) {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
@@ -442,6 +516,13 @@ public class ReportDAO {
         return Integer.parseInt(ans);
     }
 
+    /**
+     * Returns a css formated table of all users 15mins before the specified time, broken down by specific category
+     *
+     * @param endTimeDate String in dd/mm/yyyy hh:mm format for when the report is generated
+     * @param text String[] of categories to split the user by
+     * @return int quantity of users broken down by specific category
+     */
     public static String notVeryBasicBreakdown(String[] text, String endTimeDate) {
         // initialize array
         String[] first, second, third;  //category have name in their first value to know what does first, second or third variable contains
@@ -619,6 +700,13 @@ public class ReportDAO {
         return returnThis;
     }
 
+    /**
+     * Returns a list of all users 15mins before the specified time, broken down by specific category sorted in eg( 2013 F, 2013 M, 2014 F, 2014 M, 2015 F, 2015 M)
+     *
+     * @param endTimeDate String in dd/mm/yyyy hh:mm format for when the report is generated
+     * @param text String[] of categories to split the user by
+     * @return ArrayList of quantity of users broken down by specific category
+     */
     public static ArrayList<Integer> notVeryBasicBreakdownJson(String[] text, String endTimeDate) {
         // initialize array
         String[] first = null;  //category have name in their first value to know what does first, second or third variable contains
@@ -823,6 +911,13 @@ public class ReportDAO {
         return ans;
     }
 
+    /**
+     * Returns a map with Key of total time spend with a particular user and Value of users who spend the same amount of time with the particular user
+     *
+     * @param endTimeDate String in dd/mm/yyyy hh:mm format for when the report is generated
+     * @param macaddress of the particular user to search
+     * @return Map<Double, ArrayList> map with Double Key of total time spend with a particular user and String Value of users who spend the same amount of time with the particular user
+     */
     public static Map<Double, ArrayList<String>> retrieveTopKCompanions(String endTimeDate, String macaddress) {
         ArrayList<String> UserLocationTimestamps = retrieveUserLocationTimestamps(macaddress, endTimeDate);
 
@@ -886,7 +981,13 @@ public class ReportDAO {
         return SortedList;
     }
 
-    //retreive users in hashmap form, hashmap key is macaddress and hashmap value is array of email, locationid and timestamp
+    /**
+     * Returns all the timestamps generated by the particular user within 15mins of the specified time
+     *
+     * @param endTimeDate String in dd/mm/yyyy hh:mm format for when the report is generated
+     * @param macaddress of the particular user to search
+     * @return ArrayList of all the timestamp of the particular user within 15mins of the specified time
+     */
     public static ArrayList<String> retrieveUserLocationTimestamps(String macaddress, String endtimeDate) {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
@@ -1280,7 +1381,14 @@ public class ReportDAO {
         return CompanionLocationTimestamps;
     }
 
-    //retrieve user's email by macaddress
+
+    /**
+     * Return particular user's email by macaddress
+     *
+     * @param macaddress of the particular user to search
+     * @return String email address of the particular macaddress or null if not found
+     *
+     */
     public static String retrieveEmailByMacaddress(String macaddress) {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
@@ -1313,6 +1421,12 @@ public class ReportDAO {
         return ans;
     }
 
+    /**
+     * Returns the proper capitalized string 
+     * 
+     * @param line String to properly capitalize
+     * @return String of proper capitalized string 
+     */
     private static String proper(String line) {
         if (line == null) {
             return null;
