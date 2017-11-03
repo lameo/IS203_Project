@@ -82,52 +82,57 @@
                 }*/
 
                 String timedate = (String) session.getAttribute("timeDate");
-                out.print("<h3> Potential groups in the SIS building at " + timedate + "</h3>");
-
-                out.print("<div class=\"container\"><table class=\"table table-bordered\"><thead>");
                 ArrayList<Group> AutoGroups = (ArrayList<Group>) (session.getAttribute("AutoGroups"));
-                int UsersNumber = (int) (session.getAttribute("UsersNumber"));
-                out.print("<thead><tr><th colspan = 3>Number of users in the entire SIS building: " + UsersNumber + " <br>Total number of groups discovered: " + AutoGroups.size() + "</th></tr>");
-                out.print("<tr><th>Group No.</th><th>Macaddress (Email)</th><th>Location id (Time spent in seconds)</th></tr></thead></tbody>");
+                if (AutoGroups == null || AutoGroups.size() == 0) {
+                    out.print("<br/><div class=\"alert alert-danger\" role=\"alert\"><strong>" + "The data is not available within time " + timedate + "</strong></div>");
 
-                int GroupNo = 1;
-                for (Group AutoGroup : AutoGroups) {
-                    ArrayList<String> AutoUsers = AutoGroup.retreiveMacsWithEmails();
-                    Map<String, Double> locationTimestamps = AutoGroup.CalculateTimeDuration();
-                    //out.println(locationTimestamps.size());
-                    Iterator<String> locations = locationTimestamps.keySet().iterator();
-                    int AutoUsersNum = AutoGroup.getAutoUsersSize();
-                    int rowspanMac = 1;
-                    int rowspanLocation = 1;
-                    int rowspan = 1;
-                    
-                    //out.print("<tr><td rowspan=" + AutoGroup.getAutoUsersSize() + ">" + (GroupNo) + "</td>");
-                    out.print("<tr><td>" + (GroupNo) + "</td>");
-                    //out.print("<td rowspan=" + rowspan + ">");
-                    out.println("<td>");
-                    for (int i = 0; i < AutoUsers.size(); i += 1) {
-                        String[] AutoUser = AutoUsers.get(i).split(",");
-                        String mac = AutoUser[0];
-                        String email = AutoUser[1];
+                } else {
+                    out.print("<h3> Potential groups in the SIS building at " + timedate + "</h3>");
 
-                        out.println(mac + " (" + email+")<br/>");
+                    out.print("<div class=\"container\"><table class=\"table table-bordered\"><thead>");
 
+                    int UsersNumber = (int) (session.getAttribute("UsersNumber"));
+                    out.print("<thead><tr><th colspan = 3>Number of users in the entire SIS building: " + UsersNumber + " <br>Total number of groups discovered: " + AutoGroups.size() + "</th></tr>");
+                    out.print("<tr><th>Group No.</th><th>Macaddress (Email)</th><th>Location id (Time spent in seconds)</th></tr></thead></tbody>");
+
+                    int GroupNo = 1;
+                    for (Group AutoGroup : AutoGroups) {
+                        ArrayList<String> AutoUsers = AutoGroup.retreiveMacsWithEmails();
+                        Map<String, Double> locationTimestamps = AutoGroup.CalculateTimeDuration();
+                        //out.println(locationTimestamps.size());
+                        Iterator<String> locations = locationTimestamps.keySet().iterator();
+                        int AutoUsersNum = AutoGroup.getAutoUsersSize();
+                        int rowspanMac = 1;
+                        int rowspanLocation = 1;
+                        int rowspan = 1;
+
+                        //out.print("<tr><td rowspan=" + AutoGroup.getAutoUsersSize() + ">" + (GroupNo) + "</td>");
+                        out.print("<tr><td>" + (GroupNo) + "</td>");
+                        //out.print("<td rowspan=" + rowspan + ">");
+                        out.println("<td>");
+                        for (int i = 0; i < AutoUsers.size(); i += 1) {
+                            String[] AutoUser = AutoUsers.get(i).split(",");
+                            String mac = AutoUser[0];
+                            String email = AutoUser[1];
+                            out.println(mac + " (" + email + ")<br/>");
+                        }
+                        out.print("</td>");
+                        out.println("<td>");
+                        while (locations.hasNext()) {
+                            String location = locations.next();
+                            Double TimeDuration = locationTimestamps.get(location);
+                            out.println(location + " (" + TimeDuration + ")<br/>");
+                            //out.println(Location + " " + TimeDuration);
+                        }
+
+                        out.print("</td></tr>");
+                        GroupNo++;
                     }
-                    out.print("</td>");
-                    out.println("<td>");
-                    while (locations.hasNext()) {
-                        String location = locations.next();
-                        Double TimeDuration = locationTimestamps.get(location);
-                        out.println(location + " (" + TimeDuration+")<br/>");
-                        //out.println(Location + " " + TimeDuration);
-                    }
-                    
-                    out.print("</td></tr>");
-                    GroupNo++;
+                    out.print("</tbody></table></div>");
+
                 }
-                out.print("</tbody></table></div>");
-                 
             }
+
             session.removeAttribute("timeDate");
             session.removeAttribute("AutoGroups");
             session.removeAttribute("UsersNumber");

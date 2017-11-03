@@ -120,8 +120,7 @@ public class Group implements Comparable<Group> {
             String AutoUserMac = AutoUsersMacs.get(i);
             String email = ReportDAO.retrieveEmailByMacaddress(AutoUserMac);
             if (email == null || email.length() <= 0) {
-                //email = "No email found";
-                email = "";
+                email = "No email found";
             }
             MacsWithEmails.add(AutoUserMac + "," + email);
         }
@@ -129,7 +128,7 @@ public class Group implements Comparable<Group> {
     }
     
     public TreeMap<String, String> retreiveEmailsWithMacs(){
-        TreeMap<String, String> sortedUserMap = new TreeMap<String, String>();
+        TreeMap<String, String> sortedUserMap = new TreeMap<String, String>(String.CASE_INSENSITIVE_ORDER);
         for (int i = 0; i < AutoUsersMacs.size(); i++) {
             String AutoUserMac = AutoUsersMacs.get(i);
             String email = ReportDAO.retrieveEmailByMacaddress(AutoUserMac);
@@ -143,7 +142,7 @@ public class Group implements Comparable<Group> {
     }
     
     public TreeMap<String, String> retreiveMacsNoEmails(){
-        TreeMap<String, String> sortedUserMap = new TreeMap<String, String>();
+        TreeMap<String, String> sortedUserMap = new TreeMap<String, String>(String.CASE_INSENSITIVE_ORDER);
         for (int i = 0; i < AutoUsersMacs.size(); i++) {
             String AutoUserMac = AutoUsersMacs.get(i);
             String email = ReportDAO.retrieveEmailByMacaddress(AutoUserMac);
