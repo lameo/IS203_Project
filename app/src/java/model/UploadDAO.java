@@ -17,8 +17,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.io.File;
 
+/**
+ * Bootstrap module for database scheme 'data'
+ */
 public class UploadDAO {
 
+    /**
+     * Truncate demographic table in the database
+     */
     private static void clearDemographics() {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
@@ -40,6 +46,9 @@ public class UploadDAO {
         }
     }
 
+    /**
+     * Truncate location table in the database
+     */
     private static void clearLocation() {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
@@ -61,6 +70,9 @@ public class UploadDAO {
         }
     }
 
+    /**
+     * Truncate location lookup table in the database
+     */
     private static void clearLookup() {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
@@ -82,6 +94,11 @@ public class UploadDAO {
         }
     }
 
+    /**
+     * Returns list of all locationID from the database
+     * 
+     * @param String returns locationID separated by a space
+     */
     private static String retrieveLocationID() {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
@@ -117,6 +134,11 @@ public class UploadDAO {
         return ans;
     }
 
+    /**
+     * Returns ArrayList<String> of all macAddress from the database
+     * 
+     * @param ArrayList returns list String of macAddress
+     */
     private static ArrayList<String> retrieveMac() {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
@@ -146,6 +168,11 @@ public class UploadDAO {
         return ans;
     }
 
+    /**
+     * Returns ArrayList of all macAddress and timestamp separated by a space
+     * 
+     * @return ArrayList returns list of macAddress and timestamp separated by a space
+     */
     public static ArrayList<String> retrieveMACDatePair() {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
@@ -175,6 +202,12 @@ public class UploadDAO {
         return ans;
     }
 
+    /**
+     * Returns HashMap of number of line processed and all errors generated in initializing Demographic table
+     * 
+     * @param filePath String Location of Demographic.csv file
+     * @return HashMap with Key as of number of line processed and value of String containing all errors generated in the process of updating Demographic table
+     */
     public static HashMap<Integer, String> readDemographics(String filePath) {
         clearDemographics();
         Connection connection = null;
@@ -317,6 +350,12 @@ public class UploadDAO {
         return errorMap;
     }
 
+    /**
+     * Returns HashMap of number of line processed and all errors generated in the process of initializing location-lookup table
+     * 
+     * @param filePath String Location of location-lookup.csv file
+     * @return HashMap with Key as of number of line processed and value of String containing all errors generated in the process of updating location-lookup table
+     */
     public static HashMap<Integer, String> readLookup(String filePath) {
         clearLookup();
         Connection connection = null;
@@ -412,6 +451,12 @@ public class UploadDAO {
         return errorMap;
     }
 
+    /**
+     * Returns HashMap of number of line processed and all errors generated in the process of initializing Location table
+     * 
+     * @param filePath String Location of Location.csv file
+     * @return HashMap with Key as of number of line processed and value of String containing all errors generated in the process of updating Location table
+     */
     public static HashMap<Integer, String> readLocation(String filePath) {
         clearLocation();
         Connection connection = null;
@@ -535,6 +580,12 @@ public class UploadDAO {
         return errorMap;
     }
 
+    /**
+     * Returns HashMap of number of line processed and all errors generated in updating Demographic table
+     * 
+     * @param filePath String Location of Demographic.csv file
+     * @return HashMap with Key as of number of line processed and value of String containing all errors generated in the process of updating Demographic table
+     */
     public static HashMap<Integer, String> updateDemographics(String filePath) {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
@@ -687,6 +738,12 @@ public class UploadDAO {
         return errorMap;
     }
 
+    /**
+     * Returns HashMap of number of line processed and all errors generated in the process of updating Location table
+     * 
+     * @param filePath String Location of Location.csv file
+     * @return HashMap with Key as of number of line processed and value of String containing all errors generated in the process of updating Location table
+     */
     public static HashMap<Integer, String> updateLocation(String filePath) {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
@@ -813,6 +870,13 @@ public class UploadDAO {
         return errorMap;
     }
 
+    /**
+     * Returns String of name of file that got unzip
+     * 
+     * @param zipFile String Location of zip file
+     * @param outputDirectory String Location to store all the unzip file
+     * @return String of name of file that got unzip 
+     */
     public static String unzip(String zipFile, String outputDirectory) {
         String fileExist = "";
         byte[] buffer = new byte[1024];
@@ -852,6 +916,12 @@ public class UploadDAO {
         return fileExist;
     }
 
+    /**
+     * Returns whether it is one of the accepted file name to be imported into database
+     * 
+     * @param fileName String Location of zip file
+     * @return String valid file name
+     */
     public static String checkFileName(String fileName) {
         if (fileName.contains("demographics.csv")) {
             return "demographics.csv";

@@ -7,12 +7,18 @@ import java.sql.SQLException;
 import java.sql.Connection;
 import java.sql.ResultSet;
 
+/**
+ * A class that helps in accessing user database
+ */
 public class UserDAO {
     
     /**
-     * Get valid user
+     * Retrieves a particular user object after validating username and password
      *
-     * @return user - user object after validating with database
+     * @param username String username
+     * @param password String password
+     * @throws SQLException Exception SQLException - connection not avaliable
+     * @return user - User object after validating with database
      */     
     public static User retrieveUserByName(String username, String password) throws SQLException{
         PreparedStatement preparedStatement = null;
@@ -45,9 +51,10 @@ public class UserDAO {
     }    
 
     /**
-     * Get valid username
-     *
-     * @return true - username is correctly entered
+     * Return boolean value whether the username is valid
+     * 
+     * @param username String username to perform validation
+     * @return true - username is correctly formatted
      */      
     public static boolean validateUsername(String username){
         if(username==null && username.length()==0){
