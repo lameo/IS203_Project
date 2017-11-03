@@ -179,10 +179,10 @@ public class autoGroupDetection extends HttpServlet {
                 autoGroupObject.addProperty("size",autoGroup.getAutoUsersSize());
                 autoGroupObject.addProperty("total-time-spent",(int)autoGroup.CalculateTotalDuration());
                 JsonArray membersArr = new JsonArray();
-                JsonObject membersObject = new JsonObject();
                 TreeMap<String, String> sortedUsersWithEmails = autoGroup.retreiveEmailsWithMacs();
                 Iterator<String> usersWithEmails = sortedUsersWithEmails.keySet().iterator();
                 while(usersWithEmails.hasNext()){
+                    JsonObject membersObject = new JsonObject();
                     String email = usersWithEmails.next();
                     String mac = sortedUsersWithEmails.get(email);
                     membersObject.addProperty("email",email);
@@ -192,6 +192,7 @@ public class autoGroupDetection extends HttpServlet {
                 TreeMap<String, String> sortedUsersNoEmails = autoGroup.retreiveMacsNoEmails();
                 Iterator<String> usersNoEmails = sortedUsersNoEmails.keySet().iterator();
                 while(usersNoEmails.hasNext()){
+                    JsonObject membersObject = new JsonObject();
                     String mac = usersNoEmails.next();
                     String email = sortedUsersNoEmails.get(mac);
                     membersObject.addProperty("email","");
@@ -201,10 +202,11 @@ public class autoGroupDetection extends HttpServlet {
                 
                 autoGroupObject.add("members",membersArr);
                 JsonArray locationsArr = new JsonArray();
-                JsonObject locationsObject = new JsonObject();
+                
                 Map<String, Double> locationsDuration =  autoGroup.CalculateTimeDuration();
                 Iterator<String> locations = locationsDuration.keySet().iterator();
                 while(locations.hasNext()){
+                    JsonObject locationsObject = new JsonObject();
                     String location = locations.next();
                     double duration = locationsDuration.get(location);
                     locationsObject.addProperty("location",location);
