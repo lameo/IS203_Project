@@ -43,7 +43,7 @@ public class UploadServlet extends HttpServlet implements java.io.Serializable {
                         String contentType = file.getContentType(); //Get the file type
                         String filePath = outputDirectory + File.separator + fileName; //get the file path 
 
-                        if (contentType.equals("application/x-zip-compressed")) { //if it is a zip file
+                        if (contentType.equals("application/x-zip-compressed")|| contentType.equals("application/zip")) { //if it is a zip file
                             upBean.store(multipartRequest, "uploadfile"); //save to directory
 
                             String fileExist = UploadDAO.unzip(filePath, outputDirectory); //unzip the files in the zip and save into the directory
