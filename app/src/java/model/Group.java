@@ -120,8 +120,7 @@ public class Group implements Comparable<Group> {
             String AutoUserMac = AutoUsersMacs.get(i);
             String email = ReportDAO.retrieveEmailByMacaddress(AutoUserMac);
             if (email == null || email.length() <= 0) {
-                //email = "No email found";
-                email = "";
+                email = "No email found";
             }
             MacsWithEmails.add(AutoUserMac + "," + email);
         }
