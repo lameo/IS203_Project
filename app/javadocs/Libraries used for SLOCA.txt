@@ -1,0 +1,20 @@
+Java libraries used for SLOCA app
+1. uploadbean.jar + struts.jar + fileupload.jar + cos.jar
+	-Used for bootstrap function
+	-Needed for uploading purposes
+
+2. is203-jwt-v2.jar + json-smart-1.2.jar + nimbus-jose-jwt-2.26.1.jar
+	-Used for JSON
+	-For SharedSecretManager.java
+
+3. opencsv-2.4.jar
+	-Also for uploading purposes
+	-To allow us to use CSVReader object
+
+4. mysql-connector-java-5.1.44-bin.jar
+	-For JDBC
+	-Allows us to connect to mysql database to extract information from mqsql
+
+5. gson-2.8.1.jar
+	-to convert Json to gson for pretty-printing
+	-Eg: gson.toJson(put in json object here)
