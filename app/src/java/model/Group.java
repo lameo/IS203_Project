@@ -161,6 +161,7 @@ public class Group implements Comparable<Group> {
         int AutoGroup2Size = AutoGroup2.getAutoUsersSize();
         int sameUser = 0;
         for (int j = 0; j < getAutoUsersSize(); j++) {
+            
             for (int i = 0; i < AutoUsersMacs2.size() - 1; i++) {
                 if (AutoUsersMacs2.get(i).equals(getAutoUserMac(j))) {
                     sameUser++;
@@ -186,12 +187,15 @@ public class Group implements Comparable<Group> {
             return false;
         }
         int sameUser = 0;
-        for (int j = 0; j < AutoGroup2Size; j++) {
+        if(AutoUsersMacs.containsAll(AutoUsersMacs2)){
+            return true;
+        }
+        /*for (int j = 0; j < AutoGroup2Size; j++) {
             String mac = AutoUsersMacs2.get(j);
             if(AutoUsersMacs.contains(mac)){
                 sameUser += 1;
             }
-        }
+        }*/
         if (sameUser == AutoGroup2Size) {
             return true;
         }

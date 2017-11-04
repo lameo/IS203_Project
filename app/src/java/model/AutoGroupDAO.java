@@ -226,19 +226,23 @@ public class AutoGroupDAO {
     //
     public static ArrayList<Group> CheckAutoGroups(ArrayList<Group> autoGroups) {
         //ArrayList<Group> NewAutoGroups = AutoGroups;
-        Iterator<Group> newAutoGroups = autoGroups.iterator();
-
-        while (newAutoGroups.hasNext()) {
-            Group autoGroup1 = newAutoGroups.next();
+        //Iterator<Group> newAutoGroups = autoGroups.iterator();
+        ArrayList<Group> subAutoGroups = new ArrayList<Group>();
+        for (int i=0; i<autoGroups.size(); i++) {
+            Group autoGroup1 = autoGroups.get(i);
             ArrayList<String> autoGroup1Macs = autoGroup1.getAutoUsersMacs();
-            while (newAutoGroups.hasNext()) {
-                Group autoGroup2 = newAutoGroups.next();
+            for (int j=0; j<autoGroups.size(); j++) {
+                Group autoGroup2 = autoGroups.get(j);
                 if (!autoGroup1.equals(autoGroup2)) {
                     if(autoGroup1.CheckSubGroup(autoGroup2)){
-                        newAutoGroups.remove();
+                        //newAutoGroups.remove();
+                        subAutoGroups.add(autoGroup2);
                     }
                 }
             }
+        }
+        for (Group subGroup:subAutoGroups){
+            autoGroups.remove(subGroup);
         }
         return autoGroups;
     }
