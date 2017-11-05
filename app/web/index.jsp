@@ -7,7 +7,7 @@
 <!DOCTYPE html>
 <html>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <link href="https://bootswatch.com/darkly/bootstrap.min.css" rel="stylesheet"> <%-- twitter bootstrap for designing--%>
+    <link href="https://bootswatch.com/4/darkly/bootstrap.css" rel="stylesheet"> <%-- twitter bootstrap for designing--%>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script> <%-- twitter bootstrap for designing--%>
     <script src='js/bootstrap.js'></script> <%-- twitter bootstrap for designing--%>
     <head>
@@ -39,20 +39,17 @@
     <form method=post action="processLogin"> <%-- send data to LoginServlet M-V-C model --%>
         <div class="container">
             <br><br>
-            <!-- Form for user to input username and password -->
-            <form method=post action="processLogin">
-                <!-- form input for username  -->
-                <div class="form-group">
-                    <label class="form-control-label" for="username">Username:</label>
-                    <input type="text" class="form-control" id="username" name="username" placeholder="Enter your username" required>
-                </div>
-                <!-- form input for password  -->
-                <div class="form-group">
-                    <label class="form-control-label" for="password">Password:</label>
-                    <input type="password" class="form-control" id="password" name="password" placeholder="Enter your password" required>
-                </div>
-                <button type="submit" class="btn btn-danger">Login</button>
-            </form>
+            <!-- form input for username  -->
+            <div class="form-group">
+                <label class="form-control-label" for="username">Username:</label>
+                <input type="text" class="form-control" id="username" name="username" placeholder="Enter your username" required>
+            </div>
+            <!-- form input for password  -->
+            <div class="form-group">
+                <label class="form-control-label" for="password">Password:</label>
+                <input type="password" class="form-control" id="password" name="password" placeholder="Enter your password" required>
+            </div>
+            <button type="submit" class="btn btn-danger">Login</button>
         </div>
     </form>
 
