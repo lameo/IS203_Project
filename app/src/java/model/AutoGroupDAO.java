@@ -147,21 +147,17 @@ public class AutoGroupDAO {
     //check for each user if they spend at least 12 minutes together
     public static ArrayList<Group> retrieveAutoGroups(Map<String, Map<String, ArrayList<String>>> AutoUsers) {
         ArrayList<Group> AutoGroups = new ArrayList<Group>();
-        Iterator<String> AutoUsersMacs1 = AutoUsers.keySet().iterator();
-        ArrayList<String> test = new ArrayList<String>();
+        Set<String> AutoUsersMacs = AutoUsers.keySet();
+        //ArrayList<String> test = new ArrayList<String>();
         //int count = 0;
-        while (AutoUsersMacs1.hasNext()) {
-            /*count++;
-            if (count > 100) {
-                return AutoGroups;
-            }*/
+        for (String AutoUserMac1:AutoUsersMacs) {
             //retrieve autouser mac1
-            String AutoUserMac1 = AutoUsersMacs1.next();
+            //String AutoUserMac1 = AutoUsersMacs.get(i);
             Map<String, ArrayList<String>> locationTimestamps1 = AutoUsers.get(AutoUserMac1);
             Iterator<String> AutoUsersMacs2 = AutoUsers.keySet().iterator();
-            while (AutoUsersMacs2.hasNext()) {
+            for (String AutoUserMac2:AutoUsersMacs) {
                 //retrieve autouser mac2
-                String AutoUserMac2 = AutoUsersMacs2.next();
+                //String AutoUserMac2 = AutoUsersMacs2.next();
                 Map<String, ArrayList<String>> locationTimestamps2 = AutoUsers.get(AutoUserMac2);
                 if (!AutoUserMac1.equals(AutoUserMac2)) {
                     //check if they have common locations
