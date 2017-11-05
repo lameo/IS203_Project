@@ -16,6 +16,7 @@
     </head>
     <style>
         body {
+            text-align: center;
             margin: 0;
             position: absolute;
             top: 50%;
