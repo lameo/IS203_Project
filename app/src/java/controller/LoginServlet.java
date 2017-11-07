@@ -14,14 +14,12 @@ public class LoginServlet extends HttpServlet {
 
     protected void processRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException { 
         String username = request.getParameter("username");
-        String password = request.getParameter("password");
-        String timestamp = request.getParameter("timestamp");        
+        String password = request.getParameter("password");  
         HttpSession session = request.getSession();          
 
         try {
             if (username.equals("admin") && password.equals("Password!SE888")) { //admin
                 session.setAttribute("admin", username);
-                session.setAttribute("timestamp", timestamp);
                 response.sendRedirect("adminPage.jsp"); //changes url
                 return;
             }                        
@@ -30,7 +28,6 @@ public class LoginServlet extends HttpServlet {
             
                 if (user instanceof User){ //if user in database
                     session.setAttribute("user", user);
-                    session.setAttribute("timestamp", timestamp);
                     response.sendRedirect("userPage.jsp"); //changes url
                     return;
                 } 

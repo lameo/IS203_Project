@@ -21,15 +21,16 @@ public class ReportServlet extends HttpServlet {
 
     protected void processRequest(HttpServletRequest request, HttpServletResponse response) {
         try {
-            String reportType = request.getParameter("reportType"); //to retrieve which basic location report the user selected
             HttpSession session = request.getSession();
+            
+            String reportType = request.getParameter("reportType"); //to retrieve which basic location report the user selected
             String timeDate = request.getParameter("timeDate"); //retrieve time from user input
+            
             timeDate = timeDate.replace("T", " ");
             SimpleDateFormat readFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
             SimpleDateFormat writeFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-            Date timestamp = null;
-
-            timestamp = (Date) readFormat.parse(timeDate);
+            
+            Date timestamp = (Date) readFormat.parse(timeDate);
             timeDate = writeFormat.format(timestamp);
 
             switch (reportType) {
@@ -80,7 +81,6 @@ public class ReportServlet extends HttpServlet {
 
                     //request.getRequestDispatcher("/topKCompanions.jsp").forward(request,response);
                     break;
-
                 case "topKNextPlaces":
                     String locationname = request.getParameter("locationname"); // retrieve location name from user. Eg: SMUSISB1NearCSRAndTowardsMRT
                     topK = Integer.parseInt(request.getParameter("topK")); //retrieve which number(represents the k) user selected

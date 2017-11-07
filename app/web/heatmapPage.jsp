@@ -51,7 +51,6 @@
     <%  //user details, get using session
         User user = (User) session.getAttribute("user");
         String name = user.getName();
-        String timestamp = (String) session.getAttribute("timestamp");
     %>  
     <head>
         <title>Heat Map Page</title>

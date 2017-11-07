@@ -1,3 +1,4 @@
+<%@page import="java.util.Set"%>
 <%@page import="java.util.ArrayList"%>
 <%@page import="java.util.Map"%>
 <%@page import="model.User"%>
@@ -25,7 +26,6 @@
     <%  //user details, get using session
         User user = (User) session.getAttribute("user");
         String name = user.getName();
-        String timestamp = (String) session.getAttribute("timestamp");
     %>
     <head>
         <title>Top-K popular places</title>
@@ -50,7 +50,6 @@
             </div>
         </nav>
     <center>
-
         <div class="container">
             <br><br>
             <!-- Form for user to input date&time and top K for top K popular places report -->
@@ -80,9 +79,6 @@
                 </div>
                 <button type="submit" class="btn btn-primary">Generate</button>
             </form>
-
-
-
         </div>
         <%
             //If top K popular places report is generated
@@ -97,20 +93,20 @@
                     out.print("<div class=\"container\"><table class=\"table table-bordered\"><thead>");
                     out.print("<tr><th>Rank</th><th>Semantic Place</th><th>No. of pax</th></tr></thead><tbody>");
 
-                    ArrayList<Integer> keys = new ArrayList<Integer>(map.keySet());
+                    Set<Integer> keys = map.keySet();
+
                     int count = 1;
-                    for (int i = 0; i < keys.size(); i++) {
+                    for (Integer key : keys) {
                         if (count <= topK) {
-                            out.print("<tr><td>" + count++ + "</td><td>" + map.get(keys.get(i)) + "</td><td>" + keys.get(i) + "</td></tr>");
+                            out.print("<tr><td>" + count++ + "</td><td>" + map.get(key) + "</td><td>" + key + "</td></tr>");
                         }
                     }
                 }
             }
-
             session.removeAttribute("topKPopular"); //remove session attribute from the session object
             session.removeAttribute("timeDate"); //remove session attribute from the session object
             session.removeAttribute("topK"); //remove session attribute from the session object
-        %>
+%>
     </center>
 </body>
 </html>

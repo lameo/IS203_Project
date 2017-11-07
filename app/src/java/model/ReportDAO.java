@@ -245,7 +245,9 @@ public class ReportDAO {
         try {
             //get a connection to database
             connection = ConnectionManager.getConnection();
+            
             //prepare a statement
+            //retrieve location name and corresponding number of people at the location. But only retrieve latest (max(timestamp)) location updates of user only
             preparedStatement = connection.prepareStatement("select n.locationname, count(n.locationname) "
                     + "from (SELECT max(TIMESTAMP) as TIMESTAMP, macaddress "
                     + "FROM location "
