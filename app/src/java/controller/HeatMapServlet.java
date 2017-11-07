@@ -22,12 +22,14 @@ public class HeatMapServlet extends HttpServlet {
         try {
             HttpSession session = request.getSession();
             String timeDate = request.getParameter("timeDate"); //retrieve time from user input
+            
             timeDate = timeDate.replace("T", " ");
             SimpleDateFormat readFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
             SimpleDateFormat writeFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             
             Date timestamp = (Date) readFormat.parse(timeDate);
             timeDate = writeFormat.format(timestamp);
+            
             int floor = Integer.parseInt(request.getParameter("floor")); //retrieve floor from user input
             String floorName = "B1";
 
@@ -36,8 +38,8 @@ public class HeatMapServlet extends HttpServlet {
             }
 
             Map<String, HeatMap> heatmapList = HeatMapDAO.retrieveHeatMap(timeDate, floorName);
+            
             session.setAttribute("heatmapList", heatmapList);
-
             session.setAttribute("floorName", floorName);
             session.setAttribute("timeDate", timeDate);
 

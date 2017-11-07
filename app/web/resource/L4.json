@@ -3,7 +3,7 @@
         "binSize": 1,
         "map": [{
                 "locationname": "SMUSISL4LiftLobby",
-                "value": 6,
+                "value": 0,
                 "points": [{
                         "x": 15.730188679245284,
                         "y": 10.895522388059701
@@ -43,7 +43,7 @@
                     }]
             }, {
                 "locationname": "SMUSISL4MRCorridor",
-                "value": 3,
+                "value": 0,
                 "points": [{
                         "x": 15.730188679245284,
                         "y": 10.895522388059701
@@ -119,7 +119,7 @@
                     }]
             }, {
                 "locationname": "SMUSISL4OusideAcadOffice1",
-                "value": 3,
+                "value": 0,
                 "points": [{
                         "x": 15.488888888888889,
                         "y": 6.447761194029851
@@ -216,7 +216,7 @@
                     }]
             }, {
                 "locationname": "SMUSISL4OusideAcadOffice2",
-                "value": 4,
+                "value": 0,
                 "points": [{
                         "x": 24.811111111111113,
                         "y": 4.985074626865671

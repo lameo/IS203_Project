@@ -15,7 +15,7 @@ public class HeatMapDAO {
         ResultSet resultSet = null;
         Map<String, HeatMap> heatmapList = new TreeMap<>();
         
-        String ans = "";
+        String semanticPlace = "";
         try {
             //get a connection to database
             connection = ConnectionManager.getConnection();
@@ -29,10 +29,10 @@ public class HeatMapDAO {
             //execute SQL query
             resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
-                ans = resultSet.getString(1);
-                int quantity = getStudentQuantity(ans, endtimeDate);
+                semanticPlace = resultSet.getString(1);
+                int quantity = getStudentQuantity(semanticPlace, endtimeDate);
                 int heatLevel = getHeatLevel(quantity);
-                heatmapList.put(ans, new HeatMap(ans, quantity, heatLevel));
+                heatmapList.put(semanticPlace, new HeatMap(semanticPlace, quantity, heatLevel));
             }
 
             //close connections
@@ -56,7 +56,8 @@ public class HeatMapDAO {
             //get a connection to database
             connection = ConnectionManager.getConnection();
 
-            //prepare a statement
+            //prepare a statement 
+            //retrieve number of people at the location. But only retrieve latest (max(timestamp)) location updates of user only
             preparedStatement = connection.prepareStatement("select count(DISTINCT l.macaddress) "
                     + "from location l, locationlookup ll, (SELECT max(TIMESTAMP) as TIMESTAMP, macaddress "
                         + "FROM location "

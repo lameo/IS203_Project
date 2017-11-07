@@ -3,7 +3,7 @@
         "binSize": 1,
         "map": [{
                 "locationname": "SMUSISB1NearLiftLobby",
-                "value": 2,
+                "value": 0,
                 "points": [{
                         "x": 28.162903225806452,
                         "y": 3.809090909090909
@@ -61,7 +61,7 @@
                     }]
             }, {
                 "locationname": "SMUSISB1NearATM",
-                "value": 5,
+                "value": 0,
                 "points": [{
                         "x": 33.166129032258064,
                         "y": 10.272727272727273
@@ -113,7 +113,7 @@
                     }]              
             }, {
                 "locationname": "SMUSISB1NearCSRAndTowardsMRT",
-                "value": 3,
+                "value": 0,
                 "points": [{
                         "x": 29.314516129032256,
                         "y": 18.12121212121212

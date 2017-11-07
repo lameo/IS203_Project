@@ -1,22 +1,22 @@
 package model;
 
 public class HeatMap {
-    private String place;
+    private String semanticPlace;
     private int qtyPax;
     private int heatLevel;
 
-    public HeatMap(String place, int qtyPax, int heatLevel) {
-        this.place = place;
+    public HeatMap(String semanticPlace, int qtyPax, int heatLevel) {
+        this.semanticPlace = semanticPlace;
         this.qtyPax = qtyPax;
         this.heatLevel = heatLevel;
     }
 
     public String getPlace() {
-        return place;
+        return semanticPlace;
     }
 
-    public void setPlace(String place) {
-        this.place = place;
+    public void setPlace(String semanticPlace) {
+        this.semanticPlace = semanticPlace;
     }
 
     public int getQtyPax() {
@@ -37,7 +37,7 @@ public class HeatMap {
 
     @Override
     public String toString() {
-        return "heatmap{" + "place=" + place + ", qtyPax=" + qtyPax + ", heatLevel=" + heatLevel + '}';
+        return "heatmap{" + "place=" + semanticPlace + ", qtyPax=" + qtyPax + ", heatLevel=" + heatLevel + '}';
     }
     
     

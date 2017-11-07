@@ -3,7 +3,7 @@
         "binSize": 1,
         "map": [{
                 "locationname": "SMUSISL1NearSubway",
-                "value": 3,
+                "value": 0,
                 "points": [{
                         "x": 22.73109243697479,
                         "y": 7.3088685015290515
@@ -31,7 +31,7 @@
                     }]
             }, {
                 "locationname": "SMUSISL1ReceptionAndLobby",
-                "value": 3,
+                "value": 0,
                 "points": [{
                         "x": 22.73109243697479,
                         "y": 16.513761467889907
@@ -89,7 +89,7 @@
                     }]
             }, {
                 "locationname": "SMUSISL1FilteringArea",
-                "value": 2,
+                "value": 0,
                 "points": [{
                         "x": 10.019327731092436,
                         "y": 19.021406727828744

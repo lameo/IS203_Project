@@ -30,11 +30,7 @@
     .RdYlBu .d6-4 {fill:#F08080;background:#F08080;color:#121212}
     .RdYlBu .d6-3 {fill:#FFA07A;background:#FFA07A;color:#121212}
     .RdYlBu .d6-2 {fill:#ffe5e5;background:#ffe5e5;color:#121212}
-    .RdYlBu .d6-1 {fill:#fffeb7;background:#fffeb7;color:#121212}
-
-    /* overlays */
-    .polygon {stroke:white;stroke-width:2px;fill-opacity:0.2}
-    .vertex {stroke:lime;stroke-width:2px;fill:none}    
+    .RdYlBu .d6-1 {fill:#fffeb7;background:#fffeb7;color:#121212}  
 </style>
 <!DOCTYPE html>
 <%@include file="clearCache.jsp"%> <%-- clear cache, don't allow user to backpage after logging out --%>
@@ -103,26 +99,26 @@
         <%
             String floor = (String) session.getAttribute("floorName");
             String timeDate = (String) session.getAttribute("timeDate");
+
             Map<String, HeatMap> heatmapList = (TreeMap<String, HeatMap>) session.getAttribute("heatmapList");
+
             if (floor != null && timeDate != null) {
                 if (heatmapList != null && heatmapList.size() > 0) {
                     out.print("<h3><b>Floor:</b> " + floor + " <b>Date:</b> " + timeDate + "</h3>");
                     out.print("<div class=\"container\"><table class=\"table table-bordered\"><thead>");
                     out.print("<tr><th>Semantic Place</th><th>Quantity</th><th>Heat Level</th></thead><tbody>");
 
-                    Set<String> keys = heatmapList.keySet();
+                    Set<String> keys = heatmapList.keySet(); //return a set of semantic places
                     for (String key : keys) {
                         HeatMap heatMap = heatmapList.get(key);
                         out.print("<tr><td>" + heatMap.getPlace() + "</td><td>" + heatMap.getQtyPax() + "</td><td>" + heatMap.getHeatLevel() + "</td></tr>");
                     }
-
                     out.print("</tbody></table></div>");
                 } else {
                     out.print("<br/><div class=\"alert alert-danger\" role=\"alert\"><strong>" + "The data is not available for floor " + floor + " in SIS Building" + " within time " + timeDate + "</strong></div>");
                 }
-
         %>
-        <table border = 1; style = "width: 500px"> 
+        <table border = 1; style = "width: 500px">
             <tr><h1>Legend</h1></tr>
             <tr> 
                 <th><center>Crowd Density</center></th>
@@ -133,7 +129,6 @@
             <td> <center> 4 </center> </td> 
             <td> <center> 5 </center> </td> 
             <td> <center> 6 </center> </td> 
-
             </tr> 
             <tr> 
                 <th><center>Heat Colour</center></th>              
@@ -145,7 +140,6 @@
             <td style = "background-color: #e11f27"></td> 
             <td style = "background-color: #ff0000"></td> 
             </tr> 
-
         </table>        
         <script>
             var xscale = d3.scale.linear()
@@ -157,7 +151,6 @@
                     map = d3.floorplan().xScale(xscale).yScale(yscale), //setup a floor plan map to hold layers and manage pan/zoom functionality
                     imagelayer = d3.floorplan.imagelayer(), //create a new image layer
                     heatmap = d3.floorplan.heatmap(), //create a heat map layer
-                    //overlays = d3.floorplan.overlays().editMode(true),
                     mapdata = {};
 
             var obj = new Object();
@@ -198,8 +191,6 @@
                 d3.select("#B1HeatMap").append("svg")
                         .attr("height", 1106).attr("width", 1205)
                         .datum(mapdata).call(map);
-
-
             });
         </script>    
         <% } else if (floor.equals("L1") && heatmapList != null && heatmapList.size() > 0) {%>
@@ -276,13 +267,12 @@
 
                 map.addLayer(imagelayer) //add layer to the image
                         .addLayer(heatmap);
-                        //.addLayer(overlays);
 
                 heatmap.colorMode(['custom']); //set custom mode for colors
                 heatmap.customThresholds([1, 2, 3, 4, 5, 6]); //set colors to heat levels 
 
                 mapdata[heatmap.id()] = data.heatmap; //set variable from json
-                //mapdata[overlays.id()] = data.overlays;
+
                 d3.select("#L2HeatMap").append("svg")
                         .attr("height", 1106).attr("width", 1205)
                         .datum(mapdata).call(map);
@@ -327,13 +317,12 @@
 
                 map.addLayer(imagelayer) //add layer to the image
                         .addLayer(heatmap);
-                        //.addLayer(overlays);
 
                 heatmap.colorMode(['custom']); //set custom mode for colors
                 heatmap.customThresholds([1, 2, 3, 4, 5, 6]); //set colors to heat levels 
 
                 mapdata[heatmap.id()] = data.heatmap; //set variable from json
-                //mapdata[overlays.id()] = data.overlays;
+
                 d3.select("#L3HeatMap").append("svg")
                         .attr("height", 1106).attr("width", 1205)
                         .datum(mapdata).call(map);

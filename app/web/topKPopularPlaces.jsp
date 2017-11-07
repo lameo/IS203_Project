@@ -98,7 +98,7 @@
                     int count = 1;
                     for (Integer key : keys) {
                         if (count <= topK) {
-                            out.print("<tr><td>" + count++ + "</td><td>" + map.get(key) + "</td><td>" + key + "</td></tr>");
+                            out.print("<tr><td>" + count++ + "</td><td>" + map.get(key) + "</td><td>" + key + "</td></tr>"); //Rank, Semantic Place, No. of pax
                         }
                     }
                 }
