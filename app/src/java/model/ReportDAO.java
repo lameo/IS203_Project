@@ -302,7 +302,7 @@ public class ReportDAO {
             if (location != null && location.length() > 0) { // check if there is a location
                 if (nextPlacesMap.get(location) == null) { //nextPlacesMap is empty
                     nextPlacesMap.put(location, 1); // to initialise nextPlacesMap to set a default value as 1
-                } else { // nextPlacesMap is not empty
+                } else { //nextPlacesMap is not empty
                     int currentQuantity = nextPlacesMap.get(location);
                     int addOnQuantity = currentQuantity + 1;
                     nextPlacesMap.put(location, addOnQuantity); // increment the counter if location appears for every different user from usersList
@@ -310,7 +310,7 @@ public class ReportDAO {
             }
         }
 
-        // TreeMap is sorted by keys
+        //TreeMap is sorted by keys
         Map<Integer, ArrayList<String>> ranking = new TreeMap<>(Collections.reverseOrder()); //sort keys in descending order
         Set<String> locationKeys = nextPlacesMap.keySet(); // to retrieve all the keys(i.e location) from nextPlacesMap
 
@@ -327,7 +327,6 @@ public class ReportDAO {
                 ranking.put(totalNumOfUsers, allLocationList); // update map
             }
         }
-
         return ranking;
     }
 
@@ -443,23 +442,23 @@ public class ReportDAO {
                 }
                 //prevent arrayindexoutofbounds and to get all the locations before the last location in locationTimestampList
                 if ((i + 2) < locationTimestampList.size()) {
+                    String currentDate = locationTimestampList.get(i + 1); //to retrieve the corresponding date for currentPlace                    
                     String nextLocation = locationTimestampList.get(i + 2); //to retrieve the next immediate location after currentPlace
-                    String date = locationTimestampList.get(i + 1); //to retrieve the corresponding date for currentPlace
                     String nextDate = locationTimestampList.get(i + 3); //to retrieve the date for nextLocation
 
                     //to convert date and nextDate to Date objects
-                    java.util.Date firstDateAdded = df.parse(date);
+                    java.util.Date firstDateAdded = df.parse(currentDate);
                     java.util.Date nextDateAdded = df.parse(nextDate);
 
                     long diff = (nextDateAdded.getTime() - firstDateAdded.getTime()); // to get the time the user stayed at currentPlace in milliseconds
-                    double timeDiff = diff / 1000.0; // to get the time the user stayed at currentPlace in seconds
-                    currentQuantity += timeDiff; // update the latest time
+                    double timeDiff = diff / 1000.0; //to get the time the user stayed at currentPlace in seconds
+                    currentQuantity += timeDiff; //update the latest time
                     if (!currentPlace.equals(nextLocation)) { //if different location check if time is more than 5 mins
                         if (currentQuantity >= 300) {
-                            spentMoreThan5Minutes = currentPlace;
+                            spentMoreThan5Minutes = currentPlace; //user spent more than 5 minutes at a location
                         }
                         currentPlace = nextLocation; //set the next place as current place
-                        currentQuantity = 0; // reset time to re-count the time for nextLocation
+                        currentQuantity = 0; //reset time to re-count the time for nextLocation
                     }
                 } else { //reach the end
                     String lastDate = locationTimestampList.get(i + 1); //to retrieve the corresponding date for last location in locationTimestampList
@@ -467,13 +466,12 @@ public class ReportDAO {
                     java.util.Date lastDateTimeAdded = df.parse(lastDate);
                     java.util.Date endDateTime = df.parse(dateTime);
 
-                    //Calendar object to add 14min 59s to dateTime given from user
-                    //Eg: time is 11:00:00; after using Calendar object time is 11:14:59
+                    //Calendar object to add 15min to dateTime given from user
+                    //Eg: time is 11:00:00; after using Calendar object time is 11:15:00
                     Calendar cal = Calendar.getInstance();
                     cal.setTime(endDateTime); //to use the dateTime given by input as the base
-                    cal.add(Calendar.MINUTE, 14);
-                    cal.add(Calendar.SECOND, 59);
-                    endDateTime = cal.getTime(); //assign the added 14min 59s to endDateTime
+                    cal.add(Calendar.MINUTE, 15);
+                    endDateTime = cal.getTime(); //assign the added 15min to endDateTime
 
                     long diff = (endDateTime.getTime() - lastDateTimeAdded.getTime()); //get the time difference between the last location to the max 15min window
                     double timeDiff = diff / 1000.0; //to get time in seconds

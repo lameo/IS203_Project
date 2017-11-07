@@ -93,9 +93,6 @@
                 </div>
                 <button type="submit" class="btn btn-primary">Generate</button>
             </form>
-
-
-
         </div>
         <%
             //If top K report is generated
@@ -111,30 +108,31 @@
                 if (topKNextPlaces == null || topKNextPlaces.size() == 0) {
                     out.print("<br/><div class=\"alert alert-danger\" role=\"alert\"><strong>" + "The data is not available for location name " + locationname + " within time " + timedate + "</strong></div>");
                 } else if (topKNextPlaces != null && topKNextPlaces.size() > 0) { // topKNextPlaces map is not empty
-                    Set<Integer> totalNumOfUsersSet = topKNextPlaces.keySet(); // to get the different total number of users in a place in desc order
+                    Set<Integer> numOfUsersSet = topKNextPlaces.keySet(); // to get the different total number of users in a place in desc order
                     int counter = 1; // to match topk number after incrementation
                     out.print("<h3>Top-" + topK + " Next Places at " + timedate + "</h3>");
 
                     out.print("<div class=\"container\"><table class=\"table table-bordered\"><thead>");
-                    out.print("<tr><th>Rank</th><th>Semantic Place</th><th>No. of Pax</th><th>% of Users Visiting This Semantic Place</th></tr></thead></tbody>");
-                    for (int totalNumOfUsers : totalNumOfUsersSet) {
-                        ArrayList<String> locations = topKNextPlaces.get(totalNumOfUsers); // gives the list of location with the same totalNumOfUsers
+                    out.print("<tr><th>Rank</th><th>Next Semantic Place</th><th>No. of Pax</th><th>% of Users Visiting This Semantic Place</th></tr></thead></tbody>");
+                    for (int numOfUsers : numOfUsersSet) {
+                        ArrayList<String> locations = topKNextPlaces.get(numOfUsers); // gives the list of location with the same totalNumOfUsers
                         if (counter <= topK) { // to only display till topk number
                             out.print("<tr><td>" + counter + "</td><td>");
                             for (int i = 0; i < locations.size(); i++) {
                                 out.print(locations.get(i)); // show the current location with totalNumOfUsers
                                 if (locations.get(i).equals(locationname)) { // if the locations is the same, find the number of users who visited another place (exclude those left the place but have not visited another place) in the query window
-                                    usersVisitingNextPlace -= totalNumOfUsers; // minus off if the user is staying at the same place
+                                    usersVisitingNextPlace -= numOfUsers; // minus off if the user is staying at the same place
+                                    out.print(" (Original Location)");
                                 }
                                 if (i + 1 < locations.size()) { //fence-post method to add the comma
                                     out.print(", ");
                                 }
                             }
-                            out.print("</td><td>" + totalNumOfUsers + "</td>");
-                            out.print("<td>" + Math.round((double) totalNumOfUsers / total * 100.0) + "%</td></tr>");
+                            out.print("</td><td>" + numOfUsers + "</td>");
+                            out.print("<td>" + Math.round((double) numOfUsers / total * 100.0) + "%</td></tr>");
                             counter++;
                         }
-                        usersVisitingNextPlace += totalNumOfUsers * locations.size(); // add if the user is going other places but the quantity may have multiple next locations
+                        usersVisitingNextPlace += numOfUsers * locations.size(); // add if the user is going other places but the quantity may have multiple next locations
                     }
                     out.print("</tbody></table></div>");
 
@@ -150,7 +148,6 @@
             session.removeAttribute("topKNextPlaces");
             session.removeAttribute("total");
             session.removeAttribute("locationname");
-
         %>
     </center>
 </body>

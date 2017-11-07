@@ -82,7 +82,7 @@ public class ReportServlet extends HttpServlet {
                     //request.getRequestDispatcher("/topKCompanions.jsp").forward(request,response);
                     break;
                 case "topKNextPlaces":
-                    String locationname = request.getParameter("locationname"); // retrieve location name from user. Eg: SMUSISB1NearCSRAndTowardsMRT
+                    String locationname = request.getParameter("locationname"); //retrieve location name from user. Eg: SMUSISB1NearCSRAndTowardsMRT
                     topK = Integer.parseInt(request.getParameter("topK")); //retrieve which number(represents the k) user selected
 
                     Map<Integer, ArrayList<String>> topKNextPlaces = ReportDAO.retrieveTopKNextPlaces(timeDate, locationname);
@@ -94,6 +94,7 @@ public class ReportServlet extends HttpServlet {
                     session.setAttribute("topK", topK);
                     session.setAttribute("total", usersList.size());
                     session.setAttribute("locationname", locationname);
+                    
                     response.sendRedirect("topKNextPlaces.jsp");  //send back to topKNextPlaces
                     break;
                 default:
