@@ -262,9 +262,10 @@ public class ReportDAO {
 
             while (resultSet.next()) {
                 if (map.containsKey(resultSet.getInt(2))) {
-                    map.put(resultSet.getInt(2), map.get(resultSet.getInt(2)) + ", " + resultSet.getString(1));
+                    String previousResults = map.get(resultSet.getInt(2)); //get previous results
+                    map.put(resultSet.getInt(2), previousResults + ", " + resultSet.getString(1)); //set into map
                 } else {
-                    map.put(resultSet.getInt(2), resultSet.getString(1));
+                    map.put(resultSet.getInt(2), resultSet.getString(1)); //set new results into map
                 }
             }
 
