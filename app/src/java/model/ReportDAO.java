@@ -973,7 +973,7 @@ public class ReportDAO {
         Map<String, Double> companionsMap = new HashMap<>();
         Map<Double, ArrayList<String>> sortedCompanionsMap = new TreeMap<>(Collections.reverseOrder());
 
-        for (int i = 0; i < userLocationsTimestampsList.size(); i += 1) {
+        for (int i = 0; i < userLocationsTimestampsList.size(); i++) {
             String userEachLocationTimestamp = userLocationsTimestampsList.get(i);
             String[] userlocationTimestamp = userEachLocationTimestamp.split(",");
 
@@ -985,21 +985,22 @@ public class ReportDAO {
             ArrayList<String> companionsLocationTimestampsList = retrieveCompanionLocationTimestamps(companionMacaddressList, userLocationid, userTimeStart, userTimeEnd);
 
             if (companionsLocationTimestampsList != null) {
-                for (int j = 0; j < companionsLocationTimestampsList.size(); j += 1) {
+                for (int j = 0; j < companionsLocationTimestampsList.size(); j++) {
                     String companionEachLocationTimestamp = companionsLocationTimestampsList.get(j);
                     String[] companionLocationTimestamp = companionEachLocationTimestamp.split(",");
 
                     String companionMacaddress = companionLocationTimestamp[0];
                     double colocationTime = Double.parseDouble(companionLocationTimestamp[3]);
-
-                    if (companionsMap.containsKey(companionMacaddress)) {
-                        double previousTiming = companionsMap.get(companionMacaddress);
-                        colocationTime += previousTiming;
-                        companionsMap.put(companionMacaddress, colocationTime);
-                    } else {
-                        companionsMap.put(companionMacaddress, colocationTime);
+                    
+                    if (colocationTime > 0) { //companions should have a colocationTime of more than 0
+                        if (companionsMap.containsKey(companionMacaddress)) {
+                            double previousTiming = companionsMap.get(companionMacaddress);
+                            colocationTime += previousTiming;
+                            companionsMap.put(companionMacaddress, colocationTime);
+                        } else {
+                            companionsMap.put(companionMacaddress, colocationTime);
+                        }
                     }
-
                 }
             }
         }
@@ -1009,12 +1010,13 @@ public class ReportDAO {
         for (String eachCompanionMacaddress : companionMacaddressKeys) {
             double eachCompanionColocationTime = companionsMap.get(eachCompanionMacaddress);
             String eachCompanionEmail = retrieveEmailByMacaddress(eachCompanionMacaddress);
+            
             if (eachCompanionEmail == null || eachCompanionEmail.length() <= 0) { //when no email, display no email found
                 eachCompanionEmail = "No email found";
             }
-            
+
             ArrayList<String> companionsList = sortedCompanionsMap.get(eachCompanionColocationTime); //null or something
-            
+
             if (companionsList == null || companionsList.size() <= 0) {
                 companionsList = new ArrayList<String>();
                 companionsList.add(eachCompanionMacaddress + "," + eachCompanionEmail);
@@ -1086,10 +1088,8 @@ public class ReportDAO {
                 java.util.Date timestamp = dateFormat.parse(timestring);//convert time string to Date format
                 java.util.Date timestampEnd = dateFormat.parse(endtimeDate);
                 Calendar cal = Calendar.getInstance();
-                //cal.setTime(timestampEnd);
-                //cal.add(Calendar.SECOND, -1);
+
                 timedateEnd = timestampEnd;
-                //timedateEnd = cal.getTime();
                 timestampEnd = null;
 
                 if (locations.size() <= i + 2) { //if last pair of location and time
@@ -1116,7 +1116,7 @@ public class ReportDAO {
                     java.util.Date timestampNext = dateFormat.parse(timestringNext);
 
                     if (!locationid.equals(locationidNext)) {
-                        duration = (double) (timestampNext.getTime() - timestamp.getTime()) / (1000.0);
+                        //duration = (double) (timestampNext.getTime() - timestamp.getTime()) / (1000.0);
                         if (timeStartIndex > -1) {
                             java.util.Date timestampStart = dateFormat.parse(locations.get(timeStartIndex));
                             timestamp = timestampStart;
@@ -1126,7 +1126,7 @@ public class ReportDAO {
                         duration = 0;
                         ans = "";
                         timeStartIndex = -1;
-                        
+
                     } else if (locationid.equals(locationidNext)) { //if the next update location is same as the previous one
                         if (timeStartIndex == -1) {
                             timeStartIndex = i + 1;
@@ -1145,7 +1145,6 @@ public class ReportDAO {
                         } else if (duration <= 300) {
                             duration += (timestampNext.getTime() - timestamp.getTime()) / (1000.0);
                         }
-
                     }
                 }
             }
@@ -1163,7 +1162,7 @@ public class ReportDAO {
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
 
-        ArrayList<String> Companions = new ArrayList<String>();
+        ArrayList<String> companionsList = new ArrayList<String>();
 
         try {
             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -1189,7 +1188,7 @@ public class ReportDAO {
             //execute SQL query
             resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
-                Companions.add(resultSet.getString(1));
+                companionsList.add(resultSet.getString(1));
             }
 
             //close connections
@@ -1201,39 +1200,39 @@ public class ReportDAO {
         } catch (ParseException ex) {
             Logger.getLogger(ReportDAO.class.getName()).log(Level.SEVERE, null, ex);
         }
-        //UserLocationTimestamps.add("1010110032"+","+"014-03-24 09:07:27.000000"+","+"1");
-        return Companions;
+        return companionsList;
     }
 
     //retrieve users in hashmap form, hashmap key is macaddress and hashmap value is array of email, locationid and timestamp
-    public static ArrayList<String> retrieveCompanionLocationTimestamps(ArrayList<String> Companions, String locationid, String timestringStart, String timestringEnd) {
+    public static ArrayList<String> retrieveCompanionLocationTimestamps(ArrayList<String> companionsList, String locationid, String userTimestringStart, String userTimestringEnd) {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
 
         String ans = "";
 
-        ArrayList<String> CompanionLocationTimestamps = new ArrayList<String>();
+        ArrayList<String> companionLocationTimestamps = new ArrayList<String>();
 
         double colocationTime = 0;
         double tmp = 0;
-        double duration = 0;
 
         try {
             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-            java.util.Date timeStart = dateFormat.parse(timestringStart);
-            java.util.Date timeEnd = dateFormat.parse(timestringEnd);
+            java.util.Date userTimeStart = dateFormat.parse(userTimestringStart);
+            java.util.Date userTimeEnd = dateFormat.parse(userTimestringEnd);
+            
             Calendar cal = Calendar.getInstance();
-            cal.setTime(timeStart);
+            cal.setTime(userTimeStart);
             cal.add(Calendar.MINUTE, -5);
+            
             String timestringBeforeStart = dateFormat.format(cal.getTime());
-            duration = (timeEnd.getTime() - timeStart.getTime()) / 1000.0;
+            double userTimeDiff = (userTimeEnd.getTime() - userTimeStart.getTime()) / 1000.0;
 
-            for (int j = 0; j < Companions.size(); j += 1) {
-                String macaddress = Companions.get(j);
+            for (int j = 0; j < companionsList.size(); j ++) {
+                String companionMacaddress = companionsList.get(j);
                 colocationTime = 0;
                 ans = "";
-                boolean CorrectTimestring = false;
+                boolean correctTimestring = false;
 
                 //get a connection to database
                 connection = ConnectionManager.getConnection();
@@ -1242,10 +1241,10 @@ public class ReportDAO {
                 preparedStatement = connection.prepareStatement("select timestamp, locationid, TIMESTAMPDIFF(second,timestamp,?) as diff from location where macaddress = ? and timestamp between ? and ? order by timestamp,diff desc");
 
                 //set the parameters
-                preparedStatement.setString(1, timestringEnd);
-                preparedStatement.setString(2, macaddress);
+                preparedStatement.setString(1, userTimestringEnd);
+                preparedStatement.setString(2, companionMacaddress);
                 preparedStatement.setString(3, timestringBeforeStart);
-                preparedStatement.setString(4, timestringEnd);
+                preparedStatement.setString(4, userTimestringEnd);
 
                 //execute SQL query
                 resultSet = preparedStatement.executeQuery();
@@ -1253,35 +1252,36 @@ public class ReportDAO {
                 while (resultSet.next()) {
                     String timestring = resultSet.getString(1);
                     String location = resultSet.getString(2);
-                    int timeDiff = resultSet.getInt(3);
+                    int timeDiffBetweenUserTimeEndAndCompanionTime = resultSet.getInt(3);
                     //CompanionLocationTimestamps.add("test sql " + macaddress + "" + timestring + "" + location + "" + timeDiff);
                     java.util.Date timestamp = dateFormat.parse(timestring);//convert time string to Date format
-                    double gap = (double) (timeDiff - duration);
+                    double timeGapBetweenUserAndCompanion = (double) (timeDiffBetweenUserTimeEndAndCompanionTime - userTimeDiff);
+                    
                     if (resultSet.isLast()) {
                         if (location.equals(locationid)) {
-                            if (timestamp.before(timeStart)) {
-                                if (timeDiff > 300) {
-                                    colocationTime = (300 - gap);
+                            if (timestamp.before(userTimeStart)) {
+                                if (timeDiffBetweenUserTimeEndAndCompanionTime > 300) {
+                                    colocationTime = (300 - timeGapBetweenUserAndCompanion);
                                 } else {
-                                    colocationTime = timeDiff - gap;
+                                    colocationTime = timeDiffBetweenUserTimeEndAndCompanionTime - timeGapBetweenUserAndCompanion;
                                 }
                                 //CompanionLocationTimestamps.add(macaddress + "first and last location time before start " + "," + gap + "," + colocationTime + "," + timeDiff);
 
-                            } else if (!timestamp.before(timeStart)) {
-                                if (timeDiff > 300) {
+                            } else if (!timestamp.before(userTimeStart)) {
+                                if (timeDiffBetweenUserTimeEndAndCompanionTime > 300) {
                                     colocationTime += 300;
                                 } else {
-                                    colocationTime = timeDiff;
+                                    colocationTime = timeDiffBetweenUserTimeEndAndCompanionTime;
                                 }
                                 //CompanionLocationTimestamps.add(macaddress + "last location time " + colocationTime + "," + timeDiff);
 
                             }
 
-                            ans = macaddress + "," + locationid + "," + timestamp + "," + colocationTime + ",";
-                            CompanionLocationTimestamps.add(ans);
+                            ans = companionMacaddress + "," + locationid + "," + timestamp + "," + colocationTime + ",";
+                            companionLocationTimestamps.add(ans);
                             ans = "";
                             colocationTime = 0;
-                            CorrectTimestring = false;
+                            correctTimestring = false;
                         }
                     }
 
@@ -1290,69 +1290,69 @@ public class ReportDAO {
                         int timeDiffNext = resultSet.getInt(3);
                         String timestringNext = resultSet.getString(1);
                         java.util.Date timestampNext = dateFormat.parse(timestringNext);//convert time string to Date format
-                        gap = (double) (timeDiffNext - duration);
+                        timeGapBetweenUserAndCompanion = (double) (timeDiffNext - userTimeDiff);
 
                         //check if the previous location is correct or current location is correct
-                        if (location.equals(locationid) || CorrectTimestring) {
+                        if (location.equals(locationid) || correctTimestring) {
                             //java.util.Date timestampNext = dateFormat.parse(timestringNext);//convert time string to Date format
                             //if time stamp before time start
-                            if (timestamp.before(timeStart)) {
+                            if (timestamp.before(userTimeStart)) {
                                 //CompanionLocationTimestamps.add(macaddress + "before start " +timeDiff+","+timeDiffNext+ ","+timestring);
                                 //if timestamp is the last one before time start and location is correct
-                                if (timestampNext.after(timeStart) && location.equals(locationid)) {
+                                if (timestampNext.after(userTimeStart) && location.equals(locationid)) {
                                     //if current and next location is the same
                                     if (location.equals(locationNext)) {
-                                        tmp = timeDiff - timeDiffNext;
+                                        tmp = timeDiffBetweenUserTimeEndAndCompanionTime - timeDiffNext;
                                         if (tmp > 300) {
-                                            colocationTime = (300 - gap);
+                                            colocationTime = (300 - timeGapBetweenUserAndCompanion);
                                         } else {
-                                            colocationTime = duration - timeDiffNext;
+                                            colocationTime = userTimeDiff - timeDiffNext;
                                         }
                                         //CompanionLocationTimestamps.add(macaddress + "same location time before start " + "," + colocationTime + "," + tmp + "," + duration + "," + gap);
-                                        CorrectTimestring = true;
+                                        correctTimestring = true;
                                     } else if (!location.equals(locationNext)) {
-                                        tmp = timeDiff - timeDiffNext;
+                                        tmp = timeDiffBetweenUserTimeEndAndCompanionTime - timeDiffNext;
                                         if (tmp > 300) {
-                                            colocationTime = (300 - gap);
+                                            colocationTime = (300 - timeGapBetweenUserAndCompanion);
                                         } else {
-                                            colocationTime = duration - timeDiffNext;
+                                            colocationTime = userTimeDiff - timeDiffNext;
                                         }
                                         //CompanionLocationTimestamps.add(macaddress + "diff location time before start " + colocationTime + "," + tmp);
-                                        ans = macaddress + "," + locationid + "," + timestampNext + "," + colocationTime + ",";
-                                        CompanionLocationTimestamps.add(ans);
+                                        ans = companionMacaddress + "," + locationid + "," + timestampNext + "," + colocationTime + ",";
+                                        companionLocationTimestamps.add(ans);
                                         ans = "";
                                         colocationTime = 0;
-                                        CorrectTimestring = false;
+                                        correctTimestring = false;
                                     }
                                 }
                                 //if timestamp is after time start
-                            } else if (!timestamp.before(timeStart)) {
+                            } else if (!timestamp.before(userTimeStart)) {
                                 //CompanionLocationTimestamps.add(macaddress + "timestamp after time start" + timestring);
                                 //if current and next location is the same
                                 if (location.equals(locationNext) && location.equals(locationid)) {
 
-                                    tmp = timeDiff - timeDiffNext;
+                                    tmp = timeDiffBetweenUserTimeEndAndCompanionTime - timeDiffNext;
                                     if (tmp > 300) {
                                         colocationTime += 300;
                                     } else {
                                         colocationTime += tmp;
                                     }
-                                    CorrectTimestring = true;
+                                    correctTimestring = true;
                                     //CompanionLocationTimestamps.add(macaddress + "same location " + colocationTime + "," + tmp + "," + timeDiff + "," + timeDiffNext + "," + timestring + ",");
                                     //if current location is different from next one and is correct location
                                 } else if (!location.equals(locationNext) && location.equals(locationid)) {
-                                    tmp = timeDiff - timeDiffNext;
+                                    tmp = timeDiffBetweenUserTimeEndAndCompanionTime - timeDiffNext;
                                     if (tmp > 300) {
                                         colocationTime += 300;
                                     } else {
                                         colocationTime += tmp;
                                     }
                                     //CompanionLocationTimestamps.add(macaddress + "diff location " + colocationTime + "," + tmp + "," + timeDiff + "," + timeDiffNext + "," + timestring + "," + timestringNext);
-                                    ans = macaddress + "," + locationid + "," + timestampNext + "," + colocationTime + ",";
-                                    CompanionLocationTimestamps.add(ans);
+                                    ans = companionMacaddress + "," + locationid + "," + timestampNext + "," + colocationTime + ",";
+                                    companionLocationTimestamps.add(ans);
                                     ans = "";
                                     colocationTime = 0;
-                                    CorrectTimestring = false;
+                                    correctTimestring = false;
                                     //if previous location is correct and is not correct location
                                 }
                             }
@@ -1381,11 +1381,11 @@ public class ReportDAO {
 
                             }*/
                             //if last location same, include last timestamp
-                            if (timestampNext.before(timeStart)) {
+                            if (timestampNext.before(userTimeStart)) {
                                 if (timeDiffNext > 300) {
-                                    colocationTime += (300 - gap);
+                                    colocationTime += (300 - timeGapBetweenUserAndCompanion);
                                 } else {
-                                    colocationTime += timeDiffNext - gap;
+                                    colocationTime += timeDiffNext - timeGapBetweenUserAndCompanion;
                                 }
                                 //CompanionLocationTimestamps.add("last location before ");
                                 //CompanionLocationTimestamps.add(macaddress + "last location time before start " + duration + "," + colocationTime + "," + gap + "," + timeDiffNext);
@@ -1399,15 +1399,15 @@ public class ReportDAO {
                                 //CompanionLocationTimestamps.add(macaddress + "last location time " + colocationTime + "," + timeDiff);
                             }
                             //CompanionLocationTimestamps.add(macaddress + "last location update " + locationNext + ",timeStart: " + timeStart + ",timeEnd: " + timeEnd + "timeDiffNext: " + timeDiffNext+",colocation: "+colocationTime);
-                            ans = macaddress + "," + locationid + "," + timestampNext + "," + colocationTime + ",";
-                            CompanionLocationTimestamps.add(ans);
+                            ans = companionMacaddress + "," + locationid + "," + timestampNext + "," + colocationTime + ",";
+                            companionLocationTimestamps.add(ans);
                             ans = "";
                             colocationTime = 0;
-                            CorrectTimestring = false;
+                            correctTimestring = false;
                         }
                         timestring = timestringNext;
                         location = locationNext;
-                        timeDiff = timeDiffNext;
+                        timeDiffBetweenUserTimeEndAndCompanionTime = timeDiffNext;
                         timestamp = dateFormat.parse(timestring);
                     }
 
@@ -1423,7 +1423,7 @@ public class ReportDAO {
             Logger.getLogger(ReportDAO.class.getName()).log(Level.SEVERE, null, ex);
         }
 
-        return CompanionLocationTimestamps;
+        return companionLocationTimestamps;
     }
 
     /**
