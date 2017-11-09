@@ -353,11 +353,15 @@ public class ReportDAO {
             connection = ConnectionManager.getConnection();
 
             //prepare a statement to retrieve users who are in a specific place in a given time frame in a specific location
-            preparedStatement = connection.prepareStatement("select distinct l.macaddress "
-                    + "from location l, locationlookup llu "
-                    + "where l.locationid = llu.locationid "
-                    + "and timestamp between(SELECT DATE_SUB(? ,INTERVAL 15 MINUTE)) AND (SELECT DATE_SUB(? ,INTERVAL 1 SECOND)) "
-                    + "and llu.locationname = ?");
+            preparedStatement = connection.prepareStatement("SELECT distinct l.macaddress "
+                    + "FROM (SELECT max(TIMESTAMP) as TIMESTAMP, macaddress "
+                        + "FROM location "
+                        + "WHERE timestamp BETWEEN (SELECT DATE_SUB(?,INTERVAL 15 MINUTE)) AND (SELECT DATE_SUB(?,INTERVAL 1 SECOND)) "
+                        + "group by macaddress) as temp, locationlookup llu, location l "
+                    + "WHERE temp.timestamp = l.timestamp "
+                    + "AND l.locationid = llu.locationid "
+                    + "AND temp.macaddress = l.macaddress "
+                    + "AND llu.locationname = ?");
 
             //set the parameters
             preparedStatement.setString(1, inputTime);
