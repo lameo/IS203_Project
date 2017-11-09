@@ -120,7 +120,7 @@
                             out.print("<tr><td>" + counter + "</td><td>");
                             for (int i = 0; i < locations.size(); i++) {
                                 out.print(locations.get(i)); // show the current location with totalNumOfUsers
-                                if (locations.get(i).equals(locationname)) { // if the locations is the same, find the number of users who visited another place (exclude those left the place but have not visited another place) in the query window
+                                if (locations.get(i).equals(locationname)) { // if the locations is the same as another place in the query window
                                     out.print(" (Original Location)");
                                 }
                                 if (i + 1 < locations.size()) { //fence-post method to add the comma

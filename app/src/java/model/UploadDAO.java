@@ -275,7 +275,7 @@ public class UploadDAO {
 
                 //Mac address
                 macaddress = macaddress.trim();
-                if (macaddress.length() != 40) {
+                if (macaddress.length() != 40 || !macaddress.matches("-?[0-9a-fA-F]+")) {
                     errorMsg += ", Invalid mac address";
                 }
 
@@ -531,7 +531,7 @@ public class UploadDAO {
 
                 // Checking for macaddress
                 macaddress = macaddress.trim();
-                if (macaddress.length() != 40) {
+                if (macaddress.length() != 40 || !macaddress.matches("-?[0-9a-fA-F]+")) {
                     errorMsg += ", Invalid mac address";
                 }
 
@@ -656,7 +656,7 @@ public class UploadDAO {
 
                 //Mac address
                 macaddress = macaddress.trim();
-                if (macaddress.length() != 40) {
+                if (macaddress.length() != 40 || !macaddress.matches("-?[0-9a-fA-F]+")) {
                     errorMsg += ", Invalid mac address";
                 }
 
@@ -820,7 +820,7 @@ public class UploadDAO {
 
                 // Checking for macaddress
                 macaddress = macaddress.trim();
-                if (macaddress.length() != 40) {
+                if (macaddress.length() != 40 || !macaddress.matches("-?[0-9a-fA-F]+")) {
                     errorMsg += ", Invalid mac address";
                 }
 
