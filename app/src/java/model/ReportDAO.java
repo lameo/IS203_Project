@@ -245,7 +245,7 @@ public class ReportDAO {
         try {
             //get a connection to database
             connection = ConnectionManager.getConnection();
-            
+
             //prepare a statement
             //retrieve location name and corresponding number of people at the location. But only retrieve latest (max(timestamp)) location updates of user only
             preparedStatement = connection.prepareStatement("select n.locationname, count(n.locationname) "
@@ -355,9 +355,9 @@ public class ReportDAO {
             //prepare a statement to retrieve users who are in a specific place in a given time frame in a specific location
             preparedStatement = connection.prepareStatement("SELECT distinct l.macaddress "
                     + "FROM (SELECT max(TIMESTAMP) as TIMESTAMP, macaddress "
-                        + "FROM location "
-                        + "WHERE timestamp BETWEEN (SELECT DATE_SUB(?,INTERVAL 15 MINUTE)) AND (SELECT DATE_SUB(?,INTERVAL 1 SECOND)) "
-                        + "group by macaddress) as temp, locationlookup llu, location l "
+                    + "FROM location "
+                    + "WHERE timestamp BETWEEN (SELECT DATE_SUB(?,INTERVAL 15 MINUTE)) AND (SELECT DATE_SUB(?,INTERVAL 1 SECOND)) "
+                    + "group by macaddress) as temp, locationlookup llu, location l "
                     + "WHERE temp.timestamp = l.timestamp "
                     + "AND l.locationid = llu.locationid "
                     + "AND temp.macaddress = l.macaddress "
@@ -968,66 +968,63 @@ public class ReportDAO {
      * particular user
      */
     public static Map<Double, ArrayList<String>> retrieveTopKCompanions(String endTimeDate, String macaddress) {
-        ArrayList<String> UserLocationTimestamps = retrieveUserLocationTimestamps(macaddress, endTimeDate);
+        ArrayList<String> userLocationsTimestampsList = retrieveUserLocationTimestamps(macaddress, endTimeDate);
 
-        ArrayList<String> Companions = new ArrayList<String>();
-        ArrayList<String> CompanionLocationTimestamps = null;
+        Map<String, Double> companionsMap = new HashMap<>();
+        Map<Double, ArrayList<String>> sortedCompanionsMap = new TreeMap<>(Collections.reverseOrder());
 
-        Map<String, Double> CompanionColocations = new HashMap<String, Double>();
-        Map<Double, ArrayList<String>> SortedList = new TreeMap<Double, ArrayList<String>>(Collections.reverseOrder());
+        for (int i = 0; i < userLocationsTimestampsList.size(); i += 1) {
+            String userEachLocationTimestamp = userLocationsTimestampsList.get(i);
+            String[] userlocationTimestamp = userEachLocationTimestamp.split(",");
 
-        for (int i = 0; i < UserLocationTimestamps.size(); i += 1) {
-            String UserLocationTimestamp = UserLocationTimestamps.get(i);
-            String[] LocationTimestamp = UserLocationTimestamp.split(",");
+            String userLocationid = userlocationTimestamp[0];
+            String userTimeStart = userlocationTimestamp[1];
+            String userTimeEnd = userlocationTimestamp[2];
 
-            String locationid = LocationTimestamp[0];
-            String timestringStart = LocationTimestamp[1];
-            String timestringEnd = LocationTimestamp[2];
+            ArrayList<String> companionMacaddressList = retrieveCompanionMacaddresses(macaddress, userLocationid, userTimeStart, userTimeEnd);
+            ArrayList<String> companionsLocationTimestampsList = retrieveCompanionLocationTimestamps(companionMacaddressList, userLocationid, userTimeStart, userTimeEnd);
 
-            Companions = retreiveCompanionMacaddresses(macaddress, locationid, timestringStart, timestringEnd);
-            CompanionLocationTimestamps = retrieveCompanionLocationTimestamps(Companions, locationid, timestringStart, timestringEnd);
+            if (companionsLocationTimestampsList != null) {
+                for (int j = 0; j < companionsLocationTimestampsList.size(); j += 1) {
+                    String companionEachLocationTimestamp = companionsLocationTimestampsList.get(j);
+                    String[] companionLocationTimestamp = companionEachLocationTimestamp.split(",");
 
-            if (CompanionLocationTimestamps != null) {
-                for (int j = 0; j < CompanionLocationTimestamps.size(); j += 1) {
-                    String CompanionLocationTimestamp = CompanionLocationTimestamps.get(j);
-                    String[] LocationTimestampc = CompanionLocationTimestamp.split(",");
-                    String macaddressc = LocationTimestampc[0];
-                    double colocationTime = Double.parseDouble(LocationTimestampc[3]);
+                    String companionMacaddress = companionLocationTimestamp[0];
+                    double colocationTime = Double.parseDouble(companionLocationTimestamp[3]);
 
-                    if (CompanionColocations.containsKey(macaddressc)) {
-                        double colocationTime2 = CompanionColocations.get(macaddressc);
-                        colocationTime += colocationTime2;
-                        //CompanionColocations.remove(macaddressc);
-                        CompanionColocations.put(macaddressc, colocationTime);
-
+                    if (companionsMap.containsKey(companionMacaddress)) {
+                        double previousTiming = companionsMap.get(companionMacaddress);
+                        colocationTime += previousTiming;
+                        companionsMap.put(companionMacaddress, colocationTime);
                     } else {
-                        CompanionColocations.put(macaddressc, colocationTime);
+                        companionsMap.put(companionMacaddress, colocationTime);
                     }
 
                 }
             }
         }
 
-        Set<String> macaddressess = CompanionColocations.keySet();
+        Set<String> companionMacaddressKeys = companionsMap.keySet();
 
-        for (String macaddress2 : macaddressess) {
-            double colocationTime3 = CompanionColocations.get(macaddress2);
-            String email = retrieveEmailByMacaddress(macaddress2);
-            if (email == null || email.length() <= 0) {
-                email = "No email found";
+        for (String eachCompanionMacaddress : companionMacaddressKeys) {
+            double eachCompanionColocationTime = companionsMap.get(eachCompanionMacaddress);
+            String eachCompanionEmail = retrieveEmailByMacaddress(eachCompanionMacaddress);
+            if (eachCompanionEmail == null || eachCompanionEmail.length() <= 0) { //when no email, display no email found
+                eachCompanionEmail = "No email found";
             }
-            ArrayList<String> companions = SortedList.get(colocationTime3); //null or something
-            if (companions == null || companions.size() <= 0) {
-                ArrayList<String> companionsList = new ArrayList<String>();
-                companionsList.add(macaddress2 + "," + email);
-                SortedList.put(colocationTime3, companionsList);
+            
+            ArrayList<String> companionsList = sortedCompanionsMap.get(eachCompanionColocationTime); //null or something
+            
+            if (companionsList == null || companionsList.size() <= 0) {
+                companionsList = new ArrayList<String>();
+                companionsList.add(eachCompanionMacaddress + "," + eachCompanionEmail);
+                sortedCompanionsMap.put(eachCompanionColocationTime, companionsList);
             } else {
-
-                companions.add(macaddress2 + "," + email);
-                SortedList.put(colocationTime3, companions);
+                companionsList.add(eachCompanionMacaddress + "," + eachCompanionEmail);
+                sortedCompanionsMap.put(eachCompanionColocationTime, companionsList);
             }
         }
-        return SortedList;
+        return sortedCompanionsMap;
     }
 
     /**
@@ -1048,7 +1045,7 @@ public class ReportDAO {
         String ans = "";
         double duration = 0;
 
-        ArrayList<String> UserLocationTimestamps = new ArrayList<String>();
+        ArrayList<String> userLocationTimestamps = new ArrayList<String>();
         ArrayList<String> locations = new ArrayList<String>();
 
         String timestring = null;
@@ -1111,7 +1108,7 @@ public class ReportDAO {
                         timestamp = timestampStart;;
                     }
                     ans += locationid + "," + dateFormat.format(timestamp) + "," + dateFormat.format(timestampEnd) + ",";
-                    UserLocationTimestamps.add(ans);
+                    userLocationTimestamps.add(ans);
                     ans = "";
                 } else if (locations.size() > i + 2) {
                     String locationidNext = locations.get(i + 2);
@@ -1125,29 +1122,26 @@ public class ReportDAO {
                             timestamp = timestampStart;
                         }
                         ans += locationid + "," + dateFormat.format(timestamp) + "," + dateFormat.format(timestampNext) + ",";
-                        UserLocationTimestamps.add(ans);
+                        userLocationTimestamps.add(ans);
                         duration = 0;
                         ans = "";
                         timeStartIndex = -1;
-                        //UserLocationTimestamps.add(ans);
-                        //if the next update location is same as the previous one
-                    } else if (locationid.equals(locationidNext)) {
+                        
+                    } else if (locationid.equals(locationidNext)) { //if the next update location is same as the previous one
                         if (timeStartIndex == -1) {
                             timeStartIndex = i + 1;
                         }
                         duration = (double) (timestampNext.getTime() - timestamp.getTime()) / (1000.0);
                         if (duration > 300.0) {
                             cal.setTime(timestamp);
-                            cal.add(Calendar.MINUTE, 5);
-                            //timeDateEnd is 5 minutes after timeDateStart
+                            cal.add(Calendar.MINUTE, 5); //timeDateEnd is 5 minutes after timeDateStart
                             timestampEnd = cal.getTime();
                             java.util.Date timestampStart = dateFormat.parse(locations.get(timeStartIndex));
                             ans += locationidNext + "," + dateFormat.format(timestampStart) + "," + dateFormat.format(timestampEnd) + ",";
-                            UserLocationTimestamps.add(ans);
+                            userLocationTimestamps.add(ans);
                             duration = 0;
                             ans = "";
                             timeStartIndex = -1;
-                            //UserLocationTimestamps.add(ans);
                         } else if (duration <= 300) {
                             duration += (timestampNext.getTime() - timestamp.getTime()) / (1000.0);
                         }
@@ -1161,11 +1155,10 @@ public class ReportDAO {
             Logger.getLogger(ReportDAO.class.getName()).log(Level.SEVERE, null, ex);
         }
 
-        //UserLocationTimestamps.add("1010110032"+","+"014-03-24 09:07:27.000000"+","+"1");
-        return UserLocationTimestamps;
+        return userLocationTimestamps;
     }
 
-    public static ArrayList<String> retreiveCompanionMacaddresses(String userMacaddress, String locationid, String timestringStart, String timestringEnd) {
+    public static ArrayList<String> retrieveCompanionMacaddresses(String userMacaddress, String locationid, String timestringStart, String timestringEnd) {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
@@ -1212,7 +1205,7 @@ public class ReportDAO {
         return Companions;
     }
 
-    //retreive users in hashmap form, hashmap key is macaddress and hashmap value is array of email, locationid and timestamp
+    //retrieve users in hashmap form, hashmap key is macaddress and hashmap value is array of email, locationid and timestamp
     public static ArrayList<String> retrieveCompanionLocationTimestamps(ArrayList<String> Companions, String locationid, String timestringStart, String timestringEnd) {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
