@@ -1,3 +1,4 @@
+<%@page import="model.ReportDAO"%>
 <%@page import="java.util.Set"%>
 <%@page import="java.util.TreeMap"%>
 <%@page import="java.sql.ResultSet"%>
@@ -146,8 +147,7 @@
                             rank += 1;
                         }
                     }
-
-                    out.print("</tbody></table></div>");
+                    out.print("</tbody></table></div>");     
                 }
             }
             session.removeAttribute("macaddress");
