@@ -1120,15 +1120,15 @@ public class ReportDAO {
                             timestamp = timestampStart;
                         }
                         duration = (double) (timestampNext.getTime() - timestamp.getTime()) / (1000.0);
-                        if (duration > 300.0) {
+                        if (duration > 300.0) { //corner case when next time stamp is too far away
                             cal.setTime(timestamp);
                             cal.add(Calendar.MINUTE, 5);
                             //timeDateEnd is 5 minutes after timeDateStart
                             timestampEnd = cal.getTime();
+                            userConcatenationList += locationid + "," + dateFormat.format(timestamp) + "," + dateFormat.format(timestampEnd) + ",";                            
                         } else {
-                            timestampEnd = timedateEnd;
+                            userConcatenationList += locationid + "," + dateFormat.format(timestamp) + "," + dateFormat.format(timestampNext) + ",";                            
                         }
-                        userConcatenationList += locationid + "," + dateFormat.format(timestamp) + "," + dateFormat.format(timestampEnd) + ",";
                         userLocationTimestamps.add(userConcatenationList);
                         duration = 0;
                         userConcatenationList = "";
