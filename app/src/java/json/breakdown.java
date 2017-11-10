@@ -164,7 +164,7 @@ public class breakdown extends HttpServlet {
 
             String[] year = {"year", "2013", "2014", "2015", "2016", "2017"};                              //5
             String[] gender = {"gender", "M", "F"};                                                        //2
-            String[] school = {"School", "accountancy", "business", "economics", "law", "sis", "socsc"};   //6
+            String[] school = {"school", "accountancy", "business", "economics", "law", "sis", "socsc"};   //6
 
             String[] arr = order.split(",");
             ArrayList<Integer> temp1 = ReportDAO.notVeryBasicBreakdownJson(Arrays.copyOfRange(arr, 0, 1), timeDate);

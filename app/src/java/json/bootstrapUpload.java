@@ -39,7 +39,6 @@ public class bootstrapUpload extends HttpServlet {
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
         JsonArray errMsg = new JsonArray();
-        boolean validFile = true;
 
         UploadBean upBean = new UploadBean();
         HashMap<Integer, String> demographicsError = new HashMap<>();
@@ -100,10 +99,8 @@ public class bootstrapUpload extends HttpServlet {
                     UploadFile file = (UploadFile) files.get("bootstrap-file"); //get the files from bootstrapinitialize
                     if (file != null && file.getFileSize() > 0 && file.getFileName() != null) {
                         String fileName = file.getFileName();
-                        String contentType = file.getContentType(); //Get the file type
                         String filePath = outputDirectory + File.separator + fileName; //get the file path 
 
-                        if (contentType.equals("application/x-zip-compressed") || contentType.equals("application/zip")) { //if it is a zip file
                             upBean.store(multipartRequest, "bootstrap-file"); //save to directory
                             String fileExist = UploadDAO.unzip(filePath, outputDirectory); //unzip the files in the zip and save into the directory
 
@@ -132,40 +129,7 @@ public class bootstrapUpload extends HttpServlet {
                                 fileUpload.add(temp);
                             }
 
-                            //if location.csv or location-lookup.csv or demographics.csv
-                        } else if (UploadDAO.checkFileName(fileName) != null && UploadDAO.checkFileName(fileName).length() > 0) {
-                            upBean.store(multipartRequest, "bootstrap-file"); //save to directory
-                            JsonObject temp = new JsonObject();
-                            switch (fileName) {
-                                case "demographics.csv":
-                                    demographicsError = UploadDAO.readDemographics(outputDirectory + File.separator + "demographics.csv");
-                                    // using integer.max_value to pass the number of lines processed
-                                    temp.addProperty("demographics.csv", Integer.parseInt(demographicsError.get(Integer.MAX_VALUE)));
-                                    demographicsError.remove(Integer.MAX_VALUE);
-                                    fileUpload.add(temp);
-                                    break;
-                                case "location-lookup.csv":
-                                    locationLookupError = UploadDAO.readLookup(outputDirectory + File.separator + "location-lookup.csv");
-                                    // using integer.max_value to pass the number of lines processed
-                                    temp.addProperty("location-lookup.csv", Integer.parseInt(locationLookupError.get(Integer.MAX_VALUE)));
-                                    locationLookupError.remove(Integer.MAX_VALUE);
-                                    fileUpload.add(temp);
-                                    break;
-                                case "location.csv":
-                                    locationError = UploadDAO.readLocation(outputDirectory + File.separator + "location.csv");
-                                    // using integer.max_value to pass the number of lines processed
-                                    temp.addProperty("location.csv", Integer.parseInt(locationError.get(Integer.MAX_VALUE)));
-                                    locationError.remove(Integer.MAX_VALUE);
-                                    fileUpload.add(temp);
-                                    break;
-                                default:
-                                    break;
-                            }
-                        } else {
-                            validFile = false;
-                        }
-
-                        if (demographicsError.isEmpty() && locationError.isEmpty() && locationLookupError.isEmpty() && validFile) {
+                        if (demographicsError.isEmpty() && locationError.isEmpty() && locationLookupError.isEmpty()) {
                             // if successful
                             ans.addProperty("status", "success");
                             ans.add("num-record-loaded", fileUpload);
@@ -192,12 +156,12 @@ public class bootstrapUpload extends HttpServlet {
                                 for (String msg : err) {
                                     erro.add(msg);
                                 }
-                                tempJson.add("message", erro);
+                                tempJson.add("messages", erro);
                                 error.add(tempJson);
                             }
 
                             // Location-lookup.csv file errors
-                            Map<Integer, String> locationLookupErrorSorted = new TreeMap<>(demographicsError);
+                            Map<Integer, String> locationLookupErrorSorted = new TreeMap<>(locationLookupError);
                             for (Map.Entry<Integer, String> temp : locationLookupErrorSorted.entrySet()) {
                                 int key = temp.getKey();
                                 String value = temp.getValue();
@@ -213,7 +177,7 @@ public class bootstrapUpload extends HttpServlet {
                                 for (String msg : err) {
                                     erro.add(msg);
                                 }
-                                tempJson.add("message", erro);
+                                tempJson.add("messages", erro);
                                 error.add(tempJson);
                             }
 
@@ -234,7 +198,7 @@ public class bootstrapUpload extends HttpServlet {
                                 for (String msg : err) {
                                     erro.add(msg);
                                 }
-                                tempJson.add("message", erro);
+                                tempJson.add("messages", erro);
                                 error.add(tempJson);
                             }
                             ans.add("error", error);

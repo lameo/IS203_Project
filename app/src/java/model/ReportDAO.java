@@ -757,9 +757,9 @@ public class ReportDAO {
         String[] first = null;  //category have name in their first value to know what does first, second or third variable contains
         String[] second = null;  //category have name in their first value to know what does first, second or third variable contains
         String[] third = null;  //category have name in their first value to know what does first, second or third variable contains
-        String[] year = {"Year", "2013", "2014", "2015", "2016", "2017"};                              //5
-        String[] gender = {"Gender", "M", "F"};                                                        //2
-        String[] school = {"School", "accountancy", "business", "economics", "law", "sis", "socsc"};   //6
+        String[] year = {"year", "2013", "2014", "2015", "2016", "2017"};                              //5
+        String[] gender = {"gender", "M", "F"};                                                        //2
+        String[] school = {"school", "accountancy", "business", "economics", "law", "sis", "socsc"};   //6
 
         String userInput = "";
 
