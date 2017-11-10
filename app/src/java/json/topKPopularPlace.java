@@ -174,7 +174,7 @@ public class topKPopularPlace extends HttpServlet {
 
                         //add every location to semantic-places for each rank if rank has 2 or more locations
                         //Eg: if rank 1 has 2 locations, 2 jsonobjects will be created for each location and added to resultsArr jsonarray respectively
-                        topKPopPlaces.addProperty("semantic-places", location);
+                        topKPopPlaces.addProperty("semantic-place", location);
                         topKPopPlaces.addProperty("count", keys.get(i));
                         
                         // add temp json object to final json array for output
