@@ -231,7 +231,7 @@ public class topKCompanion extends HttpServlet {
                         }
                         
                         topKCompanions.addProperty("mac-address", allMacaddressEmailPairs[0]);
-                        topKCompanions.addProperty("time-together", timeSpentByCompanions);
+                        topKCompanions.addProperty("time-together", timeSpentByCompanions.intValue());
                         
                         // add temp json object to final json array for output
                         resultsArr.add(topKCompanions);
