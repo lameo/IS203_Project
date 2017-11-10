@@ -211,7 +211,11 @@ public class breakdown extends HttpServlet {
             if (arr.length == 1) {
                 for (int i = 0; i < temp1.size(); i++) {
                     JsonObject temp = new JsonObject();
-                    temp.addProperty(first[0], first[i + 1]);
+                    if (first[0].equals("year")) {
+                        temp.addProperty(first[0], Integer.parseInt(first[i + 1]));
+                    } else {
+                        temp.addProperty(first[0], first[i + 1]);
+                    }
                     temp.addProperty("count", temp1.get(i));
                     one.add(temp);
                 }
@@ -223,14 +227,22 @@ public class breakdown extends HttpServlet {
             if (arr.length == 2) {
                 for (int i = 0; i < temp1.size(); i++) {
                     JsonObject temp = new JsonObject();
-                    temp.addProperty(first[0], first[i + 1]);
+                    if (first[0].equals("year")) {
+                        temp.addProperty(first[0], Integer.parseInt(first[i + 1]));
+                    } else {
+                        temp.addProperty(first[0], first[i + 1]);
+                    }
                     temp.addProperty("count", temp1.get(i));
                     one.add(temp);
                 }
                 JsonArray two = new JsonArray();
                 for (int i = 0; i < temp2.size(); i++) {
                     JsonObject temp = new JsonObject();
-                    temp.addProperty(second[0], second[(i) % (second.length - 1) + 1]);
+                    if (second[0].equals("year")) {
+                        temp.addProperty(second[0], Integer.parseInt(second[(i) % (second.length - 1) + 1]));
+                    } else {
+                        temp.addProperty(second[0], second[(i) % (second.length - 1) + 1]);
+                    }
                     temp.addProperty("count", temp2.get(i));
                     two.add(temp);
                     if ((i + 1) % (temp2.size() / temp1.size()) == 0) {
@@ -244,14 +256,22 @@ public class breakdown extends HttpServlet {
                 JsonArray two = new JsonArray();
                 for (int i = 0; i < temp2.size(); i++) {
                     JsonObject temp = new JsonObject();
-                    temp.addProperty(second[0], second[(i) % (second.length - 1) + 1]);
+                    if (second[0].equals("year")) {
+                        temp.addProperty(second[0], Integer.parseInt(second[(i) % (second.length - 1) + 1]));
+                    } else {
+                        temp.addProperty(second[0], second[(i) % (second.length - 1) + 1]);
+                    }
                     temp.addProperty("count", temp2.get(i));
                     two.add(temp);
                 }
                 JsonArray three = new JsonArray();
                 for (int i = 0; i < temp3.size(); i++) {
                     JsonObject temp = new JsonObject();
-                    temp.addProperty(third[0], third[(i) % (third.length - 1) + 1]);
+                    if (third[0].equals("year")) {
+                        temp.addProperty(third[0], Integer.parseInt(third[(i) % (third.length - 1) + 1]));
+                    } else {
+                        temp.addProperty(third[0], third[(i) % (third.length - 1) + 1]);
+                    }
                     temp.addProperty("count", temp3.get(i));
                     three.add(temp);
                     if ((i + 1) % (temp3.size() / temp2.size()) == 0) {
@@ -261,7 +281,11 @@ public class breakdown extends HttpServlet {
                 }
                 for (int i = 0; i < temp1.size(); i++) {
                     JsonObject temp = new JsonObject();
-                    temp.addProperty(first[0], first[i + 1]);
+                    if (first[0].equals("year")) {
+                        temp.addProperty(first[0], Integer.parseInt(first[i + 1]));
+                    } else {
+                        temp.addProperty(first[0], Integer.parseInt(first[i + 1]));
+                    }
                     temp.addProperty("count", temp1.get(i));
                     one.add(temp);
                 }
