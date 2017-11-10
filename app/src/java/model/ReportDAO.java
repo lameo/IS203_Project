@@ -968,22 +968,32 @@ public class ReportDAO {
      * particular user
      */
     public static Map<Double, ArrayList<String>> retrieveTopKCompanions(String endTimeDate, String macaddress) {
+        
+        //Retrieve user location timeline 
         ArrayList<String> userLocationsTimestampsList = retrieveUserLocationTimestamps(macaddress, endTimeDate);
 
         Map<String, Double> companionsMap = new HashMap<>();
         Map<Double, ArrayList<String>> sortedCompanionsMap = new TreeMap<>(Collections.reverseOrder());
 
         for (int i = 0; i < userLocationsTimestampsList.size(); i++) {
-            String userEachLocationTimestamp = userLocationsTimestampsList.get(i);
-            String[] userlocationTimestamp = userEachLocationTimestamp.split(",");
-
+            String userEachLocationTimestamp = userLocationsTimestampsList.get(i); //to retrieve the String of location and timestamps from the list
+            String[] userlocationTimestamp = userEachLocationTimestamp.split(","); 
+            
+            //retrieve each location and time start and end from array
             String userLocationid = userlocationTimestamp[0];
             String userTimeStart = userlocationTimestamp[1];
             String userTimeEnd = userlocationTimestamp[2];
-
+            
+            //retrieve all users within the time query besides the specified user using the timestamp of the user
+            //Eg: Specified user is in location A from 10:01 - 10:03 then 10:01 and 10:03 is used to find if there are any companions
+            //5 mins before the userTimeStart to get a bigger range to make sure no other users are left out
             ArrayList<String> companionMacaddressList = retrieveCompanionMacaddresses(macaddress, userLocationid, userTimeStart, userTimeEnd);
+            
+            //retrieve all the companion's colocated timestamp with user
+            //Eg: companionMacaddress, userLocationid, companionTimestamp, colocationTime
             ArrayList<String> companionsLocationTimestampsList = retrieveCompanionLocationTimestamps(companionMacaddressList, userLocationid, userTimeStart, userTimeEnd);
 
+            //to put all the items from companionsLocationTimestampsList into map
             if (companionsLocationTimestampsList != null) {
                 for (int j = 0; j < companionsLocationTimestampsList.size(); j++) {
                     String companionEachLocationTimestamp = companionsLocationTimestampsList.get(j);
@@ -1005,6 +1015,7 @@ public class ReportDAO {
             }
         }
 
+        //to sort map
         Set<String> companionMacaddressKeys = companionsMap.keySet();
 
         for (String eachCompanionMacaddress : companionMacaddressKeys) {
@@ -1048,17 +1059,21 @@ public class ReportDAO {
         double duration = 0;
 
         ArrayList<String> userLocationTimestamps = new ArrayList<String>();
+        
+        //to retrieve all locationid and timestamp in alternating order
+        //Eg: locationid 1, timestamp 1, locationid 2, timestamp 2, ..
         ArrayList<String> userLocationsList = new ArrayList<String>();
 
         String timestring = null;
-        int timeStartIndex = -1;
-        java.util.Date timedateEnd = null;
+        int firstLocationTimeStartIndex = -1; //to always retrieve the first timestamp of a location
+        java.util.Date timeQueriedByUser = null;
 
         try {
             //get a connection to database
             connection = ConnectionManager.getConnection();
 
             //prepare a statement
+            //retrieve timeline of current user for the past 15min (endtimeDate)
             preparedStatement = connection.prepareStatement("select locationid, timestamp from location where macaddress = ? and timestamp between DATE_SUB(?, INTERVAL 15 MINUTE) and ? order by timestamp");
 
             //set the parameters
@@ -1079,78 +1094,91 @@ public class ReportDAO {
             resultSet.close();
             preparedStatement.close();
             connection.close();
-
+            
             for (int i = 0; i < userLocationsList.size(); i += 2) {
                 String locationid = userLocationsList.get(i); //find first location id
                 timestring = userLocationsList.get(i + 1); //find first time string
 
                 SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                java.util.Date timestamp = dateFormat.parse(timestring);//convert time string to Date format
-                java.util.Date timestampEnd = dateFormat.parse(endtimeDate);
+                java.util.Date timestamp = dateFormat.parse(timestring);//convert time string to Date format - refers to current location timestamp
+                java.util.Date timestampEnd = dateFormat.parse(endtimeDate); // refers to queried timestamp
                 Calendar cal = Calendar.getInstance();
 
-                timedateEnd = timestampEnd;
+                timeQueriedByUser = timestampEnd; // assign timestampEnd to timedateEnd to use for calculation
 
-                if (userLocationsList.size() <= i + 2) { //if last pair of location and time
-                    duration = (timedateEnd.getTime() - timestamp.getTime()) / (1000.0);
+                if (userLocationsList.size() <= i + 2) { //if last pair of location and time is reached
+                    duration = (timeQueriedByUser.getTime() - timestamp.getTime()) / (1000.0); //to get the time diff between queried timestamp and last timestamp found
 
                     if (duration > 300.0) {
                         cal.setTime(timestamp);
-                        cal.add(Calendar.MINUTE, 5);
+                        cal.add(Calendar.MINUTE, 5); //corner case if time diff is more than 5mins
                         //timeDateEnd is 5 minutes after timeDateStart
-                        timestampEnd = cal.getTime();
+                        timestampEnd = cal.getTime(); //add 5 mins to current timestamp
                     } else {
-                        timestampEnd = timedateEnd;
+                        timestampEnd = timeQueriedByUser; //output the queried timestamp
                     }
-                    if (timeStartIndex > -1) {
-                        java.util.Date timestampStart = dateFormat.parse(userLocationsList.get(timeStartIndex));
-                        timestamp = timestampStart;;
+                    if (firstLocationTimeStartIndex > -1) {
+                        java.util.Date timestampStart = dateFormat.parse(userLocationsList.get(firstLocationTimeStartIndex));
+                        timestamp = timestampStart;
                     }
                     userConcatenationList += locationid + "," + dateFormat.format(timestamp) + "," + dateFormat.format(timestampEnd) + ",";
                     userLocationTimestamps.add(userConcatenationList);
                     userConcatenationList = "";
-                } else if (userLocationsList.size() > i + 2) {
-                    String locationidNext = userLocationsList.get(i + 2);
-                    String timestringNext = userLocationsList.get(i + 3);
-                    java.util.Date timestampNext = dateFormat.parse(timestringNext);
+                } else if (userLocationsList.size() > i + 2) { // to prevent the array out of bounds
+                    String locationidNext = userLocationsList.get(i + 2); //to get the next corresponding location
+                    String timestringNext = userLocationsList.get(i + 3); //to get the next corresponding timestamp
+                    java.util.Date timestampNext = dateFormat.parse(timestringNext); //convert the timestamp into Date object
 
-                    if (!locationid.equals(locationidNext)) {
-                        if (timeStartIndex > -1) {
-                            java.util.Date timestampStart = dateFormat.parse(userLocationsList.get(timeStartIndex));
+                    if (!locationid.equals(locationidNext)) { 
+                        //to compare the first timestamp of a different location found
+                        if (firstLocationTimeStartIndex > -1) { //to get the first timing for the next location 
+                            java.util.Date timestampStart = dateFormat.parse(userLocationsList.get(firstLocationTimeStartIndex));
                             timestamp = timestampStart;
                         }
-                        duration = (double) (timestampNext.getTime() - timestamp.getTime()) / (1000.0);
-                        if (duration > 300.0) { //corner case when next time stamp is too far away
+                        duration += (double) (timestampNext.getTime() - timestamp.getTime()) / (1000.0); //to get the collated time difference between the 2 timestamp updates from user
+                        if (duration > 300.0) { //corner case when next time stamp is too far away 
                             cal.setTime(timestamp);
-                            cal.add(Calendar.MINUTE, 5);
-                            //timeDateEnd is 5 minutes after timeDateStart
+                            cal.add(Calendar.MINUTE, 5); //if time difference more than 5mins just add 5mins to timestamp
+
                             timestampEnd = cal.getTime();
+                            
+                            //timestampEnd = timestamp + 5mins
                             userConcatenationList += locationid + "," + dateFormat.format(timestamp) + "," + dateFormat.format(timestampEnd) + ",";                            
-                        } else {
+                            
+                        } else { //if does not reach 5mins, also update the time difference
                             userConcatenationList += locationid + "," + dateFormat.format(timestamp) + "," + dateFormat.format(timestampNext) + ",";                            
                         }
                         userLocationTimestamps.add(userConcatenationList);
-                        duration = 0;
+                        
+                        //reset
+                        duration = 0; 
                         userConcatenationList = "";
-                        timeStartIndex = -1;
+                        firstLocationTimeStartIndex = -1;
 
                     } else if (locationid.equals(locationidNext)) { //if the next update location is same as the previous one
-                        if (timeStartIndex == -1) {
-                            timeStartIndex = i + 1;
+                        if (firstLocationTimeStartIndex == -1) {
+                            firstLocationTimeStartIndex = i + 1; //to get the index of the current first location timestamp 
                         }
-                        duration = (double) (timestampNext.getTime() - timestamp.getTime()) / (1000.0);
+                        
+                        //To get the time diff between current timestamp found and the corresponding next timestamp
+                        duration = (timestampNext.getTime() - timestamp.getTime()) / 1000.0;
+                        
                         if (duration > 300.0) {
                             cal.setTime(timestamp);
                             cal.add(Calendar.MINUTE, 5); //timeDateEnd is 5 minutes after timeDateStart
                             timestampEnd = cal.getTime();
-                            java.util.Date timestampStart = dateFormat.parse(userLocationsList.get(timeStartIndex));
+                            java.util.Date timestampStart = dateFormat.parse(userLocationsList.get(firstLocationTimeStartIndex)); //get the timestamp for a location the first time it is found
+                            
                             userConcatenationList += locationidNext + "," + dateFormat.format(timestampStart) + "," + dateFormat.format(timestampEnd) + ",";
                             userLocationTimestamps.add(userConcatenationList);
+                            
+                            //reset
                             duration = 0;
                             userConcatenationList = "";
-                            timeStartIndex = -1;
+                            firstLocationTimeStartIndex = -1;
+                            
                         } else if (duration <= 300) {
-                            duration += (timestampNext.getTime() - timestamp.getTime()) / (1000.0);
+                            duration += (timestampNext.getTime() - timestamp.getTime()) / 1000.0; //add the time difference between the first found timestamp and the subsequent timestamp after the first
                         }
                     }
                 }
@@ -1216,9 +1244,9 @@ public class ReportDAO {
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
 
-        String companionConcatenationList = ""; //companionMacaddress, userLocationid, companionTimestamp, colocationTime 
+        String companionConcatenationList = ""; //Eg: companionMacaddress, userLocationid, companionTimestamp, colocationTime 
 
-        ArrayList<String> companionLocationTimestamps = new ArrayList<String>();
+        ArrayList<String> companionLocationTimestamps = new ArrayList<>();
 
         double colocationTime = 0;
         double companionTimeDiff = 0;
@@ -1256,38 +1284,42 @@ public class ReportDAO {
                 //execute SQL query
                 resultSet = preparedStatement.executeQuery();
 
-                while (resultSet.next()) {
+                while (resultSet.next()) { //to check if user timestamp is earlier or later than companion timestamp
                     String companionTimestring = resultSet.getString(1);
                     String companionLocationid = resultSet.getString(2);
-                    int timeDiffBetweenUserTimeEndAndCompanionTime = resultSet.getInt(3);
+                    int timeDiffBetweenUserTimeEndAndCompanionTime = resultSet.getInt(3); //the time difference between user's end timestamp and companion's timestamp
 
                     java.util.Date companionTimestamp = dateFormat.parse(companionTimestring);//convert time string to Date format
                     double timeGapBetweenUserAndCompanion = (double) (timeDiffBetweenUserTimeEndAndCompanionTime - userTimeDiff);
 
+                    //when the result retrieved is the last row of data
                     if (resultSet.isLast()) {
-                        if (companionLocationid.equals(userLocationid)) {
-                            if (companionTimestamp.before(userTimeStart)) {
-                                if (timeDiffBetweenUserTimeEndAndCompanionTime > 300) {
-                                    colocationTime = (300 - timeGapBetweenUserAndCompanion);
+                        if (companionLocationid.equals(userLocationid)) { //if the last location of companion is the same as the location as user
+                            if (companionTimestamp.before(userTimeStart)) { //check if the timestamp is earlier than user's timestamp
+                                if (timeDiffBetweenUserTimeEndAndCompanionTime > 300) { //if the time difference is more than 5 mins
+                                    colocationTime = (300 - timeGapBetweenUserAndCompanion); //Use 5 mins to check if user and companion ar colocated together assuming companion only has 1 update
                                 } else {
+                                    //find out the time both user and companion spent together
                                     colocationTime = timeDiffBetweenUserTimeEndAndCompanionTime - timeGapBetweenUserAndCompanion;
                                 }
-                            } else if (!companionTimestamp.before(userTimeStart)) {
-                                if (timeDiffBetweenUserTimeEndAndCompanionTime > 300) {
-                                    colocationTime += 300;
+                            } else if (!companionTimestamp.before(userTimeStart)) { //companion time is either after or equal to user time
+                                if (timeDiffBetweenUserTimeEndAndCompanionTime > 300) { //if colocated time is more than 5 mins
+                                    colocationTime += 300; //add 5 mins to colocationTime
                                 } else {
-                                    colocationTime = timeDiffBetweenUserTimeEndAndCompanionTime;
+                                    colocationTime = timeDiffBetweenUserTimeEndAndCompanionTime; //accept the time difference as coloationTIme
                                 }
                             }
                             companionConcatenationList = companionMacaddress + "," + userLocationid + "," + companionTimestamp + "," + colocationTime + ",";
                             companionLocationTimestamps.add(companionConcatenationList);
+                            
+                            //reset
                             companionConcatenationList = "";
                             colocationTime = 0;
                             correctTimestring = false;
                         }
                     }
 
-                    while (resultSet.next()) {
+                    while (resultSet.next()) { 
                         String companionNextTimestring = resultSet.getString(1);
                         String companionNextLocationid = resultSet.getString(2);
                         int nextTimeDiffBetweenUserTimeEndAndCompanionTime = resultSet.getInt(3);
@@ -1317,6 +1349,8 @@ public class ReportDAO {
                                         //CompanionLocationTimestamps.add(macaddress + "diff location time before start " + colocationTime + "," + tmp);
                                         companionConcatenationList = companionMacaddress + "," + userLocationid + "," + companionNextTimestamp + "," + colocationTime + ",";
                                         companionLocationTimestamps.add(companionConcatenationList);
+                                        
+                                        //reset
                                         companionConcatenationList = "";
                                         colocationTime = 0;
                                         correctTimestring = false;
@@ -1329,7 +1363,7 @@ public class ReportDAO {
                                     if (companionTimeDiff > 300) {
                                         colocationTime += 300;
                                     } else {
-                                        colocationTime += companionTimeDiff;
+                                        colocationTime += companionTimeDiff; //take whatever time the colocated time is
                                     }
                                     correctTimestring = true;
                                 } else if (!companionLocationid.equals(companionNextLocationid) && companionLocationid.equals(userLocationid)) { //if current location is different from next one and is correct location
@@ -1341,6 +1375,8 @@ public class ReportDAO {
                                     }
                                     companionConcatenationList = companionMacaddress + "," + userLocationid + "," + companionNextTimestamp + "," + colocationTime + ",";
                                     companionLocationTimestamps.add(companionConcatenationList);
+                                    
+                                    //reset because a next location is found
                                     companionConcatenationList = "";
                                     colocationTime = 0;
                                     correctTimestring = false;
@@ -1392,6 +1428,8 @@ public class ReportDAO {
                             //CompanionLocationTimestamps.add(macaddress + "last location update " + locationNext + ",timeStart: " + timeStart + ",timeEnd: " + timeEnd + "timeDiffNext: " + timeDiffNext+",colocation: "+colocationTime);
                             companionConcatenationList = companionMacaddress + "," + userLocationid + "," + companionNextTimestamp + "," + colocationTime + ",";
                             companionLocationTimestamps.add(companionConcatenationList);
+                            
+                            //reset
                             companionConcatenationList = "";
                             colocationTime = 0;
                             correctTimestring = false;

@@ -59,27 +59,17 @@ public class ReportServlet extends HttpServlet {
                     response.sendRedirect("topKPopularPlaces.jsp");  //send back to topKPopularPlaces
                     break;
                 case "topKCompanions":
-                    String macaddress = request.getParameter("macAddress");
-                    topK = Integer.parseInt(request.getParameter("topK"));
+                    String macaddress = request.getParameter("macAddress"); //retrieve macaddress from user input
+                    topK = Integer.parseInt(request.getParameter("topK")); //retrieve topk number from user input
 
-                    //ArrayList<String> users = ReportDAO.retrieveUserLocationTimestamps(macaddress,timeDate);
-                    //request.setAttribute("users",users);
-                    //session.setAttribute("users",users);
-                    //ArrayList<String> test1 = ReportDAO.retreiveCompanionMacaddresses("a2935f43f2227c7adba65c18888c4553c70d0462","1010200019","2017-02-06 10:58:22.000000","2017-02-06 10:58:27.000000");
-                    //ArrayList<String> test = ReportDAO.retrieveCompanionLocationTimestamps(test1,"1010200019","2017-02-06 10:58:22.000000","2017-02-06 10:58:27.000000");
-                    //ArrayList<String> test = ReportDAO.retrieveCompanionLocationTimestamps(macaddress,"1010300135","2017-02-06 11:29:27.000000","2017-02-06 11:32:52.000000");
-                    //ArrayList<String> test = ReportDAO.retrieveUserLocationTimestamps(macaddress,timeDate);
-                    //Map<String, Double> test = ReportDAO.test(timeDate, macaddress, topK);
                     Map<Double, ArrayList<String>> topKCompanions = ReportDAO.retrieveTopKCompanions(timeDate, macaddress);
-                    //Map<ArrayList<String>, ArrayList<Integer>> topKCompanions = null;
+
                     session.setAttribute("macaddress", macaddress);
                     session.setAttribute("topK", topK);
                     session.setAttribute("timeDate", timeDate);
                     session.setAttribute("topKCompanions", topKCompanions);
-                    //session.setAttribute("test", test);
-                    response.sendRedirect("topKCompanions.jsp");  //send back to topKCompanions
 
-                    //request.getRequestDispatcher("/topKCompanions.jsp").forward(request,response);
+                    response.sendRedirect("topKCompanions.jsp");  //send back to topKCompanions
                     break;
                 case "topKNextPlaces":
                     String locationname = request.getParameter("locationname"); //retrieve location name from user. Eg: SMUSISB1NearCSRAndTowardsMRT
