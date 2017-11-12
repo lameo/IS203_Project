@@ -9,6 +9,13 @@ import java.util.Map;
 
 public class HeatMapDAO {
 
+    /**
+     * Returns a map of all the rooms in the floor specified with key of the name of the semanticPlace and a value containing a heatmap object of said place 
+     * 
+     * @param endtimeDate String in dd/mm/yyyy hh:mm format for where it searches 15min before
+     * @param floor String floor number where the map will be generated
+     * @return Map with a String key containing the semanticPlace name and a value containing a heatmap object of said place
+     */
     public static Map<String, HeatMap> retrieveHeatMap(String endtimeDate, String floor) {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
@@ -47,6 +54,13 @@ public class HeatMapDAO {
         return heatmapList;
     }
 
+    /**
+     * Return the total number of student present at the location (only using the latest timestamp to avoid duplicate)
+     * 
+     * @param semanticPlace String location name where the it searches for qty of student
+     * @param timeDate String in dd/mm/yyyy hh:mm format for where it searches 15min before
+     * @return int total number of student present at the location
+     */
     public static int getStudentQuantity(String semanticPlace, String timeDate) {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
@@ -86,6 +100,12 @@ public class HeatMapDAO {
         return ans;
     }
     
+    /**
+     * Generates a heatlevel value according to the number of student present 
+     * 
+     * @param quantity int number of student present
+     * @return int heatlevel value
+     */
     public static int getHeatLevel(int quantity){
         if (quantity <= 0) {
             return 0;

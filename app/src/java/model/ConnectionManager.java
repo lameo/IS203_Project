@@ -24,7 +24,6 @@ public class ConnectionManager {
 
     static {
         readDatabaseProperties();
-
         initDBDriver();
     }
 

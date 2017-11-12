@@ -1192,6 +1192,15 @@ public class ReportDAO {
         return userLocationTimestamps;
     }
 
+    /**
+     * Returns macaddress of all users (other than the macaddress inputted) who are present at the specified locationid between the input time
+     * 
+     * @param userMacaddress String Macaddress of the user we want to check for companions
+     * @param locationid String uniq identifier for the location to lookup for 
+     * @param timestringStart String in dd/mm/yyyy hh:mm format for where the search begins (inclusive)
+     * @param timestringEnd String in dd/mm/yyyy hh:mm format for where the search ends (inclusive)
+     * @return 
+     */
     public static ArrayList<String> retrieveCompanionMacaddresses(String userMacaddress, String locationid, String timestringStart, String timestringEnd) {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
@@ -1238,7 +1247,15 @@ public class ReportDAO {
         return companionsList;
     }
 
-    //retrieve users in hashmap form, hashmap key is macaddress and hashmap value is array of email, locationid and timestamp
+    /**
+     * Retrieve arraylist detailing the the companions macaddress, locationid, timestamp and time spend together in a csv format
+     * 
+     * @param companionsList ArrayList of all the macaddress to lookup time spend together
+     * @param userLocationid String uniq identifier for the location to lookup for 
+     * @param userTimestringStart String in dd/mm/yyyy hh:mm format for where the search begins (inclusive)
+     * @param userTimestringEnd String in dd/mm/yyyy hh:mm format for where the search ends (inclusive)
+     * @return 
+     */
     public static ArrayList<String> retrieveCompanionLocationTimestamps(ArrayList<String> companionsList, String userLocationid, String userTimestringStart, String userTimestringEnd) {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
