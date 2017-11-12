@@ -167,7 +167,7 @@ public class autoGroupDetection extends HttpServlet {
                 //temp json object to store required output first before adding to resultsArr for final output
                 JsonObject autoGroupObject = new JsonObject();
                 autoGroupObject.addProperty("size",autoGroup.getAutoUsersSize());
-                autoGroupObject.addProperty("total-time-spent",(int)autoGroup.CalculateTotalDuration());
+                autoGroupObject.addProperty("total-time-spent",(int)autoGroup.calculateTotalDuration());
                 JsonArray membersArr = new JsonArray();
                 TreeMap<String, String> sortedUsersWithEmails = autoGroup.retrieveEmailsWithMacs();
                 Iterator<String> usersWithEmails = sortedUsersWithEmails.keySet().iterator();
@@ -193,7 +193,7 @@ public class autoGroupDetection extends HttpServlet {
                 autoGroupObject.add("members",membersArr);
                 JsonArray locationsArr = new JsonArray();
                 
-                Map<String, Double> locationsDuration =  autoGroup.CalculateTimeDuration();
+                Map<String, Double> locationsDuration =  autoGroup.calculateTimeDuration();
                 Iterator<String> locations = locationsDuration.keySet().iterator();
                 while(locations.hasNext()){
                     JsonObject locationsObject = new JsonObject();

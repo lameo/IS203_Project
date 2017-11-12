@@ -197,7 +197,7 @@ public class AutoGroupDAO {
 
     //check for each user if they spend at least 12 minutes together
     public static ArrayList<Group> retrieveAutoGroups(Map<String, Map<String, ArrayList<String>>> listOfUsersWith12MinutesData) {
-        ArrayList<Group> AutoGroups = new ArrayList<Group>();
+        ArrayList<Group> autoGroups = new ArrayList<Group>();
         Set<String> macaddresses = listOfUsersWith12MinutesData.keySet();
 
         for (String macaddress : macaddresses) {
@@ -217,47 +217,42 @@ public class AutoGroupDAO {
 
                     if (commonLocationTimestamps != null && commonLocationTimestamps.size() > 0) {
                         //if two users have stayed for at least 12 minutes, record their common timestamps and durations
-                        ArrayList<String> Users = new ArrayList<String>();
-                        Users.add(macaddress);
-                        Users.add(nextMacaddress);
+                        ArrayList<String> autoUsersMacs = new ArrayList<String>();
+                        autoUsersMacs.add(macaddress);
+                        autoUsersMacs.add(nextMacaddress);
+
                         //add two users to a group
-                        Group NewAutoGroup = new Group(Users, commonLocationTimestamps);
+                        Group newAutoGroup = new Group(autoUsersMacs, commonLocationTimestamps);
 
                         boolean subgroup = false;
 
                         //check if can join the autouser2 to an existing group if he/she has stayed with group at least 12 minutes
                         //check if autogroup is not empty
-                        if (AutoGroups != null && AutoGroups.size() > 0) {
-                            for (Group AutoGroup : AutoGroups) {
-                                //test
-                                //if (AutoGroup != null && AutoUserMac2 != null && LocationTimestamps != null && LocationTimestamps.size() > 0) {
+                        if (autoGroups.size() > 0) {
+                            for (Group eachAutoGroup : autoGroups) {
                                 //find new location timestamps for new group
-                                Map<String, ArrayList<String>> NewLocationTimestamps = AutoGroup.JoinGroup(nextMacaddress, commonLocationTimestamps);
-                                //test.add("new location timestamps: "+NewLocationTimestamps);
+                                Map<String, ArrayList<String>> newLocationTimestamps = eachAutoGroup.joinGroup(nextMacaddress, commonLocationTimestamps);
+
                                 //if found, add this as a new group
-                                if (NewLocationTimestamps != null && NewLocationTimestamps.size() > 0) {
-                                    AutoGroup.addAutoUser(nextMacaddress, NewLocationTimestamps);
+                                if (newLocationTimestamps != null && newLocationTimestamps.size() > 0) {
+                                    eachAutoGroup.addAutoUser(nextMacaddress, newLocationTimestamps);
                                 }
-                                if (AutoGroup.CheckSubGroup(NewAutoGroup)) {
-                                    subgroup = true;
-                                }
-                                //}
+                                subgroup = eachAutoGroup.checkSubGroup(newAutoGroup); //true or false
                             }
                         }
+
                         //if no subgroup, add new group to autogroups
                         if (!subgroup) {
                             //check if this group already exists (in different sequence) or if this group is a sub group of existing group
                             //add two users to same group
-                            AutoGroups.add(NewAutoGroup);
-                            //test.add("autogroups: "+AutoGroups);
+                            autoGroups.add(newAutoGroup);
                         }
                     }
-                    //}
                 }
             }
             //After finish adding groups for macaddress1
         }
-        return AutoGroups;
+        return autoGroups;
     }
 
     public static Map<String, ArrayList<String>> commonLocationTimestamps12Mins(Map<String, ArrayList<String>> locationsMap, Map<String, ArrayList<String>> nextLocationsMap) {
@@ -347,6 +342,30 @@ public class AutoGroupDAO {
         return null;
     }
 
+    //
+    public static ArrayList<Group> checkAutoGroups(ArrayList<Group> autoGroups) {
+        //ArrayList<Group> NewAutoGroups = AutoGroups;
+        //Iterator<Group> newAutoGroups = autoGroups.iterator();
+        ArrayList<Group> subAutoGroups = new ArrayList<Group>();
+        for (int i = 0; i < autoGroups.size(); i++) {
+            Group autoGroup1 = autoGroups.get(i);
+            ArrayList<String> autoGroup1Macs = autoGroup1.getAutoUsersMacs();
+            for (int j = 0; j < autoGroups.size(); j++) {
+                Group autoGroup2 = autoGroups.get(j);
+                if (!autoGroup1.equals(autoGroup2)) {
+                    if (autoGroup1.checkSubGroup(autoGroup2)) {
+                        //newAutoGroups.remove();
+                        subAutoGroups.add(autoGroup2);
+                    }
+                }
+            }
+        }
+        for (Group subGroup : subAutoGroups) {
+            autoGroups.remove(subGroup);
+        }
+        return autoGroups;
+    }    
+    
     public static boolean commonLocationTimestamps(ArrayList<String> LocationTimestamps1, ArrayList<String> LocationTimestamps2) {
 
         //boolean CommonLocationTimestamps12Mins = false;
@@ -377,30 +396,6 @@ public class AutoGroupDAO {
             return true;
         }*/
         return false;
-    }
-
-    //
-    public static ArrayList<Group> checkAutoGroups(ArrayList<Group> autoGroups) {
-        //ArrayList<Group> NewAutoGroups = AutoGroups;
-        //Iterator<Group> newAutoGroups = autoGroups.iterator();
-        ArrayList<Group> subAutoGroups = new ArrayList<Group>();
-        for (int i = 0; i < autoGroups.size(); i++) {
-            Group autoGroup1 = autoGroups.get(i);
-            ArrayList<String> autoGroup1Macs = autoGroup1.getAutoUsersMacs();
-            for (int j = 0; j < autoGroups.size(); j++) {
-                Group autoGroup2 = autoGroups.get(j);
-                if (!autoGroup1.equals(autoGroup2)) {
-                    if (autoGroup1.CheckSubGroup(autoGroup2)) {
-                        //newAutoGroups.remove();
-                        subAutoGroups.add(autoGroup2);
-                    }
-                }
-            }
-        }
-        for (Group subGroup : subAutoGroups) {
-            autoGroups.remove(subGroup);
-        }
-        return autoGroups;
     }
 
     //Valify if user has stayed at least 12 minutes at SIS building in specified time window

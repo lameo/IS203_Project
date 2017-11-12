@@ -47,11 +47,12 @@ public class AutoGroupServlet extends HttpServlet {
                 //retrieve groups formed from valid auto users
                 autoGroupsDetected = AutoGroupDAO.retrieveAutoGroups(listOfUsersWith12MinutesData);
             }
-
+/*
             if (autoGroupsDetected != null && autoGroupsDetected.size() > 0) {
                 //check autogroups and remove sub groups
                 autoGroupsDetected = AutoGroupDAO.checkAutoGroups(autoGroupsDetected);
             }
+            */
             session.setAttribute("numberOfUsersInBuilding", numberOfUsersInBuilding);
             session.setAttribute("autoGroupsDetected", autoGroupsDetected);
             session.setAttribute("timeDate", timeDate);

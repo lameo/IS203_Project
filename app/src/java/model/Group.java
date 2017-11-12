@@ -9,36 +9,34 @@ import java.util.TreeMap;
 
 public class Group implements Comparable<Group> {
 
-    public ArrayList<String> AutoUsersMacs;
-    public Map<String, ArrayList<String>> locationTimestamps;
+    private ArrayList<String> autoUsersMacs;
+    private Map<String, ArrayList<String>> commonLocationTimestamps;
 
-    public Group(ArrayList<String> AutoUsersMacs, Map<String, ArrayList<String>> locationTimestamps) {
-        //AutoUsersMacs = new ArrayList<String>();
-        //locationTimestamps = new HashMap<String, ArrayList<String>>();
-        this.AutoUsersMacs = AutoUsersMacs;
-        this.locationTimestamps = locationTimestamps;
+    public Group(ArrayList<String> autoUsersMacs, Map<String, ArrayList<String>> commonLocationTimestamps) {
+        this.autoUsersMacs = autoUsersMacs;
+        this.commonLocationTimestamps = commonLocationTimestamps;
     }
 
     public ArrayList<String> getAutoUsersMacs() {
-        return AutoUsersMacs;
+        return this.autoUsersMacs;
     }
 
     public Map<String, ArrayList<String>> getLocationTimestamps() {
-        return locationTimestamps;
+        return this.commonLocationTimestamps;
     }
 
     public String getAutoUserMac(int i) {
-        return AutoUsersMacs.get(i);
+        return this.autoUsersMacs.get(i);
     }
 
     public int getAutoUsersSize() {
-        return AutoUsersMacs.size();
+        return this.autoUsersMacs.size();
     }
 
     @Override
     public int compareTo(Group o) {
         if(o.getAutoUsersSize()==getAutoUsersSize()){
-            return (int)(o.CalculateTotalDuration() - CalculateTotalDuration());
+            return (int)(o.calculateTotalDuration() - calculateTotalDuration());
         }else{
            return o.getAutoUsersSize() - getAutoUsersSize(); 
         }
@@ -57,21 +55,21 @@ public class Group implements Comparable<Group> {
         return null;
     }
      */
-    public void setAutoUsersMacs(ArrayList<String> AutoUsersMacs) {
-        this.AutoUsersMacs = AutoUsersMacs;
+    public void setAutoUsersMacs(ArrayList<String> autoUsersMacs) {
+        this.autoUsersMacs = autoUsersMacs;
     }
 
     public void setLocationTimestamps(Map<String, ArrayList<String>> locationTimestamps) {
-        this.locationTimestamps = locationTimestamps;
+        this.commonLocationTimestamps = locationTimestamps;
     }
 
     //calculate total time duration of the location timestamps of the group for each location
-    public Map<String, Double> CalculateTimeDuration() {
+    public Map<String, Double> calculateTimeDuration() {
         Map<String, Double> locationDuration = new TreeMap<String, Double>();
-        Iterator<String> locations = locationTimestamps.keySet().iterator();
+        Iterator<String> locations = commonLocationTimestamps.keySet().iterator();
         while (locations.hasNext()) {
             String location = locations.next();
-            ArrayList<String> timestamps = locationTimestamps.get(location);
+            ArrayList<String> timestamps = commonLocationTimestamps.get(location);
             double duration = 0;
             for (int i = 0; i < timestamps.size(); i++) {
                 String[] timestamp = timestamps.get(i).split(",");
@@ -98,12 +96,12 @@ public class Group implements Comparable<Group> {
     }
     
     //calculate total time duration of the group
-    public double CalculateTotalDuration() {
-        Iterator<String> locations = locationTimestamps.keySet().iterator();
+    public double calculateTotalDuration() {
+        Iterator<String> locations = commonLocationTimestamps.keySet().iterator();
         double duration = 0;
         while (locations.hasNext()) {
             String location = locations.next();
-            ArrayList<String> timestamps = locationTimestamps.get(location);
+            ArrayList<String> timestamps = commonLocationTimestamps.get(location);
             for (int i = 0; i < timestamps.size(); i++) {
                 String[] timestamp = timestamps.get(i).split(",");
                 String TimestringStart = timestamp[0];
@@ -116,8 +114,8 @@ public class Group implements Comparable<Group> {
 
     public ArrayList<String> retrieveMacsWithEmails() {
         ArrayList<String> MacsWithEmails = new ArrayList<String>();
-        for (int i = 0; i < AutoUsersMacs.size(); i++) {
-            String AutoUserMac = AutoUsersMacs.get(i);
+        for (int i = 0; i < autoUsersMacs.size(); i++) {
+            String AutoUserMac = autoUsersMacs.get(i);
             String email = ReportDAO.retrieveEmailByMacaddress(AutoUserMac);
             if (email == null || email.length() <= 0) {
                 email = "No email found";
@@ -129,8 +127,8 @@ public class Group implements Comparable<Group> {
     
     public TreeMap<String, String> retrieveEmailsWithMacs(){
         TreeMap<String, String> sortedUserMap = new TreeMap<String, String>(String.CASE_INSENSITIVE_ORDER);
-        for (int i = 0; i < AutoUsersMacs.size(); i++) {
-            String AutoUserMac = AutoUsersMacs.get(i);
+        for (int i = 0; i < autoUsersMacs.size(); i++) {
+            String AutoUserMac = autoUsersMacs.get(i);
             String email = ReportDAO.retrieveEmailByMacaddress(AutoUserMac);
             if (email != null && email.length() > 0) {
                 //email = "No email found";
@@ -143,8 +141,8 @@ public class Group implements Comparable<Group> {
     
     public TreeMap<String, String> retrieveMacsNoEmails(){
         TreeMap<String, String> sortedUserMap = new TreeMap<String, String>(String.CASE_INSENSITIVE_ORDER);
-        for (int i = 0; i < AutoUsersMacs.size(); i++) {
-            String AutoUserMac = AutoUsersMacs.get(i);
+        for (int i = 0; i < autoUsersMacs.size(); i++) {
+            String AutoUserMac = autoUsersMacs.get(i);
             String email = ReportDAO.retrieveEmailByMacaddress(AutoUserMac);
             if (email == null || email.length() <= 0) {
                 email = "";
@@ -154,8 +152,43 @@ public class Group implements Comparable<Group> {
         return sortedUserMap;
     }
 
+    //check if user can join the group, return the common locationstamps
+    public Map<String, ArrayList<String>> joinGroup(String macaddress2, Map<String, ArrayList<String>> locationTimestamps2) {
+        Map<String, ArrayList<String>> newLocationTimestamps = new HashMap<String, ArrayList<String>>();
+        if (autoUsersMacs != null && autoUsersMacs.size() > 0) {
+            //check if user is already in the group
+            if (!autoUsersMacs.contains(macaddress2)) {
+                //check if user and group has stayed for at least 12 minutes
+                newLocationTimestamps = AutoGroupDAO.commonLocationTimestamps12Mins(commonLocationTimestamps, locationTimestamps2);
+            }
+        }
+        return newLocationTimestamps;
+    }
+    
+    //add new autouser to existing group, add user macaddress and change location timestamps
+    public void addAutoUser(String macaddress2, Map<String, ArrayList<String>> newLocationTimestamps) {
+        autoUsersMacs.add(macaddress2);
+        setLocationTimestamps(newLocationTimestamps);
+    }
+
     //Check if two group is the same, or is a subgroup of another larger group, return the group number to remove
-    public int RemoveSubGroup(Group AutoGroup2) {
+    public boolean checkSubGroup(Group newAutoGroup) {
+        if (newAutoGroup == null) {
+            return false;
+        }
+        
+        ArrayList<String> newAutoUsersMacs = newAutoGroup.getAutoUsersMacs();
+        int newAutoGroupSize = newAutoGroup.getAutoUsersSize();
+        
+        if(getAutoUsersSize()<newAutoGroupSize){
+            return false;
+        }
+        
+        return autoUsersMacs.containsAll(newAutoUsersMacs);
+    }       
+    
+    //Check if two group is the same, or is a subgroup of another larger group, return the group number to remove
+    public int removeSubGroup(Group AutoGroup2) {
         Map<ArrayList<String>, Integer> AutoGroups = new HashMap<ArrayList<String>, Integer>();
         ArrayList<String> AutoUsersMacs2 = AutoGroup2.getAutoUsersMacs();
         int AutoGroup2Size = AutoGroup2.getAutoUsersSize();
@@ -174,49 +207,7 @@ public class Group implements Comparable<Group> {
             return 1;
         }
     }
-
-    //Check if two group is the same, or is a subgroup of another larger group, return the group number to remove
-    public boolean CheckSubGroup(Group NewAutoGroup) {
-        if (NewAutoGroup == null) {
-            return false;
-        }
-        
-        ArrayList<String> AutoUsersMacs2 = NewAutoGroup.getAutoUsersMacs();
-        int AutoGroup2Size = NewAutoGroup.getAutoUsersSize();
-        if(getAutoUsersSize()<AutoGroup2Size){
-            return false;
-        }
-        int sameUser = 0;
-        if(AutoUsersMacs.containsAll(AutoUsersMacs2)){
-            return true;
-        }
-        /*for (int j = 0; j < AutoGroup2Size; j++) {
-            String mac = AutoUsersMacs2.get(j);
-            if(AutoUsersMacs.contains(mac)){
-                sameUser += 1;
-            }
-        }*/
-        if (sameUser == AutoGroup2Size) {
-            return true;
-        }
-        return false;
-    }
-
-    //check if user can join the group, return the common locationstamps
-    public Map<String, ArrayList<String>> JoinGroup(String macaddress2, Map<String, ArrayList<String>> locationTimestamps2) {
-        Map<String, ArrayList<String>> newLocationTimestamps = new HashMap<String, ArrayList<String>>();
-        //test
-        if (AutoUsersMacs != null && AutoUsersMacs.size() > 0) {
-            //check if user is already in the group
-            if (!AutoUsersMacs.contains(macaddress2)) {
-                //check if user and group has stayed for at least 12 minutes
-                newLocationTimestamps = AutoGroupDAO.commonLocationTimestamps12Mins(locationTimestamps, locationTimestamps2);
-            }
-        }
-
-        return newLocationTimestamps;
-    }
-
+ 
     @Override
     public int hashCode() {
         int hash = 7;
@@ -235,19 +226,12 @@ public class Group implements Comparable<Group> {
             return false;
         }
         final Group other = (Group) obj;
-        if (!Objects.equals(this.AutoUsersMacs, other.AutoUsersMacs)) {
+        if (!Objects.equals(this.autoUsersMacs, other.autoUsersMacs)) {
             return false;
         }
-        if (!Objects.equals(this.locationTimestamps, other.locationTimestamps)) {
+        if (!Objects.equals(this.commonLocationTimestamps, other.commonLocationTimestamps)) {
             return false;
         }
         return true;
     }
-
-    //add new autouser to existing group, add user macaddress and change location timestamps
-    public void addAutoUser(String macaddress2, Map<String, ArrayList<String>> NewLocationTimestamps) {
-        AutoUsersMacs.add(macaddress2);
-        setLocationTimestamps(NewLocationTimestamps);
-    }
-
 }
