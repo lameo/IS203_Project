@@ -6,19 +6,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpSession;
-import java.text.SimpleDateFormat;
-import java.text.ParseException;
 import java.util.logging.Logger;
 import java.util.logging.Level;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.ArrayList;
 import model.AutoGroupDAO;
-import java.util.HashMap;
-import model.ReportDAO;
-import java.util.Date;
-import java.util.Map;
-import java.util.Set;
 import model.Group;
 
 public class AutoGroupServlet extends HttpServlet {
@@ -32,25 +24,24 @@ public class AutoGroupServlet extends HttpServlet {
      * @throws ServletException if a servlet-specific error occurs
      * @throws IOException if an I/O error occurs
      */
-    protected void processRequest(HttpServletRequest request, HttpServletResponse response){
+    protected void processRequest(HttpServletRequest request, HttpServletResponse response) {
 
         try {
             HttpSession session = request.getSession();
             String timeDate = request.getParameter("timeDate"); //retrieve time from user input
             timeDate = timeDate.replace("T", " ");
-            SimpleDateFormat readFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
-            SimpleDateFormat writeFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-            Date timestamp = null;
 
-            timestamp = (Date) readFormat.parse(timeDate);
-            timeDate = writeFormat.format(timestamp);
+            if (timeDate.length() != 19) {
+                timeDate += ":00";
+            }
+
             //System.out.println("Retrieved and formatted dateTime: " + timestamp.toString());
             int UsersNumber = AutoGroupDAO.retreiveUsersNumber(timeDate);//retreive the number of users in the entire SIS building for that date and time
-            
+
             //retreive map of all the users and their location traces whom stay at SIS building in specified time window for at least 12 mins
             Map<String, Map<String, ArrayList<String>>> AutoUsers = AutoGroupDAO.retreiveAutoUsers(timeDate);
             //session.setAttribute("test", AutoUsers);
-            
+
             ArrayList<Group> AutoGroups = new ArrayList<Group>();
             //test
             //ArrayList<String> AutoGroups = new ArrayList<String>();
@@ -59,7 +50,7 @@ public class AutoGroupServlet extends HttpServlet {
                 //retrieve groups formed from valid auto users
                 AutoGroups = retrieveAutoGroups(AutoUsers);
             }
-            
+
             //session.setAttribute("test", AutoGroups);
             if (AutoGroups != null && AutoGroups.size() > 0) {
                 //check autogroups and remove sub groups
@@ -71,9 +62,6 @@ public class AutoGroupServlet extends HttpServlet {
             //session.setAttribute("test", AutoGroups);
 
             response.sendRedirect("automaticGroupDetection.jsp");
-        } catch (ParseException e) {
-            System.out.println("Date formatter failed to parse chosen sendTime.");
-            e.printStackTrace();
         } catch (IOException ex) {
             Logger.getLogger(AutoGroupServlet.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -89,7 +77,7 @@ public class AutoGroupServlet extends HttpServlet {
      * @throws IOException if an I/O error occurs
      */
     @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response){
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) {
         processRequest(request, response);
     }
 
@@ -102,7 +90,7 @@ public class AutoGroupServlet extends HttpServlet {
      * @throws IOException if an I/O error occurs
      */
     @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response){
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) {
         processRequest(request, response);
     }
 

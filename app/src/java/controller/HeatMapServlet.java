@@ -19,7 +19,11 @@ public class HeatMapServlet extends HttpServlet {
         String timeDate = request.getParameter("timeDate"); //retrieve time from user input
 
         timeDate = timeDate.replace("T", " ");
-
+        
+        if (timeDate.length() != 19) {
+            timeDate += ":00";
+        }
+        
         int floor = Integer.parseInt(request.getParameter("floor")); //retrieve floor from user input
         String floorName = "B1";
 

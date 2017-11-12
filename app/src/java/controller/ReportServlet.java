@@ -8,11 +8,8 @@ import javax.servlet.http.HttpSession;
 import java.util.logging.Logger;
 import java.util.logging.Level;
 import java.io.IOException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
 import model.ReportDAO;
 import java.util.List;
 import java.util.Map;
@@ -27,7 +24,11 @@ public class ReportServlet extends HttpServlet {
             String timeDate = request.getParameter("timeDate"); //retrieve time from user input
 
             timeDate = timeDate.replace("T", " ");
-
+            
+            if (timeDate.length() != 19) {
+                timeDate += ":00";
+            }
+            
             switch (reportType) {
                 case "basicReport":
 
@@ -87,7 +88,7 @@ public class ReportServlet extends HttpServlet {
             }
         } catch (IOException ex) {
             Logger.getLogger(ReportServlet.class.getName()).log(Level.SEVERE, null, ex);
-        } 
+        }
     }
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
