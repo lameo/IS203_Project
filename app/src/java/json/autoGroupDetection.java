@@ -142,10 +142,10 @@ public class autoGroupDetection extends HttpServlet {
             //create a json array to store errors
             JsonArray resultsArr = new JsonArray();
             
-            int UsersNumber = AutoGroupDAO.retreiveUsersNumber(dateEntered);//retreive the number of users in the entire SIS building for that date and time
+            int UsersNumber = AutoGroupDAO.retrieveUsersNumber(dateEntered);//retrieve the number of users in the entire SIS building for that date and time
             
-            //retreive map of all the users and their location traces whom stay at SIS building in specified time window for at least 12 mins
-            Map<String, Map<String, ArrayList<String>>> AutoUsers = AutoGroupDAO.retreiveAutoUsers(dateEntered);
+            //retrieve map of all the users and their location traces whom stay at SIS building in specified time window for at least 12 mins
+            Map<String, Map<String, ArrayList<String>>> AutoUsers = AutoGroupDAO.retrieveAutoUsers(dateEntered);
             
             ArrayList<Group> autoGroups = new ArrayList<Group>();
             //test
@@ -169,7 +169,7 @@ public class autoGroupDetection extends HttpServlet {
                 autoGroupObject.addProperty("size",autoGroup.getAutoUsersSize());
                 autoGroupObject.addProperty("total-time-spent",(int)autoGroup.CalculateTotalDuration());
                 JsonArray membersArr = new JsonArray();
-                TreeMap<String, String> sortedUsersWithEmails = autoGroup.retreiveEmailsWithMacs();
+                TreeMap<String, String> sortedUsersWithEmails = autoGroup.retrieveEmailsWithMacs();
                 Iterator<String> usersWithEmails = sortedUsersWithEmails.keySet().iterator();
                 while(usersWithEmails.hasNext()){
                     JsonObject membersObject = new JsonObject();
@@ -179,7 +179,7 @@ public class autoGroupDetection extends HttpServlet {
                     membersObject.addProperty("mac-address",mac);
                     membersArr.add(membersObject);
                 }
-                TreeMap<String, String> sortedUsersNoEmails = autoGroup.retreiveMacsNoEmails();
+                TreeMap<String, String> sortedUsersNoEmails = autoGroup.retrieveMacsNoEmails();
                 Iterator<String> usersNoEmails = sortedUsersNoEmails.keySet().iterator();
                 while(usersNoEmails.hasNext()){
                     JsonObject membersObject = new JsonObject();

@@ -45,7 +45,7 @@ public class Group implements Comparable<Group> {
         
     }
 
-    //retreive macaddress of groups AutoUser is in
+    //retrieve macaddress of groups AutoUser is in
     /*
     public HashMap<String,ArrayList<String>> RetrieveAutoGroups(){
         HashMap<String,ArrayList<String>> AutoGroups = new HashMap<String,ArrayList<String>>();
@@ -114,7 +114,7 @@ public class Group implements Comparable<Group> {
         return duration;
     }
 
-    public ArrayList<String> retreiveMacsWithEmails() {
+    public ArrayList<String> retrieveMacsWithEmails() {
         ArrayList<String> MacsWithEmails = new ArrayList<String>();
         for (int i = 0; i < AutoUsersMacs.size(); i++) {
             String AutoUserMac = AutoUsersMacs.get(i);
@@ -127,7 +127,7 @@ public class Group implements Comparable<Group> {
         return MacsWithEmails;
     }
     
-    public TreeMap<String, String> retreiveEmailsWithMacs(){
+    public TreeMap<String, String> retrieveEmailsWithMacs(){
         TreeMap<String, String> sortedUserMap = new TreeMap<String, String>(String.CASE_INSENSITIVE_ORDER);
         for (int i = 0; i < AutoUsersMacs.size(); i++) {
             String AutoUserMac = AutoUsersMacs.get(i);
@@ -141,7 +141,7 @@ public class Group implements Comparable<Group> {
         return sortedUserMap;
     }
     
-    public TreeMap<String, String> retreiveMacsNoEmails(){
+    public TreeMap<String, String> retrieveMacsNoEmails(){
         TreeMap<String, String> sortedUserMap = new TreeMap<String, String>(String.CASE_INSENSITIVE_ORDER);
         for (int i = 0; i < AutoUsersMacs.size(); i++) {
             String AutoUserMac = AutoUsersMacs.get(i);

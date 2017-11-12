@@ -36,31 +36,26 @@ public class AutoGroupServlet extends HttpServlet {
                 timeDate += ":00";
             }
 
-            //System.out.println("Retrieved and formatted dateTime: " + timestamp.toString());
-            int UsersNumber = AutoGroupDAO.retreiveUsersNumber(timeDate);//retreive the number of users in the entire SIS building for that date and time
+            int numberOfUsersInBuilding = AutoGroupDAO.retrieveUsersNumber(timeDate);//retrieve the number of users in the entire SIS building for that date and time
 
-            //retreive map of all the users and their location traces whom stay at SIS building in specified time window for at least 12 mins
-            Map<String, Map<String, ArrayList<String>>> AutoUsers = AutoGroupDAO.retreiveAutoUsers(timeDate);
-            //session.setAttribute("test", AutoUsers);
-
+            //retrieve map of all the users and their location traces whom stay at SIS building in specified time window for at least 12 mins
+            Map<String, Map<String, ArrayList<String>>> AutoUsers = AutoGroupDAO.retrieveAutoUsers(timeDate);
+/*
             ArrayList<Group> AutoGroups = new ArrayList<Group>();
-            //test
-            //ArrayList<String> AutoGroups = new ArrayList<String>();
+
             //check if there are valid auto users
             if (AutoUsers != null && AutoUsers.size() > 0) {
                 //retrieve groups formed from valid auto users
                 AutoGroups = retrieveAutoGroups(AutoUsers);
             }
 
-            //session.setAttribute("test", AutoGroups);
             if (AutoGroups != null && AutoGroups.size() > 0) {
                 //check autogroups and remove sub groups
                 AutoGroups = AutoGroupDAO.CheckAutoGroups(AutoGroups);
-            }
-            session.setAttribute("UsersNumber", UsersNumber);
-            session.setAttribute("AutoGroups", AutoGroups);
+            }*/
+            session.setAttribute("numberOfUsersInBuilding", numberOfUsersInBuilding);
+            //session.setAttribute("AutoGroups", AutoGroups);
             session.setAttribute("timeDate", timeDate);
-            //session.setAttribute("test", AutoGroups);
 
             response.sendRedirect("automaticGroupDetection.jsp");
         } catch (IOException ex) {

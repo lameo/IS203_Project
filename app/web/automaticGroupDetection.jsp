@@ -1,3 +1,4 @@
+<%@page import="model.AutoGroupDAO"%>
 <%@page import="java.util.Iterator"%>
 <%@page import="java.util.Map"%>
 <%@page import="model.ReportDAO"%>
@@ -67,18 +68,40 @@
                 </div>
                 <button type="submit" class="btn btn-primary">Generate</button>
             </form>
-
-
-
         </div>
         <%
+
+            String timeDate = (String) session.getAttribute("timeDate");
+            int counter = 0;
+            if (timeDate != null) {
+                int numberOfUsersInBuilding = (int) (session.getAttribute("numberOfUsersInBuilding"));
+                out.println(timeDate);
+                out.println(numberOfUsersInBuilding);
+                Map<String, Map<String, ArrayList<String>>> AutoUsers = AutoGroupDAO.retrieveAutoUsers(timeDate);
+
+                Set<String> macaddress = AutoUsers.keySet();
+                for (String s : macaddress) {
+                    if (counter < 10) {
+                        out.println("Macaddress:" + s + "<br>");
+                        Map<String, ArrayList<String>> locations = AutoUsers.get(s);
+                        Set<String> location = locations.keySet();
+                        out.println("Location: ");
+                        for (String l : location) {
+                            out.println(l + " " + locations.get(1));
+                        }
+                        out.println("<br><br>");
+                        counter++;
+                    }
+                }
+            }
+            /*
             //If top K report is generated
             if (session.getAttribute("AutoGroups") != null) {
                 //out.println(session.getAttribute("test"));
                 /*ArrayList<String> test = (ArrayList<String>)session.getAttribute("test");
                 for(int i=0;i<test.size();i++){
                     out.println(test.get(i)+"<br>");
-                }*/
+                }
 
                 String timedate = (String) session.getAttribute("timeDate");
                 ArrayList<Group> AutoGroups = (ArrayList<Group>) (session.getAttribute("AutoGroups"));
@@ -90,13 +113,13 @@
 
                     out.print("<div class=\"container\"><table class=\"table table-bordered\"><thead>");
 
-                    int UsersNumber = (int) (session.getAttribute("UsersNumber"));
-                    out.print("<thead><tr><th colspan = 3>Number of users in the entire SIS building: " + UsersNumber + " <br>Total number of groups discovered: " + AutoGroups.size() + "</th></tr>");
+                    int numberOfUsersInBuilding = (int) (session.getAttribute("numberOfUsersInBuilding"));
+                    out.print("<thead><tr><th colspan = 3>Number of users in the entire SIS building: " + numberOfUsersInBuilding + " <br>Total number of groups discovered: " + AutoGroups.size() + "</th></tr>");
                     out.print("<tr><th>Group No.</th><th>Macaddress (Email)</th><th>Location id (Time spent in seconds)</th></tr></thead></tbody>");
 
                     int GroupNo = 1;
                     for (Group AutoGroup : AutoGroups) {
-                        ArrayList<String> AutoUsers = AutoGroup.retreiveMacsWithEmails();
+                        ArrayList<String> AutoUsers = AutoGroup.retrieveMacsWithEmails();
                         Map<String, Double> locationTimestamps = AutoGroup.CalculateTimeDuration();
                         //out.println(locationTimestamps.size());
                         Iterator<String> locations = locationTimestamps.keySet().iterator();
@@ -131,10 +154,9 @@
 
                 }
             }
-
+             */
             session.removeAttribute("timeDate");
-            session.removeAttribute("AutoGroups");
-            session.removeAttribute("UsersNumber");
+            session.removeAttribute("numberOfUsersInBuilding");
             /*
                     if (AutoUsers.size() >= locationTimestamps.size()) {
                         rowspanMac = AutoUsers.size();

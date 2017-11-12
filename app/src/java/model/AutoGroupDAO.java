@@ -20,8 +20,186 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-//retreive groups of users,
+//retrieve groups of users,
 public class AutoGroupDAO {
+
+    //retrieve all the users whom stay at SIS building in specified time window
+    public static Map<String, Map<String, ArrayList<String>>> retrieveAutoUsers(String userInputTime) {
+
+        Map<String, ArrayList<String>> allUsersLocationAndTimestampMap = retrieveAllUsersLocationAndTimestamp(userInputTime);
+        Map<String, Map<String, ArrayList<String>>> autoUsersTraces = new HashMap<>();
+
+        Set<String> macaddresses = allUsersLocationAndTimestampMap.keySet();
+        try {
+            for (String eachMacaddress : macaddresses) {
+
+                java.util.Date timestampStart = null;
+
+                int totalTimeDuration = 0; //track total time duration the user has stayed at SIS building in time window
+                ArrayList<String> eachLocationAndTimestamp = allUsersLocationAndTimestampMap.get(eachMacaddress); //retrieve locationid, timestamp, timediff
+
+                Map<String, ArrayList<String>> locationMap = new HashMap<String, ArrayList<String>>(); //locationid, timestamp, timestampNext
+
+                //check if users has more than 2 location updates, since 2 location updates only last 10 minutes, we need 12 minutes
+                if (eachLocationAndTimestamp.size() > 2) {
+                    for (int i = 0; i < eachLocationAndTimestamp.size(); i++) {
+                        String[] locationTraces = eachLocationAndTimestamp.get(i).split(",");
+
+                        String locationid = locationTraces[0];
+                        String timestring = locationTraces[1];
+                        int timeDiff = Integer.parseInt(locationTraces[2]);
+
+                        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
+                        Calendar cal = Calendar.getInstance();
+                        java.util.Date timestamp = dateFormat.parse(timestring);//convert time string to Date format
+                        java.util.Date timestampEnd = dateFormat.parse(userInputTime); //get end time stamps
+
+                        //check if start time is before current time and retrieve start time if yes
+                        if (timestampStart != null) {
+                            timestamp = timestampStart;
+                        }
+
+                        if (i + 1 >= eachLocationAndTimestamp.size()) {//if last location update
+                            double timeGap = timeDiff;
+
+                            //if time gap is more than 5 minutes
+                            if (timeGap > 300.0) {
+                                timeGap = 300;//add 5 mins to time duration is time gap is more than 5 mins
+                                cal.setTime(timestamp);
+                                cal.add(Calendar.MINUTE, 5);
+                                timestampEnd = cal.getTime();
+                            }
+
+                            ArrayList<String> timelist = locationMap.get(locationid);
+                            //if locationMap already has timestamps of this locationid
+                            if (timelist == null) {
+                                timelist = new ArrayList<String>();
+                            }
+
+                            timelist.add(dateFormat.format(timestamp) + "," + dateFormat.format(timestampEnd));
+                            locationMap.put(locationid, timelist);
+
+                            timestampStart = null;
+                            totalTimeDuration += timeGap;//add time gap of total time durations
+                        } else { //if not last location updates
+                            String[] locationTracesNext = eachLocationAndTimestamp.get(i + 1).split(","); //get next location update
+
+                            String locationidNext = locationTracesNext[0];
+                            String timestringNext = locationTracesNext[1];
+                            int timeDiffNext = Integer.parseInt(locationTracesNext[2]);
+
+                            java.util.Date timestampNext = dateFormat.parse(timestringNext); //get next time stamps
+
+                            if (!locationid.equals(locationidNext)) { //if current and next location not same
+                                double timeGap = timeDiff - timeDiffNext;
+
+                                //if time gap is more than 5 minutes
+                                if (timeGap > 300.0) {
+                                    timeGap = 300; //add 5 mins to time duration is time gap is more than 5 mins
+                                    cal.setTime(timestamp);
+                                    cal.add(Calendar.MINUTE, 5);
+                                    timestampNext = cal.getTime();
+                                }
+
+                                ArrayList<String> timelist = locationMap.get(locationid);
+                                //if locationMap already has timestamps of this locationid
+                                if (timelist == null) {
+                                    timelist = new ArrayList<String>();
+                                }
+
+                                timelist.add(dateFormat.format(timestamp) + "," + dateFormat.format(timestampNext));
+                                locationMap.put(locationid, timelist);
+
+                                timestampStart = null;
+                                totalTimeDuration += timeGap;//add time gap of total time durations
+
+                            } else if (locationid.equals(locationidNext)) { //if the next update location is same as the current one
+                                double timeGap = timeDiff - timeDiffNext;
+
+                                //check if start time is before current time and retrieve start time if yes
+                                if (timestampStart == null) { //???
+                                    timestampStart = timestamp;
+                                }
+
+                                //if time gap is more than 5 minutes
+                                if (timeGap > 300.0) {
+                                    timeGap = 300; //add 5 mins to time duration is time gap is more than 5 mins
+                                    cal.setTime(timestamp);
+                                    cal.add(Calendar.MINUTE, 5);
+                                    timestampNext = cal.getTime();
+
+                                    ArrayList<String> timelist = locationMap.get(locationid);
+                                    //if locationMap already has timestamps of this locationid
+                                    if (timelist == null) {
+                                        timelist = new ArrayList<String>();
+                                    }
+
+                                    timelist.add(dateFormat.format(timestamp) + "," + dateFormat.format(timestampNext));
+                                    locationMap.put(locationid, timelist);
+
+                                    timestampStart = null;
+                                }
+                                totalTimeDuration += timeGap; //add time gap of total time duration
+                            }
+                        }
+                    }
+                    //check if total time duration of user is longer or equal to 12 mins
+                    if (totalTimeDuration >= 720) {
+                        //add location traces to user
+                        autoUsersTraces.put(eachMacaddress, locationMap);
+                    }
+                }
+            }
+        } catch (ParseException ex) {
+            Logger.getLogger(AutoGroupDAO.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return autoUsersTraces;
+    }
+
+    public static Map<String, ArrayList<String>> retrieveAllUsersLocationAndTimestamp(String userInputTime) {
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
+
+        Map<String, ArrayList<String>> allUsersLocationAndTimestampMap = new HashMap<>();
+        try {
+            //get a connection to database
+            connection = ConnectionManager.getConnection();
+
+            //prepare a statement
+            preparedStatement = connection.prepareStatement("select distinct macaddress, locationid, timestamp, TIMESTAMPDIFF(second,timestamp,?) as diff from location where timestamp between DATE_SUB(?, INTERVAL 15 minute) and ? order by macaddress, timestamp, locationid");
+
+            //set the parameters
+            preparedStatement.setString(1, userInputTime);
+            preparedStatement.setString(2, userInputTime);
+            preparedStatement.setString(3, userInputTime);
+
+            //execute SQL query
+            resultSet = preparedStatement.executeQuery();
+
+            while (resultSet.next()) {
+                String macaddress = resultSet.getString(1);
+                String locationid = resultSet.getString(2);
+                String timestamp = resultSet.getString(3);
+                String timeDiff = resultSet.getString(4);
+
+                ArrayList<String> locationTraces = allUsersLocationAndTimestampMap.get(macaddress);
+                if (locationTraces == null) {
+                    locationTraces = new ArrayList<String>();
+                }
+                locationTraces.add(locationid + "," + timestamp + "," + timeDiff);
+                allUsersLocationAndTimestampMap.put(macaddress, locationTraces);
+            }
+            //close connections
+            resultSet.close();
+            preparedStatement.close();
+            connection.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return allUsersLocationAndTimestampMap;
+    }
 
     public static boolean CommonLocationTimestamps(ArrayList<String> LocationTimestamps1, ArrayList<String> LocationTimestamps2) {
 
@@ -228,20 +406,20 @@ public class AutoGroupDAO {
         //ArrayList<Group> NewAutoGroups = AutoGroups;
         //Iterator<Group> newAutoGroups = autoGroups.iterator();
         ArrayList<Group> subAutoGroups = new ArrayList<Group>();
-        for (int i=0; i<autoGroups.size(); i++) {
+        for (int i = 0; i < autoGroups.size(); i++) {
             Group autoGroup1 = autoGroups.get(i);
             ArrayList<String> autoGroup1Macs = autoGroup1.getAutoUsersMacs();
-            for (int j=0; j<autoGroups.size(); j++) {
+            for (int j = 0; j < autoGroups.size(); j++) {
                 Group autoGroup2 = autoGroups.get(j);
                 if (!autoGroup1.equals(autoGroup2)) {
-                    if(autoGroup1.CheckSubGroup(autoGroup2)){
+                    if (autoGroup1.CheckSubGroup(autoGroup2)) {
                         //newAutoGroups.remove();
                         subAutoGroups.add(autoGroup2);
                     }
                 }
             }
         }
-        for (Group subGroup:subAutoGroups){
+        for (Group subGroup : subAutoGroups) {
             autoGroups.remove(subGroup);
         }
         return autoGroups;
@@ -272,228 +450,19 @@ public class AutoGroupDAO {
         }
     }
 
-    //retreive all the users whom stay at SIS building in specified time window
-    public static Map<String, Map<String, ArrayList<String>>> retreiveAutoUsers(String timestringEnd) {
+    public static int retrieveUsersNumber(String timestringEnd) {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
-        String ans = "";
-        Map<String, ArrayList<String>> AutoUsers = new HashMap<>();
-        Map<String, Map<String, ArrayList<String>>> autoUsersTraces = new HashMap<>();
-        ArrayList<String> test = new ArrayList<String>();
-        int timeStartIndex = -1;
-        try {
-            //get a connection to database
-            connection = ConnectionManager.getConnection();
 
-            //prepare a statement
-            preparedStatement = connection.prepareStatement("select distinct macaddress, locationid, timestamp, TIMESTAMPDIFF(second,timestamp,?) as diff from location where timestamp between DATE_SUB(?, INTERVAL 15 minute) and ?");
-
-            //set the parameters
-            preparedStatement.setString(1, timestringEnd);
-            preparedStatement.setString(2, timestringEnd);
-            preparedStatement.setString(3, timestringEnd);
-
-            //execute SQL query
-            resultSet = preparedStatement.executeQuery();
-            while (resultSet.next()) {
-                String mac = resultSet.getString(1);
-                String locationid = resultSet.getString(2);
-                String timeString = resultSet.getString(3);
-                String timeDiff = resultSet.getString(4);
-                if (AutoUsers.containsKey(mac)) {
-                    ArrayList<String> locationTraces = AutoUsers.get(mac);
-                    locationTraces.add(locationid + "," + timeString + "," + timeDiff);
-                    AutoUsers.put(mac, locationTraces);
-                } else {
-                    ArrayList<String> locationTraces = new ArrayList<String>();
-                    locationTraces.add(locationid + "," + timeString + "," + timeDiff);
-                    AutoUsers.put(mac, locationTraces);
-                }
-            }
-
-            //close connections
-            resultSet.close();
-            preparedStatement.close();
-            connection.close();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-
-        Iterator<String> AutoUsersMacs = AutoUsers.keySet().iterator();
-        while (AutoUsersMacs.hasNext()) {
-            java.util.Date timestampStart = null;
-            //retrieve autouser mac
-            String AutoUserMac = AutoUsersMacs.next();
-            //timeStartIndex = -1;
-            int totalTimeDuration = 0;//track total time duration the user has stayed at SIS building in time window
-            ArrayList<String> locationTraces = AutoUsers.get(AutoUserMac);//retreive location traces of user
-            //test.add("location array: " + locationTraces);
-            //create hashmap of location map
-            Map<String, ArrayList<String>> locationMap = new HashMap<String, ArrayList<String>>();
-            //check if users has more than 2 location updates, since 2 location updates at most last 10 minutes
-            if (locationTraces.size() > 2) {
-                for (int i = 0; i < locationTraces.size(); i++) {
-                    //timeStartIndex = -1;
-                    String[] locationTrace = locationTraces.get(i).split(",");
-                    //test.add("current location trace: " + locationTrace);
-                    String locationid = locationTrace[0];
-                    String timeString = locationTrace[1];
-                    int timeDiff = Integer.parseInt(locationTrace[2]);
-                    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-
-                    //test.add("i: " + i + "location size: " + locationTraces.size());
-                    Calendar cal = Calendar.getInstance();
-                    java.util.Date timestamp = null;
-                    java.util.Date timestampEnd = null;
-
-                    try {
-                        timestampEnd = dateFormat.parse(timestringEnd);//get end time stamps
-                        timestamp = dateFormat.parse(timeString);//convert time string to Date format
-                        //check if start time is before current time and retreive start time if yes
-                        if (timestampStart != null) {
-                            //timestampStart = dateFormat.parse(locationTraces.get(timeStartIndex));
-                            timestamp = timestampStart;
-                        }
-                    } catch (ParseException ex) {
-                        Logger.getLogger(AutoGroupDAO.class.getName()).log(Level.SEVERE, null, ex);
-                    }
-                    if (locationTraces.size() <= i + 1) {//if last location update
-                        //test.add(AutoUserMac + " last one");
-                        //cal.setTime(timestampEnd);
-                        //cal.add(Calendar.SECOND, -1);
-                        //timestampEnd = cal.getTime();
-                        double timeGap = timeDiff;
-                        //if time gap is more than 5 minutes
-                        if (timeGap > 300.0) {
-                            timeGap = 300;//add 5 mins to time duration is time gap is more than 5 mins
-                            cal.setTime(timestamp);
-                            cal.add(Calendar.MINUTE, 5);
-                            timestampEnd = cal.getTime();
-                        }
-                        //if locationMap already has timestamps of this locationid
-                        ArrayList<String> timelist = new ArrayList<String>();
-                        if (locationMap.containsKey(locationid)) {
-                            timelist = locationMap.get(locationid);
-                            //test.add("current timelist" + timelist);
-                            timelist.add(dateFormat.format(timestamp) + "," + dateFormat.format(timestampEnd));
-                            //test.add("added timelist" + timelist);
-                            locationMap.put(locationid, timelist);
-                            //if not
-                        } else {
-                            timelist.add(dateFormat.format(timestamp) + "," + dateFormat.format(timestampEnd));
-                            //test.add("new timelist" + timelist + locationid);
-                            locationMap.put(locationid, timelist);
-                        }
-                        timestampStart = null;
-                        //timeStartIndex = -1;
-                        totalTimeDuration += timeGap;//add time gap o total time durations
-                        //if the next update location is same as the current one
-                    } else {//if not last location updates
-                        String[] locationTraceNext = locationTraces.get(i + 1).split(",");//get next location update
-                        String locationidNext = locationTraceNext[0];
-                        String timeStringNext = locationTraceNext[1];
-                        int timeDiffNext = Integer.parseInt(locationTraceNext[2]);
-                        java.util.Date timestampNext = null;
-                        try {
-                            timestampNext = dateFormat.parse(timeStringNext);//get next time stamps
-                            //cal.setTime(timestampNext);
-                            //cal.add(Calendar.SECOND, -1);
-                            //timestampNext = cal.getTime();
-                        } catch (ParseException ex) {
-                            Logger.getLogger(AutoGroupDAO.class.getName()).log(Level.SEVERE, null, ex);
-                        }
-                        //test.add(AutoUserMac + " not last one " + i + "," + locationid + "," + locationidNext);
-                        if (!locationid.equals(locationidNext)) {//if current and next location not same
-                            double timeGap = timeDiff - timeDiffNext;
-                            //if time gap is more than 5 minutes
-                            if (timeGap > 300.0) {
-                                timeGap = 300;//add 5 mins to time duration is time gap is more than 5 mins
-                                cal.setTime(timestamp);
-                                cal.add(Calendar.MINUTE, 5);
-                                timestampNext = cal.getTime();
-                                //totalTimeDuration += 300;//add 5 mins to time duration is time gap is more than 5 mins
-                            }
-                            //if locationMap already has timestamps of this locationid
-                            ArrayList<String> timelist = new ArrayList<String>();
-                            if (locationMap.containsKey(locationid)) {
-                                timelist = locationMap.get(locationid);
-                                timelist.add(dateFormat.format(timestamp) + "," + dateFormat.format(timestampNext));
-                                locationMap.put(locationid, timelist);
-                                //if not
-                            } else {
-                                timelist.add(dateFormat.format(timestamp) + "," + dateFormat.format(timestampNext));
-                                locationMap.put(locationid, timelist);
-                            }
-                            timestampStart = null;
-                            //timeStartIndex = -1;
-                            totalTimeDuration += timeGap;//add time gap o total time durations
-                            //if the next update location is same as the current one
-                            //test.add(AutoUserMac + " diff location " + locationMap);
-                        } else if (locationid.equals(locationidNext)) {
-                            //test.add("same location" + timeStartIndex);
-                            //check if previous location is same as previous one
-                            double timeGap = timeDiff - timeDiffNext;
-                            //test.add("timeGap same location " + timeGap);
-                            //check if start time is before current time and retreive start time if yes
-                            if (timestampStart == null) {
-                                timestampStart = timestamp;
-                                //timeStartIndex = i;
-                                //test.add("set timestartindex to current i in same locations" + timestamp);
-                            }
-                            //test.add("timestartindex in same location" + timeStartIndex + "," + i);
-                            //if time gap is more than 5 minutes
-                            if (timeGap > 300.0) {
-                                timeGap = 300;//add 5 mins to time duration is time gap is more than 5 mins
-                                cal.setTime(timestamp);
-                                cal.add(Calendar.MINUTE, 5);
-                                timestampNext = cal.getTime();
-                                //if locationMap already has timestamps of this locationid
-                                ArrayList<String> timelist = new ArrayList<>();
-                                if (locationMap.containsKey(locationid)) {
-                                    timelist = locationMap.get(locationid);
-                                    timelist.add(dateFormat.format(timestamp) + "," + dateFormat.format(timestampNext));
-                                    locationMap.put(locationid, timelist);
-                                    //if not
-                                } else {
-                                    timelist.add(dateFormat.format(timestamp) + "," + dateFormat.format(timestampNext));
-                                    locationMap.put(locationid, timelist);
-                                }
-                                //timeStartIndex = -1;
-                                timestampStart = null;
-                            }
-                            totalTimeDuration += timeGap;//add time gap o total time duration
-                        }
-                        //test.add("locationmap not last one" + locationMap);
-                    }
-                }
-                //test.add("end of mac1" + AutoUserMac + "," + locationMap + totalTimeDuration);
-                //check if total time duration of user is longer or equal to 12 mins
-                if (totalTimeDuration >= 720) {
-                    //add location traces to user
-                    if (!autoUsersTraces.containsKey(AutoUserMac)) {//check if auto user traces has current user
-                        autoUsersTraces.put(AutoUserMac, locationMap);
-                        //test.add("end of mac more than 12 mins " + AutoUserMac + "," + locationMap + totalTimeDuration);
-                    }
-                }
-            }
-
-        }
-        //test.add("result: "+autoUsersTraces);
-        return autoUsersTraces;
-    }
-    
-    public static int retreiveUsersNumber(String timestringEnd) {
-        Connection connection = null;
-        PreparedStatement preparedStatement = null;
-        ResultSet resultSet = null;
         int count = 0;
+
         try {
             //get a connection to database
             connection = ConnectionManager.getConnection();
 
             //prepare a statement
-            preparedStatement = connection.prepareStatement("select distinct macaddress from location where timestamp between DATE_SUB(?, INTERVAL 15 minute) and DATE_SUB(?, INTERVAL 1 second)");
+            preparedStatement = connection.prepareStatement("select count(distinct macaddress) from location where timestamp between DATE_SUB(?, INTERVAL 15 minute) and DATE_SUB(?, INTERVAL 1 second)");
 
             //set the parameters
             preparedStatement.setString(1, timestringEnd);
@@ -502,9 +471,8 @@ public class AutoGroupDAO {
             //execute SQL query
             resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
-                count += 1;
+                count = resultSet.getInt(1);
             }
-
             //close connections
             resultSet.close();
             preparedStatement.close();
