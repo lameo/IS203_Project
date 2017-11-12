@@ -79,7 +79,7 @@
                 <!-- form input for date & time  -->
                 <div class="form-group">
                     <label for="example-datetime-local-input" class="form-control-label">Enter date & time:</label>
-                    <input class="form-control" type="datetime-local" id="input-datetime-local" name="timeDate" min="2013-01-01T00:00" max="2017-12-31T23:59" required>
+                    <input class="form-control" type="datetime-local" id="input-datetime-local" name="timeDate" min="2013-01-01T00:00:00" max="2017-12-31T23:59:59" step="1" required>
                 </div>
                 <!-- select menu for level, default is B1  -->
                 <div class="form-group">
@@ -101,6 +101,7 @@
             String timeDate = (String) session.getAttribute("timeDate");
 
             Map<String, HeatMap> heatmapList = (TreeMap<String, HeatMap>) session.getAttribute("heatmapList");
+            Set<String> keys = null;
 
             if (floor != null && timeDate != null) {
                 if (heatmapList != null && heatmapList.size() > 0) {
@@ -108,7 +109,7 @@
                     out.print("<div class=\"container\"><table class=\"table table-bordered\"><thead>");
                     out.print("<tr><th>Semantic Place</th><th>Quantity</th><th>Heat Level</th></thead><tbody>");
 
-                    Set<String> keys = heatmapList.keySet(); //return a set of semantic places
+                    keys = heatmapList.keySet(); //return a set of semantic places
                     for (String key : keys) {
                         HeatMap heatMap = heatmapList.get(key);
                         out.print("<tr><td>" + heatMap.getPlace() + "</td><td>" + heatMap.getQtyPax() + "</td><td>" + heatMap.getHeatLevel() + "</td></tr>");
@@ -163,12 +164,12 @@
                 var array = obj.map; //get map array from obj
                 for (i = 0; i < array.length; i++) { //change the values according to SQL data
                     var locationname = obj.map[i].locationname;
-                    if (locationname === "SMUSISB1NearLiftLobby") {
-                        obj.map[i].value = <%=heatmapList.get("SMUSISB1NearLiftLobby").getHeatLevel()%>;
-                    } else if (locationname === "SMUSISB1NearATM") {
-                        obj.map[i].value = <%=heatmapList.get("SMUSISB1NearATM").getHeatLevel()%>;
+                    if (locationname === "SMUSISB1NearATM") {
+                        obj.map[i].value = <%=heatmapList.get(keys.toArray()[0]).getHeatLevel()%>;
                     } else if (locationname === "SMUSISB1NearCSRAndTowardsMRT") {
-                        obj.map[i].value = <%=heatmapList.get("SMUSISB1NearCSRAndTowardsMRT").getHeatLevel()%>;
+                        obj.map[i].value = <%=heatmapList.get(keys.toArray()[1]).getHeatLevel()%>;
+                    } else if (locationname === "SMUSISB1NearLiftLobby") {
+                        obj.map[i].value = <%=heatmapList.get(keys.toArray()[2]).getHeatLevel()%>;
                     }
                 }
 
@@ -201,12 +202,12 @@
                 var array = obj.map; //get map array from obj
                 for (i = 0; i < array.length; i++) { //change the values according to SQL data
                     var locationname = obj.map[i].locationname;
-                    if (locationname === "SMUSISL1NearSubway") {
-                        obj.map[i].value = <%=heatmapList.get("SMUSISL1NearSubway").getHeatLevel()%>;
+                    if (locationname === "SMUSISL1FilteringArea") {
+                        obj.map[i].value = <%=heatmapList.get(keys.toArray()[0]).getHeatLevel()%>;
+                    } else if (locationname === "SMUSISL1NearSubway") {
+                        obj.map[i].value = <%=heatmapList.get(keys.toArray()[1]).getHeatLevel()%>;
                     } else if (locationname === "SMUSISL1ReceptionAndLobby") {
-                        obj.map[i].value = <%=heatmapList.get("SMUSISL1ReceptionAndLobby").getHeatLevel()%>;
-                    } else if (locationname === "SMUSISL1FilteringArea") {
-                        obj.map[i].value = <%=heatmapList.get("SMUSISL1FilteringArea").getHeatLevel()%>;
+                        obj.map[i].value = <%=heatmapList.get(keys.toArray()[2]).getHeatLevel()%>;
                     }
                 }
 
@@ -240,19 +241,19 @@
                 for (i = 0; i < array.length; i++) { //change the values according to SQL data
                     var locationname = obj.map[i].locationname;
                     if (locationname === "SMUSISL2LiftLobby") {
-                        obj.map[i].value = <%=heatmapList.get("SMUSISL2LiftLobby").getHeatLevel()%>;
-                    } else if (locationname === "SMUSISL2StudyArea1") {
-                        obj.map[i].value = <%=heatmapList.get("SMUSISL2StudyArea1").getHeatLevel()%>;
-                    } else if (locationname === "SMUSISL2StudyArea2") {
-                        obj.map[i].value = <%=heatmapList.get("SMUSISL2StudyArea2").getHeatLevel()%>;
-                    } else if (locationname === "SMUSISL2SR2.4") {
-                        obj.map[i].value = <%=heatmapList.get("SMUSISL2SR2.4").getHeatLevel()%>;
-                    } else if (locationname === "SMUSISL2SR2.3") {
-                        obj.map[i].value = <%=heatmapList.get("SMUSISL2SR2.3").getHeatLevel()%>;
-                    } else if (locationname === "SMUSISL2SR2.2") {
-                        obj.map[i].value = <%=heatmapList.get("SMUSISL2SR2.2").getHeatLevel()%>;
+                        obj.map[i].value = <%=heatmapList.get(keys.toArray()[0]).getHeatLevel()%>;
                     } else if (locationname === "SMUSISL2SR2.1") {
-                        obj.map[i].value = <%=heatmapList.get("SMUSISL2SR2.1").getHeatLevel()%>;
+                        obj.map[i].value = <%=heatmapList.get(keys.toArray()[1]).getHeatLevel()%>;
+                    } else if (locationname === "SMUSISL2SR2.2") {
+                        obj.map[i].value = <%=heatmapList.get(keys.toArray()[2]).getHeatLevel()%>;
+                    } else if (locationname === "SMUSISL2SR2.3") {
+                        obj.map[i].value = <%=heatmapList.get(keys.toArray()[3]).getHeatLevel()%>;
+                    } else if (locationname === "SMUSISL2SR2.4") {
+                        obj.map[i].value = <%=heatmapList.get(keys.toArray()[4]).getHeatLevel()%>;
+                    } else if (locationname === "SMUSISL2StudyArea1") {
+                        obj.map[i].value = <%=heatmapList.get(keys.toArray()[5]).getHeatLevel()%>;
+                    } else if (locationname === "SMUSISL2StudyArea2") {
+                        obj.map[i].value = <%=heatmapList.get(keys.toArray()[6]).getHeatLevel()%>;
                     }
                 }
 
@@ -286,24 +287,24 @@
                 var array = obj.map; //get map array from obj
                 for (i = 0; i < array.length; i++) { //change the values according to SQL data
                     var locationname = obj.map[i].locationname;
-                    if (locationname === "SMUSISL3LiftLobby") {
-                        obj.map[i].value = <%=heatmapList.get("SMUSISL3LiftLobby").getHeatLevel()%>;
-                    } else if (locationname === "SMUSISL3StudyArea1") {
-                        obj.map[i].value = <%=heatmapList.get("SMUSISL3StudyArea1").getHeatLevel()%>;
-                    } else if (locationname === "SMUSISL3StudyArea2") {
-                        obj.map[i].value = <%=heatmapList.get("SMUSISL3StudyArea2").getHeatLevel()%>;
-                    } else if (locationname === "SMUSISL3StudyArea3") {
-                        obj.map[i].value = <%=heatmapList.get("SMUSISL3StudyArea3").getHeatLevel()%>;
-                    } else if (locationname === "SMUSISL3CLSRM") {
-                        obj.map[i].value = <%=heatmapList.get("SMUSISL3CLSRM").getHeatLevel()%>;
+                    if (locationname === "SMUSISL3CLSRM") {
+                        obj.map[i].value = <%=heatmapList.get(keys.toArray()[0]).getHeatLevel()%>;
+                    } else if (locationname === "SMUSISL3LiftLobby") {
+                        obj.map[i].value = <%=heatmapList.get(keys.toArray()[1]).getHeatLevel()%>;
                     } else if (locationname === "SMUSISL3SR3.1") {
-                        obj.map[i].value = <%=heatmapList.get("SMUSISL3SR3.1").getHeatLevel()%>;
+                        obj.map[i].value = <%=heatmapList.get(keys.toArray()[2]).getHeatLevel()%>;
                     } else if (locationname === "SMUSISL3SR3.2") {
-                        obj.map[i].value = <%=heatmapList.get("SMUSISL3SR3.2").getHeatLevel()%>;
+                        obj.map[i].value = <%=heatmapList.get(keys.toArray()[3]).getHeatLevel()%>;
                     } else if (locationname === "SMUSISL3SR3.3") {
-                        obj.map[i].value = <%=heatmapList.get("SMUSISL3SR3.3").getHeatLevel()%>;
+                        obj.map[i].value = <%=heatmapList.get(keys.toArray()[4]).getHeatLevel()%>;
                     } else if (locationname === "SMUSISL3SR3.4") {
-                        obj.map[i].value = <%=heatmapList.get("SMUSISL3SR3.4").getHeatLevel()%>;
+                        obj.map[i].value = <%=heatmapList.get(keys.toArray()[5]).getHeatLevel()%>;
+                    } else if (locationname === "SMUSISL3StudyArea1") {
+                        obj.map[i].value = <%=heatmapList.get(keys.toArray()[6]).getHeatLevel()%>;
+                    } else if (locationname === "SMUSISL3StudyArea2") {
+                        obj.map[i].value = <%=heatmapList.get(keys.toArray()[7]).getHeatLevel()%>;
+                    } else if (locationname === "SMUSISL3StudyArea3") {
+                        obj.map[i].value = <%=heatmapList.get(keys.toArray()[8]).getHeatLevel()%>;
                     }
                 }
                 mapdata[imagelayer.id()] = [{
@@ -337,13 +338,13 @@
                 for (i = 0; i < array.length; i++) { //change the values according to SQL data
                     var locationname = obj.map[i].locationname;
                     if (locationname === "SMUSISL4LiftLobby") {
-                        obj.map[i].value = <%=heatmapList.get("SMUSISL4LiftLobby").getHeatLevel()%>;
+                        obj.map[i].value = <%=heatmapList.get(keys.toArray()[0]).getHeatLevel()%>;
                     } else if (locationname === "SMUSISL4MRCorridor") {
-                        obj.map[i].value = <%=heatmapList.get("SMUSISL4MRCorridor").getHeatLevel()%>;
+                        obj.map[i].value = <%=heatmapList.get(keys.toArray()[1]).getHeatLevel()%>;
                     } else if (locationname === "SMUSISL4OusideAcadOffice1") {
-                        obj.map[i].value = <%=heatmapList.get("SMUSISL4OusideAcadOffice1").getHeatLevel()%>;
+                        obj.map[i].value = <%=heatmapList.get(keys.toArray()[2]).getHeatLevel()%>;
                     } else if (locationname === "SMUSISL4OusideAcadOffice2") {
-                        obj.map[i].value = <%=heatmapList.get("SMUSISL4OusideAcadOffice2").getHeatLevel()%>;
+                        obj.map[i].value = <%=heatmapList.get(keys.toArray()[3]).getHeatLevel()%>;
                     }
                 }
 
@@ -389,14 +390,14 @@
                 var array = obj.map; //get map array from obj
                 for (i = 0; i < array.length; i++) { //change the values according to SQL data
                     var locationname = obj.map[i].locationname;
-                    if (locationname === "SMUSISL5LiftLobby") {
-                        obj.map[i].value = <%=heatmapList.get("SMUSISL5LiftLobby").getHeatLevel()%>;
-                    } else if (locationname === "SMUSISL5StudyArea1") {
-                        obj.map[i].value = <%=heatmapList.get("SMUSISL5StudyArea1").getHeatLevel()%>;
+                    if (locationname === "SMUSISL5AcadOffice") {
+                        obj.map[i].value = <%=heatmapList.get(keys.toArray()[0]).getHeatLevel()%>;
+                    } else if (locationname === "SMUSISL5LiftLobby") {
+                        obj.map[i].value = <%=heatmapList.get(keys.toArray()[1]).getHeatLevel()%>;
                     } else if (locationname === "SMUSISL5OutsideDeansOffice") {
-                        obj.map[i].value = <%=heatmapList.get("SMUSISL5OutsideDeansOffice").getHeatLevel()%>;
-                    } else if (locationname === "SMUSISL5AcadOffice") {
-                        obj.map[i].value = <%=heatmapList.get("SMUSISL5AcadOffice").getHeatLevel()%>;
+                        obj.map[i].value = <%=heatmapList.get(keys.toArray()[2]).getHeatLevel()%>;
+                    } else if (locationname === "SMUSISL5StudyArea1") {
+                        obj.map[i].value = <%=heatmapList.get(keys.toArray()[3]).getHeatLevel()%>;
                     }
                 }
 
@@ -424,9 +425,13 @@
         <%}
             }%>
         <%
-            session.removeAttribute("heatmapList");
-            session.removeAttribute("timeDate");
-            session.removeAttribute("floor");
+
+            session.removeAttribute(
+                    "heatmapList");
+            session.removeAttribute(
+                    "timeDate");
+            session.removeAttribute(
+                    "floor");
         %>      
     </center>      
 </body>

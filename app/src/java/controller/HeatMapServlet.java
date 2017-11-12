@@ -19,34 +19,26 @@ public class HeatMapServlet extends HttpServlet {
 
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        try {
-            HttpSession session = request.getSession();
-            String timeDate = request.getParameter("timeDate"); //retrieve time from user input
-            
-            timeDate = timeDate.replace("T", " ");
-            SimpleDateFormat readFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
-            SimpleDateFormat writeFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-            
-            Date timestamp = (Date) readFormat.parse(timeDate);
-            timeDate = writeFormat.format(timestamp);
-            
-            int floor = Integer.parseInt(request.getParameter("floor")); //retrieve floor from user input
-            String floorName = "B1";
 
-            if (floor > 0) {
-                floorName = "L" + floor;
-            }
+        HttpSession session = request.getSession();
+        String timeDate = request.getParameter("timeDate"); //retrieve time from user input
 
-            Map<String, HeatMap> heatmapList = HeatMapDAO.retrieveHeatMap(timeDate, floorName);
-            
-            session.setAttribute("heatmapList", heatmapList);
-            session.setAttribute("floorName", floorName);
-            session.setAttribute("timeDate", timeDate);
+        timeDate = timeDate.replace("T", " ");
 
-            response.sendRedirect("heatmapPage.jsp"); //send back to heatmapPage
-        } catch (ParseException ex) {
-            Logger.getLogger(ReportServlet.class.getName()).log(Level.SEVERE, null, ex);
+        int floor = Integer.parseInt(request.getParameter("floor")); //retrieve floor from user input
+        String floorName = "B1";
+
+        if (floor > 0) {
+            floorName = "L" + floor;
         }
+
+        Map<String, HeatMap> heatmapList = HeatMapDAO.retrieveHeatMap(timeDate, floorName);
+
+        session.setAttribute("heatmapList", heatmapList);
+        session.setAttribute("floorName", floorName);
+        session.setAttribute("timeDate", timeDate);
+
+        response.sendRedirect("heatmapPage.jsp"); //send back to heatmapPage
 
     }
 
