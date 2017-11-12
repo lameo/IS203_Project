@@ -1,6 +1,5 @@
 package controller;
 
-import static model.AutoGroupDAO.retrieveAutoGroups;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.ServletException;
@@ -39,22 +38,22 @@ public class AutoGroupServlet extends HttpServlet {
             int numberOfUsersInBuilding = AutoGroupDAO.retrieveUsersNumber(timeDate);//retrieve the number of users in the entire SIS building for that date and time
 
             //retrieve map of all the users and their location traces whom stay at SIS building in specified time window for at least 12 mins
-            Map<String, Map<String, ArrayList<String>>> AutoUsers = AutoGroupDAO.retrieveAutoUsers(timeDate);
-/*
-            ArrayList<Group> AutoGroups = new ArrayList<Group>();
+            Map<String, Map<String, ArrayList<String>>> listOfUsersWith12MinutesData = AutoGroupDAO.retrieveUsersWith12MinutesData(timeDate);
+
+            ArrayList<Group> autoGroupsDetected = new ArrayList<Group>();
 
             //check if there are valid auto users
-            if (AutoUsers != null && AutoUsers.size() > 0) {
+            if (listOfUsersWith12MinutesData != null && listOfUsersWith12MinutesData.size() > 0) {
                 //retrieve groups formed from valid auto users
-                AutoGroups = retrieveAutoGroups(AutoUsers);
+                autoGroupsDetected = AutoGroupDAO.retrieveAutoGroups(listOfUsersWith12MinutesData);
             }
 
-            if (AutoGroups != null && AutoGroups.size() > 0) {
+            if (autoGroupsDetected != null && autoGroupsDetected.size() > 0) {
                 //check autogroups and remove sub groups
-                AutoGroups = AutoGroupDAO.CheckAutoGroups(AutoGroups);
-            }*/
+                autoGroupsDetected = AutoGroupDAO.checkAutoGroups(autoGroupsDetected);
+            }
             session.setAttribute("numberOfUsersInBuilding", numberOfUsersInBuilding);
-            //session.setAttribute("AutoGroups", AutoGroups);
+            session.setAttribute("autoGroupsDetected", autoGroupsDetected);
             session.setAttribute("timeDate", timeDate);
 
             response.sendRedirect("automaticGroupDetection.jsp");

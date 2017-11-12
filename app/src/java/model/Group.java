@@ -210,7 +210,7 @@ public class Group implements Comparable<Group> {
             //check if user is already in the group
             if (!AutoUsersMacs.contains(macaddress2)) {
                 //check if user and group has stayed for at least 12 minutes
-                newLocationTimestamps = AutoGroupDAO.CommonLocationTimestamps12Mins(locationTimestamps, locationTimestamps2);
+                newLocationTimestamps = AutoGroupDAO.commonLocationTimestamps12Mins(locationTimestamps, locationTimestamps2);
             }
         }
 

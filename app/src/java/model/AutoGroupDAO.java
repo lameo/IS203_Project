@@ -1,22 +1,16 @@
 package model;
 
 import java.sql.Connection;
-import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeMap;
-import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -24,7 +18,7 @@ import java.util.logging.Logger;
 public class AutoGroupDAO {
 
     //retrieve all the users whom stay at SIS building in specified time window
-    public static Map<String, Map<String, ArrayList<String>>> retrieveAutoUsers(String userInputTime) {
+    public static Map<String, Map<String, ArrayList<String>>> retrieveUsersWith12MinutesData(String userInputTime) {
 
         Map<String, ArrayList<String>> allUsersLocationAndTimestampMap = retrieveAllUsersLocationAndTimestamp(userInputTime);
         Map<String, Map<String, ArrayList<String>>> autoUsersTraces = new HashMap<>();
@@ -73,7 +67,7 @@ public class AutoGroupDAO {
 
                             ArrayList<String> timelist = locationMap.get(locationid);
                             //if locationMap already has timestamps of this locationid
-                            if (timelist == null) {
+                            if (timelist == null || timelist.size() <= 0) {
                                 timelist = new ArrayList<String>();
                             }
 
@@ -104,7 +98,7 @@ public class AutoGroupDAO {
 
                                 ArrayList<String> timelist = locationMap.get(locationid);
                                 //if locationMap already has timestamps of this locationid
-                                if (timelist == null) {
+                                if (timelist == null || timelist.size() <= 0) {
                                     timelist = new ArrayList<String>();
                                 }
 
@@ -118,7 +112,7 @@ public class AutoGroupDAO {
                                 double timeGap = timeDiff - timeDiffNext;
 
                                 //check if start time is before current time and retrieve start time if yes
-                                if (timestampStart == null) { //???
+                                if (timestampStart == null) {
                                     timestampStart = timestamp;
                                 }
 
@@ -131,7 +125,7 @@ public class AutoGroupDAO {
 
                                     ArrayList<String> timelist = locationMap.get(locationid);
                                     //if locationMap already has timestamps of this locationid
-                                    if (timelist == null) {
+                                    if (timelist == null || timelist.size() <= 0) {
                                         timelist = new ArrayList<String>();
                                     }
 
@@ -185,7 +179,7 @@ public class AutoGroupDAO {
                 String timeDiff = resultSet.getString(4);
 
                 ArrayList<String> locationTraces = allUsersLocationAndTimestampMap.get(macaddress);
-                if (locationTraces == null) {
+                if (locationTraces == null || locationTraces.size() <= 0) {
                     locationTraces = new ArrayList<String>();
                 }
                 locationTraces.add(locationid + "," + timestamp + "," + timeDiff);
@@ -201,7 +195,159 @@ public class AutoGroupDAO {
         return allUsersLocationAndTimestampMap;
     }
 
-    public static boolean CommonLocationTimestamps(ArrayList<String> LocationTimestamps1, ArrayList<String> LocationTimestamps2) {
+    //check for each user if they spend at least 12 minutes together
+    public static ArrayList<Group> retrieveAutoGroups(Map<String, Map<String, ArrayList<String>>> listOfUsersWith12MinutesData) {
+        ArrayList<Group> AutoGroups = new ArrayList<Group>();
+        Set<String> macaddresses = listOfUsersWith12MinutesData.keySet();
+
+        for (String macaddress : macaddresses) {
+            Map<String, ArrayList<String>> locationsMap = listOfUsersWith12MinutesData.get(macaddress);
+
+            Set<String> nextMacaddresses = listOfUsersWith12MinutesData.keySet();
+            for (String nextMacaddress : nextMacaddresses) {
+                Map<String, ArrayList<String>> nextLocationsMap = listOfUsersWith12MinutesData.get(nextMacaddress);
+
+                if (!macaddress.equals(nextMacaddress)) { //make sure is different macaddress
+                    //check if they have common locations
+                    //if (CommonLocationTimestamps(LocationTimestamps1, LocationTimestamps2)) {
+
+                    //if two users have stayed for at least 12 minutes, record their common timestamps and durations
+                    //check if they have stayed together for at least 12 minutes
+                    Map<String, ArrayList<String>> commonLocationTimestamps = commonLocationTimestamps12Mins(locationsMap, nextLocationsMap);
+
+                    if (commonLocationTimestamps != null && commonLocationTimestamps.size() > 0) {
+                        //if two users have stayed for at least 12 minutes, record their common timestamps and durations
+                        ArrayList<String> Users = new ArrayList<String>();
+                        Users.add(macaddress);
+                        Users.add(nextMacaddress);
+                        //add two users to a group
+                        Group NewAutoGroup = new Group(Users, commonLocationTimestamps);
+
+                        boolean subgroup = false;
+
+                        //check if can join the autouser2 to an existing group if he/she has stayed with group at least 12 minutes
+                        //check if autogroup is not empty
+                        if (AutoGroups != null && AutoGroups.size() > 0) {
+                            for (Group AutoGroup : AutoGroups) {
+                                //test
+                                //if (AutoGroup != null && AutoUserMac2 != null && LocationTimestamps != null && LocationTimestamps.size() > 0) {
+                                //find new location timestamps for new group
+                                Map<String, ArrayList<String>> NewLocationTimestamps = AutoGroup.JoinGroup(nextMacaddress, commonLocationTimestamps);
+                                //test.add("new location timestamps: "+NewLocationTimestamps);
+                                //if found, add this as a new group
+                                if (NewLocationTimestamps != null && NewLocationTimestamps.size() > 0) {
+                                    AutoGroup.addAutoUser(nextMacaddress, NewLocationTimestamps);
+                                }
+                                if (AutoGroup.CheckSubGroup(NewAutoGroup)) {
+                                    subgroup = true;
+                                }
+                                //}
+                            }
+                        }
+                        //if no subgroup, add new group to autogroups
+                        if (!subgroup) {
+                            //check if this group already exists (in different sequence) or if this group is a sub group of existing group
+                            //add two users to same group
+                            AutoGroups.add(NewAutoGroup);
+                            //test.add("autogroups: "+AutoGroups);
+                        }
+                    }
+                    //}
+                }
+            }
+            //After finish adding groups for macaddress1
+        }
+        return AutoGroups;
+    }
+
+    public static Map<String, ArrayList<String>> commonLocationTimestamps12Mins(Map<String, ArrayList<String>> locationsMap, Map<String, ArrayList<String>> nextLocationsMap) {
+
+        Map<String, ArrayList<String>> commonLocationTimestamps = new HashMap<String, ArrayList<String>>();
+
+        double totalDuration = 0;
+
+        Set<String> locations = locationsMap.keySet();
+        try {
+            //check common location timestamps from user1 and user2
+            for (String location : locations) {
+                ArrayList<String> timestamps = locationsMap.get(location);
+
+                if (nextLocationsMap.containsKey(location)) { //check if user 2 has visited location 1
+                    //if user 2 has visited location 1
+                    String commonLocation = location;
+                    ArrayList<String> nextTimestamps = nextLocationsMap.get(location);//retrieve timestamps of users 2 at location 1
+                    ArrayList<String> commonTimestamps = new ArrayList<String>();
+
+                    for (int i = 0; i < timestamps.size(); i++) {
+                        String[] timestamps1 = timestamps.get(i).split(",");
+                        String timestringStart = timestamps1[0];
+                        String timestringEnd = timestamps1[1];
+
+                        for (int j = 0; j < nextTimestamps.size(); j++) {
+
+                            String[] timestamps2 = nextTimestamps.get(j).split(",");
+                            String nextTimestringStart = timestamps2[0];
+                            String nextTimestringEnd = timestamps2[1];
+
+                            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
+                            java.util.Date timestampStart = dateFormat.parse(timestringStart);//convert time string to Date format
+                            java.util.Date timestampEnd = dateFormat.parse(timestringEnd);
+
+                            java.util.Date nextTimestampStart = dateFormat.parse(nextTimestringStart);//convert time string to Date format
+                            java.util.Date nextTimestampEnd = dateFormat.parse(nextTimestringEnd);
+
+                            //if timestart of user 1 is before or equal to user 2 and time end of user 1 equal or after user 2,
+                            //common timestamps are from time start to time end of user 2
+                            double gap = 0;
+                            if (!timestampStart.after(nextTimestampStart) && !timestampEnd.before(nextTimestampEnd)) {
+
+                                gap = (nextTimestampEnd.getTime() - nextTimestampStart.getTime()) / (1000.0);
+                                commonTimestamps.add(nextTimestringStart + "," + nextTimestringEnd + "," + gap);
+
+                                //if timestart of user 2 is before or equal to user 1 and timeend of user 2 equal or after user 1,
+                                //common timestamps are from time start to time end of user 1
+                            } else if (!nextTimestampStart.after(timestampStart) && !nextTimestampEnd.before(timestampEnd)) {
+
+                                gap = (timestampEnd.getTime() - timestampStart.getTime()) / (1000.0);
+                                commonTimestamps.add(timestringStart + "," + timestringEnd + "," + gap);
+
+                                //if timestart of user 1 is before or equal to user 2 and timeend of user 1 before user 2,
+                                //common timestamps are from time start of user 2 to time end of user 1
+                            } else if (!timestampStart.after(nextTimestampStart) && !timestampEnd.before(nextTimestampStart) && !timestampEnd.after(nextTimestampEnd)) {
+
+                                gap = (timestampEnd.getTime() - nextTimestampStart.getTime()) / (1000.0);
+                                commonTimestamps.add(nextTimestringStart + "," + timestringEnd + "," + gap);
+
+                                //if timestart of user 1 is before or equal to user 2 and timeend of user 1 before user 2,
+                                //common timestamps are from time start of user 2 to time end of user 1
+                            } else if (!nextTimestampStart.after(timestampStart) && !nextTimestampEnd.before(timestampStart) && !nextTimestampEnd.after(timestampEnd)) {
+
+                                gap = (nextTimestampEnd.getTime() - timestampStart.getTime()) / (1000.0);
+                                commonTimestamps.add(timestringStart + "," + nextTimestringEnd + "," + gap);
+                            }
+
+                            totalDuration += gap;
+                        }
+                    }
+                    //check if there is any common timestamps at common location
+                    if (commonTimestamps.size() > 0) {
+                        commonLocationTimestamps.put(commonLocation, commonTimestamps);//add common location and timestamps
+                    }
+                }
+            }
+            //check if total time duration is at least 12 minutes
+            if (totalDuration >= 720) {
+                return commonLocationTimestamps;
+            }
+        } catch (ParseException ex) {
+            Logger.getLogger(AutoGroupDAO.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        return null;
+    }
+
+    public static boolean commonLocationTimestamps(ArrayList<String> LocationTimestamps1, ArrayList<String> LocationTimestamps2) {
 
         //boolean CommonLocationTimestamps12Mins = false;
         //int count = 0;
@@ -233,176 +379,8 @@ public class AutoGroupDAO {
         return false;
     }
 
-    public static Map<String, ArrayList<String>> CommonLocationTimestamps12Mins(Map<String, ArrayList<String>> locationTimestamps1, Map<String, ArrayList<String>> locationTimestamps2) {
-
-        Map<String, ArrayList<String>> commonLocationTimestamps = new HashMap<String, ArrayList<String>>();
-
-        double totalDuration = 0;
-        Iterator<String> locations1 = locationTimestamps1.keySet().iterator();
-        //check common location timestamps from user1 and user2
-        while (locations1.hasNext()) {
-            String location1 = locations1.next();
-            ArrayList<String> timestamps1 = locationTimestamps1.get(location1);
-            if (locationTimestamps2.containsKey(location1)) {//check if user 2 has visited location 1
-                //if user 2 has visited location 1
-                String commonLocation = location1;
-                ArrayList<String> timestamps2 = locationTimestamps2.get(location1);//retrieve timestamps of users 2 at location 1
-                ArrayList<String> commonTimestamps = new ArrayList<String>();
-                for (int i = 0; i < timestamps1.size(); i++) {
-                    String[] timestamp1 = timestamps1.get(i).split(",");
-                    String timestringStart1 = timestamp1[0];
-                    String timestringEnd1 = timestamp1[1];
-                    for (int j = 0; j < timestamps2.size(); j++) {
-
-                        String[] timestamp2 = timestamps2.get(j).split(",");
-                        String timestringStart2 = timestamp2[0];
-                        String timestringEnd2 = timestamp2[1];
-                        java.util.Date timestampStart1 = null;//convert time string to Date format
-                        java.util.Date timestampEnd1 = null;
-                        java.util.Date timestampStart2 = null;//convert time string to Date format
-                        java.util.Date timestampEnd2 = null;
-                        try {
-                            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                            timestampStart1 = dateFormat.parse(timestringStart1);//convert time string to Date format
-                            timestampEnd1 = dateFormat.parse(timestringEnd1);
-                            timestampStart2 = dateFormat.parse(timestringStart2);//convert time string to Date format
-                            timestampEnd2 = dateFormat.parse(timestringEnd2);
-                        } catch (ParseException ex) {
-                            Logger.getLogger(AutoGroupDAO.class.getName()).log(Level.SEVERE, null, ex);
-                        }
-                        //if (location1.equals(location2)) {
-                        //if common location found from user1 and user2
-                        //if timestart of user 1 is before or equal to user 2 and timeend of user 1 equal or after user 2,
-                        //common timestamps are from time start to time end of user 2
-                        double gap = 0;
-                        if (!timestampStart1.after(timestampStart2) && !timestampEnd1.before(timestampEnd2)) {
-
-                            gap = (timestampEnd2.getTime() - timestampStart2.getTime()) / (1000.0);
-                            commonTimestamps.add(timestringStart2 + "," + timestringEnd2 + "," + gap);
-                            //commonTimestamps.add("total time duration 1 " + gap);
-                            //if timestart of user 2 is before or equal to user 1 and timeend of user 2 equal or after user 1,
-                            //common timestamps are from time start to time end of user 1
-                        } else if (!timestampStart2.after(timestampStart1) && !timestampEnd2.before(timestampEnd1)) {
-
-                            gap = (timestampEnd1.getTime() - timestampStart1.getTime()) / (1000.0);
-                            commonTimestamps.add(timestringStart1 + "," + timestringEnd1 + "," + gap);
-                            //commonTimestamps.add("total time duration 2 " + gap);
-                            //if timestart of user 1 is before or equal to user 2 and timeend of user 1 before user 2,
-                            //common timestamps are from time start of user 2 to time end of user 1
-                        } else if (!timestampStart1.after(timestampStart2) && timestampEnd1.after(timestampStart2) && timestampEnd1.before(timestampEnd2)) {
-
-                            //commonTimestamps.add("timestamp1: "+timestampStart1+timestampEnd1+" timestamp2: "+timestampStart2+timestampEnd2);
-                            gap = (timestampEnd1.getTime() - timestampStart2.getTime()) / (1000.0);
-                            commonTimestamps.add(timestringStart2 + "," + timestringEnd1 + "," + gap);
-                            //commonTimestamps.add("total time duration 3 " + gap);
-                            //if timestart of user 1 is before or equal to user 2 and timeend of user 1 before user 2,
-                            //common timestamps are from time start of user 2 to time end of user 1
-                        } else if (!timestampStart2.after(timestampStart1) && timestampEnd2.after(timestampStart1) && timestampEnd2.before(timestampEnd1)) {
-
-                            gap = (timestampEnd2.getTime() - timestampStart1.getTime()) / (1000.0);
-                            //commonTimestamps.add("total time duration 4 " + gap);
-                            commonTimestamps.add(timestringStart1 + "," + timestringEnd2 + "," + gap);
-                        }
-                        //}
-                        totalDuration += gap;
-                        //commonTimestamps.add("total duration: "+totalDuration);
-                    }
-                }
-                //check if there is any common timestamps at common location
-                if (commonTimestamps != null && commonTimestamps.size() > 0) {
-                    commonLocationTimestamps.put(commonLocation, commonTimestamps);//add common location and timestamps
-                }
-            }
-        }
-        //check if total time duration is at least 12 minutes
-        if (totalDuration >= 720) {
-            return commonLocationTimestamps;
-        }
-
-        return null;
-    }
-
-    //check for each user if they spend at least 12 minutes together
-    public static ArrayList<Group> retrieveAutoGroups(Map<String, Map<String, ArrayList<String>>> AutoUsers) {
-        ArrayList<Group> AutoGroups = new ArrayList<Group>();
-        Iterator<String> AutoUsersMacs1 = AutoUsers.keySet().iterator();
-        ArrayList<String> test = new ArrayList<String>();
-        //int count = 0;
-        while (AutoUsersMacs1.hasNext()) {
-            /*count++;
-            if (count > 100) {
-                return AutoGroups;
-            }*/
-            //retrieve autouser mac1
-            String AutoUserMac1 = AutoUsersMacs1.next();
-            Map<String, ArrayList<String>> locationTimestamps1 = AutoUsers.get(AutoUserMac1);
-            Iterator<String> AutoUsersMacs2 = AutoUsers.keySet().iterator();
-            while (AutoUsersMacs2.hasNext()) {
-                //retrieve autouser mac2
-                String AutoUserMac2 = AutoUsersMacs2.next();
-                Map<String, ArrayList<String>> locationTimestamps2 = AutoUsers.get(AutoUserMac2);
-                if (!AutoUserMac1.equals(AutoUserMac2)) {
-                    //check if they have common locations
-                    //if (CommonLocationTimestamps(LocationTimestamps1, LocationTimestamps2)) {
-                    //if two users have stayed for at least 12 minutes, record their common timestamps and durations
-                    //check if they have stayed together for at least 12 minutes
-                    Map<String, ArrayList<String>> commonLocationTimestamps = CommonLocationTimestamps12Mins(locationTimestamps1, locationTimestamps2);
-                    //test.add("common location timestamps: "+commonLocationTimestamps);
-                    if (commonLocationTimestamps != null && commonLocationTimestamps.size() > 0) {
-                        //if two users have stayed for at least 12 minutes, record their common timestamps and durations
-                        ArrayList<String> Users = new ArrayList<String>();
-                        Users.add(AutoUserMac1);
-                        Users.add(AutoUserMac2);
-                        //add two users to a group
-                        Group NewAutoGroup = new Group(Users, commonLocationTimestamps);
-                        //test.add("new auto group: "+NewAutoGroup);
-                        boolean subgroup = false;
-                        //AutoGroups.add(NewAutoGroup);
-                        //return AutoGroups;
-                        //check if can join the autouser2 to an existing group if he/she has stayed with group at least 12 minutes
-                        //check if autogroup is not empty
-                        //test
-
-                        if (AutoGroups != null && AutoGroups.size() > 0) {
-                            for (Group AutoGroup : AutoGroups) {
-                                //test
-                                //if (AutoGroup != null && AutoUserMac2 != null && LocationTimestamps != null && LocationTimestamps.size() > 0) {
-                                //find new location timestamps for new group
-                                Map<String, ArrayList<String>> NewLocationTimestamps = AutoGroup.JoinGroup(AutoUserMac2, commonLocationTimestamps);
-                                //test.add("new location timestamps: "+NewLocationTimestamps);
-                                //if found, add this as a new group
-                                if (NewLocationTimestamps != null && NewLocationTimestamps.size() > 0) {
-                                    AutoGroup.addAutoUser(AutoUserMac2, NewLocationTimestamps);
-                                }
-                                if (AutoGroup.CheckSubGroup(NewAutoGroup)) {
-                                    subgroup = true;
-                                }
-                                //}
-                            }
-                        }
-
-                        //if no subgroup, add new group to autogroups
-                        if (!subgroup) {
-
-                            //check if this group already exists (in different sequence) or if this group is a sub group of existing group
-                            //add two users to same group
-                            AutoGroups.add(NewAutoGroup);
-                            //test.add("autogroups: "+AutoGroups);
-                        }
-
-                    }
-                    //}
-
-                }
-            }
-            //After finish adding groups for macaddress1
-
-        }
-        return AutoGroups;
-    }
-
     //
-    public static ArrayList<Group> CheckAutoGroups(ArrayList<Group> autoGroups) {
+    public static ArrayList<Group> checkAutoGroups(ArrayList<Group> autoGroups) {
         //ArrayList<Group> NewAutoGroups = AutoGroups;
         //Iterator<Group> newAutoGroups = autoGroups.iterator();
         ArrayList<Group> subAutoGroups = new ArrayList<Group>();
@@ -426,7 +404,7 @@ public class AutoGroupDAO {
     }
 
     //Valify if user has stayed at least 12 minutes at SIS building in specified time window
-    public static boolean AutoUser12Mins(ArrayList<String> AutoUserLocationTimestamps) {
+    public static boolean autoUser12Mins(ArrayList<String> AutoUserLocationTimestamps) {
         double timeDuration = 0;
         for (int i = 0; i < AutoUserLocationTimestamps.size(); i++) {
             try {

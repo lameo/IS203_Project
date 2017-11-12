@@ -145,7 +145,7 @@ public class autoGroupDetection extends HttpServlet {
             int UsersNumber = AutoGroupDAO.retrieveUsersNumber(dateEntered);//retrieve the number of users in the entire SIS building for that date and time
             
             //retrieve map of all the users and their location traces whom stay at SIS building in specified time window for at least 12 mins
-            Map<String, Map<String, ArrayList<String>>> AutoUsers = AutoGroupDAO.retrieveAutoUsers(dateEntered);
+            Map<String, Map<String, ArrayList<String>>> AutoUsers = AutoGroupDAO.retrieveUsersWith12MinutesData(dateEntered);
             
             ArrayList<Group> autoGroups = new ArrayList<Group>();
             //test
@@ -159,7 +159,7 @@ public class autoGroupDetection extends HttpServlet {
             //session.setAttribute("test", AutoGroups);
             if (autoGroups != null && autoGroups.size() > 0) {
                 //check autogroups and remove sub groups
-                autoGroups = AutoGroupDAO.CheckAutoGroups(autoGroups);
+                autoGroups = AutoGroupDAO.checkAutoGroups(autoGroups);
             }
             // sort the autogroup list in group size, total time duration order first
             Collections.sort(autoGroups);
