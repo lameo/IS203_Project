@@ -425,13 +425,9 @@
         <%}
             }%>
         <%
-
-            session.removeAttribute(
-                    "heatmapList");
-            session.removeAttribute(
-                    "timeDate");
-            session.removeAttribute(
-                    "floor");
+            session.removeAttribute("heatmapList");
+            session.removeAttribute("timeDate");
+            session.removeAttribute("floor");
         %>      
     </center>      
 </body>

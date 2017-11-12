@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package json;
 
 import com.google.gson.Gson;
@@ -24,13 +19,8 @@ import javax.servlet.http.HttpServletResponse;
 import model.AutoGroupDAO;
 import static model.AutoGroupDAO.retrieveAutoGroups;
 import model.Group;
-import model.ReportDAO;
 import model.SharedSecretManager;
 
-/**
- *
- * @author HongYuan
- */
 @WebServlet(urlPatterns = {"/json/group_detect"})
 public class autoGroupDetection extends HttpServlet {
 

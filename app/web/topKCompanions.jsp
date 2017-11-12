@@ -93,21 +93,6 @@
             </form>
         </div>
         <%
-            /*
-            ArrayList<String> test = (ArrayList<String>) session.getAttribute("test");
-            for (int i = 0; i < test.size(); i++) {
-                out.println(test.get(i) + "<br>");
-            }
-            */
-            //ArrayList<String> users = (ArrayList<String>)request.getAttribute("users");
-            //for (int i = 0; i<users.size();i++){
-            //  out.println(users.get(i)+"<br>");
-            //}
-            //out.println(session.getAttribute("test")+"<br>");
-            //out.println(session.getAttribute("topKCompanions"));
-            //out.print(session.getAttribute("users"));
-            //If top K report is generated
-            //session.setAttribute("topKCompanions",null);
             if (session.getAttribute("topKCompanions") != null) {
 
                 String timedate = (String) session.getAttribute("timeDate");
@@ -123,7 +108,7 @@
 
                     out.print("<div class=\"container\"><table class=\"table table-bordered\"><thead>");
                     Set<Double> Times = topKCompanions.keySet();
-                    //String[] y = topKPopular.split(",");
+
                     out.print("<tr><th>Rank</th><th>Macaddress</th><th>Email</th><th>Co-Located Time (in seconds)</th></tr></thead></tbody>");
                     int rank = 1;
                     for (double time : Times) {

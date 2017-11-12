@@ -150,50 +150,6 @@
                     <button type="submit" name="Submit" class="btn btn-primary">Submit</button>
                     <button type="reset" name="Reset" class="btn btn-primary">Cancel</button>
                 </form>
-                <%
-                    boolean debug = false;
-                    boolean localDebug = true; //false for aws, true for local test
-                    if (debug) {
-                        // delete before submission
-                        // upload 
-                        out.print("<br><br><br>");
-                        out.print("<h1>debugging</h1>");
-                        out.print("<h2>upload function (change line 44 before testing)</h2>");
-                        if (localDebug) {
-                            out.print("<form method=\"post\" action=\"http://127.0.0.1:8888/app/json/bootstrap\" enctype=\"multipart/form-data\">\r\n");
-                        } else {
-                            out.print("<form method=\"post\" action=\"http://localhost:8084/app/json/bootstrap\" enctype=\"multipart/form-data\">\r\n");
-                        }
-                        out.print("<div class=\"form-group\">\r\n"
-                                + "<label for=\"exampleFormControlFile1\">Choose file&hellip;</label>\r\n"
-                                + "<input type=\"file\" name=\"uploadfile\" class=\"form-control-file\" id=\"exampleFormControlFile1\">\r\n"
-                                + "</div>\r\n"
-                                + "<input type=\"hidden\" name=\"uploadType\" value=\"initialize\">\r\n"
-                                + "<input type=\"hidden\" name=\"todo\" value=\"upload\">\r\n"
-                                + "<button type=\"submit\" name=\"Submit\" class=\"btn btn-primary\">Submit</button>\r\n"
-                                + "<button type=\"reset\" name=\"Reset\" class=\"btn btn-primary\">Cancel</button>\r\n"
-                                + "</form>");
-
-                        // delete before submission
-                        // update
-                        out.print("<br><br>");
-                        out.print("<h2>update function (change line 44 before testing)</h2>");
-                        if (localDebug) {
-                            out.print("<form method=\"post\" action=\"http://127.0.0.1:8888/app/json/update\" enctype=\"multipart/form-data\">\r\n");
-                        } else {
-                            out.print("<form method=\"post\" action=\"http://localhost:8084/app/json/update\" enctype=\"multipart/form-data\">\r\n");
-                        }
-                        out.print("<div class=\"form-group\">\r\n"
-                                + "<label for=\"exampleFormControlFile1\">Choose file&hellip;</label>\r\n"
-                                + "<input type=\"file\" name=\"uploadfile\" class=\"form-control-file\" id=\"exampleFormControlFile1\">\r\n"
-                                + "</div>\r\n"
-                                + "<input type=\"hidden\" name=\"uploadType\" value=\"initialize\">\r\n"
-                                + "<input type=\"hidden\" name=\"todo\" value=\"upload\">\r\n"
-                                + "<button type=\"submit\" name=\"Submit\" class=\"btn btn-primary\">Submit</button>\r\n"
-                                + "<button type=\"reset\" name=\"Reset\" class=\"btn btn-primary\">Cancel</button>\r\n"
-                                + "</form>");
-                    }
-                %>
             </center>
         </div>
     </body>
