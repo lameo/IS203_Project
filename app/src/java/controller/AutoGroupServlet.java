@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package controller;
 
 import static model.AutoGroupDAO.retrieveAutoGroups;
@@ -26,10 +21,6 @@ import java.util.Map;
 import java.util.Set;
 import model.Group;
 
-/**
- *
- * @author xuying
- */
 public class AutoGroupServlet extends HttpServlet {
 
     /**

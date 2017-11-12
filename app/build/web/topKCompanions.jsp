@@ -66,7 +66,7 @@
                 <!-- form input for date & time  -->
                 <div class="form-group">
                     <label for="example-datetime-local-input" class="form-control-label">Enter date & time:</label>
-                    <input class="form-control" type="datetime-local" id="input-datetime-local" name="timeDate" min="2013-01-01T00:00" max="2017-12-31T23:59" required>
+                    <input class="form-control" type="datetime-local" id="input-datetime-local" name="timeDate" min="2013-01-01T00:00:00" max="2017-12-31T23:59:59" step="1" required>
                 </div>
                 <!-- form input for semantic place  -->
                 <div class="form-group">
