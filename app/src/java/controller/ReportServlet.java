@@ -5,15 +5,15 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpSession;
-import java.text.SimpleDateFormat;
-import java.text.ParseException;
 import java.util.logging.Logger;
 import java.util.logging.Level;
 import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import model.ReportDAO;
 import java.util.Date;
+import model.ReportDAO;
 import java.util.List;
 import java.util.Map;
 
@@ -22,16 +22,11 @@ public class ReportServlet extends HttpServlet {
     protected void processRequest(HttpServletRequest request, HttpServletResponse response) {
         try {
             HttpSession session = request.getSession();
-            
+
             String reportType = request.getParameter("reportType"); //to retrieve which basic location report the user selected
             String timeDate = request.getParameter("timeDate"); //retrieve time from user input
-            
+
             timeDate = timeDate.replace("T", " ");
-            SimpleDateFormat readFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
-            SimpleDateFormat writeFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-            
-            Date timestamp = (Date) readFormat.parse(timeDate);
-            timeDate = writeFormat.format(timestamp);
 
             switch (reportType) {
                 case "basicReport":
@@ -84,7 +79,7 @@ public class ReportServlet extends HttpServlet {
                     session.setAttribute("topK", topK);
                     session.setAttribute("total", usersList.size());
                     session.setAttribute("locationname", locationname);
-                    
+
                     response.sendRedirect("topKNextPlaces.jsp");  //send back to topKNextPlaces
                     break;
                 default:
@@ -92,9 +87,7 @@ public class ReportServlet extends HttpServlet {
             }
         } catch (IOException ex) {
             Logger.getLogger(ReportServlet.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (ParseException ex) {
-            Logger.getLogger(ReportServlet.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        } 
     }
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
@@ -107,7 +100,7 @@ public class ReportServlet extends HttpServlet {
      * @throws IOException if an I/O error occurs
      */
     @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response){
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) {
         processRequest(request, response);
     }
 
@@ -120,7 +113,7 @@ public class ReportServlet extends HttpServlet {
      * @throws IOException if an I/O error occurs
      */
     @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response){
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) {
         processRequest(request, response);
     }
 

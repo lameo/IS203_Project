@@ -114,7 +114,7 @@
                 int topK = (Integer) session.getAttribute("topK");
 
                 Map<Double, ArrayList<String>> topKCompanions = (TreeMap<Double, ArrayList<String>>) (session.getAttribute("topKCompanions"));
-                if (topKCompanions == null || topKCompanions.size() == 0) {
+                if (topKCompanions == null || topKCompanions.size() <= 0) {
                     String macaddress = (String) session.getAttribute("macaddress");
                     out.print("<br/><div class=\"alert alert-danger\" role=\"alert\"><strong>" + "The data is not available for macaddress " + macaddress + " within time " + timedate + "</strong></div>");
 

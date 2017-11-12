@@ -404,7 +404,7 @@ public class ReportDAO {
         String currentPlace = ""; //latest place the user spends at least 5 mins
         String spentMoreThan5Minutes = "";
 
-        DateFormat df = new SimpleDateFormat("yyyy-mm-dd HH:mm:ss");
+        DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
         try {
             //get a connection to database
@@ -1074,7 +1074,7 @@ public class ReportDAO {
 
             //prepare a statement
             //retrieve timeline of current user for the past 15min (endtimeDate)
-            preparedStatement = connection.prepareStatement("select locationid, timestamp from location where macaddress = ? and timestamp between DATE_SUB(?, INTERVAL 15 MINUTE) and ? order by timestamp");
+            preparedStatement = connection.prepareStatement("select locationid, timestamp from location where macaddress = ? and timestamp between DATE_SUB(?, INTERVAL 15 MINUTE) and DATE_SUB(?, INTERVAL 0 MINUTE) order by timestamp");
 
             //set the parameters
             preparedStatement.setString(1, macaddress);
