@@ -20,12 +20,12 @@ import java.io.IOException;
 import java.util.Hashtable;
 import java.io.PrintWriter;
 import java.util.ArrayList;
-import java.util.TreeMap;
 import java.util.HashMap;
 import java.util.Arrays;
 import model.UploadDAO;
 import java.util.Map;
 import java.io.File;
+import java.util.Set;
 
 @WebServlet(urlPatterns = {"/json/bootstrap"})
 public class bootstrapUpload extends HttpServlet {
@@ -140,41 +140,33 @@ public class bootstrapUpload extends HttpServlet {
                             JsonArray error = new JsonArray();
 
                             // demographics.csv file errors
-                            Map<Integer, String> demographicsErrorSorted = new TreeMap<>(demographicsError);
-                            for (Map.Entry<Integer, String> temp : demographicsErrorSorted.entrySet()) {
-                                int key = temp.getKey();
-                                String value = temp.getValue();
+                            Set<Integer> demographicsKey = demographicsError.keySet();
+                            for(Integer key : demographicsKey){
                                 JsonObject tempJson = new JsonObject();
                                 tempJson.addProperty("file", "demographics.csv");
                                 tempJson.addProperty("line", key);
-                                //Adding row errors into arraylist so they could be sorted
-                                //After they are sorted, they are added into JSONarray and commited
-                                ArrayList<String> err = new ArrayList<>();
-                                err.addAll(Arrays.asList(value.split(",")));
-                                Collections.sort(err);
+
+                                String err = demographicsError.get(key);
+                                String[] errors = err.split(",");
                                 JsonArray erro = new JsonArray();
-                                for (String msg : err) {
+                                for (String msg : errors) {
                                     erro.add(msg);
                                 }
                                 tempJson.add("messages", erro);
                                 error.add(tempJson);
                             }
-
+                            
                             // Location-lookup.csv file errors
-                            Map<Integer, String> locationLookupErrorSorted = new TreeMap<>(locationLookupError);
-                            for (Map.Entry<Integer, String> temp : locationLookupErrorSorted.entrySet()) {
-                                int key = temp.getKey();
-                                String value = temp.getValue();
+                            Set<Integer> lookupKeys = locationLookupError.keySet();
+                            for(Integer key : lookupKeys){
                                 JsonObject tempJson = new JsonObject();
                                 tempJson.addProperty("file", "location-lookup.csv");
                                 tempJson.addProperty("line", key);
-                                //Adding row errors into arraylist so they could be sorted
-                                //After they are sorted, they are added into JSONarray and commited
-                                ArrayList<String> err = new ArrayList<>();
-                                err.addAll(Arrays.asList(value.split(",")));
-                                Collections.sort(err);
+
+                                String err = locationLookupError.get(key);
+                                String[] errors = err.split(",");
                                 JsonArray erro = new JsonArray();
-                                for (String msg : err) {
+                                for (String msg : errors) {
                                     erro.add(msg);
                                 }
                                 tempJson.add("messages", erro);
@@ -182,20 +174,16 @@ public class bootstrapUpload extends HttpServlet {
                             }
 
                             // Location.csv file errors
-                            Map<Integer, String> locationErrorSored = new TreeMap<>(locationError);
-                            for (Map.Entry<Integer, String> temp : locationErrorSored.entrySet()) {
-                                int key = temp.getKey();
-                                String value = temp.getValue();
+                            Set<Integer> locationKeys = locationError.keySet();
+                            for(Integer key : locationKeys){
                                 JsonObject tempJson = new JsonObject();
                                 tempJson.addProperty("file", "location.csv");
                                 tempJson.addProperty("line", key);
-                                //Adding row errors into arraylist so they could be sorted
-                                //After they are sorted, they are added into JSONarray and commited
-                                ArrayList<String> err = new ArrayList<>();
-                                err.addAll(Arrays.asList(value.split(",")));
-                                Collections.sort(err);
+
+                                String err = locationError.get(key);
+                                String[] errors = err.split(",");
                                 JsonArray erro = new JsonArray();
-                                for (String msg : err) {
+                                for (String msg : errors) {
                                     erro.add(msg);
                                 }
                                 tempJson.add("messages", erro);

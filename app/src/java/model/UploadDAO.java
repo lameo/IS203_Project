@@ -391,6 +391,14 @@ public class UploadDAO {
                     errorMap.put(lineNumber, errorMsg.substring(2));
                     continue;
                 }
+
+                // Checking for semantic name
+                if (columns[1] == null || columns[1].isEmpty()) {
+                    errorMsg += ",missing semantic place";
+                    errorMap.put(lineNumber, errorMsg.substring(2));
+                    continue;
+                }
+                
                 try {
                     locationID = Integer.parseInt(columns[0].trim());
                     if (locationID < 0) {
@@ -399,13 +407,7 @@ public class UploadDAO {
                 } catch (NumberFormatException e) {
                     errorMsg += ",invalid location id";
                 }
-
-                // Checking for semantic name
-                if (columns[1] == null || columns[1].isEmpty()) {
-                    errorMsg += ",missing semantic place";
-                    errorMap.put(lineNumber, errorMsg.substring(2));
-                    continue;
-                }
+                
                 String locationName = columns[1];
                 locationName = locationName.trim();
                 boolean valid = false;
@@ -507,7 +509,19 @@ public class UploadDAO {
                     errorMap.put(i + 1, errorMsg.substring(2));
                     continue;
                 }
-
+                
+                // Checking for locationID
+                locationID = locationID.trim();
+                if (!locationIDs.contains(locationID)) {
+                    errorMsg += ",invalid location";
+                }
+                
+                // Checking for macaddress
+                macaddress = macaddress.trim();
+                if (macaddress.length() != 40 || !macaddress.matches("-?[0-9a-fA-F]+")) {
+                    errorMsg += ",invalid mac address";
+                }                
+                
                 // Checking for timeDate
                 timeDate = timeDate.trim();
                 boolean validDate = true;
@@ -527,18 +541,6 @@ public class UploadDAO {
                 validDate = validDate && (Integer.parseInt(timeDate.substring(17, 19)) >= 0) && (Integer.parseInt(timeDate.substring(17, 19)) <= 59);
                 if (!validDate) {
                     errorMsg += ",invalid timestamp";
-                }
-
-                // Checking for macaddress
-                macaddress = macaddress.trim();
-                if (macaddress.length() != 40 || !macaddress.matches("-?[0-9a-fA-F]+")) {
-                    errorMsg += ",invalid mac address";
-                }
-
-                // Checking for locationID
-                locationID = locationID.trim();
-                if (!locationIDs.contains(locationID)) {
-                    errorMsg += ",invalid location";
                 }
 
                 //Checking for duplicates
@@ -687,7 +689,7 @@ public class UploadDAO {
                         errorMsg += ",invalid email";
                     }
                 } else {
-                    errorMsg += ", invalid email";
+                    errorMsg += ",invalid email";
                 }
 
                 // Gender
@@ -796,7 +798,19 @@ public class UploadDAO {
                     errorMap.put(i + 1, errorMsg.substring(2));
                     continue;
                 }
-
+                
+                // Checking for locationID
+                locationID = locationID.trim();
+                if (!locationIDs.contains(locationID)) {
+                    errorMsg += ",invalid location";
+                }
+                
+                // Checking for macaddress
+                macaddress = macaddress.trim();
+                if (macaddress.length() != 40 || !macaddress.matches("-?[0-9a-fA-F]+")) {
+                    errorMsg += ",invalid mac address";
+                }                
+                
                 // Checking for timeDate
                 timeDate = timeDate.trim();
                 boolean validDate = true;
@@ -816,18 +830,6 @@ public class UploadDAO {
                 validDate = validDate && (Integer.parseInt(timeDate.substring(17, 19)) >= 0) && (Integer.parseInt(timeDate.substring(17, 19)) <= 59);
                 if (!validDate) {
                     errorMsg += ",invalid timestamp";
-                }
-
-                // Checking for macaddress
-                macaddress = macaddress.trim();
-                if (macaddress.length() != 40 || !macaddress.matches("-?[0-9a-fA-F]+")) {
-                    errorMsg += ",invalid mac address";
-                }
-
-                // Checking for locationID
-                locationID = locationID.trim();
-                if (!locationIDs.contains(locationID)) {
-                    errorMsg += ",invalid location id";
                 }
 
                 //Duplicate
