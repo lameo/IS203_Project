@@ -77,7 +77,7 @@
                 int numberOfUsersInBuilding = (int) (session.getAttribute("numberOfUsersInBuilding"));
                 out.println(timeDate);
                 out.println(numberOfUsersInBuilding);
-                /*
+                
                 Map<String, Map<String, ArrayList<String>>> listOfUsersWith12MinutesData = AutoGroupDAO.retrieveUsersWith12MinutesData(timeDate);
 
                 Set<String> macaddress = listOfUsersWith12MinutesData.keySet();
@@ -93,7 +93,7 @@
                         out.println("<br><br>");
                         counter++;
                     }
-                }*/
+                }
                 
                 ArrayList<Group> autoGroupsDetected = (ArrayList<Group>) (session.getAttribute("autoGroupsDetected"));
                 out.println(autoGroupsDetected.size());

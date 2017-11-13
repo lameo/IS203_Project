@@ -122,18 +122,18 @@ public class AutoGroupDAO {
                                     cal.setTime(timestamp);
                                     cal.add(Calendar.MINUTE, 5);
                                     timestampNext = cal.getTime();
-
-                                    ArrayList<String> timelist = locationMap.get(locationid);
-                                    //if locationMap already has timestamps of this locationid
-                                    if (timelist == null || timelist.size() <= 0) {
-                                        timelist = new ArrayList<String>();
-                                    }
-
-                                    timelist.add(dateFormat.format(timestamp) + "," + dateFormat.format(timestampNext));
-                                    locationMap.put(locationid, timelist);
-
-                                    timestampStart = null;
                                 }
+                                ArrayList<String> timelist = locationMap.get(locationid);
+                                //if locationMap already has timestamps of this locationid
+                                if (timelist == null || timelist.size() <= 0) {
+                                    timelist = new ArrayList<String>();
+                                }
+
+                                timelist.add(dateFormat.format(timestamp) + "," + dateFormat.format(timestampNext));
+                                locationMap.put(locationid, timelist);
+
+                                timestampStart = null;
+
                                 totalTimeDuration += timeGap; //add time gap of total time duration
                             }
                         }
@@ -309,14 +309,14 @@ public class AutoGroupDAO {
 
                                 //if timestart of user 1 is before or equal to user 2 and timeend of user 1 before user 2,
                                 //common timestamps are from time start of user 2 to time end of user 1
-                            } else if (!timestampStart.after(nextTimestampStart) && !timestampEnd.before(nextTimestampStart) && !timestampEnd.after(nextTimestampEnd)) {
+                            } else if (!timestampStart.after(nextTimestampStart) && timestampEnd.after(nextTimestampStart) && !timestampEnd.after(nextTimestampEnd)) {
 
                                 gap = (timestampEnd.getTime() - nextTimestampStart.getTime()) / (1000.0);
                                 commonTimestamps.add(nextTimestringStart + "," + timestringEnd + "," + gap);
 
                                 //if timestart of user 1 is before or equal to user 2 and timeend of user 1 before user 2,
                                 //common timestamps are from time start of user 2 to time end of user 1
-                            } else if (!nextTimestampStart.after(timestampStart) && !nextTimestampEnd.before(timestampStart) && !nextTimestampEnd.after(timestampEnd)) {
+                            } else if (!nextTimestampStart.after(timestampStart) && nextTimestampEnd.after(timestampStart) && !nextTimestampEnd.after(timestampEnd)) {
 
                                 gap = (nextTimestampEnd.getTime() - timestampStart.getTime()) / (1000.0);
                                 commonTimestamps.add(timestringStart + "," + nextTimestringEnd + "," + gap);
@@ -364,8 +364,8 @@ public class AutoGroupDAO {
             autoGroups.remove(subGroup);
         }
         return autoGroups;
-    }    
-    
+    }
+
     public static boolean commonLocationTimestamps(ArrayList<String> LocationTimestamps1, ArrayList<String> LocationTimestamps2) {
 
         //boolean CommonLocationTimestamps12Mins = false;
