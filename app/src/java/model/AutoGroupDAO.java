@@ -8,7 +8,9 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
@@ -344,26 +346,32 @@ public class AutoGroupDAO {
 
     //
     public static ArrayList<Group> checkAutoGroups(ArrayList<Group> autoGroups) {
-        //ArrayList<Group> NewAutoGroups = AutoGroups;
-        //Iterator<Group> newAutoGroups = autoGroups.iterator();
-        ArrayList<Group> subAutoGroups = new ArrayList<Group>();
+        ArrayList<Group> subAutoGroups = new ArrayList<>();
         for (int i = 0; i < autoGroups.size(); i++) {
-            Group autoGroup1 = autoGroups.get(i);
-            ArrayList<String> autoGroup1Macs = autoGroup1.getAutoUsersMacs();
-            for (int j = 0; j < autoGroups.size(); j++) {
-                Group autoGroup2 = autoGroups.get(j);
-                if (!autoGroup1.equals(autoGroup2)) {
-                    if (autoGroup1.checkSubGroup(autoGroup2)) {
-                        //newAutoGroups.remove();
-                        subAutoGroups.add(autoGroup2);
+            Group eachGroup = autoGroups.get(i);
+            ArrayList<String> groupMacaddresses = eachGroup.getAutoUsersMacs();
+            Collections.sort(groupMacaddresses);
+            for (int k = 0; k < autoGroups.size(); k++) {
+                Group nextGroup = autoGroups.get(k);
+                ArrayList<String> nextGroupMacaddresses = nextGroup.getAutoUsersMacs();
+                Collections.sort(nextGroupMacaddresses);
+                if (groupMacaddresses.size() >= nextGroupMacaddresses.size()) {
+                    if (groupMacaddresses.containsAll(nextGroupMacaddresses)) {
+                        if (!subAutoGroups.contains(eachGroup)) {
+                            subAutoGroups.add(eachGroup);
+                        }
+                    } else {
+                        if(!subAutoGroups.contains(eachGroup)){
+                            subAutoGroups.add(eachGroup);
+                        }
+                        if(!subAutoGroups.contains(nextGroup)){
+                            subAutoGroups.add(nextGroup);
+                        }                        
                     }
                 }
             }
         }
-        for (Group subGroup : subAutoGroups) {
-            autoGroups.remove(subGroup);
-        }
-        return autoGroups;
+        return subAutoGroups;
     }
 
     public static boolean commonLocationTimestamps(ArrayList<String> LocationTimestamps1, ArrayList<String> LocationTimestamps2) {

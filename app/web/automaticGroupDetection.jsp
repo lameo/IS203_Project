@@ -69,48 +69,9 @@
                 <button type="submit" class="btn btn-primary">Generate</button>
             </form>
         </div>
-        <%
-
-            String timeDate = (String) session.getAttribute("timeDate");
-            int counter = 0;
-            if (timeDate != null) {
-                int numberOfUsersInBuilding = (int) (session.getAttribute("numberOfUsersInBuilding"));
-                out.println(timeDate);
-                out.println(numberOfUsersInBuilding);
-                
-                Map<String, Map<String, ArrayList<String>>> listOfUsersWith12MinutesData = AutoGroupDAO.retrieveUsersWith12MinutesData(timeDate);
-
-                Set<String> macaddress = listOfUsersWith12MinutesData.keySet();
-                for (String s : macaddress) {
-                    if (counter < 10) {
-                        out.println("Macaddress:" + s + "<br>");
-                        Map<String, ArrayList<String>> locations = listOfUsersWith12MinutesData.get(s);
-                        Set<String> location = locations.keySet();
-                        out.println("Location: ");
-                        for (String l : location) {
-                            out.println(l + " " + locations.get(l) + "<br>");
-                        }
-                        out.println("<br><br>");
-                        counter++;
-                    }
-                }
-                
-                ArrayList<Group> autoGroupsDetected = (ArrayList<Group>) (session.getAttribute("autoGroupsDetected"));
-                out.println(autoGroupsDetected.size());
-                for(Group g : autoGroupsDetected){
-                    out.println(g.getAutoUsersMacs() + "<br>");
-                    out.println(g.getLocationTimestamps() + "<br>");
-                }
-            }
-            /*
+        <%  
             //If top K report is generated
             if (session.getAttribute("autoGroupsDetected") != null) {
-                //out.println(session.getAttribute("test"));
-                /*ArrayList<String> test = (ArrayList<String>)session.getAttribute("test");
-                for(int i=0;i<test.size();i++){
-                    out.println(test.get(i)+"<br>");
-                }
-
                 String timedate = (String) session.getAttribute("timeDate");
                 ArrayList<Group> autoGroupsDetected = (ArrayList<Group>) (session.getAttribute("autoGroupsDetected"));
                 if (autoGroupsDetected == null || autoGroupsDetected.size() == 0) {
@@ -128,17 +89,12 @@
                     int GroupNo = 1;
                     for (Group AutoGroup : autoGroupsDetected) {
                         ArrayList<String> AutoUsers = AutoGroup.retrieveMacsWithEmails();
-                        Map<String, Double> locationTimestamps = AutoGroup.CalculateTimeDuration();
-                        //out.println(locationTimestamps.size());
-                        Iterator<String> locations = locationTimestamps.keySet().iterator();
-                        int AutoUsersNum = AutoGroup.getAutoUsersSize();
-                        int rowspanMac = 1;
-                        int rowspanLocation = 1;
-                        int rowspan = 1;
+                        Map<String, Double> locationTimestamps = AutoGroup.calculateTimeDuration();
 
-                        //out.print("<tr><td rowspan=" + AutoGroup.getAutoUsersSize() + ">" + (GroupNo) + "</td>");
+                        Iterator<String> locations = locationTimestamps.keySet().iterator();
+                        
                         out.print("<tr><td>" + (GroupNo) + "</td>");
-                        //out.print("<td rowspan=" + rowspan + ">");
+
                         out.println("<td>");
                         for (int i = 0; i < AutoUsers.size(); i += 1) {
                             String[] AutoUser = AutoUsers.get(i).split(",");
@@ -152,7 +108,6 @@
                             String location = locations.next();
                             Double TimeDuration = locationTimestamps.get(location);
                             out.println(location + " (" + TimeDuration + ")<br/>");
-                            //out.println(Location + " " + TimeDuration);
                         }
 
                         out.print("</td></tr>");
@@ -162,20 +117,10 @@
 
                 }
             }
-             */
+            session.removeAttribute("autoGroupsDetected");             
             session.removeAttribute("timeDate");
             session.removeAttribute("numberOfUsersInBuilding");
-            /*
-                    if (AutoUsers.size() >= locationTimestamps.size()) {
-                        rowspanMac = AutoUsers.size();
-                        rowspanLocation = rowspanMac;
-                        rowspan = rowspanMac;
-                    } else {
-                        rowspanLocation = locationTimestamps.size();
-                        rowspanMac = rowspanLocation;
-                        rowspan = rowspanLocation;
-                    }
-             */
+             
         %>
     </center>
 </body>

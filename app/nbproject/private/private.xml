@@ -5,6 +5,7 @@
         <group>
             <file>file:/D:/testt/app/src/java/model/AutoGroupDAO.java</file>
             <file>file:/D:/testt/app/src/java/controller/AutoGroupServlet.java</file>
+            <file>file:/D:/testt/app/src/java/json/autoGroupDetection.java</file>
             <file>file:/D:/testt/app/web/automaticGroupDetection.jsp</file>
         </group>
     </open-files>
