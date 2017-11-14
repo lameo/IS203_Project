@@ -257,90 +257,112 @@ public class AutoGroupDAO {
         return autoGroups;
     }
 
+    /**
+     * retrieve common timestamps at same location between two users if they stay together
+     * at same locations for at least 12 minutes
+     * @param locationsMap ArrayList of timestamps with locations 
+     * @param nextLocationsMap ArrayList of all the automatic groups found
+     * @return Map of common timestamps at same location between two users if they stay together
+     * at same locations for at least 12 minutes, key is each common location and value is 
+     * time start, time end and time gap between time start and end
+     */
     public static Map<String, ArrayList<String>> commonLocationTimestamps12Mins(Map<String, ArrayList<String>> locationsMap, Map<String, ArrayList<String>> nextLocationsMap) {
-
+        
         Map<String, ArrayList<String>> commonLocationTimestamps = new HashMap<String, ArrayList<String>>();
-
+        //record the total time duration for each user
         double totalDuration = 0;
-
+        //retrieve all the locations of first user
         Set<String> locations = locationsMap.keySet();
         try {
-            //check common location timestamps from user1 and user2
+            //loop through all the locations of first user
             for (String location : locations) {
+                //retrieve the timestamps of the location
                 ArrayList<String> timestamps = locationsMap.get(location);
-
-                if (nextLocationsMap.containsKey(location)) { //check if user 2 has visited location 1
-                    //if user 2 has visited location 1
+                //check if next user has visited the location
+                if (nextLocationsMap.containsKey(location)) { 
+                    //iif both first user and next user has visited the location
+                    //this location is set to the common location between 2 users
                     String commonLocation = location;
-                    ArrayList<String> nextTimestamps = nextLocationsMap.get(location);//retrieve timestamps of users 2 at location 1
+                    //retrieve the timestamps of the next user at common location
+                    ArrayList<String> nextTimestamps = nextLocationsMap.get(location);
                     ArrayList<String> commonTimestamps = new ArrayList<String>();
-
+                    //loop through the timestamps of first user at common location
                     for (int i = 0; i < timestamps.size(); i++) {
+                        //retrieve the timestamp of first user
                         String[] timestamps1 = timestamps.get(i).split(",");
+                        //retrieve the time start of first user
                         String timestringStart = timestamps1[0];
+                        //retrieve the time end of first user
                         String timestringEnd = timestamps1[1];
-
+                        //loop through the timestamps of next user at common location
                         for (int j = 0; j < nextTimestamps.size(); j++) {
-
+                            //retrieve the timestamp of next user
                             String[] timestamps2 = nextTimestamps.get(j).split(",");
+                            //retrieve the time start of next user
                             String nextTimestringStart = timestamps2[0];
+                            //retrieve the time end of next user
                             String nextTimestringEnd = timestamps2[1];
-
                             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-
-                            java.util.Date timestampStart = dateFormat.parse(timestringStart);//convert time string to Date format
+                            //convert the time start of first user to date format
+                            java.util.Date timestampStart = dateFormat.parse(timestringStart);
+                            //convert the time end of first user to date format
                             java.util.Date timestampEnd = dateFormat.parse(timestringEnd);
-
-                            java.util.Date nextTimestampStart = dateFormat.parse(nextTimestringStart);//convert time string to Date format
+                            //convert the time start of next user to date format
+                            java.util.Date nextTimestampStart = dateFormat.parse(nextTimestringStart);
+                            //convert the time end of first user to date format
                             java.util.Date nextTimestampEnd = dateFormat.parse(nextTimestringEnd);
-
-                            //if timestart of user 1 is before or equal to user 2 and time end of user 1 equal or after user 2,
-                            //common timestamps are from time start to time end of user 2
+                            //if timestart of first user is before or equal to next user
+                            //and time end of first user equal or after next user,
+                            //common timestamps are from time start to time end of next user
                             double gap = 0;
                             if (!timestampStart.after(nextTimestampStart) && !timestampEnd.before(nextTimestampEnd)) {
-
+                                //calculate the time gap
                                 gap = (nextTimestampEnd.getTime() - nextTimestampStart.getTime()) / (1000.0);
                                 commonTimestamps.add(nextTimestringStart + "," + nextTimestringEnd + "," + gap);
 
-                                //if timestart of user 2 is before or equal to user 1 and timeend of user 2 equal or after user 1,
-                                //common timestamps are from time start to time end of user 1
+                                //if timestart of next user is before or equal to first user 
+                                //and time end of next user equal or after first user,
+                                //common timestamps are from time start to time end of first user
                             } else if (!nextTimestampStart.after(timestampStart) && !nextTimestampEnd.before(timestampEnd)) {
-
+                                //calculate the time gap
                                 gap = (timestampEnd.getTime() - timestampStart.getTime()) / (1000.0);
                                 commonTimestamps.add(timestringStart + "," + timestringEnd + "," + gap);
 
-                                //if timestart of user 1 is before or equal to user 2 and timeend of user 1 before user 2,
-                                //common timestamps are from time start of user 2 to time end of user 1
+                                //if timestart of first user is before or equal to next user 
+                                //and time end of first user before next user,
+                                //common timestamps are from time start of next user to time end of first user
                             } else if (!timestampStart.after(nextTimestampStart) && timestampEnd.after(nextTimestampStart) && !timestampEnd.after(nextTimestampEnd)) {
-
+                                //calculate the time gap
                                 gap = (timestampEnd.getTime() - nextTimestampStart.getTime()) / (1000.0);
                                 commonTimestamps.add(nextTimestringStart + "," + timestringEnd + "," + gap);
 
-                                //if timestart of user 1 is before or equal to user 2 and timeend of user 1 before user 2,
-                                //common timestamps are from time start of user 2 to time end of user 1
+                                //if timestart of first user is before or equal to next users 
+                                ///and time end of first user before next user,
+                                //common timestamps are from time start of next user to time end of first user
                             } else if (!nextTimestampStart.after(timestampStart) && nextTimestampEnd.after(timestampStart) && !nextTimestampEnd.after(timestampEnd)) {
-
+                                //calculate the time gap
                                 gap = (nextTimestampEnd.getTime() - timestampStart.getTime()) / (1000.0);
                                 commonTimestamps.add(timestringStart + "," + nextTimestringEnd + "," + gap);
                             }
-
+                            //add the time gap to the total time duration
                             totalDuration += gap;
                         }
                     }
-                    //check if there is any common timestamps at common location
+                    //check if there are any common timestamps at common location
                     if (commonTimestamps.size() > 0) {
-                        commonLocationTimestamps.put(commonLocation, commonTimestamps);//add common location and timestamps
+                        //add common timestamps at common location to commonLocationTimestamps
+                        commonLocationTimestamps.put(commonLocation, commonTimestamps);
                     }
                 }
             }
-            //check if total time duration is at least 12 minutes
+            //return commonLocationTimestamps if total common time duration is at least 12 minutes
             if (totalDuration >= 720) {
                 return commonLocationTimestamps;
             }
         } catch (ParseException ex) {
             Logger.getLogger(AutoGroupDAO.class.getName()).log(Level.SEVERE, null, ex);
         }
-
+        //return null if total common time duration is less than 12 minutes
         return null;
     }
 
