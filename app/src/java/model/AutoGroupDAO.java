@@ -344,36 +344,61 @@ public class AutoGroupDAO {
         return null;
     }
 
-    //
+    /**
+     * check the automatic groups, remove the sub groups and same groups if any, return the
+     * rest of the unique groups
+     * @param autoGroups ArrayList of all the automatic groups found
+     * @return ArrayList of groups for all the unique automatic groups with no 
+     * same groups and sub groups
+     */
     public static ArrayList<Group> checkAutoGroups(ArrayList<Group> autoGroups) {
-        ArrayList<Group> subAutoGroups = new ArrayList<>();
+        ArrayList<Group> newAutoGroups = new ArrayList<>();
+        //loop through all the automatic groups found
         for (int i = 0; i < autoGroups.size(); i++) {
+            //retrieve the first automatic group
             Group eachGroup = autoGroups.get(i);
+            //retrieve the macaddresses of the first automatic group
             ArrayList<String> groupMacaddresses = eachGroup.getAutoUsersMacs();
+            //sort the group macaddresses alphbetically
             Collections.sort(groupMacaddresses);
+            //loop through all the automatic groups found
             for (int k = 0; k < autoGroups.size(); k++) {
+                //retreive the next automatic group
                 Group nextGroup = autoGroups.get(k);
+                //retrieve the macaddresses of the next automatic group
                 ArrayList<String> nextGroupMacaddresses = nextGroup.getAutoUsersMacs();
+                //sort the group macaddresses alphbetically
                 Collections.sort(nextGroupMacaddresses);
+                //check if first group size is same or greater than the next group
                 if (groupMacaddresses.size() >= nextGroupMacaddresses.size()) {
+                    //check if first group contains all users of the next group
                     if (groupMacaddresses.containsAll(nextGroupMacaddresses)) {
-                        if (!subAutoGroups.contains(eachGroup)) {
-                            subAutoGroups.add(eachGroup);
+                        //check if 
+                        if (!newAutoGroups.contains(eachGroup)) {
+                            newAutoGroups.add(eachGroup);
                         }
                     } else {
-                        if(!subAutoGroups.contains(eachGroup)){
-                            subAutoGroups.add(eachGroup);
+                        if(!newAutoGroups.contains(eachGroup)){
+                            newAutoGroups.add(eachGroup);
                         }
-                        if(!subAutoGroups.contains(nextGroup)){
-                            subAutoGroups.add(nextGroup);
+                        if(!newAutoGroups.contains(nextGroup)){
+                            newAutoGroups.add(nextGroup);
                         }                        
                     }
                 }
             }
         }
-        return subAutoGroups;
+        return newAutoGroups;
     }
-
+    /**
+     * retrieve the number of users in the entire SIS building 15mins before the
+     * specified time
+     *
+     * @param timestringEnd String in dd/mm/yyyy hh:mm:ss format for when the report is
+     * generated
+     * @return int of the number of users in the entire SIS building for that date and time
+     *
+     */
     public static int retrieveUsersNumber(String timestringEnd) {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
