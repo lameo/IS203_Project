@@ -1214,7 +1214,7 @@ public class ReportDAO {
 
             Calendar cal = Calendar.getInstance();
             cal.setTime(timeStart);
-            cal.add(Calendar.MINUTE, -5);
+            cal.add(Calendar.MINUTE, -5); //get 5 minutes before (inclusive)
             String timestringBeforeStart = dateFormat.format(cal.getTime());
 
             //get a connection to database
