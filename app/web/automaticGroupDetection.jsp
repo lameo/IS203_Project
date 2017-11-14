@@ -86,14 +86,14 @@
                     out.print("<thead><tr><th colspan = 3>Number of users in the entire SIS building: " + numberOfUsersInBuilding + " <br>Total number of groups discovered: " + autoGroupsDetected.size() + "</th></tr>");
                     out.print("<tr><th>Group No.</th><th>Macaddress (Email)</th><th>Location id (Time spent in seconds)</th></tr></thead></tbody>");
 
-                    int GroupNo = 1;
-                    for (Group AutoGroup : autoGroupsDetected) {
-                        ArrayList<String> AutoUsers = AutoGroup.retrieveMacsWithEmails();
-                        Map<String, Double> locationTimestamps = AutoGroup.calculateTimeDuration();
+                    int groupNo = 1;
+                    for (Group autoGroup : autoGroupsDetected) {
+                        ArrayList<String> AutoUsers = autoGroup.retrieveMacsWithEmails();
+                        Map<String, Double> locationTimestamps = autoGroup.calculateTimeDuration();
 
                         Iterator<String> locations = locationTimestamps.keySet().iterator();
                         
-                        out.print("<tr><td>" + (GroupNo) + "</td>");
+                        out.print("<tr><td>" + (groupNo) + "</td>");
 
                         out.println("<td>");
                         for (int i = 0; i < AutoUsers.size(); i += 1) {
@@ -111,7 +111,7 @@
                         }
 
                         out.print("</td></tr>");
-                        GroupNo++;
+                        groupNo++;
                     }
                     out.print("</tbody></table></div>");
 

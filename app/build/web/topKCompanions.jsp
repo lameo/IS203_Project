@@ -107,25 +107,25 @@
                     out.print("<h3>Top-" + topK + " Companions at " + timedate + "</h3>");
 
                     out.print("<div class=\"container\"><table class=\"table table-bordered\"><thead>");
-                    Set<Double> Times = topKCompanions.keySet();
+                    Set<Double> times = topKCompanions.keySet();
 
                     out.print("<tr><th>Rank</th><th>Macaddress</th><th>Email</th><th>Co-Located Time (in seconds)</th></tr></thead></tbody>");
                     int rank = 1;
-                    for (double time : Times) {
+                    for (double time : times) {
                         if (rank <= topK) {
                             ArrayList<String> macaddresses = topKCompanions.get(time);
-                            out.print("<tr><td rowspan=" + macaddresses.size() + ">" + (rank) + "</td>");
+                            out.print("<tr><td rowspan=" + macaddresses.size() + ">" + rank + "</td>");
                             for (int i = 0; i < macaddresses.size(); i += 1) {
                                 String macaddress = macaddresses.get(i);
-                                String[] UserInfo = macaddress.split(",");
+                                String[] userInfo = macaddress.split(",");
                                 if (i == 0) {
-                                    out.print("<td>" + UserInfo[0] + "</td>");
-                                    out.print("<td>" + UserInfo[1] + "</td>");
+                                    out.print("<td>" + userInfo[0] + "</td>");
+                                    out.print("<td>" + userInfo[1] + "</td>");
                                     //add rowspan for first row of companion user
                                     out.print("<td rowspan=" + macaddresses.size() + ">" + time + "</td>");
                                 } else {
-                                    out.print("<tr><td>" + UserInfo[0] + "</td>");
-                                    out.print("<td>" + UserInfo[1] + "</td></tr>");
+                                    out.print("<tr><td>" + userInfo[0] + "</td>");
+                                    out.print("<td>" + userInfo[1] + "</td></tr>");
                                 }
                             }
                             out.print("</tr>");
