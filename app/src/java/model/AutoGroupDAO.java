@@ -345,8 +345,8 @@ public class AutoGroupDAO {
     }
 
     /**
-     * check the automatic groups, remove the sub groups and same groups if any, return the
-     * rest of the unique groups
+     * check the automatic groups, remove the sub groups and same groups if any, return 
+     * new unique automatic groups
      * @param autoGroups ArrayList of all the automatic groups found
      * @return ArrayList of groups for all the unique automatic groups with no 
      * same groups and sub groups
@@ -373,14 +373,20 @@ public class AutoGroupDAO {
                 if (groupMacaddresses.size() >= nextGroupMacaddresses.size()) {
                     //check if first group contains all users of the next group
                     if (groupMacaddresses.containsAll(nextGroupMacaddresses)) {
-                        //check if 
+                        //check if new automatic group contains the first group, if no, 
+                        //add the first group to the new automatic group
                         if (!newAutoGroups.contains(eachGroup)) {
                             newAutoGroups.add(eachGroup);
                         }
+                    //check if first group doesn't contains all users of the next group
                     } else {
+                        //check if new automatic group contains the first group, if no, 
+                        //add the first group to the new automatic group
                         if(!newAutoGroups.contains(eachGroup)){
                             newAutoGroups.add(eachGroup);
                         }
+                        //check if new automatic group contains the next group, if no, 
+                        //add the next group to the new automatic group
                         if(!newAutoGroups.contains(nextGroup)){
                             newAutoGroups.add(nextGroup);
                         }                        
