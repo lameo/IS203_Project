@@ -7,12 +7,8 @@ import com.google.gson.JsonObject;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Hashtable;
-import java.util.Map;
 import java.util.Set;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
@@ -53,7 +49,7 @@ public class bootstrapUpdate extends HttpServlet {
                 MultipartFormDataRequest multipartRequest = new MultipartFormDataRequest(request); //specialized version of request object to interpret the data
 
                 //get token from request
-                String token = (String) multipartRequest.getParameter("token");
+                String token = multipartRequest.getParameter("token");
 
                 // Token checking
                 if (token == null) {

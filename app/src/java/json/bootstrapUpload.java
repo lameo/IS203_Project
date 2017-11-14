@@ -14,16 +14,12 @@ import com.google.gson.JsonArray;
 import javazoom.upload.UploadBean;
 import javazoom.upload.UploadFile;
 import model.SharedSecretManager;
-import java.util.Collections;
 import com.google.gson.Gson;
 import java.io.IOException;
 import java.util.Hashtable;
 import java.io.PrintWriter;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Arrays;
 import model.UploadDAO;
-import java.util.Map;
 import java.io.File;
 import java.util.Set;
 
@@ -54,7 +50,7 @@ public class bootstrapUpload extends HttpServlet {
                 MultipartFormDataRequest multipartRequest = new MultipartFormDataRequest(request); //specialized version of request object to interpret the data
 
                 //get token from request
-                String token = (String) multipartRequest.getParameter("token");
+                String token = multipartRequest.getParameter("token");
 
                 // Token checking
                 if (token == null) {

@@ -2,8 +2,8 @@ package model;
 
 import is203.JWTException;
 import is203.JWTUtility;
-import java.util.logging.Logger;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * A class that generates and validates unique token to validate that authorized users

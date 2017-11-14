@@ -1,20 +1,20 @@
 package json;
 
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.annotation.WebServlet;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonArray;
-import model.SharedSecretManager;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import model.ReportDAO;
+import model.SharedSecretManager;
 
 @WebServlet(urlPatterns = {"/json/basic-loc-report"})
 public class breakdown extends HttpServlet {

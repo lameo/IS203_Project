@@ -150,7 +150,7 @@ public class topKNextPlaces extends HttpServlet {
         }
 
         //Check if user entered a top k number
-        if (topKEntered == null || topKEntered.equals("")) {
+        if (topKEntered == null || topKEntered.isEmpty()) {
             topKEntered = "3";
         }
 

@@ -1,21 +1,21 @@
 package model;
 
 import au.com.bytecode.opencsv.CSVReader;
-import java.util.zip.ZipInputStream;
-import java.sql.PreparedStatement;
-import java.io.InputStreamReader;
-import java.io.FileOutputStream;
-import java.io.FileInputStream;
 import java.io.BufferedReader;
-import java.util.zip.ZipEntry;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.io.IOException;
-import java.sql.Connection;
-import java.sql.ResultSet;
 import java.util.HashMap;
 import java.util.List;
-import java.io.File;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 /**
  * Bootstrap module for database scheme 'data'
@@ -42,7 +42,6 @@ public class UploadDAO {
             preparedStatement.close();
             connection.close();
         } catch (SQLException e) {
-            e.printStackTrace();
         }
     }
 
@@ -66,7 +65,6 @@ public class UploadDAO {
             preparedStatement.close();
             connection.close();
         } catch (SQLException e) {
-            e.printStackTrace();
         }
     }
 
@@ -90,7 +88,6 @@ public class UploadDAO {
             preparedStatement.close();
             connection.close();
         } catch (SQLException e) {
-            e.printStackTrace();
         }
     }
 
@@ -127,9 +124,7 @@ public class UploadDAO {
             preparedStatement.close();
             connection.close();
         } catch (SQLException e) {
-            e.printStackTrace();
         }
-        System.out.println(ans.contains("1010100009"));
         System.out.println(ans);
         return ans;
     }
@@ -163,7 +158,6 @@ public class UploadDAO {
             preparedStatement.close();
             connection.close();
         } catch (SQLException e) {
-            e.printStackTrace();
         }
         return ans;
     }
@@ -197,7 +191,6 @@ public class UploadDAO {
             preparedStatement.close();
             connection.close();
         } catch (SQLException e) {
-            e.printStackTrace();
         }
         return ans;
     }
@@ -302,7 +295,7 @@ public class UploadDAO {
                     }
                 }
                 if (email.contains("@")) {
-                    if (!UserDAO.validateUsername(email.substring(0, email.lastIndexOf("@"))) || !valid || email.contains("..")) {
+                    if (!UserDAO.validateUsername(email.substring(0, email.lastIndexOf('@'))) || !valid || email.contains("..")) {
                         errorMsg += ",invalid email";
                     }
                 } else {
@@ -316,7 +309,7 @@ public class UploadDAO {
                 }
 
                 //set the parameters
-                if (!errorMsg.equals("")) {
+                if (!errorMsg.isEmpty()) {
                     errorMap.put(lineNumber, errorMsg.substring(1));
                 } else {
                     successful++;
@@ -342,9 +335,7 @@ public class UploadDAO {
             preparedStatement.close();
             connection.close();
         } catch (SQLException e) {
-            e.printStackTrace();
         } catch (IOException e) {
-            e.printStackTrace();
         }
         errorMap.put(Integer.MAX_VALUE, "" + successful);
         return errorMap;
@@ -381,7 +372,6 @@ public class UploadDAO {
             while ((columns = reader.readNext()) != null) {
                 System.out.println(columns[0]);
                 lineNumber++;
-                System.out.println(lineNumber);
                 String errorMsg = "";
                 int locationID = 0;
 
@@ -421,7 +411,7 @@ public class UploadDAO {
                 }
 
                 //set the parameters
-                if (!errorMsg.equals("")) {
+                if (!errorMsg.isEmpty()) {
                     errorMap.put(lineNumber, errorMsg.substring(1));
                 } else {
                     successful++;
@@ -445,9 +435,7 @@ public class UploadDAO {
             preparedStatement.close();
             connection.close();
         } catch (SQLException e) {
-            e.printStackTrace();
         } catch (IOException e) {
-            e.printStackTrace();
         }
         errorMap.put(Integer.MAX_VALUE, "" + successful);
         return errorMap;
@@ -549,7 +537,7 @@ public class UploadDAO {
                 }
 
                 //set the parameters
-                if (!errorMsg.equals("")) {
+                if (!errorMsg.isEmpty()) {
                     errorMap.put(i + 1, errorMsg.substring(1));
                 } else {
                     successful++;
@@ -574,9 +562,7 @@ public class UploadDAO {
             preparedStatement.close();
             connection.close();
         } catch (SQLException e) {
-            e.printStackTrace();
         } catch (IOException e) {
-            e.printStackTrace();
         }
         errorMap.put(Integer.MAX_VALUE, "" + successful);
         return errorMap;
@@ -685,7 +671,7 @@ public class UploadDAO {
                     }
                 }
                 if (email.contains("@")) {
-                    if (!UserDAO.validateUsername(email.substring(0, email.indexOf("@"))) || !valid || email.contains("..")) {
+                    if (!UserDAO.validateUsername(email.substring(0, email.indexOf('@'))) || !valid || email.contains("..")) {
                         errorMsg += ",invalid email";
                     }
                 } else {
@@ -704,7 +690,7 @@ public class UploadDAO {
                 }
 
                 //set the parameters
-                if (!errorMsg.equals("")) {
+                if (!errorMsg.isEmpty()) {
                     errorMap.put(i + 1, errorMsg.substring(1));
                 } else {
                     successful++;
@@ -732,9 +718,7 @@ public class UploadDAO {
             preparedStatement.close();
             connection.close();
         } catch (SQLException e) {
-            e.printStackTrace();
         } catch (IOException e) {
-            e.printStackTrace();
         }
         errorMap.put(Integer.MAX_VALUE, "" + successful);
         return errorMap;
@@ -839,7 +823,7 @@ public class UploadDAO {
                 }
 
                 //set the parameters
-                if (!errorMsg.equals("")) {
+                if (!errorMsg.isEmpty()) {
                     errorMap.put(i + 1, errorMsg.substring(1));
                 } else {
                     successful++;
@@ -864,9 +848,7 @@ public class UploadDAO {
             preparedStatement.close();
             connection.close();
         } catch (SQLException e) {
-            e.printStackTrace();
         } catch (IOException e) {
-            e.printStackTrace();
         }
         errorMap.put(Integer.MAX_VALUE, "" + successful);
         return errorMap;
@@ -913,7 +895,6 @@ public class UploadDAO {
             zis.close();
 
         } catch (IOException ex) {
-            ex.printStackTrace();
         }
         return fileExist;
     }

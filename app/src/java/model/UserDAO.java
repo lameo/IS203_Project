@@ -1,11 +1,11 @@
 package model;
 
-import java.sql.PreparedStatement;
-import java.util.regex.Pattern;
-import java.util.regex.Matcher;
-import java.sql.SQLException;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * A class that helps in accessing user database
@@ -61,7 +61,7 @@ public class UserDAO {
             return false;
         }
         Pattern specialCharactersCheck = Pattern.compile("[!#$%&*()_+=|<>?{}\\[\\]~-]"); //check if the username contain any of these special characters
-        int lastDotIndex = username.lastIndexOf("."); //john.doe.2016 or john.2016 get the index of the last dot
+        int lastDotIndex = username.lastIndexOf('.'); //john.doe.2016 or john.2016 get the index of the last dot
         if(!username.contains("..") && lastDotIndex>=0){ //make sure the dot exists
             String checkYear = username.substring(lastDotIndex+1, username.length());
             Matcher hasSpecial = specialCharactersCheck.matcher(username);

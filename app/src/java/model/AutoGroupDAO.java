@@ -10,7 +10,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
@@ -192,7 +191,6 @@ public class AutoGroupDAO {
             preparedStatement.close();
             connection.close();
         } catch (SQLException e) {
-            e.printStackTrace();
         }
         return allUsersLocationAndTimestampMap;
     }
@@ -455,7 +453,6 @@ public class AutoGroupDAO {
             preparedStatement.close();
             connection.close();
         } catch (SQLException e) {
-            e.printStackTrace();
         }
         return count;
     }

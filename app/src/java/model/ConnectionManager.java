@@ -1,15 +1,15 @@
 package model;
 
-import java.util.logging.Logger;
-import java.util.logging.Level;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.util.Properties;
-import java.io.InputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.sql.Connection;
+import java.sql.DriverManager;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Properties;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * A class that manages connections to the database. It also has a utility
@@ -56,7 +56,6 @@ public class ConnectionManager {
             // unable to load properties file
             String message = "Unable to load '" + PROPS_FILENAME + "'.";
 
-            System.out.println(message);
             Logger.getLogger(ConnectionManager.class.getName()).log(Level.SEVERE, message, ex);
             throw new RuntimeException(message, ex);
         } finally {
@@ -77,7 +76,6 @@ public class ConnectionManager {
             // unable to load properties file
             String message = "Unable to find JDBC driver for MySQL.";
 
-            System.out.println(message);
             Logger.getLogger(ConnectionManager.class.getName()).log(Level.SEVERE, message, ex);
             throw new RuntimeException(message, ex);
         }

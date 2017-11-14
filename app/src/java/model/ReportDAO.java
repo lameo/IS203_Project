@@ -51,7 +51,6 @@ public class ReportDAO {
             preparedStatement.close();
             connection.close();
         } catch (SQLException e) {
-            e.printStackTrace();
         }
         return list;
     }
@@ -86,7 +85,6 @@ public class ReportDAO {
             preparedStatement.close();
             connection.close();
         } catch (SQLException e) {
-            e.printStackTrace();
         }
         return list;
     }
@@ -132,7 +130,6 @@ public class ReportDAO {
             preparedStatement.close();
             connection.close();
         } catch (SQLException e) {
-            e.printStackTrace();
         }
         return Integer.parseInt(ans);
     }
@@ -178,7 +175,6 @@ public class ReportDAO {
             preparedStatement.close();
             connection.close();
         } catch (SQLException e) {
-            e.printStackTrace();
         }
         return Integer.parseInt(ans);
     }
@@ -222,7 +218,6 @@ public class ReportDAO {
             preparedStatement.close();
             connection.close();
         } catch (SQLException e) {
-            e.printStackTrace();
         }
         return Integer.parseInt(ans);
     }
@@ -277,7 +272,6 @@ public class ReportDAO {
             connection.close();
 
         } catch (SQLException e) {
-            e.printStackTrace();
         }
         return map;
     }
@@ -380,7 +374,6 @@ public class ReportDAO {
             connection.close();
 
         } catch (SQLException e) {
-            e.printStackTrace();
         }
         return usersInSpecificPlace;
     }
@@ -488,7 +481,6 @@ public class ReportDAO {
                 spentMoreThan5Minutes = currentPlace;
             }
         } catch (SQLException e) {
-            e.printStackTrace();
         } catch (ParseException ex) {
             Logger.getLogger(ReportDAO.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -539,7 +531,6 @@ public class ReportDAO {
             preparedStatement.close();
             connection.close();
         } catch (SQLException e) {
-            e.printStackTrace();
         }
         return Integer.parseInt(ans);
     }
@@ -1135,7 +1126,7 @@ public class ReportDAO {
                             java.util.Date timestampStart = dateFormat.parse(userLocationsList.get(firstLocationTimeStartIndex));
                             timestamp = timestampStart;
                         }
-                        duration += (double) (timestampNext.getTime() - timestamp.getTime()) / (1000.0); //to get the collated time difference between the 2 timestamp updates from user
+                        duration += (timestampNext.getTime() - timestamp.getTime()) / (1000.0); //to get the collated time difference between the 2 timestamp updates from user
                         if (duration > 300.0) { //corner case when next time stamp is too far away 
                             cal.setTime(timestamp);
                             cal.add(Calendar.MINUTE, 5); //if time difference more than 5mins just add 5mins to timestamp
@@ -1184,7 +1175,6 @@ public class ReportDAO {
                 }
             }
         } catch (SQLException e) {
-            e.printStackTrace();
         } catch (ParseException ex) {
             Logger.getLogger(ReportDAO.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -1240,7 +1230,6 @@ public class ReportDAO {
             preparedStatement.close();
             connection.close();
         } catch (SQLException e) {
-            e.printStackTrace();
         } catch (ParseException ex) {
             Logger.getLogger(ReportDAO.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -1307,7 +1296,7 @@ public class ReportDAO {
                     int timeDiffBetweenUserTimeEndAndCompanionTime = resultSet.getInt(3); //the time difference between user's end timestamp and companion's timestamp
 
                     java.util.Date companionTimestamp = dateFormat.parse(companionTimestring);//convert time string to Date format
-                    double timeGapBetweenUserAndCompanion = (double) (timeDiffBetweenUserTimeEndAndCompanionTime - userTimeDiff);
+                    double timeGapBetweenUserAndCompanion = (timeDiffBetweenUserTimeEndAndCompanionTime - userTimeDiff);
 
                     //when the result retrieved is the last row of data
                     if (resultSet.isLast()) {
@@ -1343,7 +1332,7 @@ public class ReportDAO {
                         int nextTimeDiffBetweenUserTimeEndAndCompanionTime = resultSet.getInt(3);
 
                         java.util.Date companionNextTimestamp = dateFormat.parse(companionNextTimestring);//convert time string to Date format
-                        timeGapBetweenUserAndCompanion = (double) (nextTimeDiffBetweenUserTimeEndAndCompanionTime - userTimeDiff);
+                        timeGapBetweenUserAndCompanion = (nextTimeDiffBetweenUserTimeEndAndCompanionTime - userTimeDiff);
 
                         if (companionLocationid.equals(userLocationid) || correctTimestring) { //check if the previous location is correct or current location is correct
                             if (companionTimestamp.before(userTimeStart)) { //if companion timestamp is before user timestamp
@@ -1441,7 +1430,6 @@ public class ReportDAO {
                 connection.close();
             }
         } catch (SQLException e) {
-            e.printStackTrace();
         } catch (ParseException ex) {
             Logger.getLogger(ReportDAO.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -1484,7 +1472,6 @@ public class ReportDAO {
             preparedStatement.close();
             connection.close();
         } catch (SQLException e) {
-            e.printStackTrace();
         }
         return ans;
     }

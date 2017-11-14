@@ -88,7 +88,7 @@
 
                     int groupNo = 1;
                     for (Group autoGroup : autoGroupsDetected) {
-                        ArrayList<String> AutoUsers = autoGroup.retrieveMacsWithEmails();
+                        ArrayList<String> autoUsers = autoGroup.retrieveMacsWithEmails();
                         Map<String, Double> locationTimestamps = autoGroup.calculateTimeDuration();
 
                         Iterator<String> locations = locationTimestamps.keySet().iterator();
@@ -96,18 +96,18 @@
                         out.print("<tr><td>" + (groupNo) + "</td>");
 
                         out.println("<td>");
-                        for (int i = 0; i < AutoUsers.size(); i += 1) {
-                            String[] AutoUser = AutoUsers.get(i).split(",");
-                            String mac = AutoUser[0];
-                            String email = AutoUser[1];
+                        for (int i = 0; i < autoUsers.size(); i += 1) {
+                            String[] autoUser = autoUsers.get(i).split(",");
+                            String mac = autoUser[0];
+                            String email = autoUser[1];
                             out.println(mac + " (" + email + ")<br/>");
                         }
                         out.print("</td>");
                         out.println("<td>");
                         while (locations.hasNext()) {
                             String location = locations.next();
-                            Double TimeDuration = locationTimestamps.get(location);
-                            out.println(location + " (" + TimeDuration + ")<br/>");
+                            Double timeDuration = locationTimestamps.get(location);
+                            out.println(location + " (" + timeDuration + ")<br/>");
                         }
 
                         out.print("</td></tr>");

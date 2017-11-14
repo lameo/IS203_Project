@@ -1,11 +1,11 @@
 package model;
 
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.util.TreeMap;
+import java.sql.SQLException;
 import java.util.Map;
+import java.util.TreeMap;
 
 public class HeatMapDAO {
 
@@ -48,7 +48,6 @@ public class HeatMapDAO {
             connection.close();
 
         } catch (SQLException e) {
-            e.printStackTrace();
         }
         
         return heatmapList;
@@ -95,7 +94,6 @@ public class HeatMapDAO {
             connection.close();
 
         } catch (SQLException e) {
-            e.printStackTrace();
         }
         return ans;
     }

@@ -14,9 +14,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javazoom.upload.MultipartFormDataRequest;
 import javazoom.upload.UploadException;
+import model.SharedSecretManager;
 import model.User;
 import model.UserDAO;
-import model.SharedSecretManager;
 
 @WebServlet(urlPatterns = {"/json/authenticate"})
 public class authenticate extends HttpServlet {
@@ -41,8 +41,8 @@ public class authenticate extends HttpServlet {
                 //Uses MultipartFormDataRequest to parse the HTTP request.
                 MultipartFormDataRequest multipartRequest = new MultipartFormDataRequest(request); //specialized version of request object to interpret the data
 
-                username = (String) multipartRequest.getParameter("username"); //get username from request
-                password = (String) multipartRequest.getParameter("password"); //get password from request   
+                username = multipartRequest.getParameter("username"); //get username from request
+                password = multipartRequest.getParameter("password"); //get password from request   
             } else {
                 username = request.getParameter("username"); //get username from request
                 password = request.getParameter("password"); //get password from request   
