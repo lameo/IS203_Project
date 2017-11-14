@@ -33,8 +33,10 @@ public class bootstrapUpload extends HttpServlet {
     protected void processRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         //creates a new gson object
         JsonObject ans = new JsonObject();
+        
         //by instantiating a new factory object, set pretty printing, then calling the create method
         PrintWriter out = response.getWriter();
+        
         //creates a new json object for printing the desired json output
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
@@ -85,9 +87,12 @@ public class bootstrapUpload extends HttpServlet {
                 
                 // if token is valid, continue processing
                 ServletContext servletContext = this.getServletConfig().getServletContext();
+                
                 //Pathname to a scratch directory to be provided by this Context for temporary read-write use by servlets within the associated web application
                 File directory = (File) servletContext.getAttribute("javax.servlet.context.tempdir");
-                String outputDirectory = "" + directory; //String format of directory
+                
+                //String format of directory
+                String outputDirectory = "" + directory; 
 
                 upBean.setFolderstore(outputDirectory); //set upBean output directory
                 Long size = Long.parseLong("8589934592"); //the size limit of the file uploads
@@ -214,8 +219,9 @@ public class bootstrapUpload extends HttpServlet {
         }
 
         out.println(gson.toJson(ans));
-
-        out.close(); //close PrintWriter
+        
+        //close PrintWriter
+        out.close();
     }
 
 // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">

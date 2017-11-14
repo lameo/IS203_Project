@@ -33,8 +33,10 @@ public class bootstrapUpdate extends HttpServlet {
     protected void processRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         //creates a new gson object
         JsonObject ans = new JsonObject();
+        
         //by instantiating a new factory object, set pretty printing, then calling the create method
         PrintWriter out = response.getWriter();
+        
         //creates a new json object for printing the desired json output
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
@@ -129,8 +131,8 @@ public class bootstrapUpdate extends HttpServlet {
                             ans.add("num-record-loaded", fileUpload);
                             JsonArray error = new JsonArray();
 
-                            // if it is arrayList.toString in json array, it will be "["abc","def"]"
-                            // if it is jsonarray added into jsonobject, it will be ["abc","def"]
+                            //if it is arrayList.toString in json array, it will be "["abc","def"]"
+                            //if it is jsonarray added into jsonobject, it will be ["abc","def"]
                             //ArrayList<String> temp = new ArrayList<>();
                             //temp.add("abc");
                             //temp.toString() -> "["abc"]"

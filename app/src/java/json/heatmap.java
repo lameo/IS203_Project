@@ -35,11 +35,11 @@ public class heatmap extends HttpServlet {
 
         JsonArray errMsg = new JsonArray();
 
-        String token = request.getParameter("token"); //get username from request
+        String tokenEntered = request.getParameter("token"); //get username from request
         String stringFloor = request.getParameter("floor"); //get password from request    
-        String timeDate = request.getParameter("date"); //get password from request   
+        String timeDate = request.getParameter("date"); //get date from request   
 
-        if (token == null) {
+        if (tokenEntered == null) {
             errMsg.add("missing token");
             jsonOutput.addProperty("status", "error");
             jsonOutput.add("messages", errMsg);
@@ -48,7 +48,7 @@ public class heatmap extends HttpServlet {
             return;
         }
 
-        if (token.isEmpty()) {
+        if (tokenEntered.isEmpty()) {
             errMsg.add("blank token");
             jsonOutput.addProperty("status", "error");
             jsonOutput.add("messages", errMsg);
@@ -56,9 +56,9 @@ public class heatmap extends HttpServlet {
             out.close(); //close PrintWriter
             return;
         }
-
-        boolean validToken = SharedSecretManager.verifyUser(token);
-        if (!validToken) {
+        
+        //check if token is invalid
+        if (!SharedSecretManager.verifyUser(tokenEntered)) { //if the user is not verified
             errMsg.add("invalid token");
             jsonOutput.addProperty("status", "error");
             jsonOutput.add("messages", errMsg);
@@ -67,6 +67,7 @@ public class heatmap extends HttpServlet {
             return;
         }
 
+        //if floor is not entered in url
         if (stringFloor == null) {
             errMsg.add("missing floor");
             jsonOutput.addProperty("status", "error");
@@ -84,7 +85,8 @@ public class heatmap extends HttpServlet {
             out.close(); //close PrintWriter
             return;
         }
-
+        
+        //if date is not entered in url
         if (timeDate == null) {
             errMsg.add("missing date");
             jsonOutput.addProperty("status", "error");
@@ -143,6 +145,9 @@ public class heatmap extends HttpServlet {
         }
 
         if (errMsg.size() == 0) {
+            //from here on no error messages are recorded
+            //all parameters are valid and checked
+            
             timeDate = timeDate.replaceAll("T", " ");
 
             String floorName = "B1";
@@ -155,19 +160,28 @@ public class heatmap extends HttpServlet {
             jsonOutput.addProperty("status", "success");
             JsonArray heatmaps = new JsonArray();
 
-            //Set<String> keys = heatmapList.keySet();
             List<String> keys = new ArrayList<>(heatmapList.keySet());
             Collections.sort(keys);
             for (String key : keys) {
+                
+                //retrieve HeatMap object from list of sorted from heatmapList.keyset()
                 HeatMap heatmap = heatmapList.get(key);
+                
+                //create json object to add into json array for final output
+                //every key will be stored into a new json object
                 JsonObject heatmapObject = new JsonObject();
-
+                
+                //adding items to output
                 heatmapObject.addProperty("semantic-place", heatmap.getPlace());
                 heatmapObject.addProperty("num-people", heatmap.getQtyPax());
                 heatmapObject.addProperty("crowd-density", heatmap.getHeatLevel());
+                
+                //add json object into json array for final output
                 heatmaps.add(heatmapObject);
 
             }
+            
+            //add json array to final json object to output
             jsonOutput.add("heatmap", heatmaps);
         } else {
             jsonOutput.addProperty("status", "error");

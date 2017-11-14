@@ -48,7 +48,7 @@ public class authenticate extends HttpServlet {
                 password = request.getParameter("password"); //get password from request   
             }
             
-            if (username == null) { //check if username is null
+            if (username == null) { //check if username is null (i.e username field is not entered in url)
                 errMsg.add("missing username");
                 jsonOutput.addProperty("status", "error");
                 jsonOutput.add("messages", errMsg);
@@ -66,7 +66,7 @@ public class authenticate extends HttpServlet {
                 return;
             }
 
-            if (password == null) { //check if password is null
+            if (password == null) { //check if password is null (i.e password field is not entered in url)
                 errMsg.add("missing password");
                 jsonOutput.addProperty("status", "error");
                 jsonOutput.add("messages", errMsg);
@@ -84,7 +84,7 @@ public class authenticate extends HttpServlet {
                 return;
             }
 
-            if (username.equals("admin") && password.equals("Password!SE888")) { //admin
+            if (username.equals("admin") && password.equals("Password!SE888")) { //admin credentials
                 String token = SharedSecretManager.authenticateAdmin();
                 jsonOutput.addProperty("status", "success");
                 jsonOutput.addProperty("token", token);
