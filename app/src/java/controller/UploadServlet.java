@@ -47,7 +47,7 @@ public class UploadServlet extends HttpServlet implements java.io.Serializable {
                             upBean.store(multipartRequest, "uploadfile"); //save to directory
 
                             String fileExist = UploadDAO.unzip(filePath, outputDirectory); //unzip the files in the zip and save into the directory
-                            if (fileExist == null || fileExist.length() <= 0 || !(fileExist.contains("demographics.csv") || !fileExist.contains("location-lookup.csv") || !fileExist.contains("location.csv"))) {
+                            if (fileExist == null || fileExist.length() <= 0) {
                                 session.setAttribute("error", "Wrong file name or type"); //send error messsage        
                             } else {
 
