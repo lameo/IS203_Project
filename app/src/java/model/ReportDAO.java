@@ -141,7 +141,7 @@ public class ReportDAO {
      * Returns a total quantity of unique macaddress of a specific school 15mins
      * before the specified time
      *
-     * @param timeEnd String in dd/mm/yyyy hh:mm format for when the report is
+     * @param timeEnd String in dd/mm/yyyy hh:mm:ss format for when the report is
      * generated
      * @param school String of the school to retrieve qty
      * @return int of a specific school 15mins before the specified time

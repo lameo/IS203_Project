@@ -69,19 +69,6 @@ public class Group implements Comparable<Group> {
         }
         
     }
-
-    //retrieve macaddress of groups AutoUser is in
-    /*
-    public HashMap<String,ArrayList<String>> RetrieveAutoGroups(){
-        HashMap<String,ArrayList<String>> AutoGroups = new HashMap<String,ArrayList<String>>();
-        for(int i=0; i<getAutoUsersSize()-1; i++){
-            if(AutoUserMac.equals(AutoUsersMac.get(i))){
-                put()
-            }
-        }
-        return null;
-    }
-     */
     /**
      * Setter method for AutoUsersMacs
      * @param autoUsersMacs ArrayList to be updated to 
@@ -116,15 +103,6 @@ public class Group implements Comparable<Group> {
                 duration += Double.parseDouble(timestamp[2]);
                 java.util.Date timestampStart = null;//convert time string to Date format
                 java.util.Date timestampEnd = null;
-                /*try {
-                    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                    timestampStart = dateFormat.parse(TimestringStart);//convert time string to Date format
-                    timestampEnd = dateFormat.parse(TimestringEnd);
-                } catch (ParseException ex) {
-                    Logger.getLogger(Group.class.getName()).log(Level.SEVERE, null, ex);
-                }*/
-                //duration = (timestampEnd.getTime() - timestampStart.getTime()) / 1000.0 + 1;
-
             }
             if (!locationDuration.containsKey(location)) {
                 locationDuration.put(location, duration);
@@ -234,62 +212,5 @@ public class Group implements Comparable<Group> {
         }
         
         return autoUsersMacs.containsAll(newAutoUsersMacs);
-    }       
-    
-    /**
-     * Check if two group is the same or is a subgroup of another larger group, returning the group number to remove
-     * @param AutoGroup2 Group second group to compare to
-     * @return int Group number that is a subgroup of the other group object
-     */
-    public int removeSubGroup(Group AutoGroup2) {
-        Map<ArrayList<String>, Integer> AutoGroups = new HashMap<ArrayList<String>, Integer>();
-        ArrayList<String> AutoUsersMacs2 = AutoGroup2.getAutoUsersMacs();
-        int AutoGroup2Size = AutoGroup2.getAutoUsersSize();
-        int sameUser = 0;
-        for (int j = 0; j < getAutoUsersSize(); j++) {
-            
-            for (int i = 0; i < AutoUsersMacs2.size() - 1; i++) {
-                if (AutoUsersMacs2.get(i).equals(getAutoUserMac(j))) {
-                    sameUser++;
-                }
-            }
-        }
-        if (getAutoUsersSize() >= AutoGroup2Size) {
-            return 2;
-        } else {
-            return 1;
-        }
-    }
- 
-    @Override
-    public int hashCode() {
-        int hash = 7;
-        return hash;
-    }
-
-    /**
-     * Compare whether the 2 group object are identical
-     * @param obj Object to compare to
-     * @return boolean whether the 2 objects are identical
-     */
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (obj == null) {
-            return false;
-        }
-        if (getClass() != obj.getClass()) {
-            return false;
-        }
-        final Group other = (Group) obj;
-        if (!Objects.equals(this.autoUsersMacs, other.autoUsersMacs)) {
-            return false;
-        }
-        if (!Objects.equals(this.commonLocationTimestamps, other.commonLocationTimestamps)) {
-            return false;
-        }
-        return true;
-    }
+    }    
 }

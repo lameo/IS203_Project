@@ -374,63 +374,6 @@ public class AutoGroupDAO {
         return subAutoGroups;
     }
 
-    public static boolean commonLocationTimestamps(ArrayList<String> LocationTimestamps1, ArrayList<String> LocationTimestamps2) {
-
-        //boolean CommonLocationTimestamps12Mins = false;
-        //int count = 0;
-        //if one common location found from user1 and user2, or no common locations found, exit the while loop
-        //while (CommonLocationTimestamps12Mins || count <= LocationTimestamps1.size() - 1) {
-        //check if they have common locations
-        for (int i = 0; i < LocationTimestamps1.size(); i++) {
-
-            String[] LocationTimestamp1 = LocationTimestamps1.get(i).split(",");
-            String location1 = LocationTimestamp1[0];
-            for (int j = 0; j < LocationTimestamps2.size(); j++) {
-                String[] LocationTimestamp2 = LocationTimestamps1.get(j).split(",");
-                String location2 = LocationTimestamp2[0];
-                //if common location found from user1 and user2
-                if (location1.equals(location2)) {
-                    return true;
-
-                }
-            }
-        }
-        //count++;
-        //}
-        //if no common locations found from user1 and user2, it means no commonlocationtimestamps and returns false
-        /*if (CommonLocationTimestamps12Mins = false) {
-            return CommonLocationTimestamps12Mins;
-        } else {
-            return true;
-        }*/
-        return false;
-    }
-
-    //Valify if user has stayed at least 12 minutes at SIS building in specified time window
-    public static boolean autoUser12Mins(ArrayList<String> AutoUserLocationTimestamps) {
-        double timeDuration = 0;
-        for (int i = 0; i < AutoUserLocationTimestamps.size(); i++) {
-            try {
-                String[] LocationTimestamp = AutoUserLocationTimestamps.get(i).split(",");
-                String timeStart = LocationTimestamp[1];
-                String timeEnd = LocationTimestamp[2];
-                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                java.util.Date timestampStart = dateFormat.parse(timeStart);//convert time string to Date format
-                java.util.Date timestampEnd = dateFormat.parse(timeEnd);
-                //calculate the time duration for each user location trace in seconds
-                timeDuration += (timestampEnd.getTime() - timestampStart.getTime()) / (1000.0);
-            } catch (ParseException ex) {
-                Logger.getLogger(AutoGroupDAO.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        }
-        //check if total time duration is at least 12 minutes
-        if (timeDuration >= 720) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
     public static int retrieveUsersNumber(String timestringEnd) {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
