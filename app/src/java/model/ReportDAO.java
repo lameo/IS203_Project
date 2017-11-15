@@ -1458,9 +1458,7 @@ public class ReportDAO {
 
             //set the parameters
             preparedStatement.setString(1, macaddress);
-
-            resultSet = preparedStatement.executeQuery();
-
+            
             //execute SQL query
             resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {

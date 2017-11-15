@@ -9,13 +9,10 @@ public class User {
     
     /**
      *
-     * Constructs a User object, with variable mac-address, name, password, email and gender
+     * Constructs a User object, with variable name, password
      * 
-     * @param macaddress Macaddress of the user
      * @param name name of the user
      * @param password password of the user
-     * @param email email of the user
-     * @param gender gender of the user
      *
      */    
     public User(String name, String password){

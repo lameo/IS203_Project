@@ -63,7 +63,6 @@ public class UserDAO {
         Pattern specialCharactersCheck = Pattern.compile("[!#$%&*()_+=|<>?{}\\[\\]~-]"); //check if the username contain any of these special characters
         int lastDotIndex = username.lastIndexOf('.'); //john.doe.2016 or john.2016 get the index of the last dot
         if(!username.contains("..") && lastDotIndex>=0){ //make sure the dot exists
-            String checkYear = username.substring(lastDotIndex+1, username.length());
             Matcher hasSpecial = specialCharactersCheck.matcher(username);
             if(!hasSpecial.find()){ //if no special found
                 return true;
