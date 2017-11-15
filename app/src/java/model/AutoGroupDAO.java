@@ -416,6 +416,7 @@ public class AutoGroupDAO {
         }
         return newAutoGroups;
     }
+    
     /**
      * retrieve the number of users in the entire SIS building 15mins before the
      * specified time

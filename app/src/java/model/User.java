@@ -18,7 +18,7 @@ public class User {
      * @param gender gender of the user
      *
      */    
-    public User(String macaddress, String name, String password, String email, char gender){
+    public User(String name, String password){
         this.name = name;
         this.password = password;
     }

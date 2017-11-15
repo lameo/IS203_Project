@@ -12,33 +12,31 @@ import model.HeatMapDAO;
 
 public class HeatMapServlet extends HttpServlet {
 
-    protected void processRequest(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
+    protected void processRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
+        // Retrieving user timedate input from session
         HttpSession session = request.getSession();
-        String timeDate = request.getParameter("timeDate"); //retrieve time from user input
+        String timeDate = request.getParameter("timeDate");
+        //retrieve floor from user input
+        String floorName = request.getParameter("floor");
 
+
+        // Standardizing timedate string
         timeDate = timeDate.replace("T", " ");
-        
         if (timeDate.length() != 19) {
             timeDate += ":00";
         }
-        
-        int floor = Integer.parseInt(request.getParameter("floor")); //retrieve floor from user input
-        String floorName = "B1";
 
-        if (floor > 0) {
-            floorName = "L" + floor;
-        }
 
+        // Run method to retrieve qty, heatlevel of all rooms in the level selected
         Map<String, HeatMap> heatmapList = HeatMapDAO.retrieveHeatMap(timeDate, floorName);
 
+
+        // Saving result to session and sending back to heatmapPage
         session.setAttribute("heatmapList", heatmapList);
         session.setAttribute("floorName", floorName);
         session.setAttribute("timeDate", timeDate);
-
-        response.sendRedirect("heatmapPage.jsp"); //send back to heatmapPage
-
+        response.sendRedirect("heatmapPage.jsp");
     }
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">

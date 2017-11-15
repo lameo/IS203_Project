@@ -1,42 +1,58 @@
 package controller;
 
-import java.io.IOException;
-import java.sql.SQLException;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import model.User;
+import java.sql.SQLException;
+import java.io.IOException;
 import model.UserDAO;
+import model.User;
 
 public class LoginServlet extends HttpServlet {
+    protected void processRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
-    protected void processRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException { 
+        // Getting user input for username & password
         String username = request.getParameter("username");
-        String password = request.getParameter("password");  
-        HttpSession session = request.getSession();          
+        String password = request.getParameter("password");
+        HttpSession session = request.getSession();
+
 
         try {
-            if (username.equals("admin") && password.equals("Password!SE888")) { //admin
+            // if trying to login as admin & password + username matches
+            if (username.equals("admin") && password.equals("Password!SE888")) {
                 session.setAttribute("admin", username);
-                response.sendRedirect("adminPage.jsp"); //changes url
+                response.sendRedirect("adminPage.jsp");
                 return;
-            }                        
-            if(UserDAO.validateUsername(username)){ //if username is valid e.g. john.doe.2016
-                User user = UserDAO.retrieveUserByName(username, password);
-            
-                if (user instanceof User){ //if user in database
-                    session.setAttribute("user", user);
-                    response.sendRedirect("userPage.jsp"); //changes url
-                    return;
-                } 
             }
-            session.setAttribute("error", "Invalid Login."); //send error messsage to index.jsp           
-            response.sendRedirect("index.jsp"); //changes url                   
+
+
+            // else if trying to login as user
+            // true if username is an entry in the database
+            if(UserDAO.validateUsername(username)){
+                // validate whether password for that particular username is correct and return a user object if true
+                User user = UserDAO.retrieveUserByName(username, password);
+
+                // if user is in database
+                if (user instanceof User){
+                    session.setAttribute("user", user);
+                    response.sendRedirect("userPage.jsp");
+                    return;
+                }
+            }
+
+            // if not admin or valid user
+            // send an error message back to index.jsp
+            session.setAttribute("error", "Invalid Login.");
+            response.sendRedirect("index.jsp"); //changes url
         } catch (SQLException e){
-            session.setAttribute("error", "Server is currently unavailable, please try again later. Thank you."); //send error messsage to index.jsp     
-            response.sendRedirect("index.jsp"); //changes url 
+
+
+            // if can't establish connection to database
+            // send error messsage to index.jsp
+            session.setAttribute("error", "Server is currently unavailable, please try again later. Thank you.");
+            response.sendRedirect("index.jsp"); //changes url
         }
     }
 

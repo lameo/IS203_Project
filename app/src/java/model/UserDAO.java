@@ -39,7 +39,7 @@ public class UserDAO {
         resultSet = preparedStatement.executeQuery();
         
         while(resultSet.next()){ //get query from database              
-            user = new User(resultSet.getString("macaddress"),resultSet.getString("name"),resultSet.getString("password"),resultSet.getString("email"),resultSet.getString("gender").charAt(0));
+            user = new User(resultSet.getString("name"),resultSet.getString("password"));
         }
         
         //close connections

@@ -85,12 +85,12 @@
                 <div class="form-group">
                     <label for="floor">Generate Level in SIS Building:</label>
                     <select class="form-control" id="floor" name = "floor">
-                        <option selected value="0">B1</option>
-                        <option value="1">Level 1</option>
-                        <option value="2">Level 2</option>
-                        <option value="3">Level 3</option>                        
-                        <option value="4">Level 4</option>
-                        <option value="5">Level 5</option>
+                        <option selected value="B1">B1</option>
+                        <option value="L1">Level 1</option>
+                        <option value="L2">Level 2</option>
+                        <option value="L3">Level 3</option>                        
+                        <option value="L4">Level 4</option>
+                        <option value="L5">Level 5</option>
                     </select>
                 </div>
                 <button type="submit" class="btn btn-primary">Generate</button>

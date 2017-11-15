@@ -9,8 +9,8 @@ import java.util.logging.Logger;
 import java.util.logging.Level;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Map;
 import model.AutoGroupDAO;
+import java.util.Map;
 import model.Group;
 
 public class AutoGroupServlet extends HttpServlet {
@@ -27,37 +27,49 @@ public class AutoGroupServlet extends HttpServlet {
     protected void processRequest(HttpServletRequest request, HttpServletResponse response) {
 
         try {
+            // Retrieving user timedate input from session
             HttpSession session = request.getSession();
-            String timeDate = request.getParameter("timeDate"); //retrieve time from user input
-            timeDate = timeDate.replace("T", " ");
+            String timeDate = request.getParameter("timeDate");
 
+
+            // Standardizing timedate string
+            timeDate = timeDate.replace("T", " ");
             if (timeDate.length() != 19) {
                 timeDate += ":00";
             }
 
-            int numberOfUsersInBuilding = AutoGroupDAO.retrieveUsersNumber(timeDate);//retrieve the number of users in the entire SIS building for that date and time
 
-            //retrieve map of all the users and their location traces whom stay at SIS building in specified time window for at least 12 mins
+            // Retrieve the number of users in the entire SIS building for that date and time
+            int numberOfUsersInBuilding = AutoGroupDAO.retrieveUsersNumber(timeDate);
+
+
+            // Retrieve map of all the users and their location traces whom stay at SIS building in specified time window for at least 12 mins
             Map<String, Map<String, ArrayList<String>>> listOfUsersWith12MinutesData = AutoGroupDAO.retrieveUsersWith12MinutesData(timeDate);
+
 
             ArrayList<Group> autoGroupsDetected = new ArrayList<Group>();
 
-            //check if there are valid auto users
-            if (listOfUsersWith12MinutesData != null && listOfUsersWith12MinutesData.size() > 0) {
-                //retrieve groups formed from valid auto users
+
+            // Check if there are users who stay in sis for more than 15mins & the list is not size 0
+            if (!listOfUsersWith12MinutesData.isEmpty()) {
+                // Retrieve groups formed from valid auto users
                 autoGroupsDetected = AutoGroupDAO.retrieveAutoGroups(listOfUsersWith12MinutesData);
             }
 
-            if (autoGroupsDetected != null && autoGroupsDetected.size() > 0) {
-                //check autogroups and remove sub groups
+            // if the group form is not null and list of group detected is more than 0
+            if (!autoGroupsDetected.isEmpty()) {
+                // Remove sub groups
                 autoGroupsDetected = AutoGroupDAO.checkAutoGroups(autoGroupsDetected);
             }
 
+
+            // Saving result to session and returning back to jsp page
             session.setAttribute("numberOfUsersInBuilding", numberOfUsersInBuilding);
             session.setAttribute("autoGroupsDetected", autoGroupsDetected);
             session.setAttribute("timeDate", timeDate);
-
             response.sendRedirect("automaticGroupDetection.jsp");
+
+
         } catch (IOException ex) {
             Logger.getLogger(AutoGroupServlet.class.getName()).log(Level.SEVERE, null, ex);
         }
