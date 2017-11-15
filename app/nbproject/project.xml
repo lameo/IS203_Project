@@ -51,10 +51,6 @@
                     <path-in-war>WEB-INF/lib</path-in-war>
                 </library>
                 <library dirs="200">
-                    <file>${file.reference.java-json.jar}</file>
-                    <path-in-war>WEB-INF/lib</path-in-war>
-                </library>
-                <library dirs="200">
                     <file>${file.reference.struts.jar}</file>
                     <path-in-war>WEB-INF/lib</path-in-war>
                 </library>
