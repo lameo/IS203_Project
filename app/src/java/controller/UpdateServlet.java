@@ -1,55 +1,81 @@
 package controller;
 
-import java.io.File;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpSession;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.ServletContext;
+import java.util.Hashtable;
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.Hashtable;
-import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 import javazoom.upload.*;
 import model.UploadDAO;
+import java.io.File;
 
 public class UpdateServlet extends HttpServlet implements java.io.Serializable {
 
     protected void processRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         HttpSession session = request.getSession();
+
+        // Initializing upload function - allowing files to be sent from browser
         UploadBean upBean = new UploadBean();
         String success = "";
         boolean fileValid = false;
-        HashMap<String, String> processedLines = new HashMap<>();
+
+        // Initializing error messages to be return later on if any
         HashMap<Integer, String> demographicsError = new HashMap<>();
         HashMap<Integer, String> locationError = new HashMap<>();
+        HashMap<String, String> processedLines = new HashMap<>();
         try {
+            // Creating a temp directory to be provided by this servletContext for the uploaded file
             ServletContext servletContext = this.getServletConfig().getServletContext();
-            File directory = (File) servletContext.getAttribute("javax.servlet.context.tempdir"); //Pathname to a scratch directory to be provided by this Context for temporary read-write use by servlets within the associated web application
-            String outputDirectory = "" + directory; //String format of directory
+            File directory = (File) servletContext.getAttribute("javax.servlet.context.tempdir");
 
-            upBean.setFolderstore(outputDirectory); //set upBean output directory
-            Long size = Long.parseLong("8589934592"); //the size limit of the file uploads
+            // Location of directory in string format
+            String outputDirectory = "" + directory;
+            // Setting uploadBean output directory
+            upBean.setFolderstore(outputDirectory);
+            // Setting size limit of the file uploaded (equals around 1gb)
+            Long size = Long.parseLong("8589934592");
             upBean.setFilesizelimit(size);
+
+            // if a file upload is detected 
             if (MultipartFormDataRequest.isMultipartFormData(request)) {
-                //Uses MultipartFormDataRequest to parse the HTTP request.
-                MultipartFormDataRequest multipartRequest = new MultipartFormDataRequest(request); //specialized version of request object to interpret the data
+                // Uses MultipartFormDataRequest which is a special type of request to get the file
+                MultipartFormDataRequest multipartRequest = new MultipartFormDataRequest(request);
 
-                Hashtable files = multipartRequest.getFiles(); //get the files sent over, hastable is the older version of hashmap
+                // Saving the files being send over in an older form of hashmap
+                Hashtable files = multipartRequest.getFiles();
+                // If file exist and is not an empty csv file
                 if ((files != null) && (!files.isEmpty())) {
-                    UploadFile file = (UploadFile) files.get("uploadfile"); //get the files from bootstrapinitialize
+                    // Get file from bootstrapinitialize.jsp
+                    UploadFile file = (UploadFile) files.get("uploadfile");
+                    // if the file is not null, or empty size (means no data) & has a proper name (cos need to compare name later)
                     if (file != null && file.getFileSize() > 0 && file.getFileName() != null) {
+                        // Get file type (eg .csv/.doc/.xlsx)
+                        String contentType = file.getContentType();
+                        // Get file name
                         String fileName = file.getFileName();
-                        String contentType = file.getContentType(); //Get the file type
-                        String filePath = outputDirectory + File.separator + fileName; //get the file path 
+                        // Get the absolute path by adding the directory path to file name
+                        String filePath = outputDirectory + File.separator + fileName;
 
-                        if (contentType.equals("application/x-zip-compressed")|| contentType.equals("application/zip")) { //if it is a zip file
-                            upBean.store(multipartRequest, "uploadfile"); //save to directory
+                        // case 1: if it is a zip file
+                        if (contentType.equals("application/x-zip-compressed") || contentType.equals("application/zip")) {
+                            // save it to temp directory
+                            upBean.store(multipartRequest, "uploadfile");
 
-                            String fileExist = UploadDAO.unzip(filePath, outputDirectory); //unzip the files in the zip and save into the directory    
+                            // Unzip the file and save the contents into the temp directory
+                            String fileExist = UploadDAO.unzip(filePath, outputDirectory);
+                            // if file is invalid, send error message
                             if (fileExist == null || fileExist.length() <= 0) {
-                                session.setAttribute("error", "Wrong file name or type"); //send error messsage        
+                                session.setAttribute("error", "Wrong file name or type");
                             } else {
+                                // Check what file is it
+                                // perform respective upload function
+                                // Retrieve number of rows successfully processed kept in a hash with Interger.max_value as key
+                                // remove away Integer.max_value key from errorMessage to get the proper errorMessage (if any)
+
                                 if (fileExist.contains("demographics.csv")) {
                                     demographicsError = UploadDAO.updateDemographics(outputDirectory + File.separator + "demographics.csv");
                                     processedLines.put("demographics.csv", demographicsError.get(Integer.MAX_VALUE));
@@ -63,15 +89,25 @@ public class UpdateServlet extends HttpServlet implements java.io.Serializable {
                                     fileValid = true;
                                 }
                             }
+
+                            // If no errors were detected, send success message
                             if (demographicsError.isEmpty() && locationError.isEmpty()) {
                                 success = "Uploaded file: " + fileName + " (" + file.getFileSize() + " bytes)";
-                                session.setAttribute("success", success); //send success messsage       
+                                session.setAttribute("success", success);
+                            // If there was error, send error message
                             } else {
-                                session.setAttribute("demographicsError", demographicsError); //send error messsage       
+                                session.setAttribute("demographicsError", demographicsError);
                                 session.setAttribute("locationError", locationError);
                             }
-                        } else if (UploadDAO.checkFileName(fileName) != null && UploadDAO.checkFileName(fileName).length() > 0) { //if location.csv or demographics.csv
-                            upBean.store(multipartRequest, "uploadfile"); //save to directory
+
+                        // Case 2: if it is not a zip file, but contains a valid name that is not null or length 0
+                        } else if (UploadDAO.checkFileName(fileName) != null && UploadDAO.checkFileName(fileName).length() > 0) {
+                            // Save it to the temp directory
+                            upBean.store(multipartRequest, "uploadfile");
+                            // Check what file is it
+                            // perform respective upload function
+                            // Retrieve number of rows successfully processed kept in a hash with Interger.max_value as key
+                            // remove away Integer.max_value key from errorMessage to get the proper errorMessage (if any)
                             switch (fileName) {
                                 case "demographics.csv":
                                     demographicsError = UploadDAO.updateDemographics(outputDirectory + File.separator + "demographics.csv");
@@ -86,33 +122,47 @@ public class UpdateServlet extends HttpServlet implements java.io.Serializable {
                                     fileValid = true;
                                     break;
                                 default:
-                                    session.setAttribute("error", "Wrong file name or type"); //send error messsage                             
+                                    // if file does not have any valid name, send error message
+                                    session.setAttribute("error", "Wrong file name or type");             
                                     break;
                             }
 
+                            // If no errors were detected, send success message
                             if (demographicsError.isEmpty() && locationError.isEmpty() && !fileValid) {
                                 success = "Uploaded file: " + fileName + " (" + file.getFileSize() + " bytes)";
-                                session.setAttribute("success", success); //send success messsage       
+                                session.setAttribute("success", success);
+                            // If there was error, send error message
                             } else {
-                                session.setAttribute("demographicsError", demographicsError); //send error messsage       
+                                session.setAttribute("demographicsError", demographicsError);
                                 session.setAttribute("locationError", locationError);
                             }
+
+                        // Case 3: not zip file or files that are valid
                         } else {
                             session.setAttribute("error", "Wrong file name or type"); //send error messsage                                  
                         }
-                        session.setAttribute("processedLines", processedLines); //send lines processed
 
+                        // Save line processed to session (or nth for case 3)
+                        session.setAttribute("processedLines", processedLines); //send lines processed
+                        // Invalidating the file to prevent reupload bugs
                         file = null;
                     } else {
-                        session.setAttribute("error", "No uploaded files"); //send error messsage                     
+                        // if the file was invalid before we even check whether it was zip, send error message
+                        session.setAttribute("error", "No uploaded files");
                     }
                 } else {
-                    session.setAttribute("error", "No uploaded files"); //send error messsage                   
+                    // if the hashtable returned was invalid before we even check whether it was zip, send error message
+                    session.setAttribute("error", "No uploaded files");
                 }
             }
-            if (outputDirectory == null) {
+            
+            /*if (outputDirectory == null) {
                 return;
-            }
+            }*/
+
+            // Deleteing the whole directory so if user were to upload
+            // a diff file under the same name, windows will not try to
+            // save memory and give the old version of file back
             File dir = new File(outputDirectory);
             if (dir.exists() && dir.isDirectory()) {
                 File[] files = dir.listFiles();
@@ -122,9 +172,14 @@ public class UpdateServlet extends HttpServlet implements java.io.Serializable {
                     }
                 }
             }
+            
         } catch (UploadException e) {
-            session.setAttribute("error", "Unable to upload. Please try again later"); //send error messsage
+            //send error messsage
+            session.setAttribute("error", "Unable to upload. Please try again later");
         }
+        
+        // Goes back to the webpage after all files is processed
+        // Now with errorMessage/number of line processed saved in session
         response.sendRedirect("BootstrapUpdate.jsp");
     }
 
