@@ -19,7 +19,7 @@ import model.ReportDAO;
 import model.SharedSecretManager;
 
 @WebServlet(urlPatterns = {"/json/top-k-companions"})
-public class TopKCompanion extends HttpServlet {
+public class topKCompanion extends HttpServlet {
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.

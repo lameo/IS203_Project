@@ -24,7 +24,7 @@ import java.io.File;
 import java.util.Set;
 
 @WebServlet(urlPatterns = {"/json/bootstrap"})
-public class BootstrapUpload extends HttpServlet {
+public class bootstrapUpload extends HttpServlet {
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.

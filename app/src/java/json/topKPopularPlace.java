@@ -17,7 +17,7 @@ import model.ReportDAO;
 import model.SharedSecretManager;
 
 @WebServlet(urlPatterns = {"/json/top-k-popular-places"})
-public class TopKPopularPlace extends HttpServlet {
+public class topKPopularPlace extends HttpServlet {
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.

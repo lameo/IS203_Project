@@ -20,7 +20,7 @@ import model.HeatMapDAO;
 import model.SharedSecretManager;
 
 @WebServlet(urlPatterns = {"/json/heatmap"})
-public class Heatmap extends HttpServlet {
+public class heatmap extends HttpServlet {
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.

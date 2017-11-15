@@ -19,7 +19,7 @@ import model.ReportDAO;
 import model.SharedSecretManager;
 
 @WebServlet(urlPatterns = {"/json/top-k-next-places"})
-public class TopKNextPlaces extends HttpServlet {
+public class topKNextPlaces extends HttpServlet {
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.

@@ -22,7 +22,7 @@ import model.Group;
 import model.SharedSecretManager;
 
 @WebServlet(urlPatterns = {"/json/group_detect"})
-public class AutoGroupDetection extends HttpServlet {
+public class autoGroupDetection extends HttpServlet {
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
