@@ -148,13 +148,23 @@ public class Group implements Comparable<Group> {
         return MacsWithEmails;
     }
     
+    /**
+     * retrieve macaddresses of users with email stored in database
+     * 
+     * @return TreeMap of users with email stored in database, key: macaddresses; value: email ("")
+     */
     public TreeMap<String, String> retrieveEmailsWithMacs(){
+        //create a sorted map to store users with email with case insensitive ascending order
         TreeMap<String, String> sortedUserMap = new TreeMap<String, String>(String.CASE_INSENSITIVE_ORDER);
+         //loop through users in group
         for (int i = 0; i < autoUsersMacs.size(); i++) {
+            //retrieve user in group
             String AutoUserMac = autoUsersMacs.get(i);
+            //retrieve email of user
             String email = ReportDAO.retrieveEmailByMacaddress(AutoUserMac);
+            //check if email of user is found
             if (email != null && email.length() > 0) {
-                //email = "No email found";
+                //store user macaddress as key and email as value to sorted maps
                 sortedUserMap.put(email, AutoUserMac);
             }
             
@@ -162,35 +172,64 @@ public class Group implements Comparable<Group> {
         return sortedUserMap;
     }
     
+    /**
+     * retrieve macaddresses of users without email stored in database
+     * 
+     * @return TreeMap of users without email stored in database, key: macaddresses; value: email ("")
+     */
     public TreeMap<String, String> retrieveMacsNoEmails(){
+        //create a sorted map to store users without email with case insensitive ascending order
         TreeMap<String, String> sortedUserMap = new TreeMap<String, String>(String.CASE_INSENSITIVE_ORDER);
+        //loop through users in group
         for (int i = 0; i < autoUsersMacs.size(); i++) {
+            //retrieve user in group
             String AutoUserMac = autoUsersMacs.get(i);
+            //retrieve email of user
             String email = ReportDAO.retrieveEmailByMacaddress(AutoUserMac);
+            //check if email of user is not found
             if (email == null || email.length() <= 0) {
+                //set user email to empty ""
                 email = "";
+                //store user macaddress as key and email as value to sorted map
                 sortedUserMap.put(AutoUserMac, email);
             }
         }
         return sortedUserMap;
     }
 
-    //check if user can join the group, return the common locationstamps
+    /**
+     * check if new user can join the existing group, 
+     * if yes return the new common timestamps with the existing group, if no return null
+     * 
+     * @param macaddress2 macaddress of the new user
+     * @param locationTimestamps2 timestamps of the new user at locations
+     * @return Map of new common timestamps at same locations between the next user and existing group,
+     * key: locations; value: timestamps at each location
+     */
     public Map<String, ArrayList<String>> joinGroup(String macaddress2, Map<String, ArrayList<String>> locationTimestamps2) {
         Map<String, ArrayList<String>> newLocationTimestamps = new HashMap<String, ArrayList<String>>();
+        //check if existing group has users
         if (autoUsersMacs != null && autoUsersMacs.size() > 0) {
-            //check if user is already in the group
+            //check if new user is already in the existing group
             if (!autoUsersMacs.contains(macaddress2)) {
-                //check if user and group has stayed for at least 12 minutes
+                //check if new user and group has common timestamps at locations for at least 12 minutes
                 newLocationTimestamps = AutoGroupDAO.commonLocationTimestamps12Mins(commonLocationTimestamps, locationTimestamps2);
             }
         }
         return newLocationTimestamps;
     }
     
-    //add new autouser to existing group, add user macaddress and change location timestamps
+    //
+    /**
+     * add new user to existing group
+     * 
+     * @param macaddress2 macaddress of the new user
+     * @param newLocationTimestamps new common timestamps at locations, key: locations; value: timestamps at each location
+     */
     public void addAutoUser(String macaddress2, Map<String, ArrayList<String>> newLocationTimestamps) {
+        //add user macaddress to current user lists of existing group
         autoUsersMacs.add(macaddress2);
+        //change timeline of group to new common timeline
         setLocationTimestamps(newLocationTimestamps);
     }
 

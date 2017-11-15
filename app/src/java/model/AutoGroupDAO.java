@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
@@ -18,14 +19,21 @@ import java.util.logging.Logger;
 //retrieve groups of users,
 public class AutoGroupDAO {
 
-    //retrieve all the users whom stay at SIS building in specified time window
+    /**
+     * retrieve all the users whom stay at SIS building for at least 12 minutes in specified time window
+     *
+     * @param userInputTime user input of end timestamp to 15-minute-time-window
+     * @return Map of users whom have stayed at SIS Building for at least 12 minutes, 
+     * key: Macaddress of the user; value: timestamps of the users at locations
+     */
     public static Map<String, Map<String, ArrayList<String>>> retrieveUsersWith12MinutesData(String userInputTime) {
-
+        //retrieve timestamps of all users at locations, key: macaddresses; value: timestamps at each location
         Map<String, ArrayList<String>> allUsersLocationAndTimestampMap = retrieveAllUsersLocationAndTimestamp(userInputTime);
         Map<String, Map<String, ArrayList<String>>> autoUsersTraces = new HashMap<>();
-
+        //retrieve macaddresses of all users
         Set<String> macaddresses = allUsersLocationAndTimestampMap.keySet();
         try {
+            //loop all users
             for (String eachMacaddress : macaddresses) {
 
                 java.util.Date timestampStart = null;
@@ -152,6 +160,12 @@ public class AutoGroupDAO {
         return autoUsersTraces;
     }
 
+    /**
+     * retrieve timestamps of all users at locations
+     *
+     * @param userInputTime user input of end timestamp to 15-minute-time-window
+     * @return Map of timestamps of users at locations, key; macaddresses; values: timestamps at each location
+     */
     public static Map<String, ArrayList<String>> retrieveAllUsersLocationAndTimestamp(String userInputTime) {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
@@ -191,66 +205,72 @@ public class AutoGroupDAO {
             preparedStatement.close();
             connection.close();
         } catch (SQLException e) {
+            e.printStackTrace();
         }
         return allUsersLocationAndTimestampMap;
     }
 
-    //check for each user if they spend at least 12 minutes together
+    /**
+     * retrieve groups for the users whom have spent 12 minutes together
+     *
+     * @param listOfUsersWith12MinutesData a map of users whom have stayed at SIS Building for at least 12 minutes, 
+     * key: Macaddress of the user; value: timestamps of the users at locations
+     * @return ArrayList of groups for the users whom have spent 12 minutes together
+     */
     public static ArrayList<Group> retrieveAutoGroups(Map<String, Map<String, ArrayList<String>>> listOfUsersWith12MinutesData) {
+        //store result of arraylist of groups
         ArrayList<Group> autoGroups = new ArrayList<Group>();
+        //retrieve macaddresses of the users whom have stayed at SIS Building for at least 12 minutes
         Set<String> macaddresses = listOfUsersWith12MinutesData.keySet();
-
+        //loop through all the users
         for (String macaddress : macaddresses) {
+            //retrieve the timestamps of the users with locations
             Map<String, ArrayList<String>> locationsMap = listOfUsersWith12MinutesData.get(macaddress);
-
+            //retrieve macaddresses of the next users
             Set<String> nextMacaddresses = listOfUsersWith12MinutesData.keySet();
+            //loop through all the next users
             for (String nextMacaddress : nextMacaddresses) {
+                //retrieve the timestamps of the next users with locations
                 Map<String, ArrayList<String>> nextLocationsMap = listOfUsersWith12MinutesData.get(nextMacaddress);
-
+                //check if user and next user are not the same user
                 if (!macaddress.equals(nextMacaddress)) { //make sure is different macaddress
-                    //check if they have common locations
-                    //if (CommonLocationTimestamps(LocationTimestamps1, LocationTimestamps2)) {
-
-                    //if two users have stayed for at least 12 minutes, record their common timestamps and durations
-                    //check if they have stayed together for at least 12 minutes
+                    //check if user and next user have stayed at common locations for at least 12 minutes
                     Map<String, ArrayList<String>> commonLocationTimestamps = commonLocationTimestamps12Mins(locationsMap, nextLocationsMap);
-
+                    //if two users have stayed for at least 12 minutes
                     if (commonLocationTimestamps != null && commonLocationTimestamps.size() > 0) {
-                        //if two users have stayed for at least 12 minutes, record their common timestamps and durations
+                        //add macaddresses of user and next user to the ArrayList
                         ArrayList<String> autoUsersMacs = new ArrayList<String>();
                         autoUsersMacs.add(macaddress);
                         autoUsersMacs.add(nextMacaddress);
-
-                        //add two users to a group
+                        //add user and next user to the new group with their common timestamps at same locations
                         Group newAutoGroup = new Group(autoUsersMacs, commonLocationTimestamps);
-
+                        //use boolean to check if the group is a sub group or same group as another automatic group
                         boolean subgroup = false;
-
                         //check if can join the autouser2 to an existing group if he/she has stayed with group at least 12 minutes
-                        //check if autogroup is not empty
+                        //check if current groups are not empty
                         if (autoGroups.size() > 0) {
+                            //if there is existing automatic groups, loop through the automaitc groups
                             for (Group eachAutoGroup : autoGroups) {
-                                //find new location timestamps for new group
+                                //find new common timestamps at same locations between the next user and existing group
                                 Map<String, ArrayList<String>> newLocationTimestamps = eachAutoGroup.joinGroup(nextMacaddress, commonLocationTimestamps);
-
-                                //if found, add this as a new group
+                                //if the new common timestamps at same locations are at least 12 minutes, 
+                                //add next user to existing group to form a new group
                                 if (newLocationTimestamps != null && newLocationTimestamps.size() > 0) {
                                     eachAutoGroup.addAutoUser(nextMacaddress, newLocationTimestamps);
                                 }
+                                //check if the new group is a sub group or same group as the existing group, if yes
+                                //set subgroup to be true
                                 subgroup = eachAutoGroup.checkSubGroup(newAutoGroup); //true or false
                             }
                         }
 
-                        //if no subgroup, add new group to autogroups
+                        //if new group is not a subgroup or same group as the existing group, add new group to result groups
                         if (!subgroup) {
-                            //check if this group already exists (in different sequence) or if this group is a sub group of existing group
-                            //add two users to same group
                             autoGroups.add(newAutoGroup);
                         }
                     }
                 }
             }
-            //After finish adding groups for macaddress1
         }
         return autoGroups;
     }
@@ -416,7 +436,6 @@ public class AutoGroupDAO {
         }
         return newAutoGroups;
     }
-    
     /**
      * retrieve the number of users in the entire SIS building 15mins before the
      * specified time
@@ -454,6 +473,7 @@ public class AutoGroupDAO {
             preparedStatement.close();
             connection.close();
         } catch (SQLException e) {
+            e.printStackTrace();
         }
         return count;
     }
