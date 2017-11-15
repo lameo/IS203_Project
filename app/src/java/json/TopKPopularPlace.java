@@ -7,22 +7,17 @@ import com.google.gson.JsonObject;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Iterator;
 import java.util.Map;
-import java.util.TreeMap;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import model.AutoGroupDAO;
-import static model.AutoGroupDAO.retrieveAutoGroups;
-import model.Group;
+import model.ReportDAO;
 import model.SharedSecretManager;
 
-@WebServlet(urlPatterns = {"/json/group_detect"})
-public class autoGroupDetection extends HttpServlet {
+@WebServlet(urlPatterns = {"/json/top-k-popular-places"})
+public class TopKPopularPlace extends HttpServlet {
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
@@ -48,9 +43,10 @@ public class autoGroupDetection extends HttpServlet {
         JsonArray errMsg = new JsonArray();
 
         String tokenEntered = request.getParameter("token"); //get token from url
+        String topKEntered = request.getParameter("k"); //get topK from url
         String dateEntered = request.getParameter("date"); //get date from url
 
-        //token = null represents missing token
+        //if token is not entered in url
         if (tokenEntered == null) {
             errMsg.add("missing token");
             jsonOutput.addProperty("status", "error");
@@ -60,7 +56,7 @@ public class autoGroupDetection extends HttpServlet {
             return;
         }
 
-        //token = "" represents blank token entered
+        //if token field is empty
         if (tokenEntered.isEmpty()) {
             errMsg.add("blank token");
             jsonOutput.addProperty("status", "error");
@@ -69,9 +65,10 @@ public class autoGroupDetection extends HttpServlet {
             out.close(); //close PrintWriter
             return;
         }
-
+        
+        //check if token is invalid
         //print out all the error with null or empty string that is required but the user did not enter 
-        if (!SharedSecretManager.verifyUser(tokenEntered)) { //verify the user - if the user is not verified
+        if (!SharedSecretManager.verifyUser(tokenEntered)) { //if the user is not verified
             errMsg.add("invalid token");
             jsonOutput.addProperty("status", "error");
             jsonOutput.add("messages", errMsg);
@@ -79,9 +76,9 @@ public class autoGroupDetection extends HttpServlet {
             out.close(); //close PrintWriter
             return;
         }
-
-        //if the dateEntered not the right format
-        if (dateEntered == null) {
+        
+        //check if dateEntered is entered by user from url
+        if (dateEntered == null) { 
             errMsg.add("missing date");
             jsonOutput.addProperty("status", "error");
             jsonOutput.add("messages", errMsg);
@@ -89,9 +86,9 @@ public class autoGroupDetection extends HttpServlet {
             out.close(); //close PrintWriter
             return;
         }
-
-        //if the dateEntered not the right format
-        if (dateEntered.isEmpty()) {
+        
+        //if the dateEntered field is blank
+        if (dateEntered.isEmpty()) { 
             errMsg.add("blank date");
             jsonOutput.addProperty("status", "error");
             jsonOutput.add("messages", errMsg);
@@ -133,107 +130,91 @@ public class autoGroupDetection extends HttpServlet {
         } catch (NumberFormatException e) {
             errMsg.add("invalid date");
         }
-        
-        //only run with valid token and valid date entered by user
-        if(errMsg.size() == 0) {
-            //at this point, dateEntered is valid and is in the right format
-            dateEntered = dateEntered.replaceAll("T", " ");
+
+        //Check if user entered a top k number
+        if (topKEntered == null || topKEntered.isEmpty()) {
+            topKEntered = "3";
+        }
+
+        //assign default number to topK first before try-catch
+        int topK = 3;
+
+        //Check if user entered in a number as a string instead of spelling it out as a whole
+        //Eg: k=1 is correct but k=one is wrong
+        try {
+            topK = Integer.parseInt(topKEntered); //get the number user entered in url as int
+
+            if (topK < 1 || topK > 10) {
+                errMsg.add("invalid k"); //add error msg into JsonArray
+            }
+        } catch (NumberFormatException e) {
+            errMsg.add("invalid k"); //add error msg into JsonArray
+        }
+
+        //only run with valid token, date and k
+        //at this point, dateEntered is valid and is in the right format
+        if (errMsg.size() == 0) { 
+            //proper date format -> (YYYY-MM-DDTHH:MM:SS)
             
+            //replace "T" with "" to allow system to process correctly
+            dateEntered = dateEntered.replaceAll("T", " ");
+
+            Map<Integer, String> topKPopularMap = ReportDAO.retrieveTopKPopularPlaces(dateEntered);
+
             //create a json array to store errors
             JsonArray resultsArr = new JsonArray();
             
-            int UsersNumber = AutoGroupDAO.retrieveUsersNumber(dateEntered);//retrieve the number of users in the entire SIS building for that date and time
-            
-            //retrieve map of all the users and their location traces whom stay at SIS building in specified time window for at least 12 mins
-            Map<String, Map<String, ArrayList<String>>> AutoUsers = AutoGroupDAO.retrieveUsersWith12MinutesData(dateEntered);
-            
-            ArrayList<Group> autoGroups = new ArrayList<Group>();
-            //test
-            //ArrayList<String> AutoGroups = new ArrayList<String>();
-            //check if there are valid auto users
-            if (AutoUsers != null && AutoUsers.size() > 0) {
-                //retrieve groups formed from valid auto users
-                autoGroups = retrieveAutoGroups(AutoUsers);
-            }
-            
-            //session.setAttribute("test", AutoGroups);
-            if (autoGroups != null && autoGroups.size() > 0) {
-                //check autogroups and remove sub groups
-                autoGroups = AutoGroupDAO.checkAutoGroups(autoGroups);
-            }
-            // sort the autogroup list in group size, total time duration order first
-            Collections.sort(autoGroups);
-            for (Group autoGroup:autoGroups){
-                //temp json object to store required output first before adding to resultsArr for final output
-                JsonObject autoGroupObject = new JsonObject();
-                autoGroupObject.addProperty("size",autoGroup.getAutoUsersSize());
-                autoGroupObject.addProperty("total-time-spent",(int)autoGroup.calculateTotalDuration());
-                JsonArray membersArr = new JsonArray();
-                TreeMap<String, String> sortedUsersWithEmails = autoGroup.retrieveEmailsWithMacs();
-                Iterator<String> usersWithEmails = sortedUsersWithEmails.keySet().iterator();
-                while(usersWithEmails.hasNext()){
-                    JsonObject membersObject = new JsonObject();
-                    String email = usersWithEmails.next();
-                    String mac = sortedUsersWithEmails.get(email);
-                    membersObject.addProperty("email",email);
-                    membersObject.addProperty("mac-address",mac);
-                    membersArr.add(membersObject);
+            //create a list of popular place numbers sorted in descending order from retrieveTopKPopularPlaces method
+            ArrayList<Integer> keys = new ArrayList<>(topKPopularMap.keySet());
+
+            //to match topK number
+            int count = 1;
+            for (int i = 0; i < keys.size(); i++) {
+                if (count <= topK) {
+                    //retrieve all semantic places found from map
+                    String allLocationFound = topKPopularMap.get(keys.get(i));
+                    
+                    //get all locations in String[] to for-loop
+                    String[] allLocationFoundArr = allLocationFound.split(", ");
+                    
+                    //add every location to semantic-places for each rank if rank has 2 or more locations
+                    //Eg: if rank 1 has 2 locations, 2 jsonobjects will be created for each location and added to resultsArr jsonarray respectively
+                    for (String location : allLocationFoundArr) {
+                        
+                        //temp json object to store required output first before adding to resultsArr for final output
+                        JsonObject topKPopPlaces = new JsonObject();
+                        topKPopPlaces.addProperty("rank", count); 
+                        topKPopPlaces.addProperty("semantic-place", location);
+                        topKPopPlaces.addProperty("count", keys.get(i));
+                        
+                        // add temp json object to final json array for output
+                        resultsArr.add(topKPopPlaces);
+                    }
                 }
-                TreeMap<String, String> sortedUsersNoEmails = autoGroup.retrieveMacsNoEmails();
-                Iterator<String> usersNoEmails = sortedUsersNoEmails.keySet().iterator();
-                while(usersNoEmails.hasNext()){
-                    JsonObject membersObject = new JsonObject();
-                    String mac = usersNoEmails.next();
-                    String email = sortedUsersNoEmails.get(mac);
-                    membersObject.addProperty("email","");
-                    membersObject.addProperty("mac-address",mac);
-                    membersArr.add(membersObject);
-                }
-                
-                autoGroupObject.add("members",membersArr);
-                JsonArray locationsArr = new JsonArray();
-                
-                Map<String, Double> locationsDuration =  autoGroup.calculateTimeDuration();
-                Iterator<String> locations = locationsDuration.keySet().iterator();
-                while(locations.hasNext()){
-                    JsonObject locationsObject = new JsonObject();
-                    String location = locations.next();
-                    double duration = locationsDuration.get(location);
-                    locationsObject.addProperty("location",location);
-                    locationsObject.addProperty("time-spent",(int)(duration));
-                    locationsArr.add(locationsObject);
-                }
-                
-                autoGroupObject.add("locations",locationsArr);
-                resultsArr.add(autoGroupObject);
+                count++;
             }
-            
             jsonOutput.addProperty("status", "success");
-            jsonOutput.addProperty("total-users", UsersNumber);
-            jsonOutput.addProperty("total-groups", autoGroups.size());
-            jsonOutput.add("groups", resultsArr);
+            jsonOutput.add("results", resultsArr);
         } else {
             jsonOutput.addProperty("status", "error");
             jsonOutput.add("messages", errMsg);
         }
         out.println(gson.toJson(jsonOutput));
-        
-        //close PrintWriter
-        out.close(); 
+
+        out.close(); //close PrintWriter
     }
 
-
 // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
-/**
- * Handles the HTTP <code>GET</code> method.
- *
- * @param request servlet request
- * @param response servlet response
- * @throws ServletException if a servlet-specific error occurs
- * @throws IOException if an I/O error occurs
- */
-@Override
-        protected void doGet(HttpServletRequest request, HttpServletResponse response)
+    /**
+     * Handles the HTTP <code>GET</code> method.
+     *
+     * @param request servlet request
+     * @param response servlet response
+     * @throws ServletException if a servlet-specific error occurs
+     * @throws IOException if an I/O error occurs
+     */
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         processRequest(request, response);
     }
@@ -247,7 +228,7 @@ public class autoGroupDetection extends HttpServlet {
      * @throws IOException if an I/O error occurs
      */
     @Override
-        protected void doPost(HttpServletRequest request, HttpServletResponse response)
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         processRequest(request, response);
     }
@@ -258,7 +239,7 @@ public class autoGroupDetection extends HttpServlet {
      * @return a String containing servlet description
      */
     @Override
-        public String getServletInfo() {
+    public String getServletInfo() {
         return "Short description";
     }// </editor-fold>
 

@@ -7,17 +7,20 @@ import com.google.gson.JsonObject;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import model.ReportDAO;
+import model.HeatMap;
+import model.HeatMapDAO;
 import model.SharedSecretManager;
 
-@WebServlet(urlPatterns = {"/json/top-k-popular-places"})
-public class topKPopularPlace extends HttpServlet {
+@WebServlet(urlPatterns = {"/json/heatmap"})
+public class Heatmap extends HttpServlet {
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
@@ -32,8 +35,7 @@ public class topKPopularPlace extends HttpServlet {
 
         PrintWriter out = response.getWriter();
 
-        //creates a new gson object
-        //by instantiating a new factory object, set pretty printing, then calling the create method
+        //creates a new gson object by instantiating a new factory object, set pretty printing, then calling the create method
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
         //creats a new json object for printing the desired json output
@@ -42,9 +44,9 @@ public class topKPopularPlace extends HttpServlet {
         //create a json array to store errors
         JsonArray errMsg = new JsonArray();
 
-        String tokenEntered = request.getParameter("token"); //get token from url
-        String topKEntered = request.getParameter("k"); //get topK from url
-        String dateEntered = request.getParameter("date"); //get date from url
+        String tokenEntered = request.getParameter("token"); //get username from request
+        String stringFloor = request.getParameter("floor"); //get password from request    
+        String timeDate = request.getParameter("date"); //get date from request   
 
         //if token is not entered in url
         if (tokenEntered == null) {
@@ -65,9 +67,8 @@ public class topKPopularPlace extends HttpServlet {
             out.close(); //close PrintWriter
             return;
         }
-        
+
         //check if token is invalid
-        //print out all the error with null or empty string that is required but the user did not enter 
         if (!SharedSecretManager.verifyUser(tokenEntered)) { //if the user is not verified
             errMsg.add("invalid token");
             jsonOutput.addProperty("status", "error");
@@ -76,9 +77,29 @@ public class topKPopularPlace extends HttpServlet {
             out.close(); //close PrintWriter
             return;
         }
-        
-        //check if dateEntered is entered by user from url
-        if (dateEntered == null) { 
+
+        //if floor is not entered in url
+        if (stringFloor == null) {
+            errMsg.add("missing floor");
+            jsonOutput.addProperty("status", "error");
+            jsonOutput.add("messages", errMsg);
+            out.println(gson.toJson(jsonOutput));
+            out.close(); //close PrintWriter
+            return;
+        }
+
+        //if floor field is empty
+        if (stringFloor.isEmpty()) {
+            errMsg.add("blank floor");
+            jsonOutput.addProperty("status", "error");
+            jsonOutput.add("messages", errMsg);
+            out.println(gson.toJson(jsonOutput));
+            out.close(); //close PrintWriter
+            return;
+        }
+
+        //if date is not entered in url
+        if (timeDate == null) {
             errMsg.add("missing date");
             jsonOutput.addProperty("status", "error");
             jsonOutput.add("messages", errMsg);
@@ -86,9 +107,9 @@ public class topKPopularPlace extends HttpServlet {
             out.close(); //close PrintWriter
             return;
         }
-        
-        //if the dateEntered field is blank
-        if (dateEntered.isEmpty()) { 
+
+        //if date field is empty
+        if (timeDate.isEmpty()) {
             errMsg.add("blank date");
             jsonOutput.addProperty("status", "error");
             jsonOutput.add("messages", errMsg);
@@ -101,29 +122,29 @@ public class topKPopularPlace extends HttpServlet {
             //check for valid date entered by user
             boolean dateValid = true;
             // Length check
-            dateValid = dateValid && dateEntered.length() == 19;
+            dateValid = dateValid && timeDate.length() == 19;
             // Year bigger than 2013 & smaller or equal to 2017
-            dateValid = dateValid && (Integer.parseInt(dateEntered.substring(0, 4)) > 2013) && (Integer.parseInt(dateEntered.substring(0, 4)) <= 2017);
+            dateValid = dateValid && (Integer.parseInt(timeDate.substring(0, 4)) > 2013) && (Integer.parseInt(timeDate.substring(0, 4)) <= 2017);
             // Check for dashes
-            dateValid = dateValid && (dateEntered.substring(4, 5).equals("-"));
+            dateValid = dateValid && (timeDate.substring(4, 5).equals("-"));
             // Month bigger than 0 & smaller or equal to 12
-            dateValid = dateValid && (Integer.parseInt(dateEntered.substring(5, 7)) > 0) && (Integer.parseInt(dateEntered.substring(5, 7)) <= 12);
+            dateValid = dateValid && (Integer.parseInt(timeDate.substring(5, 7)) > 0) && (Integer.parseInt(timeDate.substring(5, 7)) <= 12);
             // Check for dashes
-            dateValid = dateValid && (dateEntered.substring(7, 8).equals("-"));
+            dateValid = dateValid && (timeDate.substring(7, 8).equals("-"));
             // Day bigger than 0 & smaller or equal to 12
-            dateValid = dateValid && (Integer.parseInt(dateEntered.substring(8, 10)) > 0) && (Integer.parseInt(dateEntered.substring(8, 10)) <= 31);
+            dateValid = dateValid && (Integer.parseInt(timeDate.substring(8, 10)) > 0) && (Integer.parseInt(timeDate.substring(8, 10)) <= 31);
             // Check for T
-            dateValid = dateValid && (dateEntered.substring(10, 11).equals("T"));
+            dateValid = dateValid && (timeDate.substring(10, 11).equals("T"));
             // Hour bigger or equal 0 & smaller or equal to 24
-            dateValid = dateValid && (Integer.parseInt(dateEntered.substring(11, 13)) >= 0) && (Integer.parseInt(dateEntered.substring(11, 13)) <= 23);
+            dateValid = dateValid && (Integer.parseInt(timeDate.substring(11, 13)) >= 0) && (Integer.parseInt(timeDate.substring(11, 13)) <= 23);
             // Check for :
-            dateValid = dateValid && (dateEntered.substring(13, 14).equals(":"));
+            dateValid = dateValid && (timeDate.substring(13, 14).equals(":"));
             // Min bigger or equal 0 & smaller or equal to 59
-            dateValid = dateValid && (Integer.parseInt(dateEntered.substring(14, 16)) >= 0) && (Integer.parseInt(dateEntered.substring(14, 16)) <= 59);
+            dateValid = dateValid && (Integer.parseInt(timeDate.substring(14, 16)) >= 0) && (Integer.parseInt(timeDate.substring(14, 16)) <= 59);
             // Check for :
-            dateValid = dateValid && (dateEntered.substring(16, 17).equals(":"));
+            dateValid = dateValid && (timeDate.substring(16, 17).equals(":"));
             // Second bigger or equal 0 & smaller or equal to 59
-            dateValid = dateValid && (Integer.parseInt(dateEntered.substring(17, 19)) >= 0) && (Integer.parseInt(dateEntered.substring(17, 19)) <= 59);
+            dateValid = dateValid && (Integer.parseInt(timeDate.substring(17, 19)) >= 0) && (Integer.parseInt(timeDate.substring(17, 19)) <= 59);
             if (!dateValid) {
                 errMsg.add("invalid date");
             }
@@ -131,70 +152,57 @@ public class topKPopularPlace extends HttpServlet {
             errMsg.add("invalid date");
         }
 
-        //Check if user entered a top k number
-        if (topKEntered == null || topKEntered.isEmpty()) {
-            topKEntered = "3";
+        int floor = Integer.parseInt(stringFloor);
+        if (floor < 0 || floor > 5) {
+            errMsg.add("invalid floor");
         }
 
-        //assign default number to topK first before try-catch
-        int topK = 3;
+        if (errMsg.size() == 0) {
+            //from here on no error messages are recorded
+            //all parameters are valid and checked
 
-        //Check if user entered in a number as a string instead of spelling it out as a whole
-        //Eg: k=1 is correct but k=one is wrong
-        try {
-            topK = Integer.parseInt(topKEntered); //get the number user entered in url as int
-
-            if (topK < 1 || topK > 10) {
-                errMsg.add("invalid k"); //add error msg into JsonArray
-            }
-        } catch (NumberFormatException e) {
-            errMsg.add("invalid k"); //add error msg into JsonArray
-        }
-
-        //only run with valid token, date and k
-        //at this point, dateEntered is valid and is in the right format
-        if (errMsg.size() == 0) { 
             //proper date format -> (YYYY-MM-DDTHH:MM:SS)
-            
             //replace "T" with "" to allow system to process correctly
-            dateEntered = dateEntered.replaceAll("T", " ");
-
-            Map<Integer, String> topKPopularMap = ReportDAO.retrieveTopKPopularPlaces(dateEntered);
-
-            //create a json array to store errors
-            JsonArray resultsArr = new JsonArray();
+            timeDate = timeDate.replaceAll("T", " ");
             
-            //create a list of popular place numbers sorted in descending order from retrieveTopKPopularPlaces method
-            ArrayList<Integer> keys = new ArrayList<>(topKPopularMap.keySet());
+            //if floor = 0, floor is B1
+            String floorName = "B1";
 
-            //to match topK number
-            int count = 1;
-            for (int i = 0; i < keys.size(); i++) {
-                if (count <= topK) {
-                    //retrieve all semantic places found from map
-                    String allLocationFound = topKPopularMap.get(keys.get(i));
-                    
-                    //get all locations in String[] to for-loop
-                    String[] allLocationFoundArr = allLocationFound.split(", ");
-                    
-                    //add every location to semantic-places for each rank if rank has 2 or more locations
-                    //Eg: if rank 1 has 2 locations, 2 jsonobjects will be created for each location and added to resultsArr jsonarray respectively
-                    for (String location : allLocationFoundArr) {
-                        
-                        //temp json object to store required output first before adding to resultsArr for final output
-                        JsonObject topKPopPlaces = new JsonObject();
-                        topKPopPlaces.addProperty("rank", count); 
-                        topKPopPlaces.addProperty("semantic-place", location);
-                        topKPopPlaces.addProperty("count", keys.get(i));
-                        
-                        // add temp json object to final json array for output
-                        resultsArr.add(topKPopPlaces);
-                    }
-                }
-                count++;
+            if (floor > 0) {
+                //reassign floorName to corresponding level
+                //Eg: if floor is 2, floorName equals to "L2"
+                floorName = "L" + floor;
             }
+
+            Map<String, HeatMap> heatmapMap = HeatMapDAO.retrieveHeatMap(timeDate, floorName);
             jsonOutput.addProperty("status", "success");
-            jsonOutput.add("results", resultsArr);
+            JsonArray heatmaps = new JsonArray();
+
+            //create a list of string of all semantic places based on the number of semantic places present in heatmapList
+            List<String> keys = new ArrayList<>(heatmapMap.keySet());
+
+            //sort the list before retrieval
+            Collections.sort(keys);
+            for (String key : keys) {
+
+                //retrieve HeatMap object from list of sorted from heatmapMap
+                HeatMap heatmap = heatmapMap.get(key);
+
+                //create json object to add into json array for final output
+                //every key will be stored into a new json object
+                JsonObject heatmapObject = new JsonObject();
+
+                //adding property and items for output
+                heatmapObject.addProperty("semantic-place", heatmap.getPlace());
+                heatmapObject.addProperty("num-people", heatmap.getQtyPax());
+                heatmapObject.addProperty("crowd-density", heatmap.getHeatLevel());
+
+                //add json object into json array for final output
+                heatmaps.add(heatmapObject);
+            }
+
+            //add json array to final json object to output
+            jsonOutput.add("heatmap", heatmaps);
         } else {
             jsonOutput.addProperty("status", "error");
             jsonOutput.add("messages", errMsg);
@@ -204,7 +212,7 @@ public class topKPopularPlace extends HttpServlet {
         out.close(); //close PrintWriter
     }
 
-// <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
+    // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
     /**
      * Handles the HTTP <code>GET</code> method.
      *

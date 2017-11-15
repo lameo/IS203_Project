@@ -8,18 +8,21 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.Map;
-import java.util.Set;
+import java.util.TreeMap;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import model.ReportDAO;
+import model.AutoGroupDAO;
+import static model.AutoGroupDAO.retrieveAutoGroups;
+import model.Group;
 import model.SharedSecretManager;
 
-@WebServlet(urlPatterns = {"/json/top-k-next-places"})
-public class topKNextPlaces extends HttpServlet {
+@WebServlet(urlPatterns = {"/json/group_detect"})
+public class AutoGroupDetection extends HttpServlet {
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
@@ -45,11 +48,9 @@ public class topKNextPlaces extends HttpServlet {
         JsonArray errMsg = new JsonArray();
 
         String tokenEntered = request.getParameter("token"); //get token from url
-        String topKEntered = request.getParameter("k"); //get topK from url
         String dateEntered = request.getParameter("date"); //get date from url
-        String semanticPlace = request.getParameter("origin"); //get the semantic place from url
 
-        //if token is not entered in url
+        //token = null represents missing token
         if (tokenEntered == null) {
             errMsg.add("missing token");
             jsonOutput.addProperty("status", "error");
@@ -59,7 +60,7 @@ public class topKNextPlaces extends HttpServlet {
             return;
         }
 
-        //if token field is empty
+        //token = "" represents blank token entered
         if (tokenEntered.isEmpty()) {
             errMsg.add("blank token");
             jsonOutput.addProperty("status", "error");
@@ -69,8 +70,8 @@ public class topKNextPlaces extends HttpServlet {
             return;
         }
 
-        //check if token is invalid
-        if (!SharedSecretManager.verifyUser(tokenEntered)) { //if the user is not verified
+        //print out all the error with null or empty string that is required but the user did not enter 
+        if (!SharedSecretManager.verifyUser(tokenEntered)) { //verify the user - if the user is not verified
             errMsg.add("invalid token");
             jsonOutput.addProperty("status", "error");
             jsonOutput.add("messages", errMsg);
@@ -79,7 +80,7 @@ public class topKNextPlaces extends HttpServlet {
             return;
         }
 
-        //check if dateEntered is entered by user from url
+        //if the dateEntered not the right format
         if (dateEntered == null) {
             errMsg.add("missing date");
             jsonOutput.addProperty("status", "error");
@@ -88,29 +89,10 @@ public class topKNextPlaces extends HttpServlet {
             out.close(); //close PrintWriter
             return;
         }
-        
-        //if the dateEntered field is blank
+
+        //if the dateEntered not the right format
         if (dateEntered.isEmpty()) {
             errMsg.add("blank date");
-            jsonOutput.addProperty("status", "error");
-            jsonOutput.add("messages", errMsg);
-            out.println(gson.toJson(jsonOutput));
-            out.close(); //close PrintWriter
-            return;
-        }
-
-        //check if origin is entered by user from url
-        if (semanticPlace == null) {
-            errMsg.add("missing origin");
-            jsonOutput.addProperty("status", "error");
-            jsonOutput.add("messages", errMsg);
-            out.println(gson.toJson(jsonOutput));
-            out.close(); //close PrintWriter
-            return;
-        }
-
-        if (semanticPlace.isEmpty()) {
-            errMsg.add("blank origin");
             jsonOutput.addProperty("status", "error");
             jsonOutput.add("messages", errMsg);
             out.println(gson.toJson(jsonOutput));
@@ -151,103 +133,107 @@ public class topKNextPlaces extends HttpServlet {
         } catch (NumberFormatException e) {
             errMsg.add("invalid date");
         }
-
-        //Check if user entered a top k number
-        if (topKEntered == null || topKEntered.isEmpty()) {
-            topKEntered = "3";
-        }
-
-        //assign default number to topK first before try-catch
-        int topK = 3;
-
-        //Check if user entered in a number as a string instead of spelling it out as a whole
-        //Eg: k=1 is correct but k=one is wrong
-        try {
-            topK = Integer.parseInt(topKEntered); //get the number user entered in url in int
-
-            if (topK < 1 || topK > 10) {
-                errMsg.add("invalid k"); //add error msg into JsonArray
-            }
-        } catch (NumberFormatException e) {
-            errMsg.add("invalid k"); //add error msg into JsonArray
-        }
-
-        //check if semantic place comes from location-lookup.csv
-        ArrayList<String> validSemanticPlacesList = ReportDAO.getSemanticPlaces();
-        if (!validSemanticPlacesList.contains(semanticPlace)) { //if semanticPlace is not inside the locationloopup table
-            errMsg.add("invalid origin");
-        }
-
-        //from here on, user is verified
-        //topk number is between 1 - 10 inclusive with default as 3 if no k is entered
-        //semantic place is valid
-        //dateEntered is valid and is in the right format
-        if (errMsg.size() == 0) {
-            //proper date format -> (YYYY-MM-DDTHH:MM:SS)
-            
-            //replace "T" with "" to allow system to process correctly
+        
+        //only run with valid token and valid date entered by user
+        if(errMsg.size() == 0) {
+            //at this point, dateEntered is valid and is in the right format
             dateEntered = dateEntered.replaceAll("T", " ");
-
+            
             //create a json array to store errors
             JsonArray resultsArr = new JsonArray();
-
-            // total quantity of users visiting next place
-            int usersVisitingNextPlace = 0; 
-            Map<Integer, ArrayList<String>> topKNextPlaces = ReportDAO.retrieveTopKNextPlaces(dateEntered, semanticPlace);
-
-            //retrieve users who are in a specific place given a specific time frame in a specific location
-            ArrayList<String> usersList = ReportDAO.retrieveUserBasedOnLocation(dateEntered, semanticPlace);
-
-            //to get the different total number of users in a next place in desc order
-            Set<Integer> totalNumOfUsersSet = topKNextPlaces.keySet();
-
-            int counter = 1; // to match topk number after incrementation
-            for (int totalNumOfUsers : totalNumOfUsersSet) {
-                // gives the list of location with the same totalNumOfUsers
-                ArrayList<String> locations = topKNextPlaces.get(totalNumOfUsers); 
-                
-                // sort the locations list in ascending order first
-                Collections.sort(locations); 
-                if (counter <= topK) { // to only display till topk number
-                    for (int i = 0; i < locations.size(); i++) {
-                        //temp json object to store required output first before adding to resultsArr for final output
-                        JsonObject topKNextPlace = new JsonObject();
-                        topKNextPlace.addProperty("rank", counter);
-                        topKNextPlace.addProperty("semantic-place", locations.get(i));
-                        topKNextPlace.addProperty("count", totalNumOfUsers);
-                        
-                        // add temp json object to final json array for output
-                        resultsArr.add(topKNextPlace);
-                    }
-                    counter++;
-                }
-                //add if the user is going other places but the quantity may have multiple next locations
-                usersVisitingNextPlace += totalNumOfUsers * locations.size(); 
+            
+            int UsersNumber = AutoGroupDAO.retrieveUsersNumber(dateEntered);//retrieve the number of users in the entire SIS building for that date and time
+            
+            //retrieve map of all the users and their location traces whom stay at SIS building in specified time window for at least 12 mins
+            Map<String, Map<String, ArrayList<String>>> AutoUsers = AutoGroupDAO.retrieveUsersWith12MinutesData(dateEntered);
+            
+            ArrayList<Group> autoGroups = new ArrayList<Group>();
+            //test
+            //ArrayList<String> AutoGroups = new ArrayList<String>();
+            //check if there are valid auto users
+            if (AutoUsers != null && AutoUsers.size() > 0) {
+                //retrieve groups formed from valid auto users
+                autoGroups = retrieveAutoGroups(AutoUsers);
             }
+            
+            //session.setAttribute("test", AutoGroups);
+            if (autoGroups != null && autoGroups.size() > 0) {
+                //check autogroups and remove sub groups
+                autoGroups = AutoGroupDAO.checkAutoGroups(autoGroups);
+            }
+            // sort the autogroup list in group size, total time duration order first
+            Collections.sort(autoGroups);
+            for (Group autoGroup:autoGroups){
+                //temp json object to store required output first before adding to resultsArr for final output
+                JsonObject autoGroupObject = new JsonObject();
+                autoGroupObject.addProperty("size",autoGroup.getAutoUsersSize());
+                autoGroupObject.addProperty("total-time-spent",(int)autoGroup.calculateTotalDuration());
+                JsonArray membersArr = new JsonArray();
+                TreeMap<String, String> sortedUsersWithEmails = autoGroup.retrieveEmailsWithMacs();
+                Iterator<String> usersWithEmails = sortedUsersWithEmails.keySet().iterator();
+                while(usersWithEmails.hasNext()){
+                    JsonObject membersObject = new JsonObject();
+                    String email = usersWithEmails.next();
+                    String mac = sortedUsersWithEmails.get(email);
+                    membersObject.addProperty("email",email);
+                    membersObject.addProperty("mac-address",mac);
+                    membersArr.add(membersObject);
+                }
+                TreeMap<String, String> sortedUsersNoEmails = autoGroup.retrieveMacsNoEmails();
+                Iterator<String> usersNoEmails = sortedUsersNoEmails.keySet().iterator();
+                while(usersNoEmails.hasNext()){
+                    JsonObject membersObject = new JsonObject();
+                    String mac = usersNoEmails.next();
+                    String email = sortedUsersNoEmails.get(mac);
+                    membersObject.addProperty("email","");
+                    membersObject.addProperty("mac-address",mac);
+                    membersArr.add(membersObject);
+                }
+                
+                autoGroupObject.add("members",membersArr);
+                JsonArray locationsArr = new JsonArray();
+                
+                Map<String, Double> locationsDuration =  autoGroup.calculateTimeDuration();
+                Iterator<String> locations = locationsDuration.keySet().iterator();
+                while(locations.hasNext()){
+                    JsonObject locationsObject = new JsonObject();
+                    String location = locations.next();
+                    double duration = locationsDuration.get(location);
+                    locationsObject.addProperty("location",location);
+                    locationsObject.addProperty("time-spent",(int)(duration));
+                    locationsArr.add(locationsObject);
+                }
+                
+                autoGroupObject.add("locations",locationsArr);
+                resultsArr.add(autoGroupObject);
+            }
+            
             jsonOutput.addProperty("status", "success");
-            jsonOutput.addProperty("total-users", usersList.size());
-            jsonOutput.addProperty("total-next-place-users", usersVisitingNextPlace);
-            jsonOutput.add("results", resultsArr);
+            jsonOutput.addProperty("total-users", UsersNumber);
+            jsonOutput.addProperty("total-groups", autoGroups.size());
+            jsonOutput.add("groups", resultsArr);
         } else {
             jsonOutput.addProperty("status", "error");
             jsonOutput.add("messages", errMsg);
         }
         out.println(gson.toJson(jsonOutput));
-
-        out.close(); //close PrintWriter
+        
+        //close PrintWriter
+        out.close(); 
     }
-// <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
 
-    /**
-     * Handles the HTTP <code>GET</code> method.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
-    @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+
+// <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
+/**
+ * Handles the HTTP <code>GET</code> method.
+ *
+ * @param request servlet request
+ * @param response servlet response
+ * @throws ServletException if a servlet-specific error occurs
+ * @throws IOException if an I/O error occurs
+ */
+@Override
+        protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         processRequest(request, response);
     }
@@ -261,7 +247,7 @@ public class topKNextPlaces extends HttpServlet {
      * @throws IOException if an I/O error occurs
      */
     @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+        protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         processRequest(request, response);
     }
@@ -272,7 +258,7 @@ public class topKNextPlaces extends HttpServlet {
      * @return a String containing servlet description
      */
     @Override
-    public String getServletInfo() {
+        public String getServletInfo() {
         return "Short description";
     }// </editor-fold>
 

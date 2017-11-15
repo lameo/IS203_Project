@@ -27,7 +27,7 @@
     %>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-        <title>Update page</title>
+        <title>Upload page</title>
         <link href="data:image/x-icon;base64,AAABAAEAEBAAAAEAIABoBAAAFgAAACgAAAAQAAAAIAAAAAEAIAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAeqPVFXKh3DAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFmW5gFXlup/Y57tNAAAAAAAAAAAAAAAAH1RFyF2VB8IAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAJGz3j2ct9YLUpHuFUmP8NxLnP013QkADoJREaOATxGddlIhDwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAB2qOQcXZjnbQAAAABRmfc4OY//72tjYMOZPgAzAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFWV7T1Pk/GqAAAAAGJqfbs1jP//RJb/bAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAR5b7f09+wOXMGwAnR5r/bTiH9P9AjPGvhbDbDwAAAAAAAAAAAAAAAAAAAACfttEVAAAAAAAAAAAAAAAAAAAAAAAAAABHgdDbOo38uwAAAABPk/B9Nob1/zyI8+RUlupJAAAAAAAAAAAAAAAAia3bKI2w3x4AAAAAAAAAAAAAAACCPgAFjEwFcEGS/Ms8ifLcjLLaEFWW8GY5h/T/N4f0/0KN8KRjneciAAAAAAAAAABtoedSg8vwAQAAAAAAAAAAhVYdCoNKBmsAAAAAQozwwTuI8v9Rle1GZ6LqPj2J8+Q1hfX/Ooj0/0CL8aNCi+9gRYzwsqPF3gcAAAAAAAAAAAAAAACBUhaBAAAAAAAAAABGjvGVO4nz/z6K8aBvpOQxSpDvfziG9OY2hvX/M4b1/z6L8t+nvMEpAAAAAAAAAAAAAAAAf1EUZ4JTGEYAAAAAAAAAAFiY6087ifPvOYjz/0KN8I1cmudAY5vpSE6R60xgnepaUZPquQAAAAAAAAAAAAAAAH9ODg2AUBOphlsmDgAAAAAAAAAAusvSCEeP73s7iPLxOYj0/z2J8+g9ifTCP4rx51CT7n8AAAAAAAAAAAAAAAAAAAAAg1MYO4JRErx/UhUqAAAAAAAAAAAAAAAAAAAAAE2d/zlBj/p7QorvklCU7D8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACCVxssgU8PpINPDoOBTxFFgk8RJoJLAiOMQQArmkEAIwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACBThBrgU4PxIJRFN5/TxKngVMaY4RaIw8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA//8AAP//AADs/wAA8/8AANP/AADs/wAA5n8AAPMfAAD5hQAA7GEAAP8eAAD3wQAA+/sAAPz/AAD/HwAA//8AAA==" rel="icon" type="image/x-icon" />
     </head>
     <body>
@@ -49,8 +49,8 @@
                             <a class="dropdown-toggle" data-toggle="dropdown" href="#">Bootstrap
                                 <span class="caret"></span></a>
                             <ul class="dropdown-menu">
-                                <li><a href="BootstrapInitialize.jsp">Initialize SLOCA</a></li> <%-- send user to BootstrapInitialize page --%>
-                                <li><a href="BootstrapUpdate.jsp">Upload Additional Data</a></li> <%-- send user to BootstrapUpdate page --%>
+                                <li><a href="bootstrapInitialize.jsp">Initialize SLOCA</a></li> <%-- send user to BootstrapInitialize page --%>
+                                <li><a href="bootstrapUpdate.jsp">Upload Additional Data</a></li> <%-- send user to BootstrapUpdate page --%>
                             </ul>
                         </li>
                     </ul>
@@ -62,13 +62,29 @@
             </div>
         </nav>
         <div class="container-fluid text-center">
-            <h1>Upload additional data to SLOCA</h1><br>
+            <h1>Initialize SLOCA</h1><br>
             <%
+                HashMap<Integer, String> locationLookupError = (HashMap<Integer, String>) session.getAttribute("locationLookupError");
                 HashMap<Integer, String> demographicsError = (HashMap<Integer, String>) session.getAttribute("demographicsError");
                 HashMap<Integer, String> locationError = (HashMap<Integer, String>) session.getAttribute("locationError");
                 HashMap<String, String> processedLines = (HashMap<String, String>) session.getAttribute("processedLines");
                 String success = (String) session.getAttribute("success"); //success message retrieved from UploadServlet
 
+                if (processedLines != null && processedLines.size() > 0) {
+                    out.print("<div class=\"container\"><table class=\"table table-bordered\"><thead>");
+                    out.print("<tr><th>File</th><th># of Records Loaded</th></tr></thead><tbody>");
+                    if (processedLines.containsKey("location.csv")) {
+                        out.print("<tr><td>location.csv</td><td>" + processedLines.get("location.csv") + "</td></tr>");
+                    }
+                    if (processedLines.containsKey("location-lookup.csv")) {
+                        out.print("<tr><td>location-lookup.csv</td><td>" + processedLines.get("location-lookup.csv") + "</td></tr>");
+                    }
+                    if (processedLines.containsKey("demographics.csv")) {
+                        out.print("<tr><td>demographics.csv</td><td>" + processedLines.get("demographics.csv") + "</td></tr>");
+                    }
+                    out.print("</tbody></table></div><br>");
+                    session.removeAttribute("processedLines");
+                }
                 //error message retrieved from UploadServlet
                 String error = (String) session.getAttribute("error");
                 if (error != null && error.length() >= 1) {
@@ -80,19 +96,6 @@
                         out.println("<font color='green'>" + "<br/>" + success + "</font></center>");
                         session.removeAttribute("success");
                     }
-                }
-                // Table for processed line
-                if (processedLines != null && processedLines.size() > 0) {
-                    out.print("<div class=\"container\"><table class=\"table table-bordered\"><thead>");
-                    out.print("<tr><th>File</th><th># of Records Loaded</th></tr></thead><tbody>");
-                    if (processedLines.containsKey("location.csv")) {
-                        out.print("<tr><td>location.csv</td><td>" + processedLines.get("location.csv") + "</td></tr>");
-                    }
-                    if (processedLines.containsKey("demographics.csv")) {
-                        out.print("<tr><td>demographics.csv</td><td>" + processedLines.get("demographics.csv") + "</td></tr>");
-                    }
-                    out.print("</tbody></table></div><br>");
-                    session.removeAttribute("processedLines");
                 }
 
                 // Table for demographic error
@@ -106,6 +109,19 @@
                     }
                     out.print("</tbody></table></div><br>");
                     session.removeAttribute("demographicsError");
+                }
+
+                // Table for locationLookup error
+                if (locationLookupError != null && locationLookupError.size() > 0) {
+                    Set<Integer> keys = locationLookupError.keySet();
+                    keys = new TreeSet(keys);
+                    out.print("<div class=\"container\"><table class=\"table table-bordered\"><thead>");
+                    out.print("<tr><th colspan=\"2\"><center>Location Lookup Error</center></th></tr><tr><th><center>Row</center></th><th><center>Errors</center></th></tr>");
+                    for (Integer key : keys) {
+                        out.print("<tr><td>" + key + "</td><td>" + locationLookupError.get(key) + "</td></tr>");
+                    }
+                    out.print("</tbody></table></div><br>");
+                    session.removeAttribute("locationLookupError");
                 }
 
                 // Table for location error
@@ -122,7 +138,7 @@
                 }
             %>
             <center>
-                <form method="post" action="processUpdate" enctype="multipart/form-data">
+                <form method="post" action="processUpload" enctype="multipart/form-data">
                     <div class="form-group">
                         <label for="exampleFormControlFile1">Choose file&hellip;</label>
                         <input type="file" name="uploadfile" class="form-control-file" id="exampleFormControlFile1">

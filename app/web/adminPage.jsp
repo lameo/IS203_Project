@@ -44,8 +44,8 @@
                             <a class="dropdown-toggle" data-toggle="dropdown" href="#">Bootstrap
                                 <span class="caret"></span></a>
                             <ul class="dropdown-menu">
-                                <li><a href="BootstrapInitialize.jsp">Initialize SLOCA</a></li> <%-- send user to BootstrapInitialize page --%>
-                                <li><a href="BootstrapUpdate.jsp">Upload Additional Data</a></li> <%-- send user to BootstrapUpdate page --%>
+                                <li><a href="bootstrapInitialize.jsp">Initialize SLOCA</a></li> <%-- send user to BootstrapInitialize page --%>
+                                <li><a href="bootstrapUpdate.jsp">Upload Additional Data</a></li> <%-- send user to BootstrapUpdate page --%>
                             </ul>
                         </li>
                     </ul>

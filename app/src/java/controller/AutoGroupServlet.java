@@ -24,7 +24,7 @@ public class AutoGroupServlet extends HttpServlet {
      * @throws ServletException if a servlet-specific error occurs
      * @throws IOException if an I/O error occurs
      */
-    protected void processRequest(HttpServletRequest request, HttpServletResponse response) {
+    protected void processRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
         try {
             // Retrieving user timedate input from session
@@ -85,7 +85,8 @@ public class AutoGroupServlet extends HttpServlet {
      * @throws IOException if an I/O error occurs
      */
     @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) {
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) 
+            throws ServletException, IOException {        
         processRequest(request, response);
     }
 
@@ -98,7 +99,8 @@ public class AutoGroupServlet extends HttpServlet {
      * @throws IOException if an I/O error occurs
      */
     @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response) {
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) 
+            throws ServletException, IOException {        
         processRequest(request, response);
     }
 
@@ -109,7 +111,7 @@ public class AutoGroupServlet extends HttpServlet {
      */
     @Override
     public String getServletInfo() {
-        return "Short description";
+        return "This is a Auto Group Report Servlet that processes auto group report";
     }// </editor-fold>
 
 }

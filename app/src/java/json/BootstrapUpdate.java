@@ -24,7 +24,7 @@ import model.SharedSecretManager;
 import model.UploadDAO;
 
 @WebServlet(urlPatterns = {"/json/update"})
-public class bootstrapUpdate extends HttpServlet {
+public class BootstrapUpdate extends HttpServlet {
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.

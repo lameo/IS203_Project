@@ -14,7 +14,14 @@ import model.UploadDAO;
 import java.io.File;
 
 public class UploadServlet extends HttpServlet implements java.io.Serializable {
-
+    /**
+     * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
+     *
+     * @param request servlet request
+     * @param response servlet response
+     * @throws ServletException if a servlet-specific error occurs
+     * @throws IOException if an I/O error occurs
+     */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         HttpSession session = request.getSession();
         
@@ -189,7 +196,7 @@ public class UploadServlet extends HttpServlet implements java.io.Serializable {
         
         // Goes back to the webpage after all files is processed
         // Now with errorMessage/number of line processed saved in session
-        response.sendRedirect("BootstrapInitialize.jsp");
+        response.sendRedirect("bootstrapInitialize.jsp");
     }
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
