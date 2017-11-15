@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.TreeMap;
 
 public class Group implements Comparable<Group> {
@@ -211,5 +212,32 @@ public class Group implements Comparable<Group> {
         }
         
         return autoUsersMacs.containsAll(newAutoUsersMacs);
-    }    
+    } 
+    
+    /**
+     * Compare whether the 2 group object are identical
+     * @param obj Object to compare to
+     * @return boolean whether the 2 objects are identical
+     */
+     @Override
+     public boolean equals(Object obj) {
+         if (this == obj) {
+             return true;
+         }
+         if (obj == null) {
+             return false;
+         }
+         if (getClass() != obj.getClass()) {
+             return false;
+         }
+         final Group other = (Group) obj;
+         if (!Objects.equals(this.autoUsersMacs, other.autoUsersMacs)) {
+             return false;
+         }
+         if (!Objects.equals(this.commonLocationTimestamps, other.commonLocationTimestamps)) {
+             return false;
+         }
+         return true;
+     }    
+    
 }
