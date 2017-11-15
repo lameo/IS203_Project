@@ -20,8 +20,16 @@ import model.HeatMapDAO;
 import model.SharedSecretManager;
 
 @WebServlet(urlPatterns = {"/json/heatmap"})
-public class heatmap extends HttpServlet {
+public class Heatmap extends HttpServlet {
 
+    /**
+     * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
+     *
+     * @param request servlet request
+     * @param response servlet response
+     * @throws ServletException if a servlet-specific error occurs
+     * @throws IOException if an I/O error occurs
+     */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
@@ -33,12 +41,14 @@ public class heatmap extends HttpServlet {
         //creats a new json object for printing the desired json output
         JsonObject jsonOutput = new JsonObject();
 
+        //create a json array to store errors
         JsonArray errMsg = new JsonArray();
 
         String tokenEntered = request.getParameter("token"); //get username from request
         String stringFloor = request.getParameter("floor"); //get password from request    
         String timeDate = request.getParameter("date"); //get date from request   
 
+        //if token is not entered in url
         if (tokenEntered == null) {
             errMsg.add("missing token");
             jsonOutput.addProperty("status", "error");
@@ -48,6 +58,7 @@ public class heatmap extends HttpServlet {
             return;
         }
 
+        //if token field is empty
         if (tokenEntered.isEmpty()) {
             errMsg.add("blank token");
             jsonOutput.addProperty("status", "error");
@@ -56,7 +67,7 @@ public class heatmap extends HttpServlet {
             out.close(); //close PrintWriter
             return;
         }
-        
+
         //check if token is invalid
         if (!SharedSecretManager.verifyUser(tokenEntered)) { //if the user is not verified
             errMsg.add("invalid token");
@@ -77,6 +88,7 @@ public class heatmap extends HttpServlet {
             return;
         }
 
+        //if floor field is empty
         if (stringFloor.isEmpty()) {
             errMsg.add("blank floor");
             jsonOutput.addProperty("status", "error");
@@ -85,7 +97,7 @@ public class heatmap extends HttpServlet {
             out.close(); //close PrintWriter
             return;
         }
-        
+
         //if date is not entered in url
         if (timeDate == null) {
             errMsg.add("missing date");
@@ -96,6 +108,7 @@ public class heatmap extends HttpServlet {
             return;
         }
 
+        //if date field is empty
         if (timeDate.isEmpty()) {
             errMsg.add("blank date");
             jsonOutput.addProperty("status", "error");
@@ -147,40 +160,47 @@ public class heatmap extends HttpServlet {
         if (errMsg.size() == 0) {
             //from here on no error messages are recorded
             //all parameters are valid and checked
-            
-            timeDate = timeDate.replaceAll("T", " ");
 
+            //proper date format -> (YYYY-MM-DDTHH:MM:SS)
+            //replace "T" with "" to allow system to process correctly
+            timeDate = timeDate.replaceAll("T", " ");
+            
+            //if floor = 0, floor is B1
             String floorName = "B1";
 
             if (floor > 0) {
+                //reassign floorName to corresponding level
+                //Eg: if floor is 2, floorName equals to "L2"
                 floorName = "L" + floor;
             }
 
-            Map<String, HeatMap> heatmapList = HeatMapDAO.retrieveHeatMap(timeDate, floorName);
+            Map<String, HeatMap> heatmapMap = HeatMapDAO.retrieveHeatMap(timeDate, floorName);
             jsonOutput.addProperty("status", "success");
             JsonArray heatmaps = new JsonArray();
 
-            List<String> keys = new ArrayList<>(heatmapList.keySet());
+            //create a list of string of all semantic places based on the number of semantic places present in heatmapList
+            List<String> keys = new ArrayList<>(heatmapMap.keySet());
+
+            //sort the list before retrieval
             Collections.sort(keys);
             for (String key : keys) {
-                
-                //retrieve HeatMap object from list of sorted from heatmapList.keyset()
-                HeatMap heatmap = heatmapList.get(key);
-                
+
+                //retrieve HeatMap object from list of sorted from heatmapMap
+                HeatMap heatmap = heatmapMap.get(key);
+
                 //create json object to add into json array for final output
                 //every key will be stored into a new json object
                 JsonObject heatmapObject = new JsonObject();
-                
-                //adding items to output
+
+                //adding property and items for output
                 heatmapObject.addProperty("semantic-place", heatmap.getPlace());
                 heatmapObject.addProperty("num-people", heatmap.getQtyPax());
                 heatmapObject.addProperty("crowd-density", heatmap.getHeatLevel());
-                
+
                 //add json object into json array for final output
                 heatmaps.add(heatmapObject);
-
             }
-            
+
             //add json array to final json object to output
             jsonOutput.add("heatmap", heatmaps);
         } else {

@@ -19,7 +19,7 @@ import model.ReportDAO;
 import model.SharedSecretManager;
 
 @WebServlet(urlPatterns = {"/json/top-k-next-places"})
-public class topKNextPlaces extends HttpServlet {
+public class TopKNextPlaces extends HttpServlet {
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
@@ -49,6 +49,7 @@ public class topKNextPlaces extends HttpServlet {
         String dateEntered = request.getParameter("date"); //get date from url
         String semanticPlace = request.getParameter("origin"); //get the semantic place from url
 
+        //if token is not entered in url
         if (tokenEntered == null) {
             errMsg.add("missing token");
             jsonOutput.addProperty("status", "error");
@@ -58,6 +59,7 @@ public class topKNextPlaces extends HttpServlet {
             return;
         }
 
+        //if token field is empty
         if (tokenEntered.isEmpty()) {
             errMsg.add("blank token");
             jsonOutput.addProperty("status", "error");
@@ -86,7 +88,8 @@ public class topKNextPlaces extends HttpServlet {
             out.close(); //close PrintWriter
             return;
         }
-
+        
+        //if the dateEntered field is blank
         if (dateEntered.isEmpty()) {
             errMsg.add("blank date");
             jsonOutput.addProperty("status", "error");
@@ -178,8 +181,11 @@ public class topKNextPlaces extends HttpServlet {
         //from here on, user is verified
         //topk number is between 1 - 10 inclusive with default as 3 if no k is entered
         //semantic place is valid
+        //dateEntered is valid and is in the right format
         if (errMsg.size() == 0) {
-            //at this point, dateEntered is valid and is in the right format 
+            //proper date format -> (YYYY-MM-DDTHH:MM:SS)
+            
+            //replace "T" with "" to allow system to process correctly
             dateEntered = dateEntered.replaceAll("T", " ");
 
             //create a json array to store errors
@@ -207,12 +213,6 @@ public class topKNextPlaces extends HttpServlet {
                         //temp json object to store required output first before adding to resultsArr for final output
                         JsonObject topKNextPlace = new JsonObject();
                         topKNextPlace.addProperty("rank", counter);
-                        
-                        //if the locations is the same, find the number of users who visited another place (exclude those left the place but have not visited another place) in the query window
-                        if (locations.get(i).equals(semanticPlace)) { 
-                            //minus off if the user is staying at the same place
-                            usersVisitingNextPlace -= totalNumOfUsers; 
-                        }
                         topKNextPlace.addProperty("semantic-place", locations.get(i));
                         topKNextPlace.addProperty("count", totalNumOfUsers);
                         

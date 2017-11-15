@@ -24,15 +24,23 @@ import model.SharedSecretManager;
 import model.UploadDAO;
 
 @WebServlet(urlPatterns = {"/json/update"})
-public class bootstrapUpdate extends HttpServlet {
+public class BootstrapUpdate extends HttpServlet {
 
+    /**
+     * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
+     *
+     * @param request servlet request
+     * @param response servlet response
+     * @throws ServletException if a servlet-specific error occurs
+     * @throws IOException if an I/O error occurs
+     */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         //creates a new gson object
         JsonObject ans = new JsonObject();
-        
+
         //by instantiating a new factory object, set pretty printing, then calling the create method
         PrintWriter out = response.getWriter();
-        
+
         //creates a new json object for printing the desired json output
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
@@ -132,10 +140,9 @@ public class bootstrapUpdate extends HttpServlet {
                             //ArrayList<String> temp = new ArrayList<>();
                             //temp.add("abc");
                             //temp.toString() -> "["abc"]"
-                            
                             // demographics.csv file errors
                             Set<Integer> demographicsKey = demographicsError.keySet();
-                            for(Integer key : demographicsKey){
+                            for (Integer key : demographicsKey) {
                                 JsonObject tempJson = new JsonObject();
                                 tempJson.addProperty("file", "demographics.csv");
                                 tempJson.addProperty("line", key);
@@ -152,7 +159,7 @@ public class bootstrapUpdate extends HttpServlet {
 
                             // Location.csv file errors
                             Set<Integer> locationKeys = locationError.keySet();
-                            for(Integer key : locationKeys){
+                            for (Integer key : locationKeys) {
                                 JsonObject tempJson = new JsonObject();
                                 tempJson.addProperty("file", "location.csv");
                                 tempJson.addProperty("line", key);

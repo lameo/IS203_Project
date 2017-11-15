@@ -17,7 +17,7 @@ import model.ReportDAO;
 import model.SharedSecretManager;
 
 @WebServlet(urlPatterns = {"/json/basic-loc-report"})
-public class breakdown extends HttpServlet {
+public class Breakdown extends HttpServlet {
 
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {

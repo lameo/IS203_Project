@@ -19,7 +19,7 @@ import model.User;
 import model.UserDAO;
 
 @WebServlet(urlPatterns = {"/json/authenticate"})
-public class authenticate extends HttpServlet {
+public class Authenticate extends HttpServlet {
 
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
