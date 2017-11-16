@@ -93,7 +93,7 @@ public class TopKCompanion extends HttpServlet {
             return;
         }
 
-        //token = "" represents blank token entered
+        //date = "" represents blank date entered
         if (date.isEmpty()) {
             errMsg.add("blank date");
             jsonOutput.addProperty("status", "error");
