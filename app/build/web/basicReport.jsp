@@ -50,14 +50,12 @@
             </div>
         </nav>
     <center>
-
         <div class="container">
             <br><br>
             <form method=post action="report">
                 <table>
                     <!-- report type -->
                     <input type="hidden" name="reportType" value="basicReport">
-
                     <!-- ending time and date field -->
                     <tr>
                         <!-- form input for date & time  -->
@@ -103,8 +101,6 @@
                 <button type="submit" class="btn btn-primary">Generate</button>
             </form>
         </div>
-
-
         <%
             List<String> options = (List<String>) session.getAttribute("orderList");
             if (options != null) {

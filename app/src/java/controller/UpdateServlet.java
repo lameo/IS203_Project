@@ -14,6 +14,7 @@ import model.UploadDAO;
 import java.io.File;
 
 public class UpdateServlet extends HttpServlet implements java.io.Serializable {
+    
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
      *
@@ -162,12 +163,8 @@ public class UpdateServlet extends HttpServlet implements java.io.Serializable {
                     session.setAttribute("error", "No uploaded files");
                 }
             }
-            
-            /*if (outputDirectory == null) {
-                return;
-            }*/
 
-            // Deleteing the whole directory so if user were to upload
+            // Deleting the whole directory so if user were to upload
             // a diff file under the same name, windows will not try to
             // save memory and give the old version of file back
             File dir = new File(outputDirectory);
@@ -178,8 +175,7 @@ public class UpdateServlet extends HttpServlet implements java.io.Serializable {
                         file.delete();
                     }
                 }
-            }
-            
+            }      
         } catch (UploadException e) {
             //send error messsage
             session.setAttribute("error", "Unable to upload. Please try again later");

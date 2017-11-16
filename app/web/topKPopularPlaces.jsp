@@ -106,7 +106,7 @@
             session.removeAttribute("topKPopular"); //remove session attribute from the session object
             session.removeAttribute("timeDate"); //remove session attribute from the session object
             session.removeAttribute("topK"); //remove session attribute from the session object
-%>
+        %>
     </center>
 </body>
 </html>

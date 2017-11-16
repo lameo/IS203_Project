@@ -56,7 +56,6 @@
             </div>
         </nav>
     <center>
-
         <div class="container">
             <br><br>
             <!-- Form for user to input date&time for automatic group detection -->
@@ -69,7 +68,7 @@
                 <button type="submit" class="btn btn-primary">Generate</button>
             </form>
         </div>
-        <%  
+        <%
             //If top K report is generated
             if (session.getAttribute("autoGroupsDetected") != null) {
                 String timedate = (String) session.getAttribute("timeDate");
@@ -92,7 +91,7 @@
                         Map<String, Double> locationTimestamps = autoGroup.calculateTimeDuration();
 
                         Iterator<String> locations = locationTimestamps.keySet().iterator();
-                        
+
                         out.print("<tr><td>" + (groupNo) + "</td>");
 
                         out.println("<td>");
@@ -114,13 +113,12 @@
                         groupNo++;
                     }
                     out.print("</tbody></table></div>");
-
                 }
             }
-            session.removeAttribute("autoGroupsDetected");             
-            session.removeAttribute("timeDate");
-            session.removeAttribute("numberOfUsersInBuilding");
-             
+            session.removeAttribute("autoGroupsDetected"); //remove session attribute from the session object
+            session.removeAttribute("timeDate"); //remove session attribute from the session object
+            session.removeAttribute("numberOfUsersInBuilding"); //remove session attribute from the session object
+
         %>
     </center>
 </body>

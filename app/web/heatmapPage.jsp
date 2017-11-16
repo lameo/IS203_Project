@@ -70,7 +70,6 @@
                 </ul>                
             </div>
         </nav>
-
     <center>
         <div class="container">
             <br><br>

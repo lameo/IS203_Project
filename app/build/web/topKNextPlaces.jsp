@@ -51,7 +51,6 @@
             </div>
         </nav>
     <center>
-
         <div class="container">
             <br><br>
             <!-- Form for user to input date&time and top K for top K popular places report -->

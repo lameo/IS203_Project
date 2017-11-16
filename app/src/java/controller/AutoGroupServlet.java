@@ -25,12 +25,10 @@ public class AutoGroupServlet extends HttpServlet {
      * @throws IOException if an I/O error occurs
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-
         try {
             // Retrieving user timedate input from session
             HttpSession session = request.getSession();
             String timeDate = request.getParameter("timeDate");
-
 
             // Standardizing timedate string
             timeDate = timeDate.replace("T", " ");
@@ -38,17 +36,13 @@ public class AutoGroupServlet extends HttpServlet {
                 timeDate += ":00";
             }
 
-
             // Retrieve the number of users in the entire SIS building for that date and time
             int numberOfUsersInBuilding = AutoGroupDAO.retrieveUsersNumber(timeDate);
-
 
             // Retrieve map of all the users and their location traces whom stay at SIS building in specified time window for at least 12 mins
             Map<String, Map<String, ArrayList<String>>> listOfUsersWith12MinutesData = AutoGroupDAO.retrieveUsersWith12MinutesData(timeDate);
 
-
             ArrayList<Group> autoGroupsDetected = new ArrayList<Group>();
-
 
             // Check if there are users who stay in sis for more than 15mins & the list is not size 0
             if (!listOfUsersWith12MinutesData.isEmpty()) {
@@ -62,14 +56,11 @@ public class AutoGroupServlet extends HttpServlet {
                 autoGroupsDetected = AutoGroupDAO.checkAutoGroups(autoGroupsDetected);
             }
 
-
             // Saving result to session and returning back to jsp page
             session.setAttribute("numberOfUsersInBuilding", numberOfUsersInBuilding);
             session.setAttribute("autoGroupsDetected", autoGroupsDetected);
             session.setAttribute("timeDate", timeDate);
             response.sendRedirect("automaticGroupDetection.jsp");
-
-
         } catch (IOException ex) {
             Logger.getLogger(AutoGroupServlet.class.getName()).log(Level.SEVERE, null, ex);
         }

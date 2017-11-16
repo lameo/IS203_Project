@@ -35,7 +35,6 @@
                 session.invalidate(); //clear user session
             }
         %>
-
     </center>
     <form method=post action="processLogin"> <%-- send data to LoginServlet M-V-C model --%>
         <div class="container">

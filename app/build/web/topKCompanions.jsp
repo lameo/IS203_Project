@@ -132,7 +132,7 @@
                             rank += 1;
                         }
                     }
-                    out.print("</tbody></table></div>");     
+                    out.print("</tbody></table></div>");
                 }
             }
             session.removeAttribute("macaddress");

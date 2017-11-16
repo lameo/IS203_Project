@@ -11,6 +11,7 @@ import model.UserDAO;
 import model.User;
 
 public class LoginServlet extends HttpServlet {
+    
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
      *
@@ -20,12 +21,10 @@ public class LoginServlet extends HttpServlet {
      * @throws IOException if an I/O error occurs
      */    
     protected void processRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-
         // Getting user input for username & password
         String username = request.getParameter("username");
         String password = request.getParameter("password");
         HttpSession session = request.getSession();
-
 
         try {
             // if trying to login as admin & password + username matches
@@ -34,7 +33,6 @@ public class LoginServlet extends HttpServlet {
                 response.sendRedirect("adminPage.jsp");
                 return;
             }
-
 
             // else if trying to login as user
             // true if username is an entry in the database
@@ -55,8 +53,6 @@ public class LoginServlet extends HttpServlet {
             session.setAttribute("error", "Invalid Login.");
             response.sendRedirect("index.jsp"); //changes url
         } catch (SQLException e){
-
-
             // if can't establish connection to database
             // send error messsage to index.jsp
             session.setAttribute("error", "Server is currently unavailable, please try again later. Thank you.");

@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 
 public class ReportServlet extends HttpServlet {
+    
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
      *
@@ -37,7 +38,6 @@ public class ReportServlet extends HttpServlet {
                 timeDate += ":00";
             }
 
-
             switch (reportType) {
                 case "basicReport":
                     // retrieve order from user input
@@ -56,7 +56,6 @@ public class ReportServlet extends HttpServlet {
                     response.sendRedirect("basicReport.jsp");
                     break;
 
-
                 case "topKPopular":
                     // Retrieve all location sorted by qty of user present 15mins before the timedate
                     Map<Integer, String> topKPopular = ReportDAO.retrieveTopKPopularPlaces(timeDate);
@@ -70,7 +69,6 @@ public class ReportServlet extends HttpServlet {
                     session.setAttribute("timeDate", timeDate);
                     response.sendRedirect("topKPopularPlaces.jsp");  //send back to topKPopularPlaces
                     break;
-
 
                 case "topKCompanions":
                     // Retrieve macaddress from user input
@@ -91,7 +89,6 @@ public class ReportServlet extends HttpServlet {
                     // Send back to topKCompanions
                     response.sendRedirect("topKCompanions.jsp");
                     break;
-
 
                 case "topKNextPlaces":
                     // Retrieve location name from user. Eg: SMUSISB1NearCSRAndTowardsMRT

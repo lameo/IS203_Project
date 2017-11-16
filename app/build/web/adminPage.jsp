@@ -54,7 +54,6 @@
                         <li><a href="processLogout"><span class="glyphicon glyphicon-log-out"></span> Logout</a></li> <%-- send user to logout servlet and process logout --%>
                     </ul>   
                 </div>
-
             </div>
         </nav>
         <div class="panel-group" id="mainpanel">        
@@ -83,5 +82,5 @@
                 </div>
             </div>             
         </div>        
-</body>
+    </body>
 </html>

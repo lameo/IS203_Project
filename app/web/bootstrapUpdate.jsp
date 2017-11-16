@@ -127,8 +127,7 @@
                         <label for="exampleFormControlFile1">Choose file&hellip;</label>
                         <input type="file" name="uploadfile" class="form-control-file" id="exampleFormControlFile1">
                     </div>
-                    <br>
-                    <br>
+                    <br><br>
                     <input type="hidden" name="uploadType" value="initialize">
                     <input type="hidden" name="todo" value="upload">
                     <button type="submit" name="Submit" class="btn btn-primary">Submit</button>
