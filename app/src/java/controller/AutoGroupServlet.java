@@ -1,16 +1,16 @@
 package controller;
 
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpSession;
-import java.util.logging.Logger;
-import java.util.logging.Level;
 import java.io.IOException;
 import java.util.ArrayList;
-import model.AutoGroupDAO;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+import model.AutoGroupDAO;
 import model.Group;
 
 /**

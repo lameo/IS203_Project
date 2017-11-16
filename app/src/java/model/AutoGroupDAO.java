@@ -209,7 +209,6 @@ public class AutoGroupDAO {
             preparedStatement.close();
             connection.close();
         } catch (SQLException e) {
-            e.printStackTrace();
         }
         return allUsersLocationAndTimestampMap;
     }
@@ -484,8 +483,10 @@ public class AutoGroupDAO {
             preparedStatement.close();
             connection.close();
         } catch (SQLException e) {
-            e.printStackTrace();
         }
         return count;
+    }
+
+    private AutoGroupDAO() {
     }
 }

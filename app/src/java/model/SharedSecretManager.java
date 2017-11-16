@@ -79,4 +79,7 @@ public class SharedSecretManager {
         }
         return false;
     }
+
+    private SharedSecretManager() {
+    }
 }

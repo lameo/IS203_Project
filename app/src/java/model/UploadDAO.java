@@ -125,7 +125,6 @@ public class UploadDAO {
             connection.close();
         } catch (SQLException e) {
         }
-        System.out.println(ans);
         return ans;
     }
 
@@ -377,7 +376,6 @@ public class UploadDAO {
             reader.readNext();
             String[] columns;
             while ((columns = reader.readNext()) != null) {
-                System.out.println(columns[0]);
                 lineNumber++;
                 String errorMsg = "";
                 int locationID = 0;
@@ -931,5 +929,8 @@ public class UploadDAO {
             return "location-lookup.csv";
         }
         return "";
+    }
+
+    private UploadDAO() {
     }
 }
