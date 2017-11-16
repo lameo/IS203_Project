@@ -18,16 +18,11 @@ import javax.servlet.http.HttpServletResponse;
 import model.ReportDAO;
 import model.SharedSecretManager;
 
-/**
- * A servlet that manages inputs from url and results from ReportDAO. Contains
- * processRequest, doPost, doGet, getServletInfo methods
- */
 @WebServlet(urlPatterns = {"/json/top-k-companions"})
 public class TopKCompanion extends HttpServlet {
 
     /**
-     * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
-     * methods.
+     * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
      *
      * @param request servlet request
      * @param response servlet response
@@ -49,13 +44,12 @@ public class TopKCompanion extends HttpServlet {
         //create a json array to store errors
         JsonArray errMsg = new JsonArray();
 
-        //get token from request
-        String token = request.getParameter("token");
-        String date = request.getParameter("date");
-        String macaddress = request.getParameter("mac-address");
-        String topKEntered = request.getParameter("k");
+        String token = request.getParameter("token"); //get token from url
+        String date = request.getParameter("date"); //get date from url
+        String macaddress = request.getParameter("mac-address"); //get macaddress from url
+        String topKEntered = request.getParameter("k"); //get topK from url
 
-        //token = null represents missing token
+        //if token is not entered in url
         if (token == null) {
             errMsg.add("missing token");
             jsonOutput.addProperty("status", "error");
@@ -65,6 +59,7 @@ public class TopKCompanion extends HttpServlet {
             return;
         }
 
+        //if token field is empty
         if (token.isEmpty()) {
             errMsg.add("blank token");
             jsonOutput.addProperty("status", "error");
@@ -74,8 +69,8 @@ public class TopKCompanion extends HttpServlet {
             return;
         }
 
-        //check if token is valid
-        if (!SharedSecretManager.verifyUser(token)) { //user is not verified
+        //check if token is invalid
+        if (!SharedSecretManager.verifyUser(token)) { //check if user is not verified
             errMsg.add("invalid token");
             jsonOutput.addProperty("status", "error");
             jsonOutput.add("messages", errMsg);
@@ -94,7 +89,7 @@ public class TopKCompanion extends HttpServlet {
             return;
         }
 
-        //date = "" represents blank date entered
+        //if the date field is blank
         if (date.isEmpty()) {
             errMsg.add("blank date");
             jsonOutput.addProperty("status", "error");
@@ -114,6 +109,7 @@ public class TopKCompanion extends HttpServlet {
             return;
         }
 
+        //if macaddress field is blank 
         if (macaddress.isEmpty()) {
             errMsg.add("blank macaddress");
             jsonOutput.addProperty("status", "error");
@@ -181,13 +177,15 @@ public class TopKCompanion extends HttpServlet {
         //Not all macaddresses will belong to students so must get from location.csv instead from demographics.csv
         ArrayList<String> allMacaddressList = ReportDAO.getAllMacaddress();
         if (!allMacaddressList.contains(macaddress)) { //check if macaddress is inside location.csv
-            errMsg.add("invalid mac-address");
+            errMsg.add("invalid mac address");
         }
 
         //from here on, user is verified
         //topk number is between 1 - 10 inclusive with default as 3 if no k is entered
         //mac-address is valid
         if (errMsg.size() == 0) {
+            //proper date format -> (YYYY-MM-DDTHH:MM:SS)
+            
             //at this point, date entered is valid and is in the right format 
             date = date.replaceAll("T", " ");
 
@@ -200,10 +198,13 @@ public class TopKCompanion extends HttpServlet {
             Set<Double> timeSpentByCompanionsList = topKCompanionMap.keySet();
             for (Double timeSpentByCompanions : timeSpentByCompanionsList) {
                 if (count <= topK) {// to only display till topk number
+                    
+                    //list is required for storing data into json object for final json array output
                     //to add in macaddress and email pair for sorting
                     ArrayList<String> unsortedMacEmailPair = new ArrayList<>();
 
-                    //get the arraylist out from map
+                    //get the arraylist out from map by using the key
+                    //Arraylist contains macaddress and email pair together
                     ArrayList<String> currTimeCompanionList = topKCompanionMap.get(timeSpentByCompanions);
 
                     //loop through arraylist
@@ -227,19 +228,20 @@ public class TopKCompanion extends HttpServlet {
                         String[] allMacaddressEmailPairs = eachMacEmail.split(",");
 
                         //temp json object to store required output first before adding to resultsArr for final output
+                        //Every iteration looped through will be stored in a json object
                         JsonObject topKCompanions = new JsonObject();
                         topKCompanions.addProperty("rank", count);
-
-                        //check if corresponding email has email or not
-                        if (allMacaddressEmailPairs[1].equals("No email found")) {
+                        
+                        //check if corresponding email has an email or not
+                        if(allMacaddressEmailPairs[1].equals("No email found")) {
                             topKCompanions.addProperty("companion", "");
-                        } else {
+                        } else { //email is present
                             topKCompanions.addProperty("companion", allMacaddressEmailPairs[1]);
                         }
-
+                        
                         topKCompanions.addProperty("mac-address", allMacaddressEmailPairs[0]);
                         topKCompanions.addProperty("time-together", timeSpentByCompanions.intValue());
-
+                        
                         // add temp json object to final json array for output
                         resultsArr.add(topKCompanions);
                     }
