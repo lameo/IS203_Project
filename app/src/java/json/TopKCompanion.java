@@ -54,6 +54,7 @@ public class TopKCompanion extends HttpServlet {
         String macaddress = request.getParameter("mac-address");
         String topKEntered = request.getParameter("k");
 
+        //token = null represents missing token
         if (token == null) {
             errMsg.add("missing token");
             jsonOutput.addProperty("status", "error");
@@ -92,6 +93,7 @@ public class TopKCompanion extends HttpServlet {
             return;
         }
 
+        //token = "" represents blank token entered
         if (date.isEmpty()) {
             errMsg.add("blank date");
             jsonOutput.addProperty("status", "error");
