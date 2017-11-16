@@ -18,6 +18,10 @@ import javax.servlet.http.HttpServletResponse;
 import model.ReportDAO;
 import model.SharedSecretManager;
 
+/**
+ * A servlet that manages inputs from url and results from ReportDAO. Contains
+ * processRequest, doPost, doGet, getServletInfo methods
+ */
 @WebServlet(urlPatterns = {"/json/top-k-companions"})
 public class TopKCompanion extends HttpServlet {
 
@@ -101,7 +105,7 @@ public class TopKCompanion extends HttpServlet {
 
         //check if macaddress is entered by user to url
         if (macaddress == null) {
-            errMsg.add("missing macaddress");
+            errMsg.add("missing mac address");
             jsonOutput.addProperty("status", "error");
             jsonOutput.add("messages", errMsg);
             out.println(gson.toJson(jsonOutput));
@@ -111,7 +115,7 @@ public class TopKCompanion extends HttpServlet {
 
         //if macaddress field is blank 
         if (macaddress.isEmpty()) {
-            errMsg.add("blank macaddress");
+            errMsg.add("blank mac address");
             jsonOutput.addProperty("status", "error");
             jsonOutput.add("messages", errMsg);
             out.println(gson.toJson(jsonOutput));
@@ -185,7 +189,7 @@ public class TopKCompanion extends HttpServlet {
         //mac-address is valid
         if (errMsg.size() == 0) {
             //proper date format -> (YYYY-MM-DDTHH:MM:SS)
-            
+
             //at this point, date entered is valid and is in the right format 
             date = date.replaceAll("T", " ");
 
@@ -198,7 +202,7 @@ public class TopKCompanion extends HttpServlet {
             Set<Double> timeSpentByCompanionsList = topKCompanionMap.keySet();
             for (Double timeSpentByCompanions : timeSpentByCompanionsList) {
                 if (count <= topK) {// to only display till topk number
-                    
+
                     //list is required for storing data into json object for final json array output
                     //to add in macaddress and email pair for sorting
                     ArrayList<String> unsortedMacEmailPair = new ArrayList<>();
@@ -231,17 +235,17 @@ public class TopKCompanion extends HttpServlet {
                         //Every iteration looped through will be stored in a json object
                         JsonObject topKCompanions = new JsonObject();
                         topKCompanions.addProperty("rank", count);
-                        
+
                         //check if corresponding email has an email or not
-                        if(allMacaddressEmailPairs[1].equals("No email found")) {
+                        if (allMacaddressEmailPairs[1].equals("No email found")) {
                             topKCompanions.addProperty("companion", "");
                         } else { //email is present
                             topKCompanions.addProperty("companion", allMacaddressEmailPairs[1]);
                         }
-                        
+
                         topKCompanions.addProperty("mac-address", allMacaddressEmailPairs[0]);
                         topKCompanions.addProperty("time-together", timeSpentByCompanions.intValue());
-                        
+
                         // add temp json object to final json array for output
                         resultsArr.add(topKCompanions);
                     }

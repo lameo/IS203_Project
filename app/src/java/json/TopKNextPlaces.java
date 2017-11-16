@@ -18,6 +18,10 @@ import javax.servlet.http.HttpServletResponse;
 import model.ReportDAO;
 import model.SharedSecretManager;
 
+/**
+ * A servlet that manages inputs from url and results from ReportDAO. Contains
+ * processRequest, doPost, doGet, getServletInfo methods
+ */
 @WebServlet(urlPatterns = {"/json/top-k-next-places"})
 public class TopKNextPlaces extends HttpServlet {
 
@@ -88,7 +92,7 @@ public class TopKNextPlaces extends HttpServlet {
             out.close(); //close PrintWriter
             return;
         }
-        
+
         //if the dateEntered field is blank
         if (dateEntered.isEmpty()) {
             errMsg.add("blank date");
@@ -185,7 +189,7 @@ public class TopKNextPlaces extends HttpServlet {
         //dateEntered is valid and is in the right format
         if (errMsg.size() == 0) {
             //proper date format -> (YYYY-MM-DDTHH:MM:SS)
-            
+
             //replace "T" with "" to allow system to process correctly
             dateEntered = dateEntered.replaceAll("T", " ");
 
@@ -193,7 +197,7 @@ public class TopKNextPlaces extends HttpServlet {
             JsonArray resultsArr = new JsonArray();
 
             // total quantity of users visiting next place
-            int usersVisitingNextPlace = 0; 
+            int usersVisitingNextPlace = 0;
             Map<Integer, ArrayList<String>> topKNextPlaces = ReportDAO.retrieveTopKNextPlaces(dateEntered, semanticPlace);
 
             //retrieve users who are in a specific place given a specific time frame in a specific location
@@ -205,10 +209,10 @@ public class TopKNextPlaces extends HttpServlet {
             int counter = 1; // to match topk number after incrementation
             for (int totalNumOfUsers : totalNumOfUsersSet) {
                 // gives the list of location with the same totalNumOfUsers
-                ArrayList<String> locations = topKNextPlaces.get(totalNumOfUsers); 
-                
+                ArrayList<String> locations = topKNextPlaces.get(totalNumOfUsers);
+
                 // sort the locations list in ascending order first
-                Collections.sort(locations); 
+                Collections.sort(locations);
                 if (counter <= topK) { // to only display till topk number
                     for (int i = 0; i < locations.size(); i++) {
                         //temp json object to store required output first before adding to resultsArr for final output
@@ -216,14 +220,14 @@ public class TopKNextPlaces extends HttpServlet {
                         topKNextPlace.addProperty("rank", counter);
                         topKNextPlace.addProperty("semantic-place", locations.get(i));
                         topKNextPlace.addProperty("count", totalNumOfUsers);
-                        
+
                         // add temp json object to final json array for output
                         resultsArr.add(topKNextPlace);
                     }
                     counter++;
                 }
                 //add if the user is going other places but the quantity may have multiple next locations
-                usersVisitingNextPlace += totalNumOfUsers * locations.size(); 
+                usersVisitingNextPlace += totalNumOfUsers * locations.size();
             }
             jsonOutput.addProperty("status", "success");
             jsonOutput.addProperty("total-users", usersList.size());
