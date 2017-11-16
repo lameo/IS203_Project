@@ -19,8 +19,7 @@ import model.SharedSecretManager;
 @WebServlet(urlPatterns = {"/json/basic-loc-report"})
 public class Breakdown extends HttpServlet {
 
-    protected void processRequest(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
+    protected void processRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
         PrintWriter out = response.getWriter();
 
@@ -28,14 +27,13 @@ public class Breakdown extends HttpServlet {
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
         //creats a new json object for printing the desired json output
         JsonObject finalAns = new JsonObject();
-
+        //create a json array to store errors
         JsonArray errMsg = new JsonArray();
 
-        String order = request.getParameter("order"); //get order from request    
-        String token = request.getParameter("token"); //get token from request
-        String timeDate = request.getParameter("date"); //get date from request    
 
-        // Token checking
+        //get token from request
+        String token = request.getParameter("token");
+        // check if token is null (dont have ?token=something)
         if (token == null) {
             errMsg.add("missing token");
             finalAns.addProperty("status", "error");
@@ -45,6 +43,7 @@ public class Breakdown extends HttpServlet {
             return;
         }
 
+        // check if token is empty (?token="")
         if (token.isEmpty()) {
             errMsg.add("blank token");
             finalAns.addProperty("status", "error");
@@ -54,8 +53,9 @@ public class Breakdown extends HttpServlet {
             return;
         }
 
-        // Token verification
+        // checking if the token submitted by the user is valid
         if (!SharedSecretManager.verifyUser(token)) {
+            // if token given is not valid
             errMsg.add("invalid token");
             finalAns.addProperty("status", "error");
             finalAns.add("messages", errMsg);
@@ -64,7 +64,10 @@ public class Breakdown extends HttpServlet {
             return;
         }
 
-        // Order checking
+        
+        //get order from request
+        String order = request.getParameter("order");
+        // check if order is null (dont have ?order=something)
         if (order == null) {
             errMsg.add("missing order");
             finalAns.addProperty("status", "error");
@@ -74,6 +77,7 @@ public class Breakdown extends HttpServlet {
             return;
         }
 
+        // check if order is empty (?order="")
         if (order.isEmpty()) {
             errMsg.add("blank order");
             finalAns.addProperty("status", "error");
@@ -82,8 +86,9 @@ public class Breakdown extends HttpServlet {
             out.close(); //close PrintWriter
             return;
         }
-
-        // Date checking
+        //get date from request
+        String timeDate = request.getParameter("date");
+        // check if date is null (dont have ?date=something)
         if (timeDate == null) {
             errMsg.add("missing date");
             finalAns.addProperty("status", "error");
@@ -93,6 +98,7 @@ public class Breakdown extends HttpServlet {
             return;
         }
 
+        // check if date is empty (?date="")
         if (timeDate.isEmpty()) {
             errMsg.add("blank date");
             finalAns.addProperty("status", "error");
@@ -101,7 +107,8 @@ public class Breakdown extends HttpServlet {
             out.close(); //close PrintWriter
             return;
         }
-
+        
+        // After this point, all variables required are not empty or null, so start checking whether they are valid format
         try {
             //check for valid date entered by user
             boolean dateValid = true;
@@ -133,6 +140,7 @@ public class Breakdown extends HttpServlet {
                 errMsg.add("invalid date");
             }
         } catch (NumberFormatException e) {
+            // if any of the number can't be parsed means a String is at where a number is supposed to be at
             errMsg.add("invalid date");
         }
 
@@ -158,8 +166,10 @@ public class Breakdown extends HttpServlet {
             errMsg.add("invalid order");
         }
 
-        //if all checks are valid
+        //if all checks are valid, continue processing
         if (errMsg.size() == 0) {
+            //proper date format -> (YYYY-MM-DDTHH:MM:SS)
+            //replace "T" with "" to allow system to process correctly
             timeDate = timeDate.replaceAll("T", " ");
 
             String[] year = {"year", "2013", "2014", "2015", "2016", "2017"};                              //5
@@ -167,14 +177,17 @@ public class Breakdown extends HttpServlet {
             String[] school = {"school", "accountancy", "business", "economics", "law", "sis", "socsc"};   //6
 
             String[] arr = order.split(",");
+            // submit the first var of the order for processing
             ArrayList<Integer> temp1 = ReportDAO.notVeryBasicBreakdownJson(Arrays.copyOfRange(arr, 0, 1), timeDate);
+            // submit the first and second var of the order for processing ( returns null if only 1 var is submitted by user)
             ArrayList<Integer> temp2 = ReportDAO.notVeryBasicBreakdownJson(Arrays.copyOfRange(arr, 0, 2), timeDate);
+            // submit all three var of the var for processing ( returns null if less than 3 var is submitted by user)
             ArrayList<Integer> temp3 = ReportDAO.notVeryBasicBreakdownJson(arr, timeDate);
             String[] first = null;
             String[] second = null;
             String[] third = null;
 
-            // Getting saving down the order of first, second and third variable to sort by
+            // checking the order of variable submitted by the user and saving them as first, second & third
             if (arr[0].equals("year")) {
                 first = year;
             } else if (arr[0].equals("gender")) {
@@ -193,6 +206,7 @@ public class Breakdown extends HttpServlet {
                 if (arr[1].equals("school")) {
                     second = school;
                 }
+                
                 if (arr[2].equals("year")) {
                     third = year;
                 } else if (arr[2].equals("gender")) {
@@ -221,7 +235,7 @@ public class Breakdown extends HttpServlet {
                 }
             }
 
-            // if there is length of two
+            // if there is 2 variable submitted
             // run through the outer variable (temp1)
             // then run through the inner variable and add the result set to outer variable to create a nest
             if (arr.length == 2) {
@@ -252,6 +266,7 @@ public class Breakdown extends HttpServlet {
                 }
             }
 
+            // if there is 3 variables submitted
             if (arr.length == 3) {
                 JsonArray two = new JsonArray();
                 for (int i = 0; i < temp2.size(); i++) {
@@ -300,14 +315,19 @@ public class Breakdown extends HttpServlet {
             }
             finalAns.addProperty("status", "success");
             finalAns.add("breakdown", one);
-            //if order or date is not valid
+            
+            
+        //if order or date is not valid, send error message
         } else {
             finalAns.addProperty("status", "error");
             finalAns.add("messages", errMsg);
         }
+        
+        
+        // Returning the json output we created in a pretty print format
         out.println(gson.toJson(finalAns));
-
-        out.close(); //close PrintWriter
+        // close PrintWriter
+        out.close(); 
     }
 
 // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">

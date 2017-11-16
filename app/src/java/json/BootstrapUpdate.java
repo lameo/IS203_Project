@@ -1,27 +1,27 @@
 package json;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
-import java.io.File;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.HashMap;
-import java.util.Hashtable;
-import java.util.Set;
-import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
-import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import javazoom.upload.MultipartFormDataRequest;
-import javazoom.upload.UploadBean;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.annotation.WebServlet;
 import javazoom.upload.UploadException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.ServletException;
+import javax.servlet.ServletContext;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonArray;
+import javazoom.upload.UploadBean;
 import javazoom.upload.UploadFile;
 import model.SharedSecretManager;
+import com.google.gson.Gson;
+import java.io.IOException;
+import java.util.Hashtable;
+import java.io.PrintWriter;
+import java.util.HashMap;
 import model.UploadDAO;
+import java.io.File;
+import java.util.Set;
 
 @WebServlet(urlPatterns = {"/json/update"})
 public class BootstrapUpdate extends HttpServlet {
@@ -35,31 +35,35 @@ public class BootstrapUpdate extends HttpServlet {
      * @throws IOException if an I/O error occurs
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        //creates a new gson object
-        JsonObject ans = new JsonObject();
-
-        //by instantiating a new factory object, set pretty printing, then calling the create method
+        // Initializing upload function - allowing files to be sent from browser
+        UploadBean upBean = new UploadBean();
+        
+        // by instantiating a new factory object, set pretty printing, then calling the create method
         PrintWriter out = response.getWriter();
-
+        
         //creates a new json object for printing the desired json output
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
-
+        // creates a new gson object
+        JsonObject ans = new JsonObject();
+        //create a json array to store errors
         JsonArray errMsg = new JsonArray();
-
-        UploadBean upBean = new UploadBean();
-        HashMap<Integer, String> demographicsError = new HashMap<>();
-        HashMap<Integer, String> locationError = new HashMap<>();
+        //create a json array to store file processed
         JsonArray fileUpload = new JsonArray();
 
+        // Initializing error messages to be return later on if any
+        HashMap<Integer, String> demographicsError = new HashMap<>();
+        HashMap<Integer, String> locationError = new HashMap<>();
+
         try {
+            // Checks if json was send through a MultipartFormDataRequest
             if (MultipartFormDataRequest.isMultipartFormData(request)) {
-                //Uses MultipartFormDataRequest to parse the HTTP request.
-                MultipartFormDataRequest multipartRequest = new MultipartFormDataRequest(request); //specialized version of request object to interpret the data
+                // specialized version of request object to interpret the data
+                MultipartFormDataRequest multipartRequest = new MultipartFormDataRequest(request);
 
                 //get token from request
                 String token = multipartRequest.getParameter("token");
 
-                // Token checking
+                // check if token is null (dont have ?token=something)
                 if (token == null) {
                     errMsg.add("missing token");
                     ans.addProperty("status", "error");
@@ -69,6 +73,7 @@ public class BootstrapUpdate extends HttpServlet {
                     return;
                 }
 
+                // check if token is empty (?token="")
                 if (token.isEmpty()) {
                     errMsg.add("blank token");
                     ans.addProperty("status", "error");
@@ -78,8 +83,9 @@ public class BootstrapUpdate extends HttpServlet {
                     return;
                 }
 
-                //print out all the error with null or empty string that is required but the user did not enter 
-                if (!SharedSecretManager.verifyAdmin(token)) { //verify the user - if the user is not verified
+                // checking if the token submitted by the user is valid
+                if (!SharedSecretManager.verifyAdmin(token)) {
+                    // if token given is not valid
                     errMsg.add("invalid token");
                     ans.addProperty("status", "error");
                     ans.add("messages", errMsg);
@@ -89,29 +95,44 @@ public class BootstrapUpdate extends HttpServlet {
                 }
 
                 // if token is valid, continue processing
+                // Creating a temp directory to be provided by this servletContext for the uploaded file
                 ServletContext servletContext = this.getServletConfig().getServletContext();
-                //Pathname to a scratch directory to be provided by this Context for temporary read-write use by servlets within the associated web application
                 File directory = (File) servletContext.getAttribute("javax.servlet.context.tempdir");
-                String outputDirectory = "" + directory; //String format of directory
-
-                upBean.setFolderstore(outputDirectory); //set upBean output directory
-                Long size = Long.parseLong("8589934592"); //the size limit of the file uploads
+                
+                // Location of directory in string format
+                String outputDirectory = "" + directory;
+                // Setting uploadBean output directory
+                upBean.setFolderstore(outputDirectory);
+                // Setting size limit of the file uploaded (equals around 1gb)
+                Long size = Long.parseLong("8589934592");
                 upBean.setFilesizelimit(size);
 
-                Hashtable files = multipartRequest.getFiles(); //get the files sent over, hastable is the older version of hashmap
+                // Getting the files send over though multipartRequest, file is in hastable which is the older version of hashmap
+                Hashtable files = multipartRequest.getFiles();
+                // If file exist and is not an empty file
                 if ((files != null) && (!files.isEmpty())) {
-                    UploadFile file = (UploadFile) files.get("bootstrap-file"); //get the files from bootstrapinitialize
+                    //get the files from <host>/app/json/update
+                    UploadFile file = (UploadFile) files.get("bootstrap-file"); 
+                    // if the file is not null, or empty size (means no data) & has a proper name (cos need to compare name later)
                     if (file != null && file.getFileSize() > 0 && file.getFileName() != null) {
+                        // Get file name
                         String fileName = file.getFileName();
-                        String filePath = outputDirectory + File.separator + fileName; //get the file path 
+                        // Get the absolute path by adding the directory path to file name
+                        String filePath = outputDirectory + File.separator + fileName;
 
-                        upBean.store(multipartRequest, "bootstrap-file"); //save to directory
-                        String fileExist = UploadDAO.unzip(filePath, outputDirectory); //unzip the files in the zip and save into the directory
-
+                        // Saving the file recieved to temp directory
+                        upBean.store(multipartRequest, "bootstrap-file");
+                        // Unzip the file and save the contents into the temp directory
+                        String fileExist = UploadDAO.unzip(filePath, outputDirectory);
+                        
+                        // for all the files present
+                        // perform respective upload function
+                        // Retrieve number of rows successfully processed kept in a hash with Interger.max_value as key
+                        // Save number of lines processed to JsonObject temp
+                        // remove away Integer.max_value key from errorMessage to get the proper errorMessage (if any)
                         if (fileExist != null && fileExist.contains("demographics.csv")) {
                             demographicsError = UploadDAO.updateDemographics(outputDirectory + File.separator + "demographics.csv");
                             JsonObject temp = new JsonObject();
-                            // using integer.max_value to pass the number of lines processed
                             temp.addProperty("demographics.csv", Integer.parseInt(demographicsError.get(Integer.MAX_VALUE)));
                             demographicsError.remove(Integer.MAX_VALUE);
                             fileUpload.add(temp);
@@ -119,30 +140,31 @@ public class BootstrapUpdate extends HttpServlet {
                         if (fileExist != null && fileExist.contains("location.csv")) {
                             locationError = UploadDAO.updateLocation(outputDirectory + File.separator + "location.csv");
                             JsonObject temp = new JsonObject();
-                            // using integer.max_value to pass the number of lines processed
                             temp.addProperty("location.csv", Integer.parseInt(locationError.get(Integer.MAX_VALUE)));
                             locationError.remove(Integer.MAX_VALUE);
                             fileUpload.add(temp);
                         }
 
+                        // if there is no error from demographics.csv or location.csv, return success message
                         if (demographicsError.isEmpty() && locationError.isEmpty()) {
-                            // if successful
                             ans.addProperty("status", "success");
                             ans.add("num-record-loaded", fileUpload);
+                        // if there is error from either demographics.csv or location.csv,
+                        // retrieve errorMessage and add it to json
                         } else {
-                            // if contains error message
                             ans.addProperty("status", "error");
                             ans.add("num-record-loaded", fileUpload);
                             JsonArray error = new JsonArray();
-
-                            //if it is arrayList.toString in json array, it will be "["abc","def"]"
-                            //if it is jsonarray added into jsonobject, it will be ["abc","def"]
-                            //ArrayList<String> temp = new ArrayList<>();
-                            //temp.add("abc");
-                            //temp.toString() -> "["abc"]"
+                            
+                            
                             // demographics.csv file errors
+                            // Retrieving the keys so as to loop through them
                             Set<Integer> demographicsKey = demographicsError.keySet();
                             for (Integer key : demographicsKey) {
+                                // for each key (row number), create new jsonObject tempJson
+                                // Get the error associated -> value
+                                // Split the value into an array format and add them into jsonarray
+                                // add the jsonarray to tempJson and then merge it back to the main return
                                 JsonObject tempJson = new JsonObject();
                                 tempJson.addProperty("file", "demographics.csv");
                                 tempJson.addProperty("line", key);
@@ -158,8 +180,13 @@ public class BootstrapUpdate extends HttpServlet {
                             }
 
                             // Location.csv file errors
+                            // Retrieving the keys so as to loop through them
                             Set<Integer> locationKeys = locationError.keySet();
                             for (Integer key : locationKeys) {
+                                // for each key (row number), create new jsonObject tempJson
+                                // Get the error associated -> value
+                                // Split the value into an array format and add them into jsonarray
+                                // add the jsonarray to tempJson and then merge it back to the main return
                                 JsonObject tempJson = new JsonObject();
                                 tempJson.addProperty("file", "location.csv");
                                 tempJson.addProperty("line", key);
@@ -176,14 +203,10 @@ public class BootstrapUpdate extends HttpServlet {
                             ans.add("error", error);
 
                         }
-                        file = null;
                     }
                 }
 
                 // Deleting temp file so as to prevent issue with reuploading
-                if (outputDirectory == null) {
-                    return;
-                }
                 File dir = new File(outputDirectory);
                 if (dir.exists() && dir.isDirectory()) {
                     File[] allFiles = dir.listFiles();
@@ -195,12 +218,14 @@ public class BootstrapUpdate extends HttpServlet {
                 }
             }
         } catch (UploadException e) {
+            //send error messsage if unable to upload to uploadbeans
             out.println("error, Unable to upload. Please try again later");
         }
-
+        
+        // Returning the json output we created in a pretty print format
         out.println(gson.toJson(ans));
-
-        out.close(); //close PrintWriter
+        // close PrintWriter
+        out.close(); 
     }
 
 // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">

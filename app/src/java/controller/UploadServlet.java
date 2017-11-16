@@ -55,7 +55,7 @@ public class UploadServlet extends HttpServlet implements java.io.Serializable {
 
                 // Saving the files being send over in an older form of hashmap
                 Hashtable files = multipartRequest.getFiles();
-                // If file exist and is not an empty csv file
+                // If file exist and is not an empty file
                 if ((files != null) && (!files.isEmpty())) {
                     // Get file from bootstrapinitialize.jsp
                     UploadFile file = (UploadFile) files.get("uploadfile");
@@ -186,8 +186,8 @@ public class UploadServlet extends HttpServlet implements java.io.Serializable {
                 }
             }
         } catch (UploadException e) {
-            //send error messsage
-            session.setAttribute("error", "Unable to upload. Please try again later"); //send error messsage
+            //send error messsage if unable to upload to uploadbeans
+            session.setAttribute("error", "Unable to upload. Please try again later");
         }
         
         // Goes back to the webpage after all files is processed
