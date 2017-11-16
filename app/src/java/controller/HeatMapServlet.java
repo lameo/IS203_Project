@@ -10,6 +10,10 @@ import javax.servlet.http.HttpSession;
 import model.HeatMap;
 import model.HeatMapDAO;
 
+/**
+ * A servlet that manages inputs from heatmapPage and results from HeatMapDAO.
+ * Contains processRequest, doPost, doGet, getServletInfo methods
+ */
 public class HeatMapServlet extends HttpServlet {
     
     /**

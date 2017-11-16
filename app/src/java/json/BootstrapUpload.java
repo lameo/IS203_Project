@@ -23,6 +23,10 @@ import model.UploadDAO;
 import java.io.File;
 import java.util.Set;
 
+/**
+ * A servlet that manages inputs from multipart form and results from UploadDAO.
+ * Contains processRequest, doPost, doGet, getServletInfo methods
+ */
 @WebServlet(urlPatterns = {"/json/bootstrap"})
 public class BootstrapUpload extends HttpServlet {
 

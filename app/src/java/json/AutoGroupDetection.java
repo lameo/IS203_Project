@@ -21,6 +21,10 @@ import static model.AutoGroupDAO.retrieveAutoGroups;
 import model.Group;
 import model.SharedSecretManager;
 
+/**
+ * A servlet that manages inputs from url and results from AutoGroupDAO.
+ * Contains processRequest, doPost, doGet, getServletInfo methods
+ */
 @WebServlet(urlPatterns = {"/json/group_detect"})
 public class AutoGroupDetection extends HttpServlet {
 

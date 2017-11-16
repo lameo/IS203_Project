@@ -1,5 +1,8 @@
 package model;
 
+/**
+ * Represents heatmap object containing variable semanticPlace, qtyPax and heatLevel
+ */
 public class HeatMap {
     private String semanticPlace;
     private int qtyPax;

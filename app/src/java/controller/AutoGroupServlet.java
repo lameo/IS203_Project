@@ -13,6 +13,10 @@ import model.AutoGroupDAO;
 import java.util.Map;
 import model.Group;
 
+/**
+ * A servlet that manages inputs from automaticGroupDetection and results from AutoGroupDAO.
+ * Contains processRequest, doPost, doGet, getServletInfo methods
+ */
 public class AutoGroupServlet extends HttpServlet {
 
     /**

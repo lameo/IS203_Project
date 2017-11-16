@@ -13,6 +13,10 @@ import java.util.HashMap;
 import model.UploadDAO;
 import java.io.File;
 
+/**
+ * A servlet that manages inputs from bootstrapInitialize and results from UploadDAO.
+ * Contains processRequest, doPost, doGet, getServletInfo methods
+ */
 public class UploadServlet extends HttpServlet implements java.io.Serializable {
     
     /**

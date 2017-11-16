@@ -13,6 +13,10 @@ import javazoom.upload.*;
 import model.UploadDAO;
 import java.io.File;
 
+/**
+ * A servlet that manages inputs from bootstrapUpdate and results from UploadDAO.
+ * Contains processRequest, doPost, doGet, getServletInfo methods
+ */
 public class UpdateServlet extends HttpServlet implements java.io.Serializable {
     
     /**

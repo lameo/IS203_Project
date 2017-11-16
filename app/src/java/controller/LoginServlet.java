@@ -10,6 +10,10 @@ import java.io.IOException;
 import model.UserDAO;
 import model.User;
 
+/**
+ * A servlet that manages inputs from index and results from UserDAO.
+ * Contains processRequest, doPost, doGet, getServletInfo methods
+ */
 public class LoginServlet extends HttpServlet {
     
     /**

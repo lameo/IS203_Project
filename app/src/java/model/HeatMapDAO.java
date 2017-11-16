@@ -7,6 +7,9 @@ import java.sql.SQLException;
 import java.util.Map;
 import java.util.TreeMap;
 
+/**
+ * A class that contains all the logic to generate heatmap
+ */
 public class HeatMapDAO {
 
     /**

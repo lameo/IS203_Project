@@ -18,6 +18,10 @@ import model.SharedSecretManager;
 import model.User;
 import model.UserDAO;
 
+/**
+ * A servlet that manages inputs from url and results from UserDAO.
+ * Contains processRequest, doPost, doGet, getServletInfo methods
+ */
 @WebServlet(urlPatterns = {"/json/authenticate"})
 public class Authenticate extends HttpServlet {
 

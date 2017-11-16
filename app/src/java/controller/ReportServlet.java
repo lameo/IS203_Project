@@ -14,6 +14,10 @@ import model.ReportDAO;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * A servlet that manages inputs from basicReport, topKPopularPlaces, topKCompanions, topKNextPlaces and results from ReportDAO.
+ * Contains processRequest, doPost, doGet, getServletInfo methods
+ */
 public class ReportServlet extends HttpServlet {
     
     /**

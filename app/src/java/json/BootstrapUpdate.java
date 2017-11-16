@@ -23,6 +23,10 @@ import javazoom.upload.UploadFile;
 import model.SharedSecretManager;
 import model.UploadDAO;
 
+/**
+ * A servlet that manages inputs from multipart form and results from UploadDAO.
+ * Contains processRequest, doPost, doGet, getServletInfo methods
+ */
 @WebServlet(urlPatterns = {"/json/update"})
 public class BootstrapUpdate extends HttpServlet {
 
