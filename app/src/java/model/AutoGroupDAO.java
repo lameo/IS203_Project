@@ -486,7 +486,4 @@ public class AutoGroupDAO {
         }
         return count;
     }
-
-    private AutoGroupDAO() {
-    }
 }

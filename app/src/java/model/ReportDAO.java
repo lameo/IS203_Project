@@ -1498,8 +1498,4 @@ public class ReportDAO {
         }
         return line.substring(0, 1).toUpperCase() + line.substring(1);
     }
-
-    private ReportDAO() {
-    }
-
 }

@@ -130,7 +130,4 @@ public class ConnectionManager {
                     "Unable to close Connection", ex);
         }
     }
-
-    private ConnectionManager() {
-    }
 }

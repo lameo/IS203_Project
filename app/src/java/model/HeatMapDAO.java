@@ -130,7 +130,4 @@ public class HeatMapDAO {
         }
         return 6;
     }
-
-    private HeatMapDAO() {
-    }
 }

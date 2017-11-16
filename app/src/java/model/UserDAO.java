@@ -70,7 +70,4 @@ public class UserDAO {
         }
         return false;
     }
-
-    private UserDAO() {
-    }
 }

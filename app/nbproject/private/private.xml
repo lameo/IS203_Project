@@ -2,6 +2,15 @@
 <project-private xmlns="http://www.netbeans.org/ns/project-private/1">
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
-        <group/>
+        <group>
+            <file>file:/D:/testt/app/src/java/model/AutoGroupDAO.java</file>
+            <file>file:/D:/testt/app/src/java/model/User.java</file>
+            <file>file:/D:/testt/app/src/java/model/HeatMapDAO.java</file>
+            <file>file:/D:/testt/app/src/java/model/HeatMap.java</file>
+            <file>file:/D:/testt/app/src/java/model/ConnectionManager.java</file>
+            <file>file:/D:/testt/app/src/java/model/SharedSecretManager.java</file>
+            <file>file:/D:/testt/app/src/java/model/ReportDAO.java</file>
+            <file>file:/D:/testt/app/src/java/model/UploadDAO.java</file>
+        </group>
     </open-files>
 </project-private>

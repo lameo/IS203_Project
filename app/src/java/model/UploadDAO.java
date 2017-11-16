@@ -930,7 +930,4 @@ public class UploadDAO {
         }
         return "";
     }
-
-    private UploadDAO() {
-    }
 }
