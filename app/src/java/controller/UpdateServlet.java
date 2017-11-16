@@ -1,22 +1,27 @@
 package controller;
 
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpSession;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.ServletContext;
-import java.util.Hashtable;
+import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Hashtable;
+import javax.servlet.ServletContext;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import javazoom.upload.*;
 import model.UploadDAO;
-import java.io.File;
 
+/**
+ * A servlet that manages inputs from bootstrapUpdate and results from
+ * UploadDAO. Contains processRequest, doPost, doGet, getServletInfo methods
+ */
 public class UpdateServlet extends HttpServlet implements java.io.Serializable {
-    
+
     /**
-     * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
+     * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
+     * methods.
      *
      * @param request servlet request
      * @param response servlet response
@@ -102,13 +107,13 @@ public class UpdateServlet extends HttpServlet implements java.io.Serializable {
                             if (demographicsError.isEmpty() && locationError.isEmpty()) {
                                 success = "Uploaded file: " + fileName + " (" + file.getFileSize() + " bytes)";
                                 session.setAttribute("success", success);
-                            // If there was error, send error message
+                                // If there was error, send error message
                             } else {
                                 session.setAttribute("demographicsError", demographicsError);
                                 session.setAttribute("locationError", locationError);
                             }
 
-                        // Case 2: if it is not a zip file, but contains a valid name that is not null or length 0
+                            // Case 2: if it is not a zip file, but contains a valid name that is not null or length 0
                         } else if (UploadDAO.checkFileName(fileName) != null && UploadDAO.checkFileName(fileName).length() > 0) {
                             // Save it to the temp directory
                             upBean.store(multipartRequest, "uploadfile");
@@ -131,7 +136,7 @@ public class UpdateServlet extends HttpServlet implements java.io.Serializable {
                                     break;
                                 default:
                                     // if file does not have any valid name, send error message
-                                    session.setAttribute("error", "Wrong file name or type");             
+                                    session.setAttribute("error", "Wrong file name or type");
                                     break;
                             }
 
@@ -139,13 +144,13 @@ public class UpdateServlet extends HttpServlet implements java.io.Serializable {
                             if (demographicsError.isEmpty() && locationError.isEmpty() && !fileValid) {
                                 success = "Uploaded file: " + fileName + " (" + file.getFileSize() + " bytes)";
                                 session.setAttribute("success", success);
-                            // If there was error, send error message
+                                // If there was error, send error message
                             } else {
                                 session.setAttribute("demographicsError", demographicsError);
                                 session.setAttribute("locationError", locationError);
                             }
 
-                        // Case 3: not zip file or files that are valid
+                            // Case 3: not zip file or files that are valid
                         } else {
                             session.setAttribute("error", "Wrong file name or type"); //send error messsage                                  
                         }
@@ -175,12 +180,12 @@ public class UpdateServlet extends HttpServlet implements java.io.Serializable {
                         file.delete();
                     }
                 }
-            }      
+            }
         } catch (UploadException e) {
             //send error messsage
             session.setAttribute("error", "Unable to upload. Please try again later");
         }
-        
+
         // Goes back to the webpage after all files is processed
         // Now with errorMessage/number of line processed saved in session
         response.sendRedirect("bootstrapUpdate.jsp");

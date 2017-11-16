@@ -18,11 +18,16 @@ import javax.servlet.http.HttpServletResponse;
 import model.ReportDAO;
 import model.SharedSecretManager;
 
+/**
+ * A servlet that manages inputs from url and results from ReportDAO. Contains
+ * processRequest, doPost, doGet, getServletInfo methods
+ */
 @WebServlet(urlPatterns = {"/json/top-k-companions"})
 public class TopKCompanion extends HttpServlet {
 
     /**
-     * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
+     * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
+     * methods.
      *
      * @param request servlet request
      * @param response servlet response
@@ -89,7 +94,7 @@ public class TopKCompanion extends HttpServlet {
             return;
         }
 
-        //token = "" represents blank token entered
+        //date = "" represents blank date entered
         if (date.isEmpty()) {
             errMsg.add("blank date");
             jsonOutput.addProperty("status", "error");
@@ -224,17 +229,17 @@ public class TopKCompanion extends HttpServlet {
                         //temp json object to store required output first before adding to resultsArr for final output
                         JsonObject topKCompanions = new JsonObject();
                         topKCompanions.addProperty("rank", count);
-                        
+
                         //check if corresponding email has email or not
-                        if(allMacaddressEmailPairs[1].equals("No email found")) {
+                        if (allMacaddressEmailPairs[1].equals("No email found")) {
                             topKCompanions.addProperty("companion", "");
                         } else {
                             topKCompanions.addProperty("companion", allMacaddressEmailPairs[1]);
                         }
-                        
+
                         topKCompanions.addProperty("mac-address", allMacaddressEmailPairs[0]);
                         topKCompanions.addProperty("time-together", timeSpentByCompanions.intValue());
-                        
+
                         // add temp json object to final json array for output
                         resultsArr.add(topKCompanions);
                     }

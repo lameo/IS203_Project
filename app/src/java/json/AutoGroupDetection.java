@@ -21,11 +21,16 @@ import static model.AutoGroupDAO.retrieveAutoGroups;
 import model.Group;
 import model.SharedSecretManager;
 
+/**
+ * A servlet that manages inputs from url and results from AutoGroupDAO.
+ * Contains processRequest, doPost, doGet, getServletInfo methods
+ */
 @WebServlet(urlPatterns = {"/json/group_detect"})
 public class AutoGroupDetection extends HttpServlet {
 
     /**
-     * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
+     * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
+     * methods.
      *
      * @param request servlet request
      * @param response servlet response
@@ -134,81 +139,113 @@ public class AutoGroupDetection extends HttpServlet {
         } catch (NumberFormatException e) {
             errMsg.add("invalid date");
         }
-        
+
         //only run with valid token and valid date entered by user
-        if(errMsg.size() == 0) {
+        if (errMsg.size() == 0) {
             //at this point, dateEntered is valid and is in the right format
             dateEntered = dateEntered.replaceAll("T", " ");
-            
+
             //create a json array to store errors
             JsonArray resultsArr = new JsonArray();
-            
-            int UsersNumber = AutoGroupDAO.retrieveUsersNumber(dateEntered);//retrieve the number of users in the entire SIS building for that date and time
-            
+
+            int usersNumber = AutoGroupDAO.retrieveUsersNumber(dateEntered);//retrieve the number of users in the entire SIS building for that date and time
+
             //retrieve map of all the users and their location traces whom stay at SIS building in specified time window for at least 12 mins
-            Map<String, Map<String, ArrayList<String>>> AutoUsers = AutoGroupDAO.retrieveUsersWith12MinutesData(dateEntered);
-            
+            Map<String, Map<String, ArrayList<String>>> autoUsers = AutoGroupDAO.retrieveUsersWith12MinutesData(dateEntered);
+
             ArrayList<Group> autoGroups = new ArrayList<Group>();
-            
+
             //check if there are valid users
-            if (AutoUsers != null && AutoUsers.size() > 0) {
+            if (autoUsers != null && autoUsers.size() > 0) {
                 //retrieve groups formed from valid users
-                autoGroups = retrieveAutoGroups(AutoUsers);
+                autoGroups = retrieveAutoGroups(autoUsers);
             }
-            
+            //check if there are valid groups formed from valid users
             if (autoGroups != null && autoGroups.size() > 0) {
-                //check autogroups and remove sub groups
+                //check groups and remove sub groups or same groups to return the valid groups
                 autoGroups = AutoGroupDAO.checkAutoGroups(autoGroups);
             }
-            // sort the autogroup list in group size, total time duration order first
+            //sort thegroup list in group size, for groups with same group size, sort by total time spent
             Collections.sort(autoGroups);
-            for (Group autoGroup:autoGroups){
-                //temp json object to store required output first before adding to resultsArr for final output
+            //loop through the group list
+            for (Group autoGroup : autoGroups) {
+                //temp json object to store each group first before adding to resultsArr for final output
                 JsonObject autoGroupObject = new JsonObject();
-                autoGroupObject.addProperty("size",autoGroup.getAutoUsersSize());
-                autoGroupObject.addProperty("total-time-spent",(int)autoGroup.calculateTotalDuration());
+                //add group size to each group object
+                autoGroupObject.addProperty("size", autoGroup.getAutoUsersSize());
+                //add total time spent to each group object
+                autoGroupObject.addProperty("total-time-spent", (int) autoGroup.calculateTotalDuration());
+                //create a json array to store users in group
                 JsonArray membersArr = new JsonArray();
+                //retrieve users in group with email found
                 TreeMap<String, String> sortedUsersWithEmails = autoGroup.retrieveEmailsWithMacs();
+                //retrieve emails of users
                 Iterator<String> usersWithEmails = sortedUsersWithEmails.keySet().iterator();
-                while(usersWithEmails.hasNext()){
+                //loop through emails of users
+                while (usersWithEmails.hasNext()) {
+                    //temp json object to store each user email and macaddress first before adding to membersArr for final output
                     JsonObject membersObject = new JsonObject();
+                    //retrieve user email
                     String email = usersWithEmails.next();
+                    //retrieve user macaddress
                     String mac = sortedUsersWithEmails.get(email);
-                    membersObject.addProperty("email",email);
-                    membersObject.addProperty("mac-address",mac);
+                    //add user email to membersObject
+                    membersObject.addProperty("email", email);
+                    //add user macaddress to membersObject
+                    membersObject.addProperty("mac-address", mac);
+                    //add each user object to membersArr for output
                     membersArr.add(membersObject);
                 }
+                //retrieve users in group with no email found
                 TreeMap<String, String> sortedUsersNoEmails = autoGroup.retrieveMacsNoEmails();
+                //retrieve macaddresses of users
                 Iterator<String> usersNoEmails = sortedUsersNoEmails.keySet().iterator();
-                while(usersNoEmails.hasNext()){
+                //loop through macaddresses of users
+                while (usersNoEmails.hasNext()) {
+                    //temp json object to store each user email and macaddress first before adding to membersArr for final output
                     JsonObject membersObject = new JsonObject();
+                    //retrieve user email
                     String mac = usersNoEmails.next();
+                    //retrieve user email ("")
                     String email = sortedUsersNoEmails.get(mac);
-                    membersObject.addProperty("email","");
-                    membersObject.addProperty("mac-address",mac);
+                    //add user email to membersObject
+                    membersObject.addProperty("email", "");
+                    //add user macaddress to membersObject
+                    membersObject.addProperty("mac-address", mac);
+                    //add each user object to membersArr for output
                     membersArr.add(membersObject);
                 }
-                
-                autoGroupObject.add("members",membersArr);
+                //add temp group users array to autoGroupObject for final output
+                autoGroupObject.add("members", membersArr);
+                //create a json array to store results of group locations
                 JsonArray locationsArr = new JsonArray();
-                
-                Map<String, Double> locationsDuration =  autoGroup.calculateTimeDuration();
+                //retrieve common locations and time spent of the group
+                Map<String, Double> locationsDuration = autoGroup.calculateTimeDuration();
+                //retrieve common locations of the group
                 Iterator<String> locations = locationsDuration.keySet().iterator();
-                while(locations.hasNext()){
+                //loop through the common locations of the group
+                while (locations.hasNext()) {
+                    //temp json object to store each common location and time spent first before adding to locationsArr for final output
                     JsonObject locationsObject = new JsonObject();
+                    //retrieve common location of the group
                     String location = locations.next();
+                    //retrieve time spent at common location
                     double duration = locationsDuration.get(location);
-                    locationsObject.addProperty("location",location);
-                    locationsObject.addProperty("time-spent",(int)(duration));
+                    //add common location to locationsObject
+                    locationsObject.addProperty("location", location);
+                    //convert time spent from double to int and add to locationsObject
+                    locationsObject.addProperty("time-spent", (int) (duration));
+                    //add each locaion object to locationsArr for output
                     locationsArr.add(locationsObject);
                 }
-                
-                autoGroupObject.add("locations",locationsArr);
+                //add temp group common locations and time spent array to autoGroupObject for final output
+                autoGroupObject.add("locations", locationsArr);
+                // add each temp json group object to final json array for output
                 resultsArr.add(autoGroupObject);
             }
-            
+            //final output for viewing 
             jsonOutput.addProperty("status", "success");
-            jsonOutput.addProperty("total-users", UsersNumber);
+            jsonOutput.addProperty("total-users", usersNumber);
             jsonOutput.addProperty("total-groups", autoGroups.size());
             jsonOutput.add("groups", resultsArr);
         } else {
@@ -216,23 +253,22 @@ public class AutoGroupDetection extends HttpServlet {
             jsonOutput.add("messages", errMsg);
         }
         out.println(gson.toJson(jsonOutput));
-        
+
         //close PrintWriter
-        out.close(); 
+        out.close();
     }
 
-
 // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
-/**
- * Handles the HTTP <code>GET</code> method.
- *
- * @param request servlet request
- * @param response servlet response
- * @throws ServletException if a servlet-specific error occurs
- * @throws IOException if an I/O error occurs
- */
-@Override
-        protected void doGet(HttpServletRequest request, HttpServletResponse response)
+    /**
+     * Handles the HTTP <code>GET</code> method.
+     *
+     * @param request servlet request
+     * @param response servlet response
+     * @throws ServletException if a servlet-specific error occurs
+     * @throws IOException if an I/O error occurs
+     */
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         processRequest(request, response);
     }
@@ -246,7 +282,7 @@ public class AutoGroupDetection extends HttpServlet {
      * @throws IOException if an I/O error occurs
      */
     @Override
-        protected void doPost(HttpServletRequest request, HttpServletResponse response)
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         processRequest(request, response);
     }
@@ -257,7 +293,7 @@ public class AutoGroupDetection extends HttpServlet {
      * @return a String containing servlet description
      */
     @Override
-        public String getServletInfo() {
+    public String getServletInfo() {
         return "Short description";
     }// </editor-fold>
 

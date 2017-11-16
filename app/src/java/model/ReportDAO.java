@@ -138,8 +138,8 @@ public class ReportDAO {
      * Returns a total quantity of unique macaddress of a specific school 15mins
      * before the specified time
      *
-     * @param timeEnd String in dd/mm/yyyy hh:mm:ss format for when the report is
-     * generated
+     * @param timeEnd String in dd/mm/yyyy hh:mm:ss format for when the report
+     * is generated
      * @param school String of the school to retrieve qty
      * @return int of a specific school 15mins before the specified time
      *
@@ -959,7 +959,7 @@ public class ReportDAO {
      * particular user
      */
     public static Map<Double, ArrayList<String>> retrieveTopKCompanions(String endTimeDate, String macaddress) {
-        
+
         //Retrieve user location timeline 
         ArrayList<String> userLocationsTimestampsList = retrieveUserLocationTimestamps(macaddress, endTimeDate);
 
@@ -968,18 +968,18 @@ public class ReportDAO {
 
         for (int i = 0; i < userLocationsTimestampsList.size(); i++) {
             String userEachLocationTimestamp = userLocationsTimestampsList.get(i); //to retrieve the String of location and timestamps from the list
-            String[] userlocationTimestamp = userEachLocationTimestamp.split(","); 
-            
+            String[] userlocationTimestamp = userEachLocationTimestamp.split(",");
+
             //retrieve each location and time start and end from array
             String userLocationid = userlocationTimestamp[0];
             String userTimeStart = userlocationTimestamp[1];
             String userTimeEnd = userlocationTimestamp[2];
-            
+
             //retrieve all users within the time query besides the specified user using the timestamp of the user
             //Eg: Specified user is in location A from 10:01 - 10:03 then 10:01 and 10:03 is used to find if there are any companions
             //5 mins before the userTimeStart to get a bigger range to make sure no other users are left out
             ArrayList<String> companionMacaddressList = retrieveCompanionMacaddresses(macaddress, userLocationid, userTimeStart, userTimeEnd);
-            
+
             //retrieve all the companion's colocated timestamp with user
             //Eg: companionMacaddress, userLocationid, companionTimestamp, colocationTime
             ArrayList<String> companionsLocationTimestampsList = retrieveCompanionLocationTimestamps(companionMacaddressList, userLocationid, userTimeStart, userTimeEnd);
@@ -1050,7 +1050,7 @@ public class ReportDAO {
         double duration = 0;
 
         ArrayList<String> userLocationTimestamps = new ArrayList<String>();
-        
+
         //to retrieve all locationid and timestamp in alternating order
         //Eg: locationid 1, timestamp 1, locationid 2, timestamp 2, ..
         ArrayList<String> userLocationsList = new ArrayList<String>();
@@ -1085,7 +1085,7 @@ public class ReportDAO {
             resultSet.close();
             preparedStatement.close();
             connection.close();
-            
+
             for (int i = 0; i < userLocationsList.size(); i += 2) {
                 String locationid = userLocationsList.get(i); //find first location id
                 timestring = userLocationsList.get(i + 1); //find first time string
@@ -1120,7 +1120,7 @@ public class ReportDAO {
                     String timestringNext = userLocationsList.get(i + 3); //to get the next corresponding timestamp
                     java.util.Date timestampNext = dateFormat.parse(timestringNext); //convert the timestamp into Date object
 
-                    if (!locationid.equals(locationidNext)) { 
+                    if (!locationid.equals(locationidNext)) {
                         //to compare the first timestamp of a different location found
                         if (firstLocationTimeStartIndex > -1) { //to get the first timing for the next location 
                             java.util.Date timestampStart = dateFormat.parse(userLocationsList.get(firstLocationTimeStartIndex));
@@ -1132,17 +1132,17 @@ public class ReportDAO {
                             cal.add(Calendar.MINUTE, 5); //if time difference more than 5mins just add 5mins to timestamp
 
                             timestampEnd = cal.getTime();
-                            
+
                             //timestampEnd = timestamp + 5mins
-                            userConcatenationList += locationid + "," + dateFormat.format(timestamp) + "," + dateFormat.format(timestampEnd) + ",";                            
-                            
+                            userConcatenationList += locationid + "," + dateFormat.format(timestamp) + "," + dateFormat.format(timestampEnd) + ",";
+
                         } else { //if does not reach 5mins, also update the time difference
-                            userConcatenationList += locationid + "," + dateFormat.format(timestamp) + "," + dateFormat.format(timestampNext) + ",";                            
+                            userConcatenationList += locationid + "," + dateFormat.format(timestamp) + "," + dateFormat.format(timestampNext) + ",";
                         }
                         userLocationTimestamps.add(userConcatenationList);
-                        
+
                         //reset
-                        duration = 0; 
+                        duration = 0;
                         userConcatenationList = "";
                         firstLocationTimeStartIndex = -1;
 
@@ -1150,24 +1150,24 @@ public class ReportDAO {
                         if (firstLocationTimeStartIndex == -1) {
                             firstLocationTimeStartIndex = i + 1; //to get the index of the current first location timestamp 
                         }
-                        
+
                         //To get the time diff between current timestamp found and the corresponding next timestamp
                         duration = (timestampNext.getTime() - timestamp.getTime()) / 1000.0;
-                        
+
                         if (duration > 300.0) {
                             cal.setTime(timestamp);
                             cal.add(Calendar.MINUTE, 5); //timeDateEnd is 5 minutes after timeDateStart
                             timestampEnd = cal.getTime();
                             java.util.Date timestampStart = dateFormat.parse(userLocationsList.get(firstLocationTimeStartIndex)); //get the timestamp for a location the first time it is found
-                            
+
                             userConcatenationList += locationidNext + "," + dateFormat.format(timestampStart) + "," + dateFormat.format(timestampEnd) + ",";
                             userLocationTimestamps.add(userConcatenationList);
-                            
+
                             //reset
                             duration = 0;
                             userConcatenationList = "";
                             firstLocationTimeStartIndex = -1;
-                            
+
                         } else if (duration <= 300) {
                             duration += (timestampNext.getTime() - timestamp.getTime()) / 1000.0; //add the time difference between the first found timestamp and the subsequent timestamp after the first
                         }
@@ -1183,13 +1183,17 @@ public class ReportDAO {
     }
 
     /**
-     * Returns macaddress of all users (other than the macaddress inputted) who are present at the specified locationid between the input time
-     * 
-     * @param userMacaddress String Macaddress of the user we want to check for companions
-     * @param locationid String uniq identifier for the location to lookup for 
-     * @param timestringStart String in dd/mm/yyyy hh:mm format for where the search begins (inclusive)
-     * @param timestringEnd String in dd/mm/yyyy hh:mm format for where the search ends (inclusive)
-     * @return 
+     * Returns macaddress of all users (other than the macaddress inputted) who
+     * are present at the specified locationid between the input time
+     *
+     * @param userMacaddress String Macaddress of the user we want to check for
+     * companions
+     * @param locationid String uniq identifier for the location to lookup for
+     * @param timestringStart String in dd/mm/yyyy hh:mm format for where the
+     * search begins (inclusive)
+     * @param timestringEnd String in dd/mm/yyyy hh:mm format for where the
+     * search ends (inclusive)
+     * @return
      */
     public static ArrayList<String> retrieveCompanionMacaddresses(String userMacaddress, String locationid, String timestringStart, String timestringEnd) {
         Connection connection = null;
@@ -1237,13 +1241,18 @@ public class ReportDAO {
     }
 
     /**
-     * Retrieve arraylist detailing the the companions macaddress, locationid, timestamp and time spend together in a csv format
-     * 
-     * @param companionsList ArrayList of all the macaddress to lookup time spend together
-     * @param userLocationid String uniq identifier for the location to lookup for 
-     * @param userTimestringStart String in dd/mm/yyyy hh:mm format for where the search begins (inclusive)
-     * @param userTimestringEnd String in dd/mm/yyyy hh:mm format for where the search ends (inclusive)
-     * @return 
+     * Retrieve arraylist detailing the the companions macaddress, locationid,
+     * timestamp and time spend together in a csv format
+     *
+     * @param companionsList ArrayList of all the macaddress to lookup time
+     * spend together
+     * @param userLocationid String uniq identifier for the location to lookup
+     * for
+     * @param userTimestringStart String in dd/mm/yyyy hh:mm format for where
+     * the search begins (inclusive)
+     * @param userTimestringEnd String in dd/mm/yyyy hh:mm format for where the
+     * search ends (inclusive)
+     * @return
      */
     public static ArrayList<String> retrieveCompanionLocationTimestamps(ArrayList<String> companionsList, String userLocationid, String userTimestringStart, String userTimestringEnd) {
         Connection connection = null;
@@ -1317,16 +1326,16 @@ public class ReportDAO {
                             }
                             companionConcatenationList = companionMacaddress + "," + userLocationid + "," + companionTimestamp + "," + colocationTime + ",";
                             companionLocationTimestamps.add(companionConcatenationList);
-                            
+
                             //reset
                             companionConcatenationList = "";
                             colocationTime = 0;
                             correctTimestring = false;
                         }
                     }
-                    
+
                     //more than 1 location update for companion
-                    while (resultSet.next()) { 
+                    while (resultSet.next()) {
                         String companionNextTimestring = resultSet.getString(1);
                         String companionNextLocationid = resultSet.getString(2);
                         int nextTimeDiffBetweenUserTimeEndAndCompanionTime = resultSet.getInt(3);
@@ -1356,7 +1365,7 @@ public class ReportDAO {
                                         //CompanionLocationTimestamps.add(macaddress + "diff location time before start " + colocationTime + "," + tmp);
                                         companionConcatenationList = companionMacaddress + "," + userLocationid + "," + companionNextTimestamp + "," + colocationTime + ",";
                                         companionLocationTimestamps.add(companionConcatenationList);
-                                        
+
                                         //reset
                                         companionConcatenationList = "";
                                         colocationTime = 0;
@@ -1382,7 +1391,7 @@ public class ReportDAO {
                                     }
                                     companionConcatenationList = companionMacaddress + "," + userLocationid + "," + companionNextTimestamp + "," + colocationTime + ",";
                                     companionLocationTimestamps.add(companionConcatenationList);
-                                    
+
                                     //reset because a next location is found
                                     companionConcatenationList = "";
                                     colocationTime = 0;
@@ -1393,7 +1402,7 @@ public class ReportDAO {
                         }
                         //check last location update
                         if (resultSet.isLast() && companionNextLocationid.equals(userLocationid)) {
-                            
+
                             //if last location same, include last timestamp
                             if (companionNextTimestamp.before(userTimeStart)) {
                                 if (nextTimeDiffBetweenUserTimeEndAndCompanionTime > 300) {
@@ -1408,11 +1417,11 @@ public class ReportDAO {
                                 } else {
                                     colocationTime += nextTimeDiffBetweenUserTimeEndAndCompanionTime;
                                 }
-                                
+
                             }
                             companionConcatenationList = companionMacaddress + "," + userLocationid + "," + companionNextTimestamp + "," + colocationTime + ",";
                             companionLocationTimestamps.add(companionConcatenationList);
-                            
+
                             //reset
                             companionConcatenationList = "";
                             colocationTime = 0;
@@ -1458,7 +1467,7 @@ public class ReportDAO {
 
             //set the parameters
             preparedStatement.setString(1, macaddress);
-            
+
             //execute SQL query
             resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
@@ -1489,5 +1498,4 @@ public class ReportDAO {
         }
         return line.substring(0, 1).toUpperCase() + line.substring(1);
     }
-
 }
