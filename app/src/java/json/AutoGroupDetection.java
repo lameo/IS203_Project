@@ -47,6 +47,7 @@ public class AutoGroupDetection extends HttpServlet {
         //create a json array to store errors
         JsonArray errMsg = new JsonArray();
 
+        //get token from request
         String tokenEntered = request.getParameter("token"); //get token from url
         String dateEntered = request.getParameter("date"); //get date from url
 
@@ -148,15 +149,13 @@ public class AutoGroupDetection extends HttpServlet {
             Map<String, Map<String, ArrayList<String>>> AutoUsers = AutoGroupDAO.retrieveUsersWith12MinutesData(dateEntered);
             
             ArrayList<Group> autoGroups = new ArrayList<Group>();
-            //test
-            //ArrayList<String> AutoGroups = new ArrayList<String>();
-            //check if there are valid auto users
+            
+            //check if there are valid users
             if (AutoUsers != null && AutoUsers.size() > 0) {
-                //retrieve groups formed from valid auto users
+                //retrieve groups formed from valid users
                 autoGroups = retrieveAutoGroups(AutoUsers);
             }
             
-            //session.setAttribute("test", AutoGroups);
             if (autoGroups != null && autoGroups.size() > 0) {
                 //check autogroups and remove sub groups
                 autoGroups = AutoGroupDAO.checkAutoGroups(autoGroups);
