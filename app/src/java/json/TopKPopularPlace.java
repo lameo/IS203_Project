@@ -16,42 +16,33 @@ import javax.servlet.http.HttpServletResponse;
 import model.ReportDAO;
 import model.SharedSecretManager;
 
-/**
- * A servlet that manages inputs from url and results from ReportDAO. Contains
- * processRequest, doPost, doGet, getServletInfo methods
- */
 @WebServlet(urlPatterns = {"/json/top-k-popular-places"})
 public class TopKPopularPlace extends HttpServlet {
 
     /**
-     * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
-     * methods.
+     * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
      *
      * @param request servlet request
      * @param response servlet response
      * @throws ServletException if a servlet-specific error occurs
      * @throws IOException if an I/O error occurs
      */
-    protected void processRequest(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
+    protected void processRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
         PrintWriter out = response.getWriter();
 
-        //creates a new gson object
-        //by instantiating a new factory object, set pretty printing, then calling the create method
+        //creates a new gson object by instantiating a new factory object, set pretty printing, then calling the create method
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
-
         //creats a new json object for printing the desired json output
         JsonObject jsonOutput = new JsonObject();
-
         //create a json array to store errors
         JsonArray errMsg = new JsonArray();
 
-        String tokenEntered = request.getParameter("token"); //get token from url
         String topKEntered = request.getParameter("k"); //get topK from url
-        String dateEntered = request.getParameter("date"); //get date from url
 
-        //if token is not entered in url
+        //get token from request
+        String tokenEntered = request.getParameter("token");
+        // check if token is null (dont have ?token=something)
         if (tokenEntered == null) {
             errMsg.add("missing token");
             jsonOutput.addProperty("status", "error");
@@ -61,8 +52,8 @@ public class TopKPopularPlace extends HttpServlet {
             return;
         }
 
-        //if token field is empty
-        if (tokenEntered.isEmpty()) {
+        // check if token is empty (?token="")
+        if (tokenEntered.isEmpty()) {// if token given is not valid
             errMsg.add("blank token");
             jsonOutput.addProperty("status", "error");
             jsonOutput.add("messages", errMsg);
@@ -70,9 +61,8 @@ public class TopKPopularPlace extends HttpServlet {
             out.close(); //close PrintWriter
             return;
         }
-
-        //check if token is invalid
-        //print out all the error with null or empty string that is required but the user did not enter 
+        
+        /// checking if the token submitted by the user is valid
         if (!SharedSecretManager.verifyUser(tokenEntered)) { //if the user is not verified
             errMsg.add("invalid token");
             jsonOutput.addProperty("status", "error");
@@ -81,9 +71,11 @@ public class TopKPopularPlace extends HttpServlet {
             out.close(); //close PrintWriter
             return;
         }
-
-        //check if dateEntered is entered by user from url
-        if (dateEntered == null) {
+        
+        //get date from request
+        String dateEntered = request.getParameter("date");
+        // check if date is null (dont have ?date=something)
+        if (dateEntered == null) { 
             errMsg.add("missing date");
             jsonOutput.addProperty("status", "error");
             jsonOutput.add("messages", errMsg);
@@ -91,9 +83,9 @@ public class TopKPopularPlace extends HttpServlet {
             out.close(); //close PrintWriter
             return;
         }
-
-        //if the dateEntered field is blank
-        if (dateEntered.isEmpty()) {
+        
+        // check if date is empty (?date="")
+        if (dateEntered.isEmpty()) { 
             errMsg.add("blank date");
             jsonOutput.addProperty("status", "error");
             jsonOutput.add("messages", errMsg);
@@ -102,6 +94,8 @@ public class TopKPopularPlace extends HttpServlet {
             return;
         }
 
+        // After this point, all variables required are not empty or null, so start checking whether they are valid format
+        // topK could be empty, meaning default = 3 unless otherwise stated
         try {
             //check for valid date entered by user
             boolean dateValid = true;
@@ -144,69 +138,78 @@ public class TopKPopularPlace extends HttpServlet {
         //assign default number to topK first before try-catch
         int topK = 3;
 
-        //Check if user entered in a number as a string instead of spelling it out as a whole
-        //Eg: k=1 is correct but k=one is wrong
         try {
-            topK = Integer.parseInt(topKEntered); //get the number user entered in url as int
+            // get the number user entered in url as int
+            topK = Integer.parseInt(topKEntered); 
 
+            // if topK is out of bound, then add error message to JsonArray
             if (topK < 1 || topK > 10) {
-                errMsg.add("invalid k"); //add error msg into JsonArray
+                errMsg.add("invalid k");
             }
+        // if a string is entered where topK is supposed to be, add error msg into JsonArray
         } catch (NumberFormatException e) {
-            errMsg.add("invalid k"); //add error msg into JsonArray
+            errMsg.add("invalid k");
         }
-
-        //only run with valid token, date and k
-        //at this point, dateEntered is valid and is in the right format
-        if (errMsg.size() == 0) {
+        
+        // After this point, all variables required are not empty, null or wrong format, so start generating report
+        if (errMsg.size() == 0) { 
             //proper date format -> (YYYY-MM-DDTHH:MM:SS)
-
             //replace "T" with "" to allow system to process correctly
             dateEntered = dateEntered.replaceAll("T", " ");
 
-            Map<Integer, String> topKPopularMap = ReportDAO.retrieveTopKPopularPlaces(dateEntered);
 
-            //create a json array to store errors
+            //create a json array to store result
             JsonArray resultsArr = new JsonArray();
-
+            
             //create a list of popular place numbers sorted in descending order from retrieveTopKPopularPlaces method
+            Map<Integer, String> topKPopularMap = ReportDAO.retrieveTopKPopularPlaces(dateEntered);
+            // to get the qty of each places so as to iterate down later on
             ArrayList<Integer> keys = new ArrayList<>(topKPopularMap.keySet());
 
             //to match topK number
             int count = 1;
+            // iterate down the entire hashmap
             for (int i = 0; i < keys.size(); i++) {
+                // repeat as many time as topK size
                 if (count <= topK) {
-                    //retrieve all semantic places found from map
+                    
+                    //retrieve all semantic places found from map (as multiple location can have same qty of user)
                     String allLocationFound = topKPopularMap.get(keys.get(i));
-
                     //get all locations in String[] to for-loop
                     String[] allLocationFoundArr = allLocationFound.split(", ");
-
+                    
                     //add every location to semantic-places for each rank if rank has 2 or more locations
                     //Eg: if rank 1 has 2 locations, 2 jsonobjects will be created for each location and added to resultsArr jsonarray respectively
                     for (String location : allLocationFoundArr) {
-
+                        
                         //temp json object to store required output first before adding to resultsArr for final output
                         JsonObject topKPopPlaces = new JsonObject();
-                        topKPopPlaces.addProperty("rank", count);
+                        topKPopPlaces.addProperty("rank", count); 
                         topKPopPlaces.addProperty("semantic-place", location);
                         topKPopPlaces.addProperty("count", keys.get(i));
-
+                        
                         // add temp json object to final json array for output
                         resultsArr.add(topKPopPlaces);
                     }
                 }
                 count++;
             }
+            
             jsonOutput.addProperty("status", "success");
             jsonOutput.add("results", resultsArr);
+            
+            
+        //if date or topK is not valid, send error message
         } else {
             jsonOutput.addProperty("status", "error");
             jsonOutput.add("messages", errMsg);
         }
+        
+        
+        // Returning the json output we created in a pretty print format
         out.println(gson.toJson(jsonOutput));
-
-        out.close(); //close PrintWriter
+        // close PrintWriter
+        out.close(); 
     }
 
 // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">

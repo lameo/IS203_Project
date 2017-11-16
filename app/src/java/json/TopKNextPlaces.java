@@ -33,13 +33,11 @@ public class TopKNextPlaces extends HttpServlet {
      * @throws ServletException if a servlet-specific error occurs
      * @throws IOException if an I/O error occurs
      */
-    protected void processRequest(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
+    protected void processRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
         PrintWriter out = response.getWriter();
 
-        //creates a new gson object
-        //by instantiating a new factory object, set pretty printing, then calling the create method
+        //creates a new gson object by instantiating a new factory object, set pretty printing, then calling the create method
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
         //creats a new json object for printing the desired json output
@@ -53,6 +51,7 @@ public class TopKNextPlaces extends HttpServlet {
         String dateEntered = request.getParameter("date"); //get date from url
         String semanticPlace = request.getParameter("origin"); //get the semantic place from url
 
+        
         //if token is not entered in url
         if (tokenEntered == null) {
             errMsg.add("missing token");
