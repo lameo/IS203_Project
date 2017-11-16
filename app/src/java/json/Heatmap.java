@@ -20,14 +20,15 @@ import model.HeatMapDAO;
 import model.SharedSecretManager;
 
 /**
- * A servlet that manages inputs from url and results from HeatMapDAO.
- * Contains processRequest, doPost, doGet, getServletInfo methods
+ * A servlet that manages inputs from url and results from HeatMapDAO. Contains
+ * processRequest, doPost, doGet, getServletInfo methods
  */
 @WebServlet(urlPatterns = {"/json/heatmap"})
 public class Heatmap extends HttpServlet {
 
     /**
-     * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
+     * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
+     * methods.
      *
      * @param request servlet request
      * @param response servlet response
@@ -168,7 +169,7 @@ public class Heatmap extends HttpServlet {
             //proper date format -> (YYYY-MM-DDTHH:MM:SS)
             //replace "T" with "" to allow system to process correctly
             timeDate = timeDate.replaceAll("T", " ");
-            
+
             //if floor = 0, floor is B1
             String floorName = "B1";
 

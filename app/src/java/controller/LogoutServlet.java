@@ -8,13 +8,14 @@ import javax.servlet.http.HttpSession;
 import java.io.IOException;
 
 /**
- * A servlet that logouts the user.
- * Contains processRequest, doPost, doGet, getServletInfo methods
+ * A servlet that logouts the user. Contains processRequest, doPost, doGet,
+ * getServletInfo methods
  */
 public class LogoutServlet extends HttpServlet {
-    
+
     /**
-     * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
+     * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
+     * methods.
      *
      * @param request servlet request
      * @param response servlet response

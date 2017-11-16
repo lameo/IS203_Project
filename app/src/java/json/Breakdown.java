@@ -17,8 +17,8 @@ import model.ReportDAO;
 import model.SharedSecretManager;
 
 /**
- * A servlet that manages inputs from url and results from ReportDAO.
- * Contains processRequest, doPost, doGet, getServletInfo methods
+ * A servlet that manages inputs from url and results from ReportDAO. Contains
+ * processRequest, doPost, doGet, getServletInfo methods
  */
 @WebServlet(urlPatterns = {"/json/basic-loc-report"})
 public class Breakdown extends HttpServlet {

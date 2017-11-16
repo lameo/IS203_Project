@@ -14,13 +14,14 @@ import model.UploadDAO;
 import java.io.File;
 
 /**
- * A servlet that manages inputs from bootstrapInitialize and results from UploadDAO.
- * Contains processRequest, doPost, doGet, getServletInfo methods
+ * A servlet that manages inputs from bootstrapInitialize and results from
+ * UploadDAO. Contains processRequest, doPost, doGet, getServletInfo methods
  */
 public class UploadServlet extends HttpServlet implements java.io.Serializable {
-    
+
     /**
-     * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
+     * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
+     * methods.
      *
      * @param request servlet request
      * @param response servlet response
@@ -29,11 +30,11 @@ public class UploadServlet extends HttpServlet implements java.io.Serializable {
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         HttpSession session = request.getSession();
-        
+
         // Initializing upload function - allowing files to be sent from browser
         UploadBean upBean = new UploadBean();
         String success = "";
-        
+
         // Initializing error messages to be return later on if any
         HashMap<Integer, String> locationLookupError = new HashMap<>();
         HashMap<Integer, String> demographicsError = new HashMap<>();
@@ -43,7 +44,7 @@ public class UploadServlet extends HttpServlet implements java.io.Serializable {
             // Creating a temp directory to be provided by this servletContext for the uploaded file
             ServletContext servletContext = this.getServletConfig().getServletContext();
             File directory = (File) servletContext.getAttribute("javax.servlet.context.tempdir");
-            
+
             // Location of directory in string format
             String outputDirectory = "" + directory;
             // Setting uploadBean output directory
@@ -51,7 +52,7 @@ public class UploadServlet extends HttpServlet implements java.io.Serializable {
             // Setting size limit of the file uploaded (equals around 1gb)
             Long size = Long.parseLong("8589934592");
             upBean.setFilesizelimit(size);
-            
+
             // if a file upload is detected 
             if (MultipartFormDataRequest.isMultipartFormData(request)) {
                 // Uses MultipartFormDataRequest which is a special type of request to get the file
@@ -73,7 +74,7 @@ public class UploadServlet extends HttpServlet implements java.io.Serializable {
                         String filePath = outputDirectory + File.separator + fileName;
 
                         // case 1: if it is a zip file
-                        if (contentType.equals("application/x-zip-compressed")|| contentType.equals("application/zip")) {
+                        if (contentType.equals("application/x-zip-compressed") || contentType.equals("application/zip")) {
                             // save it to temp directory
                             upBean.store(multipartRequest, "uploadfile");
 
@@ -104,19 +105,19 @@ public class UploadServlet extends HttpServlet implements java.io.Serializable {
                                     locationError.remove(Integer.MAX_VALUE);
                                 }
                             }
-                            
+
                             // If no errors were detected, send success message
                             if (demographicsError.isEmpty() && locationError.isEmpty() && locationLookupError.isEmpty()) {
                                 success = "Uploaded file: " + fileName + " (" + file.getFileSize() + " bytes)";
-                                session.setAttribute("success", success); 
-                            // If there was error, send error message
+                                session.setAttribute("success", success);
+                                // If there was error, send error message
                             } else {
                                 session.setAttribute("locationLookupError", locationLookupError);
                                 session.setAttribute("demographicsError", demographicsError);
                                 session.setAttribute("locationError", locationError);
                             }
-                            
-                        // Case 2: if it is not a zip file, but contains a valid name that is not null or length 0
+
+                            // Case 2: if it is not a zip file, but contains a valid name that is not null or length 0
                         } else if (UploadDAO.checkFileName(fileName) != null && UploadDAO.checkFileName(fileName).length() > 0) {
                             // Save it to the temp directory
                             upBean.store(multipartRequest, "uploadfile");
@@ -145,24 +146,24 @@ public class UploadServlet extends HttpServlet implements java.io.Serializable {
                                     session.setAttribute("error", "Wrong file name or type");
                                     break;
                             }
-                            
+
                             // If no errors were detected, send success message
                             if (demographicsError.isEmpty() && locationError.isEmpty() && locationLookupError.isEmpty()) {
                                 success = "Uploaded file: " + fileName + " (" + file.getFileSize() + " bytes)";
                                 session.setAttribute("success", success);
-                            // If there was error, send error message
+                                // If there was error, send error message
                             } else {
                                 session.setAttribute("locationLookupError", locationLookupError);
                                 session.setAttribute("demographicsError", demographicsError);
                                 session.setAttribute("locationError", locationError);
                             }
 
-                        // Case 3: not zip file or files that are valid
+                            // Case 3: not zip file or files that are valid
                         } else {
                             //send error messsage         
-                            session.setAttribute("error", "Wrong file name or type");                          
+                            session.setAttribute("error", "Wrong file name or type");
                         }
-                        
+
                         // Save line processed to session (or nth for case 3)
                         session.setAttribute("processedLines", processedLines); //send lines processed
                         // Invalidating the file to prevent reupload bugs
@@ -176,7 +177,7 @@ public class UploadServlet extends HttpServlet implements java.io.Serializable {
                     session.setAttribute("error", "No uploaded files");
                 }
             }
-            
+
             // Deleting the whole directory so if user were to upload
             // a diff file under the same name, windows will not try to
             // save memory and give the old version of file back
@@ -193,7 +194,7 @@ public class UploadServlet extends HttpServlet implements java.io.Serializable {
             //send error messsage
             session.setAttribute("error", "Unable to upload. Please try again later"); //send error messsage
         }
-        
+
         // Goes back to the webpage after all files is processed
         // Now with errorMessage/number of line processed saved in session
         response.sendRedirect("bootstrapInitialize.jsp");

@@ -14,8 +14,8 @@ import java.util.Map;
 import model.Group;
 
 /**
- * A servlet that manages inputs from automaticGroupDetection and results from AutoGroupDAO.
- * Contains processRequest, doPost, doGet, getServletInfo methods
+ * A servlet that manages inputs from automaticGroupDetection and results from
+ * AutoGroupDAO. Contains processRequest, doPost, doGet, getServletInfo methods
  */
 public class AutoGroupServlet extends HttpServlet {
 
@@ -80,8 +80,8 @@ public class AutoGroupServlet extends HttpServlet {
      * @throws IOException if an I/O error occurs
      */
     @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) 
-            throws ServletException, IOException {        
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
         processRequest(request, response);
     }
 
@@ -94,8 +94,8 @@ public class AutoGroupServlet extends HttpServlet {
      * @throws IOException if an I/O error occurs
      */
     @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response) 
-            throws ServletException, IOException {        
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
         processRequest(request, response);
     }
 

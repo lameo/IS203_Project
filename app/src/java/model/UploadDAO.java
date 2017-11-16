@@ -93,7 +93,7 @@ public class UploadDAO {
 
     /**
      * Returns list of all locationID from the database
-     * 
+     *
      * @param String returns locationID separated by a space
      */
     private static String retrieveLocationID() {
@@ -131,7 +131,7 @@ public class UploadDAO {
 
     /**
      * Returns ArrayList<String> of all macAddress from the database
-     * 
+     *
      * @param ArrayList returns list String of macAddress
      */
     private static ArrayList<String> retrieveMac() {
@@ -164,8 +164,9 @@ public class UploadDAO {
 
     /**
      * Returns ArrayList of all macAddress and timestamp separated by a space
-     * 
-     * @return ArrayList returns list of macAddress and timestamp separated by a space
+     *
+     * @return ArrayList returns list of macAddress and timestamp separated by a
+     * space
      */
     public static ArrayList<String> retrieveMACDatePair() {
         Connection connection = null;
@@ -196,10 +197,13 @@ public class UploadDAO {
     }
 
     /**
-     * Returns HashMap of number of line processed and all errors generated in initializing Demographic table
-     * 
+     * Returns HashMap of number of line processed and all errors generated in
+     * initializing Demographic table
+     *
      * @param filePath String Location of Demographic.csv file
-     * @return HashMap with Key as of number of line processed and value of String containing all errors generated in the process of updating Demographic table
+     * @return HashMap with Key as of number of line processed and value of
+     * String containing all errors generated in the process of updating
+     * Demographic table
      */
     public static HashMap<Integer, String> readDemographics(String filePath) {
         clearDemographics();
@@ -342,10 +346,13 @@ public class UploadDAO {
     }
 
     /**
-     * Returns HashMap of number of line processed and all errors generated in the process of initializing location-lookup table
-     * 
+     * Returns HashMap of number of line processed and all errors generated in
+     * the process of initializing location-lookup table
+     *
      * @param filePath String Location of location-lookup.csv file
-     * @return HashMap with Key as of number of line processed and value of String containing all errors generated in the process of updating location-lookup table
+     * @return HashMap with Key as of number of line processed and value of
+     * String containing all errors generated in the process of updating
+     * location-lookup table
      */
     public static HashMap<Integer, String> readLookup(String filePath) {
         clearLookup();
@@ -388,7 +395,7 @@ public class UploadDAO {
                     errorMap.put(lineNumber, errorMsg.substring(2));
                     continue;
                 }
-                
+
                 try {
                     locationID = Integer.parseInt(columns[0].trim());
                     if (locationID < 0) {
@@ -397,7 +404,7 @@ public class UploadDAO {
                 } catch (NumberFormatException e) {
                     errorMsg += ",invalid location id";
                 }
-                
+
                 String locationName = columns[1];
                 locationName = locationName.trim();
                 boolean valid = false;
@@ -442,10 +449,13 @@ public class UploadDAO {
     }
 
     /**
-     * Returns HashMap of number of line processed and all errors generated in the process of initializing Location table
-     * 
+     * Returns HashMap of number of line processed and all errors generated in
+     * the process of initializing Location table
+     *
      * @param filePath String Location of Location.csv file
-     * @return HashMap with Key as of number of line processed and value of String containing all errors generated in the process of updating Location table
+     * @return HashMap with Key as of number of line processed and value of
+     * String containing all errors generated in the process of updating
+     * Location table
      */
     public static HashMap<Integer, String> readLocation(String filePath) {
         clearLocation();
@@ -497,19 +507,19 @@ public class UploadDAO {
                     errorMap.put(i + 1, errorMsg.substring(2));
                     continue;
                 }
-                
+
                 // Checking for locationID
                 locationID = locationID.trim();
                 if (!locationIDs.contains(locationID)) {
                     errorMsg += ",invalid location";
                 }
-                
+
                 // Checking for macaddress
                 macaddress = macaddress.trim();
                 if (macaddress.length() != 40 || !macaddress.matches("-?[0-9a-fA-F]+")) {
                     errorMsg += ",invalid mac address";
-                }                
-                
+                }
+
                 // Checking for timeDate
                 timeDate = timeDate.trim();
                 boolean validDate = true;
@@ -569,10 +579,13 @@ public class UploadDAO {
     }
 
     /**
-     * Returns HashMap of number of line processed and all errors generated in updating Demographic table
-     * 
+     * Returns HashMap of number of line processed and all errors generated in
+     * updating Demographic table
+     *
      * @param filePath String Location of Demographic.csv file
-     * @return HashMap with Key as of number of line processed and value of String containing all errors generated in the process of updating Demographic table
+     * @return HashMap with Key as of number of line processed and value of
+     * String containing all errors generated in the process of updating
+     * Demographic table
      */
     public static HashMap<Integer, String> updateDemographics(String filePath) {
         Connection connection = null;
@@ -725,10 +738,13 @@ public class UploadDAO {
     }
 
     /**
-     * Returns HashMap of number of line processed and all errors generated in the process of updating Location table
-     * 
+     * Returns HashMap of number of line processed and all errors generated in
+     * the process of updating Location table
+     *
      * @param filePath String Location of Location.csv file
-     * @return HashMap with Key as of number of line processed and value of String containing all errors generated in the process of updating Location table
+     * @return HashMap with Key as of number of line processed and value of
+     * String containing all errors generated in the process of updating
+     * Location table
      */
     public static HashMap<Integer, String> updateLocation(String filePath) {
         Connection connection = null;
@@ -782,19 +798,19 @@ public class UploadDAO {
                     errorMap.put(i + 1, errorMsg.substring(2));
                     continue;
                 }
-                
+
                 // Checking for locationID
                 locationID = locationID.trim();
                 if (!locationIDs.contains(locationID)) {
                     errorMsg += ",invalid location";
                 }
-                
+
                 // Checking for macaddress
                 macaddress = macaddress.trim();
                 if (macaddress.length() != 40 || !macaddress.matches("-?[0-9a-fA-F]+")) {
                     errorMsg += ",invalid mac address";
-                }                
-                
+                }
+
                 // Checking for timeDate
                 timeDate = timeDate.trim();
                 boolean validDate = true;
@@ -856,10 +872,10 @@ public class UploadDAO {
 
     /**
      * Returns String of name of file that got unzip
-     * 
+     *
      * @param zipFile String Location of zip file
      * @param outputDirectory String Location to store all the unzip file
-     * @return String of name of file that got unzip 
+     * @return String of name of file that got unzip
      */
     public static String unzip(String zipFile, String outputDirectory) {
         String fileExist = "";
@@ -900,8 +916,9 @@ public class UploadDAO {
     }
 
     /**
-     * Returns whether it is one of the accepted file name to be imported into database
-     * 
+     * Returns whether it is one of the accepted file name to be imported into
+     * database
+     *
      * @param fileName String Location of zip file
      * @return String valid file name
      */

@@ -17,14 +17,15 @@ import model.ReportDAO;
 import model.SharedSecretManager;
 
 /**
- * A servlet that manages inputs from url and results from ReportDAO.
- * Contains processRequest, doPost, doGet, getServletInfo methods
+ * A servlet that manages inputs from url and results from ReportDAO. Contains
+ * processRequest, doPost, doGet, getServletInfo methods
  */
 @WebServlet(urlPatterns = {"/json/top-k-popular-places"})
 public class TopKPopularPlace extends HttpServlet {
 
     /**
-     * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
+     * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
+     * methods.
      *
      * @param request servlet request
      * @param response servlet response
@@ -69,7 +70,7 @@ public class TopKPopularPlace extends HttpServlet {
             out.close(); //close PrintWriter
             return;
         }
-        
+
         //check if token is invalid
         //print out all the error with null or empty string that is required but the user did not enter 
         if (!SharedSecretManager.verifyUser(tokenEntered)) { //if the user is not verified
@@ -80,9 +81,9 @@ public class TopKPopularPlace extends HttpServlet {
             out.close(); //close PrintWriter
             return;
         }
-        
+
         //check if dateEntered is entered by user from url
-        if (dateEntered == null) { 
+        if (dateEntered == null) {
             errMsg.add("missing date");
             jsonOutput.addProperty("status", "error");
             jsonOutput.add("messages", errMsg);
@@ -90,9 +91,9 @@ public class TopKPopularPlace extends HttpServlet {
             out.close(); //close PrintWriter
             return;
         }
-        
+
         //if the dateEntered field is blank
-        if (dateEntered.isEmpty()) { 
+        if (dateEntered.isEmpty()) {
             errMsg.add("blank date");
             jsonOutput.addProperty("status", "error");
             jsonOutput.add("messages", errMsg);
@@ -157,9 +158,9 @@ public class TopKPopularPlace extends HttpServlet {
 
         //only run with valid token, date and k
         //at this point, dateEntered is valid and is in the right format
-        if (errMsg.size() == 0) { 
+        if (errMsg.size() == 0) {
             //proper date format -> (YYYY-MM-DDTHH:MM:SS)
-            
+
             //replace "T" with "" to allow system to process correctly
             dateEntered = dateEntered.replaceAll("T", " ");
 
@@ -167,7 +168,7 @@ public class TopKPopularPlace extends HttpServlet {
 
             //create a json array to store errors
             JsonArray resultsArr = new JsonArray();
-            
+
             //create a list of popular place numbers sorted in descending order from retrieveTopKPopularPlaces method
             ArrayList<Integer> keys = new ArrayList<>(topKPopularMap.keySet());
 
@@ -177,20 +178,20 @@ public class TopKPopularPlace extends HttpServlet {
                 if (count <= topK) {
                     //retrieve all semantic places found from map
                     String allLocationFound = topKPopularMap.get(keys.get(i));
-                    
+
                     //get all locations in String[] to for-loop
                     String[] allLocationFoundArr = allLocationFound.split(", ");
-                    
+
                     //add every location to semantic-places for each rank if rank has 2 or more locations
                     //Eg: if rank 1 has 2 locations, 2 jsonobjects will be created for each location and added to resultsArr jsonarray respectively
                     for (String location : allLocationFoundArr) {
-                        
+
                         //temp json object to store required output first before adding to resultsArr for final output
                         JsonObject topKPopPlaces = new JsonObject();
-                        topKPopPlaces.addProperty("rank", count); 
+                        topKPopPlaces.addProperty("rank", count);
                         topKPopPlaces.addProperty("semantic-place", location);
                         topKPopPlaces.addProperty("count", keys.get(i));
-                        
+
                         // add temp json object to final json array for output
                         resultsArr.add(topKPopPlaces);
                     }

@@ -11,19 +11,20 @@ import model.UserDAO;
 import model.User;
 
 /**
- * A servlet that manages inputs from index and results from UserDAO.
- * Contains processRequest, doPost, doGet, getServletInfo methods
+ * A servlet that manages inputs from index and results from UserDAO. Contains
+ * processRequest, doPost, doGet, getServletInfo methods
  */
 public class LoginServlet extends HttpServlet {
-    
+
     /**
-     * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
+     * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
+     * methods.
      *
      * @param request servlet request
      * @param response servlet response
      * @throws ServletException if a servlet-specific error occurs
      * @throws IOException if an I/O error occurs
-     */    
+     */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         // Getting user input for username & password
         String username = request.getParameter("username");
@@ -40,12 +41,12 @@ public class LoginServlet extends HttpServlet {
 
             // else if trying to login as user
             // true if username is an entry in the database
-            if(UserDAO.validateUsername(username)){
+            if (UserDAO.validateUsername(username)) {
                 // validate whether password for that particular username is correct and return a user object if true
                 User user = UserDAO.retrieveUserByName(username, password);
 
                 // if user is in database
-                if (user instanceof User){
+                if (user instanceof User) {
                     session.setAttribute("user", user);
                     response.sendRedirect("userPage.jsp");
                     return;
@@ -56,7 +57,7 @@ public class LoginServlet extends HttpServlet {
             // send an error message back to index.jsp
             session.setAttribute("error", "Invalid Login.");
             response.sendRedirect("index.jsp"); //changes url
-        } catch (SQLException e){
+        } catch (SQLException e) {
             // if can't establish connection to database
             // send error messsage to index.jsp
             session.setAttribute("error", "Server is currently unavailable, please try again later. Thank you.");

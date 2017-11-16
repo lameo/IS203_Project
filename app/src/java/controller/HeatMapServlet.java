@@ -15,9 +15,10 @@ import model.HeatMapDAO;
  * Contains processRequest, doPost, doGet, getServletInfo methods
  */
 public class HeatMapServlet extends HttpServlet {
-    
+
     /**
-     * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
+     * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
+     * methods.
      *
      * @param request servlet request
      * @param response servlet response
@@ -32,17 +33,14 @@ public class HeatMapServlet extends HttpServlet {
         //retrieve floor from user input
         String floorName = request.getParameter("floor");
 
-
         // Standardizing timedate string
         timeDate = timeDate.replace("T", " ");
         if (timeDate.length() != 19) {
             timeDate += ":00";
         }
 
-
         // Run method to retrieve qty, heatlevel of all rooms in the level selected
         Map<String, HeatMap> heatmapList = HeatMapDAO.retrieveHeatMap(timeDate, floorName);
-
 
         // Saving result to session and sending back to heatmapPage
         session.setAttribute("heatmapList", heatmapList);

@@ -1,16 +1,18 @@
 package model;
 
 /**
- * Represents heatmap object containing variable semanticPlace, qtyPax and heatLevel
+ * Represents heatmap object containing variable semanticPlace, qtyPax and
+ * heatLevel
  */
 public class HeatMap {
+
     private String semanticPlace;
     private int qtyPax;
     private int heatLevel;
 
     /**
      * Constructor object for Heatmap
-     * 
+     *
      * @param semanticPlace String name of the location
      * @param qtyPax int Total number of student present
      * @param heatLevel int heatlevel of the location
@@ -23,6 +25,7 @@ public class HeatMap {
 
     /**
      * Getter method for semantic place
+     *
      * @return String semanticPlace
      */
     public String getPlace() {
@@ -31,6 +34,7 @@ public class HeatMap {
 
     /**
      * Setter method for semantic place
+     *
      * @param semanticPlace String semantic place to be updated to
      */
     public void setPlace(String semanticPlace) {
@@ -39,6 +43,7 @@ public class HeatMap {
 
     /**
      * Getter method for number of people present at the location
+     *
      * @return int number of people present at the location
      */
     public int getQtyPax() {
@@ -47,6 +52,7 @@ public class HeatMap {
 
     /**
      * Setter method for number of people present at the location
+     *
      * @param qtyPax int number of people to be updated to
      */
     public void setQtyPax(int qtyPax) {
@@ -55,6 +61,7 @@ public class HeatMap {
 
     /**
      * Getter method for the heatlevel of the location
+     *
      * @return int heatlevel of the location
      */
     public int getHeatLevel() {
@@ -63,6 +70,7 @@ public class HeatMap {
 
     /**
      * Setter method for heatlevel of the location
+     *
      * @param heatLevel int heatlevel to be updated to
      */
     public void setHeatLevel(int heatLevel) {
@@ -71,12 +79,12 @@ public class HeatMap {
 
     /**
      * Returns heatmap object in a string format
+     *
      * @return String containing attribute of the heatmap object
      */
     @Override
     public String toString() {
         return "heatmap{" + "place=" + semanticPlace + ", qtyPax=" + qtyPax + ", heatLevel=" + heatLevel + '}';
     }
-    
-    
+
 }

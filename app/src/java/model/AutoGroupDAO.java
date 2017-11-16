@@ -10,20 +10,24 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * A class that contains all the logic to generate auto groups
+ */
 public class AutoGroupDAO {
 
     /**
-     * retrieve all the users whom stay at SIS building for at least 12 minutes in specified time window
+     * retrieve all the users whom stay at SIS building for at least 12 minutes
+     * in specified time window
      *
      * @param userInputTime user input of end timestamp to 15-minute-time-window
-     * @return Map of users whom have stayed at SIS Building for at least 12 minutes, 
-     * key: Macaddress of the user; value: timestamps of the users at locations
+     * @return Map of users whom have stayed at SIS Building for at least 12
+     * minutes, key: Macaddress of the user; value: timestamps of the users at
+     * locations
      */
     public static Map<String, Map<String, ArrayList<String>>> retrieveUsersWith12MinutesData(String userInputTime) {
         //retrieve timestamps of all users at locations, key: macaddresses; value: timestamps at each location
@@ -163,7 +167,8 @@ public class AutoGroupDAO {
      * retrieve timestamps of all users at locations
      *
      * @param userInputTime user input of end timestamp to 15-minute-time-window
-     * @return Map of timestamps of users at locations, key; macaddresses; values: timestamps at each location
+     * @return Map of timestamps of users at locations, key; macaddresses;
+     * values: timestamps at each location
      */
     public static Map<String, ArrayList<String>> retrieveAllUsersLocationAndTimestamp(String userInputTime) {
         Connection connection = null;
@@ -212,9 +217,11 @@ public class AutoGroupDAO {
     /**
      * retrieve groups for the users whom have spent 12 minutes together
      *
-     * @param listOfUsersWith12MinutesData a map of users whom have stayed at SIS Building for at least 12 minutes, 
-     * key: Macaddress of the user; value: timestamps of the users at locations
-     * @return ArrayList of groups for the users whom have spent 12 minutes together
+     * @param listOfUsersWith12MinutesData a map of users whom have stayed at
+     * SIS Building for at least 12 minutes, key: Macaddress of the user; value:
+     * timestamps of the users at locations
+     * @return ArrayList of groups for the users whom have spent 12 minutes
+     * together
      */
     public static ArrayList<Group> retrieveAutoGroups(Map<String, Map<String, ArrayList<String>>> listOfUsersWith12MinutesData) {
         //store result of arraylist of groups
@@ -275,16 +282,18 @@ public class AutoGroupDAO {
     }
 
     /**
-     * retrieve common timestamps at same location between two users if they stay together
-     * at same locations for at least 12 minutes
-     * @param locationsMap ArrayList of timestamps with locations 
+     * retrieve common timestamps at same location between two users if they
+     * stay together at same locations for at least 12 minutes
+     *
+     * @param locationsMap ArrayList of timestamps with locations
      * @param nextLocationsMap ArrayList of all the automatic groups found
-     * @return Map of common timestamps at same location between two users if they stay together
-     * at same locations for at least 12 minutes, key is each common location and value is 
-     * time start, time end and time gap between time start and end
+     * @return Map of common timestamps at same location between two users if
+     * they stay together at same locations for at least 12 minutes, key is each
+     * common location and value is time start, time end and time gap between
+     * time start and end
      */
     public static Map<String, ArrayList<String>> commonLocationTimestamps12Mins(Map<String, ArrayList<String>> locationsMap, Map<String, ArrayList<String>> nextLocationsMap) {
-        
+
         Map<String, ArrayList<String>> commonLocationTimestamps = new HashMap<String, ArrayList<String>>();
         //record the total time duration for each user
         double totalDuration = 0;
@@ -296,7 +305,7 @@ public class AutoGroupDAO {
                 //retrieve the timestamps of the location
                 ArrayList<String> timestamps = locationsMap.get(location);
                 //check if next user has visited the location
-                if (nextLocationsMap.containsKey(location)) { 
+                if (nextLocationsMap.containsKey(location)) {
                     //iif both first user and next user has visited the location
                     //this location is set to the common location between 2 users
                     String commonLocation = location;
@@ -384,10 +393,11 @@ public class AutoGroupDAO {
     }
 
     /**
-     * check the automatic groups, remove the sub groups and same groups if any, return 
-     * new unique automatic groups
+     * check the automatic groups, remove the sub groups and same groups if any,
+     * return new unique automatic groups
+     *
      * @param autoGroups ArrayList of all the automatic groups found
-     * @return ArrayList of groups for all the unique automatic groups with no 
+     * @return ArrayList of groups for all the unique automatic groups with no
      * same groups and sub groups
      */
     public static ArrayList<Group> checkAutoGroups(ArrayList<Group> autoGroups) {
@@ -417,31 +427,33 @@ public class AutoGroupDAO {
                         if (!newAutoGroups.contains(eachGroup)) {
                             newAutoGroups.add(eachGroup);
                         }
-                    //check if first group doesn't contains all users of the next group
+                        //check if first group doesn't contains all users of the next group
                     } else {
                         //check if new automatic group contains the first group, if no, 
                         //add the first group to the new automatic group
-                        if(!newAutoGroups.contains(eachGroup)){
+                        if (!newAutoGroups.contains(eachGroup)) {
                             newAutoGroups.add(eachGroup);
                         }
                         //check if new automatic group contains the next group, if no, 
                         //add the next group to the new automatic group
-                        if(!newAutoGroups.contains(nextGroup)){
+                        if (!newAutoGroups.contains(nextGroup)) {
                             newAutoGroups.add(nextGroup);
-                        }                        
+                        }
                     }
                 }
             }
         }
         return newAutoGroups;
     }
+
     /**
      * retrieve the number of users in the entire SIS building 15mins before the
      * specified time
      *
-     * @param timestringEnd String in dd/mm/yyyy hh:mm:ss format for when the report is
-     * generated
-     * @return int of the number of users in the entire SIS building for that date and time
+     * @param timestringEnd String in dd/mm/yyyy hh:mm:ss format for when the
+     * report is generated
+     * @return int of the number of users in the entire SIS building for that
+     * date and time
      *
      */
     public static int retrieveUsersNumber(String timestringEnd) {
@@ -476,5 +488,4 @@ public class AutoGroupDAO {
         }
         return count;
     }
-
 }

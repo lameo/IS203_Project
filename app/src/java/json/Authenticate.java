@@ -19,8 +19,8 @@ import model.User;
 import model.UserDAO;
 
 /**
- * A servlet that manages inputs from url and results from UserDAO.
- * Contains processRequest, doPost, doGet, getServletInfo methods
+ * A servlet that manages inputs from url and results from UserDAO. Contains
+ * processRequest, doPost, doGet, getServletInfo methods
  */
 @WebServlet(urlPatterns = {"/json/authenticate"})
 public class Authenticate extends HttpServlet {
@@ -51,7 +51,7 @@ public class Authenticate extends HttpServlet {
                 username = request.getParameter("username"); //get username from request
                 password = request.getParameter("password"); //get password from request   
             }
-            
+
             if (username == null) { //check if username is null (i.e username field is not entered in url)
                 errMsg.add("missing username");
                 jsonOutput.addProperty("status", "error");
