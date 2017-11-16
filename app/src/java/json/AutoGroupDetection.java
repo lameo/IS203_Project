@@ -159,58 +159,90 @@ public class AutoGroupDetection extends HttpServlet {
                 //retrieve groups formed from valid users
                 autoGroups = retrieveAutoGroups(AutoUsers);
             }
-            
+            //check if there are valid groups formed from valid users
             if (autoGroups != null && autoGroups.size() > 0) {
-                //check autogroups and remove sub groups
+                //check groups and remove sub groups or same groups to return the valid groups
                 autoGroups = AutoGroupDAO.checkAutoGroups(autoGroups);
             }
-            // sort the autogroup list in group size, total time duration order first
+            //sort thegroup list in group size, for groups with same group size, sort by total time spent
             Collections.sort(autoGroups);
+            //loop through the group list
             for (Group autoGroup:autoGroups){
-                //temp json object to store required output first before adding to resultsArr for final output
+                //temp json object to store each group first before adding to resultsArr for final output
                 JsonObject autoGroupObject = new JsonObject();
+                //add group size to each group object
                 autoGroupObject.addProperty("size",autoGroup.getAutoUsersSize());
+                //add total time spent to each group object
                 autoGroupObject.addProperty("total-time-spent",(int)autoGroup.calculateTotalDuration());
+                //create a json array to store users in group
                 JsonArray membersArr = new JsonArray();
+                //retrieve users in group with email found
                 TreeMap<String, String> sortedUsersWithEmails = autoGroup.retrieveEmailsWithMacs();
+                //retrieve emails of users
                 Iterator<String> usersWithEmails = sortedUsersWithEmails.keySet().iterator();
+                //loop through emails of users
                 while(usersWithEmails.hasNext()){
+                    //temp json object to store each user email and macaddress first before adding to membersArr for final output
                     JsonObject membersObject = new JsonObject();
+                    //retrieve user email
                     String email = usersWithEmails.next();
+                    //retrieve user macaddress
                     String mac = sortedUsersWithEmails.get(email);
+                    //add user email to membersObject
                     membersObject.addProperty("email",email);
+                    //add user macaddress to membersObject
                     membersObject.addProperty("mac-address",mac);
+                    //add each user object to membersArr for output
                     membersArr.add(membersObject);
                 }
+                //retrieve users in group with no email found
                 TreeMap<String, String> sortedUsersNoEmails = autoGroup.retrieveMacsNoEmails();
+                //retrieve macaddresses of users
                 Iterator<String> usersNoEmails = sortedUsersNoEmails.keySet().iterator();
+                //loop through macaddresses of users
                 while(usersNoEmails.hasNext()){
+                    //temp json object to store each user email and macaddress first before adding to membersArr for final output
                     JsonObject membersObject = new JsonObject();
+                    //retrieve user email
                     String mac = usersNoEmails.next();
+                    //retrieve user email ("")
                     String email = sortedUsersNoEmails.get(mac);
+                    //add user email to membersObject
                     membersObject.addProperty("email","");
+                    //add user macaddress to membersObject
                     membersObject.addProperty("mac-address",mac);
+                    //add each user object to membersArr for output
                     membersArr.add(membersObject);
                 }
-                
+                //add temp group users array to autoGroupObject for final output
                 autoGroupObject.add("members",membersArr);
+                //create a json array to store results of group locations
                 JsonArray locationsArr = new JsonArray();
-                
+                //retrieve common locations and time spent of the group
                 Map<String, Double> locationsDuration =  autoGroup.calculateTimeDuration();
+                //retrieve common locations of the group
                 Iterator<String> locations = locationsDuration.keySet().iterator();
+                //loop through the common locations of the group
                 while(locations.hasNext()){
+                    //temp json object to store each common location and time spent first before adding to locationsArr for final output
                     JsonObject locationsObject = new JsonObject();
+                    //retrieve common location of the group
                     String location = locations.next();
+                    //retrieve time spent at common location
                     double duration = locationsDuration.get(location);
+                    //add common location to locationsObject
                     locationsObject.addProperty("location",location);
+                    //convert time spent from double to int and add to locationsObject
                     locationsObject.addProperty("time-spent",(int)(duration));
+                    //add each locaion object to locationsArr for output
                     locationsArr.add(locationsObject);
                 }
-                
+                //add temp group common locations and time spent array to autoGroupObject for final output
                 autoGroupObject.add("locations",locationsArr);
+                // add each temp json group object to final json array for output
                 resultsArr.add(autoGroupObject);
             }
-            
+            //final output for viewing 
             jsonOutput.addProperty("status", "success");
             jsonOutput.addProperty("total-users", UsersNumber);
             jsonOutput.addProperty("total-groups", autoGroups.size());
