@@ -46,13 +46,10 @@ public class TopKNextPlaces extends HttpServlet {
         //create a json array to store errors
         JsonArray errMsg = new JsonArray();
 
-        String tokenEntered = request.getParameter("token"); //get token from url
-        String topKEntered = request.getParameter("k"); //get topK from url
-        String dateEntered = request.getParameter("date"); //get date from url
-        String semanticPlace = request.getParameter("origin"); //get the semantic place from url
 
-        
-        //if token is not entered in url
+        //get token from request
+        String tokenEntered = request.getParameter("token");
+        // check if token is null (dont have ?token=something)
         if (tokenEntered == null) {
             errMsg.add("missing token");
             jsonOutput.addProperty("status", "error");
@@ -62,7 +59,7 @@ public class TopKNextPlaces extends HttpServlet {
             return;
         }
 
-        //if token field is empty
+        // check if token is empty (?token="")
         if (tokenEntered.isEmpty()) {
             errMsg.add("blank token");
             jsonOutput.addProperty("status", "error");
@@ -72,8 +69,8 @@ public class TopKNextPlaces extends HttpServlet {
             return;
         }
 
-        //check if token is invalid
-        if (!SharedSecretManager.verifyUser(tokenEntered)) { //if the user is not verified
+        // checking if the token submitted by the user is valid
+        if (!SharedSecretManager.verifyUser(tokenEntered)) {
             errMsg.add("invalid token");
             jsonOutput.addProperty("status", "error");
             jsonOutput.add("messages", errMsg);
@@ -82,7 +79,9 @@ public class TopKNextPlaces extends HttpServlet {
             return;
         }
 
-        //check if dateEntered is entered by user from url
+        //get date from request
+        String dateEntered = request.getParameter("date");
+        // check if date is null (dont have ?date=something)
         if (dateEntered == null) {
             errMsg.add("missing date");
             jsonOutput.addProperty("status", "error");
@@ -92,7 +91,7 @@ public class TopKNextPlaces extends HttpServlet {
             return;
         }
 
-        //if the dateEntered field is blank
+        // check if date is empty (?date="")
         if (dateEntered.isEmpty()) {
             errMsg.add("blank date");
             jsonOutput.addProperty("status", "error");
@@ -102,7 +101,9 @@ public class TopKNextPlaces extends HttpServlet {
             return;
         }
 
-        //check if origin is entered by user from url
+        //get semanticPlace from request
+        String semanticPlace = request.getParameter("origin");
+        // check if date is null (dont have ?origin=something)
         if (semanticPlace == null) {
             errMsg.add("missing origin");
             jsonOutput.addProperty("status", "error");
@@ -112,7 +113,7 @@ public class TopKNextPlaces extends HttpServlet {
             return;
         }
 
-        //if semantic place field is blank
+        // check if token is empty (?origin="")
         if (semanticPlace.isEmpty()) {
             errMsg.add("blank origin");
             jsonOutput.addProperty("status", "error");
@@ -121,7 +122,9 @@ public class TopKNextPlaces extends HttpServlet {
             out.close(); //close PrintWriter
             return;
         }
-
+        
+        // After this point, all variables required are not empty or null, so start checking whether they are valid format
+        // topK could be empty, meaning default = 3 unless otherwise stated
         try {
             //check for valid date entered by user
             boolean dateValid = true;
@@ -155,7 +158,9 @@ public class TopKNextPlaces extends HttpServlet {
         } catch (NumberFormatException e) {
             errMsg.add("invalid date");
         }
-
+        
+        //trying to retrieve topK from request, nukl if not entered
+        String topKEntered = request.getParameter("k");
         //Check if user entered a top k number
         if (topKEntered == null || topKEntered.isEmpty()) {
             topKEntered = "3";
@@ -164,31 +169,29 @@ public class TopKNextPlaces extends HttpServlet {
         //assign default number to topK first before try-catch
         int topK = 3;
 
-        //Check if user entered in a number as a string instead of spelling it out as a whole
-        //Eg: k=1 is correct but k=one is wrong
         try {
-            topK = Integer.parseInt(topKEntered); //get the number user entered in url in int
+            // get the number user entered in url as int
+            topK = Integer.parseInt(topKEntered); 
 
+            // if topK is out of bound, then add error message to JsonArray
             if (topK < 1 || topK > 10) {
-                errMsg.add("invalid k"); //add error msg into JsonArray
+                errMsg.add("invalid k");
             }
+        //if a string is entered where topK is supposed to be, add error msg into JsonArray
         } catch (NumberFormatException e) {
-            errMsg.add("invalid k"); //add error msg into JsonArray
+            errMsg.add("invalid k");
         }
 
-        //check if semantic place comes from location-lookup.csv
+        //check if there is record of semantic place from location-lookup table
         ArrayList<String> validSemanticPlacesList = ReportDAO.getSemanticPlaces();
-        if (!validSemanticPlacesList.contains(semanticPlace)) { //if semanticPlace is not inside the locationloopup table
+        //if semanticPlace is not inside the locationloopup table
+        if (!validSemanticPlacesList.contains(semanticPlace)) { 
             errMsg.add("invalid origin");
         }
 
-        //from here on, user is verified
-        //topk number is between 1 - 10 inclusive with default as 3 if no k is entered
-        //semantic place is valid
-        //dateEntered is valid and is in the right format
+        // After this point, all variables required are not empty, null or wrong format, so start generating report
         if (errMsg.size() == 0) {
             //proper date format -> (YYYY-MM-DDTHH:MM:SS)
-
             //replace "T" with "" to allow system to process correctly
             dateEntered = dateEntered.replaceAll("T", " ");
 
@@ -197,22 +200,23 @@ public class TopKNextPlaces extends HttpServlet {
 
             // total quantity of users visiting next place
             int usersVisitingNextPlace = 0;
+            //Generate list of next places users are likely to visit with the qty of user there
             Map<Integer, ArrayList<String>> topKNextPlaces = ReportDAO.retrieveTopKNextPlaces(dateEntered, semanticPlace);
-
             //retrieve users who are in a specific place given a specific time frame in a specific location
             ArrayList<String> usersList = ReportDAO.retrieveUserBasedOnLocation(dateEntered, semanticPlace);
-
             //to get the different total number of users in a next place in desc order
             Set<Integer> totalNumOfUsersSet = topKNextPlaces.keySet();
 
-            int counter = 1; // to match topk number after incrementation
+            //to match topK number
+            int counter = 1;
             for (int totalNumOfUsers : totalNumOfUsersSet) {
                 // gives the list of location with the same totalNumOfUsers
                 ArrayList<String> locations = topKNextPlaces.get(totalNumOfUsers);
 
                 // sort the locations list in ascending order first
                 Collections.sort(locations);
-                if (counter <= topK) { // to only display till topk number
+                // repeat as many time as topK size
+                if (counter <= topK) {
                     for (int i = 0; i < locations.size(); i++) {
                         //temp json object to store required output first before adding to resultsArr for final output
                         JsonObject topKNextPlace = new JsonObject();
@@ -236,9 +240,12 @@ public class TopKNextPlaces extends HttpServlet {
             jsonOutput.addProperty("status", "error");
             jsonOutput.add("messages", errMsg);
         }
+        
+        
+        // Returning the json output we created in a pretty print format
         out.println(gson.toJson(jsonOutput));
-
-        out.close(); //close PrintWriter
+        // close PrintWriter
+        out.close(); 
     }
 // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
 

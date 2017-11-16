@@ -19,6 +19,10 @@ import model.HeatMap;
 import model.HeatMapDAO;
 import model.SharedSecretManager;
 
+/**
+ * A servlet that manages inputs from url and results from HeatmapDAO.
+ * Contains processRequest, doPost, doGet, getServletInfo methods
+ */
 @WebServlet(urlPatterns = {"/json/heatmap"})
 public class Heatmap extends HttpServlet {
 

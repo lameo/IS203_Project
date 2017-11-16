@@ -18,7 +18,10 @@ import java.io.IOException;
 import model.UserDAO;
 import model.User;
 
-
+/**
+ * A servlet that manages inputs from url and results from SharedSecretManager.
+ * Contains processRequest, doPost, doGet, getServletInfo methods
+ */
 @WebServlet(urlPatterns = {"/json/authenticate"})
 public class Authenticate extends HttpServlet {
 

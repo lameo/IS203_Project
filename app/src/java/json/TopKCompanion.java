@@ -37,22 +37,18 @@ public class TopKCompanion extends HttpServlet {
 
         PrintWriter out = response.getWriter();
 
-        //creates a new gson object
-        //by instantiating a new factory object, set pretty printing, then calling the create method
+        //creates a new gson object by instantiating a new factory object, set pretty printing, then calling the create method
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
-
         //creats a new json object for printing the desired json output
         JsonObject jsonOutput = new JsonObject();
-
         //create a json array to store errors
         JsonArray errMsg = new JsonArray();
 
-        String token = request.getParameter("token"); //get token from url
-        String date = request.getParameter("date"); //get date from url
-        String macaddress = request.getParameter("mac-address"); //get macaddress from url
         String topKEntered = request.getParameter("k"); //get topK from url
 
-        //if token is not entered in url
+        //get token from request
+        String token = request.getParameter("token");
+        // check if token is null (dont have ?token=something)
         if (token == null) {
             errMsg.add("missing token");
             jsonOutput.addProperty("status", "error");
@@ -62,7 +58,7 @@ public class TopKCompanion extends HttpServlet {
             return;
         }
 
-        //if token field is empty
+        // check if token is empty (?token="")
         if (token.isEmpty()) {
             errMsg.add("blank token");
             jsonOutput.addProperty("status", "error");
@@ -72,8 +68,9 @@ public class TopKCompanion extends HttpServlet {
             return;
         }
 
-        //check if token is invalid
-        if (!SharedSecretManager.verifyUser(token)) { //check if user is not verified
+        // checking if the token submitted by the user is valid
+        if (!SharedSecretManager.verifyUser(token)) {
+            // if token given is not valid
             errMsg.add("invalid token");
             jsonOutput.addProperty("status", "error");
             jsonOutput.add("messages", errMsg);
@@ -82,7 +79,9 @@ public class TopKCompanion extends HttpServlet {
             return;
         }
 
-        //check if date is entered by user to url
+        //get date from request
+        String date = request.getParameter("date");
+        // check if date is null (dont have ?date=something)
         if (date == null) {
             errMsg.add("missing date");
             jsonOutput.addProperty("status", "error");
@@ -92,7 +91,7 @@ public class TopKCompanion extends HttpServlet {
             return;
         }
 
-        //if the date field is blank
+        // check if date is empty (?date="")
         if (date.isEmpty()) {
             errMsg.add("blank date");
             jsonOutput.addProperty("status", "error");
@@ -102,7 +101,9 @@ public class TopKCompanion extends HttpServlet {
             return;
         }
 
-        //check if macaddress is entered by user to url
+        //get macaddress from request
+        String macaddress = request.getParameter("mac-address");
+        // check if macaddress is null (dont have ?date=something)
         if (macaddress == null) {
             errMsg.add("missing mac address");
             jsonOutput.addProperty("status", "error");
@@ -112,7 +113,7 @@ public class TopKCompanion extends HttpServlet {
             return;
         }
 
-        //if macaddress field is blank 
+        // check if macaddress is empty (?date="")
         if (macaddress.isEmpty()) {
             errMsg.add("blank mac address");
             jsonOutput.addProperty("status", "error");
@@ -122,6 +123,7 @@ public class TopKCompanion extends HttpServlet {
             return;
         }
 
+        // After this point, all variables required are not empty or null, so start checking whether they are valid format
         try {
             //check for valid date entered by user
             boolean dateValid = true;
@@ -164,22 +166,24 @@ public class TopKCompanion extends HttpServlet {
         //assign default number to topK first before try-catch
         int topK = 3;
 
-        //Check if user entered in a number as a string instead of spelling it out as a whole
-        //Eg: k=1 is correct but k=one is wrong
         try {
-            topK = Integer.parseInt(topKEntered); //get the number user entered in url in int
+            // get the number user entered in url as int
+            topK = Integer.parseInt(topKEntered); 
 
+            // if topK is out of bound, then add error message to JsonArray
             if (topK < 1 || topK > 10) {
-                errMsg.add("invalid k"); //add error msg into JsonArray
+                errMsg.add("invalid k");
             }
+        // if a string is entered where topK is supposed to be, add error msg into JsonArray
         } catch (NumberFormatException e) {
-            errMsg.add("invalid k"); //add error msg into JsonArray
+            errMsg.add("invalid k");
         }
 
         //retrieve all existing macaddresses from location.csv 
         //Not all macaddresses will belong to students so must get from location.csv instead from demographics.csv
         ArrayList<String> allMacaddressList = ReportDAO.getAllMacaddress();
-        if (!allMacaddressList.contains(macaddress)) { //check if macaddress is inside location.csv
+        // check if macaddress is inside location database, else return error
+        if (!allMacaddressList.contains(macaddress)) { 
             errMsg.add("invalid mac address");
         }
 
@@ -188,19 +192,21 @@ public class TopKCompanion extends HttpServlet {
         //mac-address is valid
         if (errMsg.size() == 0) {
             //proper date format -> (YYYY-MM-DDTHH:MM:SS)
-
-            //at this point, date entered is valid and is in the right format 
+            //replace "T" with "" to allow system to process correctly
             date = date.replaceAll("T", " ");
 
             //create a json array to store results
             JsonArray resultsArr = new JsonArray();
 
-            int count = 1; //to match topk number after incrementation
+            //to match topK number
+            int count = 1;
+            //retrieve all topK companions sorted by the time they spend with the particular user
             Map<Double, ArrayList<String>> topKCompanionMap = ReportDAO.retrieveTopKCompanions(date, macaddress);
-
+            // to get the time spend with particular macaddress so as to iterate down later on
             Set<Double> timeSpentByCompanionsList = topKCompanionMap.keySet();
             for (Double timeSpentByCompanions : timeSpentByCompanionsList) {
-                if (count <= topK) {// to only display till topk number
+                // repeat as many time as topK size, also serves as row number
+                if (count <= topK) {
 
                     //list is required for storing data into json object for final json array output
                     //to add in macaddress and email pair for sorting
@@ -238,7 +244,8 @@ public class TopKCompanion extends HttpServlet {
                         //check if corresponding email has an email or not
                         if (allMacaddressEmailPairs[1].equals("No email found")) {
                             topKCompanions.addProperty("companion", "");
-                        } else { //email is present
+                        //email is present
+                        } else { 
                             topKCompanions.addProperty("companion", allMacaddressEmailPairs[1]);
                         }
 
@@ -251,17 +258,21 @@ public class TopKCompanion extends HttpServlet {
                 }
                 count++;
             }
-
-            //final output for viewing 
             jsonOutput.addProperty("status", "success");
             jsonOutput.add("results", resultsArr);
+            
+            
+        //if date, topK or macaddress is not valid, send error message
         } else {
             jsonOutput.addProperty("status", "error");
             jsonOutput.add("messages", errMsg);
         }
+        
+        
+        // Returning the json output we created in a pretty print format
         out.println(gson.toJson(jsonOutput));
-
-        out.close(); //close PrintWriter
+        // close PrintWriter
+        out.close();
     }
 // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
 

@@ -16,6 +16,10 @@ import javax.servlet.http.HttpServletResponse;
 import model.ReportDAO;
 import model.SharedSecretManager;
 
+/**
+ * A servlet that manages inputs from url and results from ReportDAO.
+ * Contains processRequest, doPost, doGet, getServletInfo methods
+ */
 @WebServlet(urlPatterns = {"/json/basic-loc-report"})
 public class Breakdown extends HttpServlet {
 
@@ -166,7 +170,7 @@ public class Breakdown extends HttpServlet {
             errMsg.add("invalid order");
         }
 
-        //if all checks are valid, continue processing
+        //if all checks return no error, continue processing
         if (errMsg.size() == 0) {
             //proper date format -> (YYYY-MM-DDTHH:MM:SS)
             //replace "T" with "" to allow system to process correctly

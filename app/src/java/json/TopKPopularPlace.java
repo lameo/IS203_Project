@@ -16,6 +16,10 @@ import javax.servlet.http.HttpServletResponse;
 import model.ReportDAO;
 import model.SharedSecretManager;
 
+/**
+ * A servlet that manages inputs from url and results from ReportDAO.
+ * Contains processRequest, doPost, doGet, getServletInfo methods
+ */
 @WebServlet(urlPatterns = {"/json/top-k-popular-places"})
 public class TopKPopularPlace extends HttpServlet {
 
@@ -38,7 +42,6 @@ public class TopKPopularPlace extends HttpServlet {
         //create a json array to store errors
         JsonArray errMsg = new JsonArray();
 
-        String topKEntered = request.getParameter("k"); //get topK from url
 
         //get token from request
         String tokenEntered = request.getParameter("token");
@@ -62,7 +65,7 @@ public class TopKPopularPlace extends HttpServlet {
             return;
         }
         
-        /// checking if the token submitted by the user is valid
+        // checking if the token submitted by the user is valid
         if (!SharedSecretManager.verifyUser(tokenEntered)) { //if the user is not verified
             errMsg.add("invalid token");
             jsonOutput.addProperty("status", "error");
@@ -129,7 +132,9 @@ public class TopKPopularPlace extends HttpServlet {
         } catch (NumberFormatException e) {
             errMsg.add("invalid date");
         }
-
+        
+        //trying to retrieve topK from request, nukl if not entered
+        String topKEntered = request.getParameter("k");
         //Check if user entered a top k number
         if (topKEntered == null || topKEntered.isEmpty()) {
             topKEntered = "3";
