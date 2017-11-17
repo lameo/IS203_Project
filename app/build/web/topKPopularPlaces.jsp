@@ -98,7 +98,18 @@
                     int count = 1;
                     for (Integer key : keys) {
                         if (count <= topK) {
-                            out.print("<tr><td>" + count++ + "</td><td>" + map.get(key) + "</td><td>" + key + "</td></tr>"); //Rank, Semantic Place, No. of pax
+                            out.print("<tr><td>" + count++ + "</td><td>");
+                            String placeList = map.get(key);
+                            int fencePostingCount = 0;
+                            String[] places = placeList.split(",");
+                            for (String place : places) {
+                                if (fencePostingCount > 0){
+                                    out.print(",<br>");
+                                }
+                                out.print(place);
+                                fencePostingCount++;
+                            }
+                            out.print("</td><td>" + key + "</td></tr>"); //Rank, Semantic Place, No. of pax
                         }
                     }
                 }
@@ -106,7 +117,7 @@
             session.removeAttribute("topKPopular"); //remove session attribute from the session object
             session.removeAttribute("timeDate"); //remove session attribute from the session object
             session.removeAttribute("topK"); //remove session attribute from the session object
-        %>
+%>
     </center>
 </body>
 </html>

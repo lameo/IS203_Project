@@ -135,7 +135,7 @@
                     out.print("</tbody></table></div>");
 
                     out.print("<div class=\"container\"><table class=\"table table-bordered\"><thead>");
-                    out.print("<tr><th>Semantic Place Queried</th><th>No. of Pax in Semantic Place Queried</th><th>No. Pax Who Visited Next Semantic Place</th></tr></thead></tbody>");
+                    out.print("<tr><th>Origin:</th><th>Number of people at the origin:</th><th>Number of people who visited other places:</th></tr></thead></tbody>");
                     out.print("<tr><td>" + locationname + "</td><td>" + total + "</td><td>" + usersVisitingNextPlace + "</td></tr>");
                     out.print("</tbody></table></div>");
                 }

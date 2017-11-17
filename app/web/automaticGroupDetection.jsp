@@ -82,7 +82,7 @@
                     out.print("<div class=\"container\"><table class=\"table table-bordered\"><thead>");
 
                     int numberOfUsersInBuilding = (int) (session.getAttribute("numberOfUsersInBuilding"));
-                    out.print("<thead><tr><th colspan = 3>Number of users in the entire SIS building: " + numberOfUsersInBuilding + " <br>Total number of groups discovered: " + autoGroupsDetected.size() + "</th></tr>");
+                    out.print("<thead><tr><th colspan = 3>Number of users in SIS building: " + numberOfUsersInBuilding + " <br>Number of groups: " + autoGroupsDetected.size() + "</th></tr>");
                     out.print("<tr><th>Group No.</th><th>Macaddress (Email)</th><th>Location id (Time spent in seconds)</th></tr></thead></tbody>");
 
                     int groupNo = 1;
